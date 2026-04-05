@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
-import { motion, type Variants } from "framer-motion"
-import { CTA_URL, WHATSAPP_URL } from "@/lib/config"
+import { motion, type Variants } from "framer-motion";
+import { MdOutlineWhatsapp } from "react-icons/md";
+import { CTA_URL, WHATSAPP_URL } from "@/lib/config";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -9,21 +10,24 @@ const container: Variants = {
     opacity: 1,
     transition: { staggerChildren: 0.12, delayChildren: 0.15 },
   },
-}
+};
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 28 },
   show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
-}
+};
 
 const fadeIn: Variants = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { duration: 0.5 } },
-}
+};
 
 export default function Hero() {
   return (
-    <section className="hero-gradient pt-16 pb-20 px-6" aria-label="Sección principal">
+    <section
+      className="hero-gradient pt-16 pb-20 px-6"
+      aria-label="Sección principal"
+    >
       <motion.div
         className="max-w-3xl mx-auto text-center"
         variants={container}
@@ -41,7 +45,9 @@ export default function Hero() {
               <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-300" />
               <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-400" />
             </span>
-            <span className="text-sm font-bold tracking-tight">+500 solicitudes procesadas hoy</span>
+            <span className="text-sm font-bold tracking-tight">
+              Sin trámites complicados
+            </span>
           </div>
         </motion.div>
 
@@ -50,7 +56,9 @@ export default function Hero() {
           variants={fadeUp}
         >
           ¿Necesitas dinero rápido?{" "}
-          <span className="text-secondary">Te ayudamos a encontrar opciones</span>
+          <span className="text-secondary">
+            Te ayudamos a encontrar opciones
+          </span>
         </motion.h1>
 
         <motion.p
@@ -85,10 +93,11 @@ export default function Hero() {
               className="w-full bg-white border-2 border-gray-100 text-on-surface px-8 py-4 rounded-2xl font-headline font-bold text-lg hover:bg-gray-50 hover:border-secondary/30 transition-all active:scale-95 flex items-center justify-center gap-2"
               aria-label="Hablar con un asesor por WhatsApp"
             >
-              <span className="material-symbols-outlined text-secondary" aria-hidden="true">
-                chat
-              </span>
-              Hablar por WhatsApp
+              <MdOutlineWhatsapp
+                className="text-2xl text-secondary"
+                aria-hidden="true"
+              />
+              WhatsApp
             </a>
             <p className="text-xs font-semibold text-on-surface-variant/70">
               Te respondemos lo antes posible
@@ -100,12 +109,15 @@ export default function Hero() {
           className="mt-10 text-sm font-medium text-on-surface-variant/60 flex items-center justify-center gap-1.5"
           variants={fadeIn}
         >
-          <span className="material-symbols-outlined text-secondary text-base" aria-hidden="true">
+          <span
+            className="material-symbols-outlined text-secondary text-base"
+            aria-hidden="true"
+          >
             verified
           </span>
           Atención personalizada en todo México
         </motion.p>
       </motion.div>
     </section>
-  )
+  );
 }

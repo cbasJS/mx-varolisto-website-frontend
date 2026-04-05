@@ -4,6 +4,21 @@ import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { CTA_URL } from "@/lib/config"
 
+const navLinks = [
+  { label: "Beneficios", href: "beneficios" },
+  { label: "Cómo funciona", href: "como-funciona" },
+  { label: "Contacto", href: "contacto" },
+]
+
+const NAVBAR_HEIGHT = 72
+
+function scrollToSection(id: string) {
+  const el = document.getElementById(id)
+  if (!el) return
+  const top = el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT
+  window.scrollTo({ top, behavior: "smooth" })
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
 
@@ -37,14 +52,14 @@ export default function Navbar() {
         </a>
 
         <div className="hidden md:flex gap-8 items-center">
-          {["Beneficios", "Cómo funciona", "Contacto"].map((label) => (
-            <a
-              key={label}
-              href={`#${label.toLowerCase().replace("ó", "o").replace(" ", "-")}`}
-              className="text-on-surface-variant font-medium font-headline text-sm hover:text-primary transition-colors"
+          {navLinks.map(({ label, href }) => (
+            <button
+              key={href}
+              onClick={() => scrollToSection(href)}
+              className="text-on-surface-variant font-medium font-headline text-sm hover:text-primary transition-colors cursor-pointer bg-transparent border-none p-0"
             >
               {label}
-            </a>
+            </button>
           ))}
         </div>
 

@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { CTA_URL, WHATSAPP_URL } from "@/lib/config"
+import { motion } from "framer-motion";
+import { MdOutlineWhatsapp } from "react-icons/md";
+import { CTA_URL, WHATSAPP_URL } from "@/lib/config";
 
 export default function FinalCTA() {
   return (
@@ -27,8 +28,8 @@ export default function FinalCTA() {
           Obtén opciones hoy mismo
         </h2>
 
-        <div className="flex flex-col sm:flex-row items-stretch justify-center gap-6 w-full max-w-md mx-auto">
-          <div className="flex flex-col items-center gap-2 flex-1">
+        <div className="flex flex-col sm:flex-row items-start justify-center gap-6 w-full max-w-md mx-auto">
+          <div className="flex flex-col items-center gap-2 flex-1 w-full">
             <motion.a
               href={CTA_URL}
               className="cta-shimmer w-full bg-secondary text-primary px-8 py-5 rounded-2xl font-headline font-extrabold text-xl shadow-xl shadow-secondary/20 flex items-center justify-center"
@@ -39,28 +40,28 @@ export default function FinalCTA() {
             >
               Solicitar ahora
             </motion.a>
-            <p className="text-sm opacity-80">Empieza tu registro sin compromiso</p>
+            <p className="text-sm opacity-80">
+              Empieza tu registro sin compromiso
+            </p>
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 w-full">
             <motion.a
               href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full h-full bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-4 rounded-2xl font-headline font-bold text-lg flex items-center justify-center gap-3"
+              className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-5 rounded-2xl font-headline font-extrabold text-xl flex items-center justify-center gap-3"
               whileHover={{ backgroundColor: "rgba(255,255,255,0.18)" }}
               whileTap={{ scale: 0.97 }}
               transition={{ duration: 0.15 }}
               aria-label="Hablar con un asesor por WhatsApp"
             >
-              <span className="material-symbols-outlined" aria-hidden="true">
-                chat
-              </span>
-              Hablar por WhatsApp
+              <MdOutlineWhatsapp className="text-2xl" aria-hidden="true" />
+              WhatsApp
             </motion.a>
           </div>
         </div>
       </motion.div>
     </section>
-  )
+  );
 }

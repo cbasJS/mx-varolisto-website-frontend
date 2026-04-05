@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { CTA_URL, WHATSAPP_URL } from "@/lib/config"
+import { motion } from "framer-motion";
+import { MdOutlineWhatsapp } from "react-icons/md";
+import { CTA_URL, WHATSAPP_URL } from "@/lib/config";
 
 export default function BottomNav() {
   return (
@@ -36,13 +37,13 @@ export default function BottomNav() {
         className="flex flex-col items-center justify-center text-on-surface-variant p-2 rounded-xl transition-colors"
         whileTap={{ scale: 0.9 }}
         whileHover={{ color: "#000666" }}
-        aria-label="Hablar por WhatsApp"
+        aria-label="WhatsApp"
       >
-        <span className="material-symbols-outlined" aria-hidden="true">
-          chat
+        <MdOutlineWhatsapp className="text-2xl" aria-hidden="true" />
+        <span className="font-body text-[10px] font-semibold mt-0.5">
+          WhatsApp
         </span>
-        <span className="font-body text-[10px] font-semibold mt-0.5">WhatsApp</span>
       </motion.a>
     </motion.div>
-  )
+  );
 }
