@@ -1,5 +1,5 @@
 // External form URL — replace with the actual lead capture form URL
-export const CTA_URL = "#"
+export const CTA_URL = "https://forms.gle/FijHjFViHpu6wTKE7"
 
 // WhatsApp number in international format, without + or spaces
 export const WHATSAPP_NUMBER = "5200000000000"
