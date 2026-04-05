@@ -32,6 +32,8 @@ export default function FinalCTA() {
           <div className="flex flex-col items-center gap-2 flex-1 w-full">
             <motion.a
               href={CTA_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="cta-shimmer w-full bg-secondary text-primary px-8 py-5 rounded-2xl font-headline font-extrabold text-xl shadow-xl shadow-secondary/20 flex items-center justify-center"
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.97 }}

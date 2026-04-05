@@ -16,6 +16,8 @@ export default function BottomNav() {
     >
       <motion.a
         href={CTA_URL}
+        target="_blank"
+        rel="noopener noreferrer"
         className="cta-shimmer flex-1 flex items-center justify-center gap-2 bg-secondary text-primary rounded-full py-3 px-4 font-headline font-bold text-sm shadow-lg"
         whileTap={{ scale: 0.95 }}
         aria-label="Solicitar préstamo ahora"

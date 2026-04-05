@@ -65,6 +65,8 @@ export default function Navbar() {
 
         <a
           href={CTA_URL}
+          target="_blank"
+          rel="noopener noreferrer"
           className="bg-secondary text-primary px-5 py-2 rounded-full font-headline font-bold text-sm hover:brightness-95 transition-all active:scale-95"
           aria-label="Solicitar préstamo ahora"
         >

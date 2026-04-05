@@ -75,6 +75,8 @@ export default function Hero() {
           <div className="flex flex-col items-center gap-1.5 flex-1">
             <a
               href={CTA_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="cta-shimmer w-full bg-secondary text-primary px-8 py-4 rounded-2xl font-headline font-extrabold text-xl shadow-lg shadow-secondary/20 hover:shadow-xl hover:shadow-secondary/30 transition-shadow active:scale-95 flex items-center justify-center"
               aria-label="Solicitar financiamiento ahora"
             >
