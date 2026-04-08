@@ -32,7 +32,7 @@ export default function Navbar() {
     <motion.header
       className={`fixed top-0 w-full z-50 transition-shadow duration-300 ${
         scrolled
-          ? "bg-white/90 backdrop-blur-xl shadow-sm border-b border-gray-100"
+          ? "bg-white/90 backdrop-blur-xl shadow-sm border-b border-surface-container"
           : "bg-transparent"
       }`}
       initial={{ y: -64, opacity: 0 }}

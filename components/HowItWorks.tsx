@@ -43,7 +43,7 @@ export default function HowItWorks() {
 
         <ol className="relative space-y-16" aria-label="Pasos del proceso">
           <div
-            className="absolute left-[23px] top-0 bottom-0 w-0.5 bg-gray-200"
+            className="absolute left-[23px] top-0 bottom-0 w-0.5 bg-outline-variant"
             aria-hidden="true"
           />
 

@@ -11,7 +11,7 @@ const testimonials = [
 export default function Testimonials() {
   return (
     <section
-      className="py-16 px-6 bg-white"
+      className="py-16 px-6 bg-surface-container-lowest"
       aria-label="Testimonios de clientes"
     >
       <div className="max-w-3xl mx-auto">
@@ -29,7 +29,7 @@ export default function Testimonials() {
           {testimonials.map((t, i) => (
             <motion.figure
               key={i}
-              className="p-6 rounded-2xl bg-surface-container border border-gray-100 cursor-default"
+              className="p-6 rounded-2xl bg-surface-container border border-surface-container-high cursor-default"
               initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}

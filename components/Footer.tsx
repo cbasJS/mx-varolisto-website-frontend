@@ -14,7 +14,7 @@ export default function Footer() {
   return (
     <motion.footer
       id="contacto"
-      className="w-full py-12 px-6 bg-white border-t border-gray-100 pb-32 md:pb-12"
+      className="w-full py-12 px-6 bg-surface-container-lowest border-t border-surface-container pb-32 md:pb-12"
       aria-label="Pie de página"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
@@ -43,7 +43,7 @@ export default function Footer() {
           </nav>
         </div>
 
-        <div className="border-t border-gray-100 pt-8 space-y-2">
+        <div className="border-t border-surface-container pt-8 space-y-2">
           <p className="text-xs text-on-surface-variant/60 leading-relaxed text-center md:text-left">
             VaroListo no es una institución financiera. Este sitio tiene fines
             informativos. Las solicitudes están sujetas a evaluación y contacto

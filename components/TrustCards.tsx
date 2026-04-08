@@ -26,7 +26,7 @@ export default function TrustCards() {
         {cards.map((card, i) => (
           <motion.div
             key={card.title}
-            className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-start gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+            className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-surface-container flex items-start gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}

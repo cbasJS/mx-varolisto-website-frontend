@@ -31,7 +31,7 @@ const benefits = [
 
 export default function Benefits() {
   return (
-    <section id="beneficios" className="py-20 px-6 bg-white" aria-label="Beneficios de VaroListo">
+    <section id="beneficios" className="py-20 px-6 bg-surface-container-lowest" aria-label="Beneficios de VaroListo">
       <div className="max-w-3xl mx-auto">
         <motion.h2
           className="font-headline font-extrabold text-3xl text-primary mb-12 text-center"
