@@ -18,7 +18,7 @@ export default function BottomNav() {
         href={CTA_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="cta-shimmer flex-1 flex items-center justify-center gap-2 bg-secondary text-primary rounded-full py-3 px-4 font-headline font-bold text-sm shadow-lg"
+        className="cta-shimmer flex-1 flex items-center justify-center gap-2 bg-secondary-mobile text-white rounded-full py-3 px-4 font-headline font-bold text-sm shadow-lg"
         whileTap={{ scale: 0.95 }}
         aria-label="Solicitar préstamo ahora"
       >
@@ -36,7 +36,7 @@ export default function BottomNav() {
         href={WHATSAPP_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex flex-col items-center justify-center text-on-surface-variant p-2 rounded-xl transition-colors"
+        className="flex flex-col items-center justify-center text-on-surface-variant p-2 rounded-mobile-xl md:rounded-xl transition-colors"
         whileTap={{ scale: 0.9 }}
         whileHover={{ color: "#000666" }}
         aria-label="WhatsApp"

@@ -3,7 +3,7 @@ import Hero from "@/components/Hero";
 import TrustCards from "@/components/TrustCards";
 import Benefits from "@/components/Benefits";
 import HowItWorks from "@/components/HowItWorks";
-// import Testimonials from "@/components/Testimonials";
+import MobileTestimonial from "@/components/MobileTestimonial";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
@@ -17,7 +17,7 @@ export default function Home() {
         <TrustCards />
         <Benefits />
         <HowItWorks />
-        {/* <Testimonials /> */}
+        <MobileTestimonial />
         <FinalCTA />
       </main>
       <Footer />

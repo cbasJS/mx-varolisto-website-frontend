@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { MdOutlineWhatsapp } from "react-icons/md";
+import { MdOutlineWhatsapp, MdOutlineVerified } from "react-icons/md";
 import { CTA_URL, WHATSAPP_URL } from "@/lib/config";
 
 const container: Variants = {
@@ -37,15 +37,22 @@ export default function Hero() {
         {/* Social proof badge */}
         <motion.div variants={fadeUp}>
           <div
-            className="badge-bob inline-flex items-center gap-2 bg-primary/5 text-primary px-4 py-1.5 rounded-full mb-8"
-            aria-label="Más de 500 solicitudes procesadas hoy"
+            className="badge-bob inline-flex items-center gap-2 bg-secondary-container md:bg-primary/5 text-on-secondary-container md:text-primary px-4 py-1.5 rounded-full mb-6 md:mb-8"
+            aria-label="Estamos de tu lado"
           >
-            <span className="flex -space-x-1 shrink-0" aria-hidden="true">
-              <div className="w-6 h-6 rounded-full border-2 border-white bg-surface-container" />
-              <div className="w-6 h-6 rounded-full border-2 border-white bg-surface-container-high" />
-              <div className="w-6 h-6 rounded-full border-2 border-white bg-surface-variant" />
+            {/* Mobile only */}
+            <span className="flex items-center gap-2 md:hidden">
+              <span
+                className="material-symbols-outlined text-lg"
+                aria-hidden="true"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                thumb_up
+              </span>
+              <span className="text-sm font-semibold">Estamos de tu lado</span>
             </span>
-            <span className="text-sm font-bold tracking-tight">
+            {/* Desktop only */}
+            <span className="hidden md:inline text-sm font-bold tracking-tight">
               Sin trámites complicados
             </span>
           </div>
@@ -55,10 +62,8 @@ export default function Hero() {
           className="font-headline font-extrabold text-4xl md:text-6xl text-primary leading-tight mb-6 tracking-tight"
           variants={fadeUp}
         >
-          ¿Necesitas dinero rápido?{" "}
-          <span className="text-secondary">
-            Te ayudamos a encontrar opciones
-          </span>
+          Cuando necesitas dinero,{" "}
+          <span className="text-primary md:text-secondary">aquí empiezas</span>
         </motion.h1>
 
         <motion.p
@@ -77,7 +82,7 @@ export default function Hero() {
               href={CTA_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="cta-shimmer w-full bg-secondary text-primary px-8 py-4 rounded-2xl font-headline font-extrabold text-xl shadow-lg shadow-secondary/20 hover:shadow-xl hover:shadow-secondary/30 transition-shadow active:scale-95 flex items-center justify-center"
+              className="cta-shimmer w-full bg-gradient-to-br from-primary to-primary-container md:[background-image:none] md:bg-secondary text-on-primary md:text-primary px-8 py-4 rounded-full md:rounded-2xl font-headline font-bold md:font-extrabold text-lg md:text-xl shadow-xl md:shadow-lg md:shadow-secondary/20 hover:opacity-95 md:hover:opacity-100 md:hover:shadow-xl md:hover:shadow-secondary/30 transition-all active:scale-95 flex items-center justify-center"
               aria-label="Solicitar financiamiento ahora"
             >
               Solicitar ahora
@@ -92,7 +97,7 @@ export default function Hero() {
               href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full bg-surface-container-lowest border-2 border-surface-container text-on-surface px-8 py-4 rounded-2xl font-headline font-bold text-lg hover:bg-surface-container-low hover:border-secondary/30 transition-all active:scale-95 flex items-center justify-center gap-2"
+              className="w-full bg-surface-container-highest md:bg-surface-container-lowest md:border-2 md:border-surface-container text-primary md:text-on-surface px-8 py-4 rounded-full md:rounded-2xl font-headline font-bold text-lg hover:bg-surface-variant md:hover:bg-surface-container-low md:hover:border-secondary/30 transition-all active:scale-95 flex items-center justify-center gap-2"
               aria-label="Hablar con un asesor por WhatsApp"
             >
               <MdOutlineWhatsapp
@@ -111,12 +116,10 @@ export default function Hero() {
           className="mt-10 text-sm font-medium text-on-surface-variant/60 flex items-center justify-center gap-1.5"
           variants={fadeIn}
         >
-          <span
-            className="material-symbols-outlined text-secondary text-base"
+          <MdOutlineVerified
+            className="text-secondary text-lg"
             aria-hidden="true"
-          >
-            verified
-          </span>
+          />
           Atención personalizada en todo México
         </motion.p>
       </motion.div>
