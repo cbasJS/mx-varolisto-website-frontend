@@ -24,7 +24,7 @@ export default function Footer() {
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
           <span className="font-headline font-extrabold text-primary text-xl">
-            VaroListo
+            Varo<span className="text-secondary">Listo.mx</span>
           </span>
 
           <nav aria-label="Links del pie de página">
@@ -51,7 +51,8 @@ export default function Footer() {
             términos y condiciones.
           </p>
           <p className="text-xs text-on-surface-variant/60 text-center md:text-left">
-            © {currentYear} VaroListo Mexico.
+            © {currentYear} Varo<span className="text-secondary">Listo.mx</span>{" "}
+            Mexico.
           </p>
         </div>
       </div>

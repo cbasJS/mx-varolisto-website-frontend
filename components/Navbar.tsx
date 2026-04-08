@@ -1,32 +1,32 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
-import { CTA_URL } from "@/lib/config"
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { CTA_URL } from "@/lib/config";
 
 const navLinks = [
   { label: "Beneficios", href: "beneficios" },
   { label: "Cómo funciona", href: "como-funciona" },
   { label: "Contacto", href: "contacto" },
-]
+];
 
-const NAVBAR_HEIGHT = 72
+const NAVBAR_HEIGHT = 72;
 
 function scrollToSection(id: string) {
-  const el = document.getElementById(id)
-  if (!el) return
-  const top = el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT
-  window.scrollTo({ top, behavior: "smooth" })
+  const el = document.getElementById(id);
+  if (!el) return;
+  const top = el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT;
+  window.scrollTo({ top, behavior: "smooth" });
 }
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false)
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <motion.header
@@ -45,10 +45,10 @@ export default function Navbar() {
       >
         <a
           href="/"
-          className="text-xl font-extrabold text-primary font-headline tracking-tight"
+          className="text-xl md:text-2xl font-extrabold text-primary font-headline tracking-tight"
           aria-label="VaroListo - Inicio"
         >
-          VaroListo
+          Varo<span className="text-secondary">Listo.mx</span>
         </a>
 
         <div className="hidden md:flex gap-8 items-center">
@@ -74,5 +74,5 @@ export default function Navbar() {
         </a>
       </nav>
     </motion.header>
-  )
+  );
 }

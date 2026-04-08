@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 
 const benefits = [
   {
@@ -27,11 +27,15 @@ const benefits = [
     description:
       "Te contactamos personalmente para guiarte en cada paso del camino con total transparencia.",
   },
-]
+];
 
 export default function Benefits() {
   return (
-    <section id="beneficios" className="py-20 px-6 bg-surface-container-lowest" aria-label="Beneficios de VaroListo">
+    <section
+      id="beneficios"
+      className="py-20 px-6 bg-surface-container-lowest"
+      aria-label="Beneficios de VaroListo"
+    >
       <div className="max-w-3xl mx-auto">
         <motion.h2
           className="font-headline font-extrabold text-3xl text-primary mb-12 text-center"
@@ -43,7 +47,7 @@ export default function Benefits() {
           ¿Por qué VaroListo?
         </motion.h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 gap-10">
           {benefits.map((benefit, i) => (
             <motion.div
               key={benefit.title}
@@ -67,12 +71,14 @@ export default function Benefits() {
                 <h3 className="font-headline font-bold text-xl text-primary mb-2">
                   {benefit.title}
                 </h3>
-                <p className="text-on-surface-variant leading-relaxed">{benefit.description}</p>
+                <p className="text-on-surface-variant leading-relaxed">
+                  {benefit.description}
+                </p>
               </div>
             </motion.div>
           ))}
         </div>
       </div>
     </section>
-  )
+  );
 }

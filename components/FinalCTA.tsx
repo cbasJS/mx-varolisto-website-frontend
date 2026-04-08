@@ -25,10 +25,10 @@ export default function FinalCTA() {
         transition={{ duration: 0.55, ease: "easeOut" }}
       >
         <h2 className="font-headline font-extrabold text-4xl md:text-5xl mb-12 tracking-tight">
-          Obtén opciones hoy mismo
+          Solicita hoy mismo
         </h2>
 
-        <div className="flex flex-col sm:flex-row items-start justify-center gap-6 w-full max-w-md mx-auto">
+        <div className="flex flex-col items-start justify-center gap-6 w-full max-w-md mx-auto">
           <div className="flex flex-col items-center gap-2 flex-1 w-full">
             <motion.a
               href={CTA_URL}
