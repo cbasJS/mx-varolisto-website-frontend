@@ -34,7 +34,7 @@ export default function Benefits() {
     <section
       id="beneficios"
       className="py-20 px-6 bg-surface-container-lowest"
-      aria-label="Beneficios de VaroListo"
+      aria-label="Beneficios de VaroListo.mx"
     >
       <div className="max-w-3xl mx-auto">
         <motion.h2
@@ -44,7 +44,7 @@ export default function Benefits() {
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          ¿Por qué VaroListo?
+          ¿Por qué Varo<span className="text-secondary">Listo.mx</span>?
         </motion.h2>
 
         <div className="grid grid-cols-1 gap-10">

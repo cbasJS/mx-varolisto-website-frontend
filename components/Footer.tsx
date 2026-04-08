@@ -45,14 +45,16 @@ export default function Footer() {
 
         <div className="border-t border-surface-container pt-8 space-y-2">
           <p className="text-xs text-on-surface-variant/60 leading-relaxed text-center md:text-left">
-            VaroListo no es una institución financiera. Este sitio tiene fines
-            informativos. Las solicitudes están sujetas a evaluación y contacto
-            directo. El uso de este sitio web implica la aceptación de nuestros
-            términos y condiciones.
+            <span className="text-primary">Varo</span>
+            <span className="text-secondary">Listo.mx</span> no es una
+            institución financiera. Este sitio tiene fines informativos. Las
+            solicitudes están sujetas a evaluación y contacto directo. El uso de
+            este sitio web implica la aceptación de nuestros términos y
+            condiciones.
           </p>
           <p className="text-xs text-on-surface-variant/60 text-center md:text-left">
-            © {currentYear} Varo<span className="text-secondary">Listo.mx</span>{" "}
-            Mexico.
+            © {currentYear} <span className="text-primary">Varo</span>
+            <span className="text-secondary">Listo.mx</span> México.
           </p>
         </div>
       </div>

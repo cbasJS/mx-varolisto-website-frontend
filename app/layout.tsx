@@ -16,7 +16,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "VaroListo | Cuando necesitas dinero, aquí empiezas",
+  title: "VaroListo.mx | Cuando necesitas dinero, aquí empiezas",
   description:
     "Sin trámites complicados. Te contactamos en minutos. Atención personalizada en todo México.",
   icons: {

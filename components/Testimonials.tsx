@@ -22,7 +22,7 @@ export default function Testimonials() {
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          ¿Por qué VaroListo?
+          ¿Por qué VaroListo.mx?
         </motion.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

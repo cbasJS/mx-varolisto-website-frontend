@@ -46,7 +46,7 @@ export default function Navbar() {
         <a
           href="/"
           className="text-xl md:text-2xl font-extrabold text-primary font-headline tracking-tight"
-          aria-label="VaroListo - Inicio"
+          aria-label="VaroListo.mx - Inicio"
         >
           Varo<span className="text-secondary">Listo.mx</span>
         </a>

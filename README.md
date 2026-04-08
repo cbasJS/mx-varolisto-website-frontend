@@ -1,4 +1,4 @@
-# VaroListo — Landing Page
+# VaroListo.mx — Landing Page
 
 Landing page de captación de leads para **VaroListo**, enfocada en conectar usuarios con opciones de financiamiento personal en México.
 

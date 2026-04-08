@@ -24,7 +24,7 @@ export default function TrustCards() {
   return (
     <section
       className="md:hidden px-6 py-8"
-      aria-label="Por qué confiar en VaroListo"
+      aria-label="Por qué confiar en VaroListo.mx"
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-7xl mx-auto">
         {cards.map((card, i) => (
