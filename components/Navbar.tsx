@@ -67,7 +67,7 @@ export default function Navbar() {
           href={CTA_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-secondary text-primary px-5 py-2 rounded-full font-headline font-bold text-sm hover:brightness-95 transition-all active:scale-95"
+          className="bg-primary text-on-primary md:bg-secondary md:text-primary px-6 md:px-5 py-2 rounded-full font-headline font-bold text-sm hover:opacity-80 md:hover:opacity-100 md:hover:brightness-95 transition-opacity md:transition-all duration-150 active:scale-95"
           aria-label="Solicitar préstamo ahora"
         >
           Solicitar ahora

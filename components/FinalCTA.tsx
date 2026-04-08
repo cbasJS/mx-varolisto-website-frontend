@@ -7,7 +7,7 @@ import { CTA_URL, WHATSAPP_URL } from "@/lib/config";
 export default function FinalCTA() {
   return (
     <section
-      className="py-24 px-6 bg-primary text-white overflow-hidden relative"
+      className="hidden md:block py-24 px-6 bg-primary text-white overflow-hidden relative"
       aria-label="Solicita ahora"
     >
       <motion.div

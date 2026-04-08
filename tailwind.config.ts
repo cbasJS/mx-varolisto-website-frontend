@@ -19,6 +19,7 @@ const config: Config = {
         "on-primary-container": "#8690ee",
         "inverse-primary": "#bdc2ff",
         secondary: "#2ECC71",
+        "secondary-mobile": "#006e1c",
         "secondary-fixed": "#94f990",
         "secondary-fixed-dim": "#78dc77",
         "secondary-container": "#91f78e",
@@ -62,6 +63,10 @@ const config: Config = {
         lg: "1rem",
         xl: "1.5rem",
         full: "9999px",
+        // Mobile (stitch/mobile.html)
+        "mobile": "0.25rem",
+        "mobile-lg": "0.5rem",
+        "mobile-xl": "0.75rem",
       },
       fontFamily: {
         headline: ["var(--font-manrope)", "sans-serif"],

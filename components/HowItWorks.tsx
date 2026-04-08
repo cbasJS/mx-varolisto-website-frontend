@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 
 const steps = [
   {
@@ -17,11 +17,12 @@ const steps = [
   },
   {
     number: "3",
-    title: "Te contactamos con opciones",
-    description: "Recibe propuestas directas para tu financiamiento.",
+    title: "Te contactamos",
+    description:
+      "¡Listo! Nos ponemos en contacto contigo para darte los detalles.",
     accent: true,
   },
-]
+];
 
 export default function HowItWorks() {
   return (
@@ -65,19 +66,28 @@ export default function HowItWorks() {
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ type: "spring", stiffness: 260, damping: 18, delay: i * 0.12 + 0.1 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 260,
+                  damping: 18,
+                  delay: i * 0.12 + 0.1,
+                }}
                 aria-label={`Paso ${step.number}`}
               >
                 {step.number}
               </motion.div>
               <div>
-                <h3 className="font-headline font-bold text-2xl text-primary">{step.title}</h3>
-                <p className="text-on-surface-variant mt-1">{step.description}</p>
+                <h3 className="font-headline font-bold text-2xl text-primary">
+                  {step.title}
+                </h3>
+                <p className="text-on-surface-variant mt-1">
+                  {step.description}
+                </p>
               </div>
             </motion.li>
           ))}
         </ol>
       </div>
     </section>
-  )
+  );
 }
