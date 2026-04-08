@@ -1,29 +1,32 @@
-import type { Metadata } from "next"
-import { Inter, Manrope } from "next/font/google"
-import "./globals.css"
+import type { Metadata } from "next";
+import { Inter, Manrope } from "next/font/google";
+import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
-})
+});
 
 const manrope = Manrope({
   subsets: ["latin"],
   variable: "--font-manrope",
   display: "swap",
-})
+});
 
 export const metadata: Metadata = {
-  title: "VaroListo | Encuentra opciones de financiamiento rápido",
+  title: "VaroListo | Cuando necesitas dinero, aquí empiezas",
   description:
     "Sin trámites complicados. Te contactamos en minutos. Atención personalizada en todo México.",
-}
+  icons: {
+    icon: "/favicon.ico",
+  },
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="es" className={`${inter.variable} ${manrope.variable}`}>
@@ -37,5 +40,5 @@ export default function RootLayout({
         {children}
       </body>
     </html>
-  )
+  );
 }
