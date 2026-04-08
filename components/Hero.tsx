@@ -41,9 +41,9 @@ export default function Hero() {
             aria-label="Más de 500 solicitudes procesadas hoy"
           >
             <span className="flex -space-x-1 shrink-0" aria-hidden="true">
-              <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-200" />
-              <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-300" />
-              <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-400" />
+              <div className="w-6 h-6 rounded-full border-2 border-white bg-surface-container" />
+              <div className="w-6 h-6 rounded-full border-2 border-white bg-surface-container-high" />
+              <div className="w-6 h-6 rounded-full border-2 border-white bg-surface-variant" />
             </span>
             <span className="text-sm font-bold tracking-tight">
               Sin trámites complicados
@@ -92,7 +92,7 @@ export default function Hero() {
               href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full bg-white border-2 border-gray-100 text-on-surface px-8 py-4 rounded-2xl font-headline font-bold text-lg hover:bg-gray-50 hover:border-secondary/30 transition-all active:scale-95 flex items-center justify-center gap-2"
+              className="w-full bg-surface-container-lowest border-2 border-surface-container text-on-surface px-8 py-4 rounded-2xl font-headline font-bold text-lg hover:bg-surface-container-low hover:border-secondary/30 transition-all active:scale-95 flex items-center justify-center gap-2"
               aria-label="Hablar con un asesor por WhatsApp"
             >
               <MdOutlineWhatsapp
