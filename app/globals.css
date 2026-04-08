@@ -17,27 +17,33 @@ html {
   }
 }
 
-/* CTA shimmer sweep on hover */
-@keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+/* CTA spotlight — haz de luz que cruza de izq a der en loop */
+@keyframes cta-spotlight {
+  0%   { transform: translateX(-180%) skewX(-20deg); }
+  35%  { transform: translateX(220%)  skewX(-20deg); }
+  100% { transform: translateX(220%)  skewX(-20deg); }
 }
 
 .cta-shimmer {
-  background-size: 200% auto;
-  transition: background-position 0s;
+  position: relative;
+  overflow: hidden;
 }
-.cta-shimmer:hover {
-  background-image: linear-gradient(
+
+.cta-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 55%;
+  background: linear-gradient(
     105deg,
-    #2ECC71 0%,
-    #2ECC71 40%,
-    #5ef59e 50%,
-    #2ECC71 60%,
-    #2ECC71 100%
+    transparent        20%,
+    rgba(255,255,255,0.07) 38%,
+    rgba(255,255,255,0.28) 50%,
+    rgba(255,255,255,0.07) 62%,
+    transparent        80%
   );
-  background-size: 200% auto;
-  animation: shimmer 1.4s linear infinite;
+  animation: cta-spotlight 3.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  pointer-events: none;
 }
 
 /* Step number glow pulse */
