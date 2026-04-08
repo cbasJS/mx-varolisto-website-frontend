@@ -28,8 +28,9 @@ export default function MobileTestimonial() {
         </span>
 
         <h2 className="font-headline font-extrabold text-3xl leading-tight mt-4">
-          &ldquo;Buscaba lana para arreglar mi casa y en VaroListo todo fue
-          rápido y sin complicaciones.&rdquo;
+          &ldquo;Buscaba lana para arreglar mi casa y en Varo
+          <span className="text-secondary">Listo.mx</span> todo fue rápido y sin
+          complicaciones.&rdquo;
         </h2>
 
         <div className="mt-8 flex items-center gap-4">
