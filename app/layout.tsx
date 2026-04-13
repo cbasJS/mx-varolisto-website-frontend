@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 import ScrollToTop from "@/components/ScrollToTop";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -39,7 +41,9 @@ export default function RootLayout({
       </head>
       <body className="bg-surface font-body text-on-surface selection:bg-secondary/30 antialiased">
         <ScrollToTop />
+        <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );
