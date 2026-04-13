@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 const currentYear = new Date().getFullYear();
 
 const links = [
-  { href: "/", label: "Privacidad" },
-  { href: "/", label: "Términos" },
+  { href: "/aviso-de-privacidad-integral", label: "Privacidad" },
+  { href: "/terminos-condiciones", label: "Términos" },
   { href: "#contacto", label: "Contacto" },
 ];
 
@@ -23,9 +23,9 @@ export default function Footer() {
     >
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
-          <span className="font-headline font-extrabold text-primary text-xl">
+          <a href="/" className="font-headline font-extrabold text-primary text-xl">
             Varo<span className="text-secondary">Listo.mx</span>
-          </span>
+          </a>
 
           <nav aria-label="Links del pie de página">
             <ul className="flex gap-8 font-body text-sm text-on-surface-variant font-medium">

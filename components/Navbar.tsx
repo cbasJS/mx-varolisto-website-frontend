@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { CTA_URL } from "@/lib/config";
 
@@ -20,6 +21,8 @@ function scrollToSection(id: string) {
 }
 
 export default function Navbar() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -51,27 +54,31 @@ export default function Navbar() {
           Varo<span className="text-secondary">Listo.mx</span>
         </a>
 
-        <div className="hidden md:flex gap-8 items-center">
-          {navLinks.map(({ label, href }) => (
-            <button
-              key={href}
-              onClick={() => scrollToSection(href)}
-              className="text-on-surface-variant font-medium font-headline text-sm hover:text-primary transition-colors cursor-pointer bg-transparent border-none p-0"
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        {isHome && (
+          <div className="hidden md:flex gap-8 items-center">
+            {navLinks.map(({ label, href }) => (
+              <button
+                key={href}
+                onClick={() => scrollToSection(href)}
+                className="text-on-surface-variant font-medium font-headline text-sm hover:text-primary transition-colors cursor-pointer bg-transparent border-none p-0"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
 
-        <a
-          href={CTA_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-primary text-on-primary md:bg-secondary md:text-primary px-6 md:px-5 py-2 rounded-full font-headline font-bold text-sm hover:opacity-80 md:hover:opacity-100 md:hover:brightness-95 transition-opacity md:transition-all duration-150 active:scale-95"
-          aria-label="Solicitar préstamo ahora"
-        >
-          Solicitar ahora
-        </a>
+        {isHome && (
+          <a
+            href={CTA_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-primary text-on-primary md:bg-secondary md:text-primary px-6 md:px-5 py-2 rounded-full font-headline font-bold text-sm hover:opacity-80 md:hover:opacity-100 md:hover:brightness-95 transition-opacity md:transition-all duration-150 active:scale-95"
+            aria-label="Solicitar préstamo ahora"
+          >
+            Solicitar ahora
+          </a>
+        )}
       </nav>
     </motion.header>
   );
