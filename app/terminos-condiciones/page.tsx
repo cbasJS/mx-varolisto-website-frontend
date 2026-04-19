@@ -171,19 +171,10 @@ export default function TerminosCondicionesPage() {
                   Perfil
                 </th>
                 <th className="text-left p-3 border border-gray-300 font-semibold">
-                  1er crédito
-                </th>
-                <th className="text-left p-3 border border-gray-300 font-semibold">
-                  2do crédito en adelante
-                </th>
-                <th className="text-left p-3 border border-gray-300 font-semibold">
                   Tasa efectiva mensual
                 </th>
                 <th className="text-left p-3 border border-gray-300 font-semibold">
                   Comisión apertura
-                </th>
-                <th className="text-left p-3 border border-gray-300 font-semibold">
-                  Cuota de servicio / mes
                 </th>
                 <th className="text-left p-3 border border-gray-300 font-semibold">
                   Plazo
@@ -193,56 +184,33 @@ export default function TerminosCondicionesPage() {
             <tbody>
               <tr>
                 <td className="p-3 border border-gray-300 font-medium">
-                  A — Ideal
+                  Perfil A
                 </td>
-                <td className="p-3 border border-gray-300">$5,000 – $10,000</td>
-                <td className="p-3 border border-gray-300">hasta $20,000</td>
                 <td className="p-3 border border-gray-300 font-semibold">
-                  4.06%
+                  4.64% – 5.22%
                 </td>
                 <td className="p-3 border border-gray-300">2% + IVA</td>
-                <td className="p-3 border border-gray-300">
-                  $129 (préstamos $5K–$10K)
-                  <br />
-                  <span className="text-gray-500 text-xs">
-                    $149 si el monto supera $10K
-                  </span>
-                </td>
-                <td className="p-3 border border-gray-300">4 – 6 meses</td>
+                <td className="p-3 border border-gray-300">2 – 6 meses</td>
               </tr>
               <tr className="bg-gray-50">
                 <td className="p-3 border border-gray-300 font-medium">
-                  B — Estándar
+                  Perfil B
                 </td>
-                <td className="p-3 border border-gray-300">$2,000 – $5,000</td>
-                <td className="p-3 border border-gray-300">hasta $10,000</td>
                 <td className="p-3 border border-gray-300 font-semibold">
-                  6.38%
+                  6.96% – 8.12%
                 </td>
                 <td className="p-3 border border-gray-300">3% + IVA</td>
-                <td className="p-3 border border-gray-300">
-                  $99 (préstamos $2K–$5K)
-                  <br />
-                  <span className="text-gray-500 text-xs">
-                    $129 si el monto supera $5K
-                  </span>
-                </td>
-                <td className="p-3 border border-gray-300">3 – 4 meses</td>
+                <td className="p-3 border border-gray-300">2 – 6 meses</td>
               </tr>
               <tr>
                 <td className="p-3 border border-gray-300 font-medium">
-                  C — Riesgo medio
+                  Perfil C
                 </td>
-                <td className="p-3 border border-gray-300">$2,000 – $3,000</td>
-                <td className="p-3 border border-gray-300">hasta $5,000</td>
                 <td className="p-3 border border-gray-300 font-semibold">
-                  9.28%
+                  9.86% – 11.60%
                 </td>
                 <td className="p-3 border border-gray-300">4% + IVA</td>
-                <td className="p-3 border border-gray-300">
-                  $99 (préstamos $2K–$5K)
-                </td>
-                <td className="p-3 border border-gray-300">2 – 3 meses</td>
+                <td className="p-3 border border-gray-300">2 – 6 meses</td>
               </tr>
             </tbody>
           </table>
@@ -262,9 +230,13 @@ export default function TerminosCondicionesPage() {
           <li>
             <strong>Cuota de servicio mensual (IVA incluido):</strong> cobrada
             en cada pago junto con capital e intereses, según el monto bruto del
-            préstamo: $99/mes para préstamos de $2,000 a $4,999; $129/mes para
-            préstamos de $5,000 a $9,999; $149/mes para préstamos de $10,000 a
+            préstamo: $99/mes para préstamos de $2,000 a $5,000; $129/mes para
+            préstamos de $5,001 a $10,000; $149/mes para préstamos de $10,001 a
             $20,000.
+          </li>
+          <li>
+            <strong>Periodicidad de pago:</strong> mensual. El pago incluye
+            capital, intereses y cuota de servicio en una sola cuota nivelada.
           </li>
           <li>
             <strong>Método de cálculo:</strong> sistema francés (cuota
@@ -277,19 +249,20 @@ export default function TerminosCondicionesPage() {
             crédito.
           </li>
           <li>
+            <strong>Cargo por pago tardío:</strong> a partir del cuarto día
+            natural de atraso, se aplicará un cargo administrativo fijo de $200
+            pesos, independiente del saldo insoluto.
+          </li>
+          <li>
             <strong>Tasa moratoria:</strong> 1.5% mensual adicional sobre el
             saldo insoluto, aplicable desde el día 16 de atraso, sin necesidad
-            de requerimiento previo.
+            de requerimiento previo. El cargo fijo y la tasa moratoria son
+            acumulables a partir del día 16.
           </li>
           <li>
             <strong>Pago anticipado:</strong> permitido en cualquier momento, en
             cualquier perfil, pagando capital insoluto más intereses devengados
             a la fecha, sin penalización.
-          </li>
-          <li>
-            <strong>Regla de capacidad de pago:</strong> la cuota mensual total
-            no podrá exceder el 40% del ingreso neto mensual verificable del
-            Cliente.
           </li>
         </ul>
         <p className="mb-10 leading-relaxed">
@@ -399,20 +372,28 @@ export default function TerminosCondicionesPage() {
         </p>
         <ul className="list-disc pl-6 space-y-2 mb-6 text-gray-800 leading-relaxed">
           <li>
-            <strong>Días 1 a 15 de atraso:</strong> contacto directo por
-            WhatsApp y llamada telefónica en los días 1, 7 y 15. No se aplica
-            interés moratorio adicional durante este período.
+            <strong>Días 1 a 3 de atraso:</strong> margen operativo.
+            VaroListo.mx realizará contacto directo por WhatsApp y llamada
+            telefónica. No se aplica cargo adicional durante este período.
+          </li>
+          <li>
+            <strong>Días 4 a 15 de atraso:</strong> se aplicará un{" "}
+            <strong>cargo administrativo fijo de $200 pesos</strong>,
+            independiente del saldo insoluto. VaroListo.mx continuará el
+            contacto por WhatsApp y llamada telefónica. En el día 15 se emitirá
+            advertencia formal del inicio de intereses moratorios.
           </li>
           <li>
             <strong>Día 16 en adelante:</strong> el saldo insoluto generará
-            automáticamente intereses moratorios a la tasa de{" "}
-            <strong>1.5% mensual adicional</strong> a la ordinaria, por cada día
-            natural de demora, sin necesidad de requerimiento previo. Se emitirá
-            notificación formal y se contactará a las referencias autorizadas
-            por el Cliente.
+            automáticamente{" "}
+            <strong>intereses moratorios a la tasa de 1.5% mensual adicional</strong>{" "}
+            a la ordinaria, por cada día natural de demora, sin necesidad de
+            requerimiento previo. El cargo fijo de $200 pesos y la tasa
+            moratoria son acumulables. Se emitirá notificación formal y se
+            contactará a las referencias autorizadas por el Cliente.
           </li>
           <li>
-            <strong>Día 45 en adelante:</strong> el crédito se clasifica como
+            <strong>Día 46 en adelante:</strong> el crédito se clasifica como
             cartera vencida. VaroListo.mx podrá iniciar el proceso de ejecución
             del pagaré ante el juzgado civil mercantil competente, sin necesidad
             de declaración judicial previa, conforme al Art. 170 LGTOC.
