@@ -50,9 +50,9 @@ export const processSteps: ProcessStep[] = [
 ];
 
 export const testimonialItems: TestimonialItem[] = [
-  { quote: "Te contactamos en minutos" },
-  { quote: "Proceso rápido y claro" },
-  { quote: "Sin trámites complicados" },
+  { quote: "Sin vueltas raras ni letras chiquitas. Todo claro desde el inicio" },
+  { quote: "Sin estrés y con un proceso sencillo" },
+  { quote: "Fácil de solicitar y con información transparente" },
 ];
 
 export const trustCardItems: TrustCardItem[] = [
