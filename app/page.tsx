@@ -14,7 +14,7 @@ export default function Home() {
         <TrustCards />
         <Benefits />
         <HowItWorks />
-        <Testimonials />
+        {/* <Testimonials /> */}
         <FinalCTA />
       </main>
       <BottomNav />
