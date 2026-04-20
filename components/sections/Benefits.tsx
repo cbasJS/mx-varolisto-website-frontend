@@ -1,33 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-
-const benefits = [
-  {
-    icon: "bolt",
-    title: "Proceso sencillo",
-    description:
-      "Olvídate de las filas y el papeleo excesivo. Todo es digital y diseñado para tu comodidad.",
-  },
-  {
-    icon: "speed",
-    title: "Evaluación rápida",
-    description:
-      "Nuestra tecnología evalúa tu perfil en segundos para ofrecerte las mejores alternativas.",
-  },
-  {
-    icon: "dashboard_customize",
-    title: "Opciones personalizadas",
-    description:
-      "Encontramos diferentes esquemas de financiamiento que se adaptan a tu perfil y necesidades.",
-  },
-  {
-    icon: "support_agent",
-    title: "Atención directa",
-    description:
-      "Te contactamos personalmente para guiarte en cada paso del camino con total transparencia.",
-  },
-];
+import { benefitItems } from "@/content/home";
+import { VIEWPORT_ONCE, VIEWPORT_CLOSE } from "@/lib/animations";
 
 export default function Benefits() {
   return (
@@ -41,20 +16,20 @@ export default function Benefits() {
           className="font-headline font-extrabold text-3xl text-primary mb-12 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
+          viewport={VIEWPORT_ONCE}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           ¿Por qué Varo<span className="text-secondary">Listo.mx</span>?
         </motion.h2>
 
         <div className="grid grid-cols-1 gap-10">
-          {benefits.map((benefit, i) => (
+          {benefitItems.map((benefit, i) => (
             <motion.div
               key={benefit.title}
               className="flex gap-5 items-start"
               initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
+              viewport={VIEWPORT_CLOSE}
               transition={{ duration: 0.5, delay: i * 0.08, ease: "easeOut" }}
             >
               <motion.div

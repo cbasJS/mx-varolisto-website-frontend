@@ -1,10 +1,10 @@
-import Hero from "@/components/Hero";
-import TrustCards from "@/components/TrustCards";
-import Benefits from "@/components/Benefits";
-import HowItWorks from "@/components/HowItWorks";
-import MobileTestimonial from "@/components/MobileTestimonial";
-import FinalCTA from "@/components/FinalCTA";
-import BottomNav from "@/components/BottomNav";
+import Hero from "@/components/sections/Hero";
+import TrustCards from "@/components/sections/TrustCards";
+import Benefits from "@/components/sections/Benefits";
+import HowItWorks from "@/components/sections/HowItWorks";
+import Testimonials from "@/components/sections/Testimonials";
+import FinalCTA from "@/components/sections/FinalCTA";
+import BottomNav from "@/components/layout/BottomNav";
 
 export default function Home() {
   return (
@@ -14,7 +14,7 @@ export default function Home() {
         <TrustCards />
         <Benefits />
         <HowItWorks />
-        <MobileTestimonial />
+        <Testimonials />
         <FinalCTA />
       </main>
       <BottomNav />

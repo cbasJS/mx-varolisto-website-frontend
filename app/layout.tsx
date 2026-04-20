@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
-import ScrollToTop from "@/components/ScrollToTop";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import ScrollRestorationClient from "@/components/layout/ScrollRestorationClient";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -32,7 +32,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`${inter.variable} ${manrope.variable}`}>
+    <html
+      lang="es"
+      className={`${inter.variable} ${manrope.variable}`}
+    >
       <head>
         <link
           rel="stylesheet"
@@ -40,7 +43,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-surface font-body text-on-surface selection:bg-secondary/30 antialiased">
-        <ScrollToTop />
+        <ScrollRestorationClient />
         <Navbar />
         {children}
         <Footer />

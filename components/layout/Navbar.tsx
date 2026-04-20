@@ -1,17 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { CTA_URL } from "@/lib/config";
-
-const navLinks = [
-  { label: "Beneficios", href: "beneficios" },
-  { label: "Cómo funciona", href: "como-funciona" },
-  { label: "Contacto", href: "contacto" },
-];
-
-const NAVBAR_HEIGHT = 72;
+import { CTA_URL, NAVBAR_HEIGHT } from "@/lib/config";
+import { useScrolled } from "@/hooks/useScrolled";
+import { navLinks } from "@/content/nav";
 
 function scrollToSection(id: string) {
   const el = document.getElementById(id);
@@ -23,13 +16,7 @@ function scrollToSection(id: string) {
 export default function Navbar() {
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const scrolled = useScrolled();
 
   return (
     <motion.header

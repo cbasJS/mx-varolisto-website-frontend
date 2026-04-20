@@ -1,26 +1,9 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import { MdOutlineWhatsapp, MdOutlineVerified } from "react-icons/md";
 import { CTA_URL, WHATSAPP_URL } from "@/lib/config";
-
-const container: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.12, delayChildren: 0.15 },
-  },
-};
-
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 28 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
-};
-
-const fadeIn: Variants = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { duration: 0.5 } },
-};
+import { staggerContainer, fadeUpVariant, fadeInVariant } from "@/lib/animations";
 
 export default function Hero() {
   return (
@@ -30,12 +13,12 @@ export default function Hero() {
     >
       <motion.div
         className="max-w-3xl mx-auto text-center"
-        variants={container}
+        variants={staggerContainer}
         initial="hidden"
         animate="show"
       >
         {/* Social proof badge */}
-        <motion.div variants={fadeUp}>
+        <motion.div variants={fadeUpVariant}>
           <div
             className="badge-bob inline-flex items-center gap-2 bg-secondary-container md:bg-primary/5 text-on-secondary-container md:text-primary px-4 py-1.5 rounded-full mb-6 md:mb-8"
             aria-label="Estamos de tu lado"
@@ -60,7 +43,7 @@ export default function Hero() {
 
         <motion.h1
           className="font-headline font-extrabold text-4xl md:text-6xl text-primary leading-tight mb-6 tracking-tight"
-          variants={fadeUp}
+          variants={fadeUpVariant}
         >
           Cuando necesitas dinero,{" "}
           <span className="text-primary md:text-secondary">aquí empiezas</span>
@@ -68,14 +51,14 @@ export default function Hero() {
 
         <motion.p
           className="text-lg md:text-xl text-on-surface-variant font-medium mb-12 leading-relaxed"
-          variants={fadeUp}
+          variants={fadeUpVariant}
         >
           Sin trámites complicados. Te contactamos en minutos.
         </motion.p>
 
         <motion.div
           className="flex flex-col items-center gap-4 md:gap-6 w-full max-w-md md:max-w-sm mx-auto"
-          variants={fadeUp}
+          variants={fadeUpVariant}
         >
           <div className="flex flex-col items-center gap-1.5 w-full">
             <a
@@ -114,7 +97,7 @@ export default function Hero() {
 
         <motion.p
           className="mt-10 text-sm font-medium text-on-surface-variant/60 flex items-center justify-center gap-1.5"
-          variants={fadeIn}
+          variants={fadeInVariant}
         >
           <MdOutlineVerified
             className="text-secondary text-lg"

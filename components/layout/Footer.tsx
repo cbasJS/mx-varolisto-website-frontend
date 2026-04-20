@@ -1,14 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { footerLinks } from "@/content/nav";
 
 const currentYear = new Date().getFullYear();
-
-const links = [
-  { href: "/aviso-de-privacidad-integral", label: "Privacidad" },
-  { href: "/terminos-condiciones", label: "Términos" },
-  { href: "#contacto", label: "Contacto" },
-];
 
 export default function Footer() {
   return (
@@ -29,7 +24,7 @@ export default function Footer() {
 
           <nav aria-label="Links del pie de página">
             <ul className="flex gap-8 font-body text-sm text-on-surface-variant font-medium">
-              {links.map((link) => (
+              {footerLinks.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
