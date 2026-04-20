@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { MdOutlineWhatsapp } from "react-icons/md";
 import { CTA_URL, WHATSAPP_URL } from "@/lib/config";
+import { VIEWPORT_ONCE } from "@/lib/animations";
 
 export default function FinalCTA() {
   return (
@@ -21,7 +22,7 @@ export default function FinalCTA() {
         className="max-w-3xl mx-auto text-center relative z-10"
         initial={{ opacity: 0, y: 32 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
+        viewport={VIEWPORT_ONCE}
         transition={{ duration: 0.55, ease: "easeOut" }}
       >
         <h2 className="font-headline font-extrabold text-4xl md:text-5xl mb-12 tracking-tight">

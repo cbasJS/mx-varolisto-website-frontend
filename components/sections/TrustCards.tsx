@@ -1,24 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-
-const cards = [
-  {
-    icon: "mood",
-    title: "Trato directo",
-    description:
-      "Hablamos tu idioma, sin términos complicados ni letras chiquitas.",
-    iconBg: "bg-primary-fixed",
-    iconColor: "text-primary",
-  },
-  {
-    icon: "verified",
-    title: "100% Confiable",
-    description: "Tus datos están seguros y los usamos solo para ayudarte.",
-    iconBg: "bg-secondary-fixed",
-    iconColor: "text-on-secondary-fixed",
-  },
-];
+import { trustCardItems } from "@/content/home";
+import { VIEWPORT_CLOSE } from "@/lib/animations";
 
 export default function TrustCards() {
   return (
@@ -27,13 +11,13 @@ export default function TrustCards() {
       aria-label="Por qué confiar en VaroListo.mx"
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-7xl mx-auto">
-        {cards.map((card, i) => (
+        {trustCardItems.map((card, i) => (
           <motion.div
             key={card.title}
             className="bg-surface-container-lowest p-6 rounded-mobile-xl shadow-sm flex items-start gap-4"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
+            viewport={VIEWPORT_CLOSE}
             transition={{ duration: 0.45, delay: i * 0.1, ease: "easeOut" }}
           >
             <div

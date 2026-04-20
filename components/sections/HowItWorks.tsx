@@ -1,28 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-
-const steps = [
-  {
-    number: "1",
-    title: "Deja tus datos",
-    description: "Completa el formulario en menos de 2 min.",
-    accent: false,
-  },
-  {
-    number: "2",
-    title: "Evaluamos tu perfil",
-    description: "Análisis inmediato para encontrar tu mejor opción.",
-    accent: false,
-  },
-  {
-    number: "3",
-    title: "Te contactamos",
-    description:
-      "¡Listo! Nos ponemos en contacto contigo para darte los detalles.",
-    accent: true,
-  },
-];
+import { processSteps } from "@/content/home";
+import { VIEWPORT_ONCE, VIEWPORT_CLOSE } from "@/lib/animations";
 
 export default function HowItWorks() {
   return (
@@ -36,7 +16,7 @@ export default function HowItWorks() {
           className="font-headline font-extrabold text-3xl text-primary mb-12 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
+          viewport={VIEWPORT_ONCE}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           ¿Cómo funciona?
@@ -48,13 +28,13 @@ export default function HowItWorks() {
             aria-hidden="true"
           />
 
-          {steps.map((step, i) => (
+          {processSteps.map((step, i) => (
             <motion.li
               key={step.number}
               className="relative flex gap-8 items-center"
               initial={{ opacity: 0, x: -24 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
+              viewport={VIEWPORT_CLOSE}
               transition={{ duration: 0.5, delay: i * 0.12, ease: "easeOut" }}
             >
               <motion.div
