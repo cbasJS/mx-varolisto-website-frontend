@@ -20,7 +20,7 @@ export default function Testimonials() {
             viewport={VIEWPORT_ONCE}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
-            ¿Por qué VaroListo.mx?
+            Historias de alivio financiero
           </motion.h2>
 
           <div className="grid grid-cols-3 gap-6">
@@ -72,8 +72,8 @@ export default function Testimonials() {
 
           <h2 className="font-headline font-extrabold text-3xl leading-tight mt-4">
             &ldquo;Buscaba lana para arreglar mi casa y en Varo
-            <span className="text-secondary">Listo.mx</span> todo fue rápido y sin
-            complicaciones.&rdquo;
+            <span className="text-secondary">Listo.mx</span> todo fue rápido y
+            sin complicaciones.&rdquo;
           </h2>
 
           <div className="mt-8 flex items-center gap-4">
