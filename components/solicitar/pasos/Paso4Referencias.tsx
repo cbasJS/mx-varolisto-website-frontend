@@ -2,7 +2,7 @@
 
 import { usePaso4 } from "@/hooks/solicitar/usePaso4"
 import type { Paso4Data } from "@/lib/solicitud-schema"
-import { Controller, useForm } from "react-hook-form"
+import { Controller, useForm, useWatch } from "react-hook-form"
 import {
   Select,
   SelectContent,
@@ -53,6 +53,8 @@ function RefCard({
   const relacionKey = `${prefix}Relacion` as keyof Paso4Data
   const emailKey = `${prefix}Email` as keyof Paso4Data
 
+  const telefonoValue = (useWatch({ control, name: telefonoKey }) as string) ?? ""
+
   return (
     <div className="rounded-2xl border-2 border-[#e8e8e8] bg-[#fafafa] p-5">
       <div className="mb-4 flex items-center gap-2">
@@ -87,6 +89,11 @@ function RefCard({
             },
           })}
           placeholder=" "
+          suffix={
+            <span className="tabular-nums text-xs text-[#aaa]">
+              {telefonoValue.length}/10
+            </span>
+          }
         />
         <div>
           <Controller

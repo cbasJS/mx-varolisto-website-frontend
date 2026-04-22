@@ -26,14 +26,23 @@ export function useSolicitudNavigation() {
 
   const [folio, setFolio] = useState<string | null>(null)
 
+  const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" })
+
   const handleNext = (paso: number, nuevos: PasoData) => {
     guardarPaso(paso, nuevos)
     setPaso(paso + 1)
+    scrollTop()
   }
 
-  const handleBack = () => setPaso(pasoActual - 1)
+  const handleBack = () => {
+    setPaso(pasoActual - 1)
+    scrollTop()
+  }
 
-  const handleEditarPaso = (paso: number) => setPaso(paso)
+  const handleEditarPaso = (paso: number) => {
+    setPaso(paso)
+    scrollTop()
+  }
 
   const handleSubmit = (paso6Data: Paso6Data) => {
     guardarPaso(6, paso6Data)

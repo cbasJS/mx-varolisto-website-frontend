@@ -11,7 +11,7 @@ import { useAutoSave } from "./useAutoSave"
 
 const COPY_DOCUMENTOS: Record<string, string> = {
   empleado_formal:
-    "CFDI de nómina más reciente, o al menos 2 recibos de nómina / estados de cuenta de los últimos 3 meses.",
+    "Al menos 2 comprobantes de nómina / estados de cuenta de los últimos 3 meses.",
   negocio_propio:
     "Al menos 2 estados de cuenta con depósitos de los últimos 3 meses. También puedes incluir recibos de proveedores o fotos de tu negocio.",
   empleado_informal:
@@ -40,6 +40,7 @@ export function usePaso5(onNext: (datos: Paso5Data) => void) {
   const [clabeValida, setClabeValida] = useState<boolean | null>(null)
   const [nombreBanco, setNombreBanco] = useState("")
   const [sinEstadosCuenta, setSinEstadosCuenta] = useState(false)
+  const [duplicadosOmitidos, setDuplicadosOmitidos] = useState(0)
 
   const copyDocumentos =
     COPY_DOCUMENTOS[datos.tipoActividad ?? ""] ??
@@ -56,7 +57,15 @@ export function usePaso5(onNext: (datos: Paso5Data) => void) {
 
   const onDrop = useCallback(
     (accepted: File[]) => {
-      const nuevos = [...archivos, ...accepted].slice(0, 5)
+      const existingKeys = new Set(archivos.map((f) => `${f.name}-${f.size}`))
+      const sinDuplicados = accepted.filter((f) => !existingKeys.has(`${f.name}-${f.size}`))
+      const omitidos = accepted.length - sinDuplicados.length
+
+      setDuplicadosOmitidos(omitidos)
+
+      if (sinDuplicados.length === 0) return
+
+      const nuevos = [...archivos, ...sinDuplicados].slice(0, 5)
       setArchivos(nuevos)
       setComprobantes(nuevos)
       setValue("comprobantes", nuevos, { shouldValidate: true })
@@ -100,7 +109,23 @@ export function usePaso5(onNext: (datos: Paso5Data) => void) {
     }
   }
 
+  const handleClabePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const val = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 18)
+    setValue("clabe", val, { shouldValidate: val.length === 18 })
+    if (val.length === 18) {
+      const valida = validateClabe(val)
+      setClabeValida(valida)
+      setNombreBanco(valida ? getBancoFromClabe(val) : "")
+    } else {
+      setClabeValida(null)
+      setNombreBanco("")
+    }
+  }
+
   useAutoSave(watch, 5)
+
+  const clabeValue = watch("clabe") ?? ""
 
   return {
     register,
@@ -121,5 +146,9 @@ export function usePaso5(onNext: (datos: Paso5Data) => void) {
     isDragActive,
     eliminarArchivo,
     handleClabeChange,
+    handleClabePaste,
+    clabeValue,
+    duplicadosOmitidos,
+    setDuplicadosOmitidos,
   }
 }

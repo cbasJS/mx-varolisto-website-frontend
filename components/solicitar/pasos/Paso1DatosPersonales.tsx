@@ -40,6 +40,9 @@ export default function Paso1DatosPersonales({ onNext }: Props) {
     isValid,
     sexoActual,
     coloniaActual,
+    telefonoValue,
+    curpValue,
+    codigoPostalValue,
     cpValido,
     colonias,
     cargandoCP,
@@ -128,7 +131,11 @@ export default function Paso1DatosPersonales({ onNext }: Props) {
           placeholder=" "
           maxLength={18}
           className="uppercase"
-          hint="18 caracteres en mayúsculas"
+          suffix={
+            <span className="tabular-nums text-xs text-[#aaa]">
+              {curpValue.length}/18
+            </span>
+          }
         />
         <FloatingInput
           label="Correo electrónico"
@@ -146,7 +153,11 @@ export default function Paso1DatosPersonales({ onNext }: Props) {
           {...register("telefono")}
           placeholder=" "
           maxLength={10}
-          hint="10 dígitos sin guiones ni espacios"
+          suffix={
+            <span className="tabular-nums text-xs text-[#aaa]">
+              {telefonoValue.length}/10
+            </span>
+          }
         />
       </div>
 
@@ -163,6 +174,11 @@ export default function Paso1DatosPersonales({ onNext }: Props) {
             placeholder=" "
             maxLength={5}
             inputMode="numeric"
+            suffix={
+              <span className="tabular-nums text-xs text-[#aaa]">
+                {codigoPostalValue.length}/5
+              </span>
+            }
           />
           {cpValido && cpError && (
             <p className="mt-1.5 text-xs text-error">

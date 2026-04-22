@@ -30,7 +30,7 @@ const ACTIVIDADES = [
     value: "empleado_formal",
     label: "Empleado formal",
     icono: "badge",
-    hint: "Con CFDI de nómina",
+    hint: "Con comprobante de nómina",
   },
   {
     value: "empleado_informal",
