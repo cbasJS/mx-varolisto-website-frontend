@@ -1,10 +1,8 @@
 "use client"
 
-import { useEffect, useRef } from "react"
-import { useForm, Controller } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { paso4Schema, type Paso4Data } from "@/lib/solicitud-schema"
-import { useSolicitudStore } from "@/lib/solicitud-store"
+import { usePaso4 } from "@/hooks/solicitar/usePaso4"
+import type { Paso4Data } from "@/lib/solicitud-schema"
+import { Controller, useForm } from "react-hook-form"
 import {
   Select,
   SelectContent,
@@ -14,7 +12,6 @@ import {
 } from "@/components/ui/select"
 import {
   FloatingInput,
-  SectionDivider,
   StepTitle,
   FormActions,
   FieldError,
@@ -153,46 +150,10 @@ function RefCard({
 }
 
 export default function Paso4Referencias({ onNext, onBack }: Props) {
-  const datos = useSolicitudStore((s) => s.datos)
-
-  const {
-    register,
-    handleSubmit,
-    control,
-    setValue,
-    watch,
-    formState: { errors, isValid },
-  } = useForm<Paso4Data>({
-    resolver: zodResolver(paso4Schema),
-    mode: "onChange",
-    defaultValues: {
-      ref1Nombre: datos.ref1Nombre ?? "",
-      ref1Telefono: datos.ref1Telefono ?? "",
-      ref1Relacion: datos.ref1Relacion,
-      ref1Email: datos.ref1Email ?? "",
-      ref2Nombre: datos.ref2Nombre ?? "",
-      ref2Telefono: datos.ref2Telefono ?? "",
-      ref2Relacion: datos.ref2Relacion,
-      ref2Email: datos.ref2Email ?? "",
-    },
-  })
-
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => {
-    const subscription = watch((value) => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        useSolicitudStore.getState().guardarPaso(4, value as Partial<Paso4Data>);
-      }, 300);
-    });
-    return () => {
-      subscription.unsubscribe();
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [watch]);
+  const { register, handleSubmit, control, setValue, errors, isValid } = usePaso4(onNext)
 
   return (
-    <form onSubmit={handleSubmit(onNext)} noValidate>
+    <form onSubmit={handleSubmit} noValidate>
       <StepTitle
         numero={4}
         titulo="Referencias personales"
@@ -212,7 +173,6 @@ export default function Paso4Referencias({ onNext, onBack }: Props) {
           register={register}
           control={control}
           errors={errors}
-          defaultRelacion={datos.ref1Relacion}
           setValue={setValue}
         />
         <RefCard
@@ -221,7 +181,6 @@ export default function Paso4Referencias({ onNext, onBack }: Props) {
           register={register}
           control={control}
           errors={errors}
-          defaultRelacion={datos.ref2Relacion}
           setValue={setValue}
         />
       </div>

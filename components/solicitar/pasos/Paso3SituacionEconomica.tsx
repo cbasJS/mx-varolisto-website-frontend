@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { paso3Schema, type Paso3Data } from "@/lib/solicitud-schema";
-import { useSolicitudStore } from "@/lib/solicitud-store";
+import { usePaso3 } from "@/hooks/solicitar/usePaso3";
+import type { Paso3Data } from "@/lib/solicitud-schema";
+import { Controller } from "react-hook-form";
 import {
   Select,
   SelectContent,
@@ -62,81 +60,31 @@ const CANTIDAD_DEUDAS = [
 ];
 
 export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
-  const datos = useSolicitudStore((s) => s.datos);
-
   const {
     register,
     handleSubmit,
     control,
-    watch,
     setValue,
-    formState: { errors, isValid },
-  } = useForm<Paso3Data>({
-    resolver: zodResolver(paso3Schema),
-    defaultValues: {
-      tipoActividad: datos.tipoActividad,
-      nombreEmpleadorNegocio: datos.nombreEmpleadorNegocio ?? "",
-      antiguedad: datos.antiguedad,
-      ingresoMensual: datos.ingresoMensual,
-      tieneDeudas: datos.tieneDeudas,
-      cantidadDeudas: datos.cantidadDeudas,
-      montoTotalDeudas: datos.montoTotalDeudas,
-      pagoMensualDeudas: datos.pagoMensualDeudas,
-    },
-  });
-
-  const [ingresoDisplay, setIngresoDisplay] = useState<string>(
-    datos.ingresoMensual
-      ? datos.ingresoMensual.toLocaleString("es-MX", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })
-      : "",
-  );
-
-  const [pagoDeudaDisplay, setPagoDeudaDisplay] = useState<string>(
-    datos.pagoMensualDeudas
-      ? datos.pagoMensualDeudas.toLocaleString("es-MX", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })
-      : "",
-  );
-
-  const [antiguedadOpen, setAntiguedadOpen] = useState(false);
-  const [montoTotalOpen, setMontoTotalOpen] = useState(false);
-
-  const tipoActividad = watch("tipoActividad");
-  const tieneDeudas = watch("tieneDeudas");
-  const cantidadDeudas = watch("cantidadDeudas");
-  const antiguedadActual = watch("antiguedad");
-  const montoTotalDeudasActual = watch("montoTotalDeudas");
-
-  const labelEmpleador =
-    tipoActividad === "negocio_propio"
-      ? "Nombre de tu negocio"
-      : tipoActividad === "independiente"
-        ? "Actividad principal"
-        : "Empresa / Empleador";
-
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => {
-    const subscription = watch((value) => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        useSolicitudStore
-          .getState()
-          .guardarPaso(3, value as Partial<Paso3Data>);
-      }, 300);
-    });
-    return () => {
-      subscription.unsubscribe();
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [watch]);
+    errors,
+    isValid,
+    tipoActividad,
+    tieneDeudas,
+    cantidadDeudas,
+    antiguedadActual,
+    antiguedadOpen,
+    setAntiguedadOpen,
+    montoTotalDeudasActual,
+    montoTotalOpen,
+    setMontoTotalOpen,
+    labelEmpleador,
+    ingresoDisplay,
+    ingresoHandlers,
+    pagoDeudaDisplay,
+    pagoDeudaHandlers,
+  } = usePaso3(onNext);
 
   return (
-    <form onSubmit={handleSubmit(onNext)} noValidate>
+    <form onSubmit={handleSubmit} noValidate>
       <StepTitle
         numero={3}
         titulo="Tu situación económica"
@@ -273,50 +221,9 @@ export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
           prefix="$"
           suffix="MXN"
           value={ingresoDisplay}
-          onChange={(e) => {
-            // Conservar si el usuario está escribiendo decimales (termina en "." o "0" tras ".")
-            const raw = e.target.value.replace(/[^0-9.]/g, "");
-            const endsWithDot = raw.endsWith(".");
-            const num = parseFloat(raw);
-            if (!isNaN(num)) {
-              // Formatear miles en tiempo real, preservando el sufijo decimal en curso
-              const [intPart, decPart] = raw.split(".");
-              const formattedInt = parseInt(intPart || "0", 10).toLocaleString(
-                "es-MX",
-              );
-              if (endsWithDot) {
-                setIngresoDisplay(`${formattedInt}.`);
-              } else if (decPart !== undefined) {
-                setIngresoDisplay(`${formattedInt}.${decPart}`);
-              } else {
-                setIngresoDisplay(formattedInt);
-              }
-              setValue("ingresoMensual", num, { shouldValidate: true });
-            } else if (raw === "" || raw === ".") {
-              setIngresoDisplay(raw);
-              setValue("ingresoMensual", undefined as unknown as number, {
-                shouldValidate: true,
-              });
-            }
-          }}
-          onBlur={() => {
-            const num = parseFloat(ingresoDisplay.replace(/,/g, ""));
-            if (!isNaN(num)) {
-              setIngresoDisplay(
-                num.toLocaleString("es-MX", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }),
-              );
-            }
-          }}
-          onFocus={() => {
-            // Al enfocar, quitar el .00 del blur para edición más cómoda
-            const num = parseFloat(ingresoDisplay.replace(/,/g, ""));
-            if (!isNaN(num)) {
-              setIngresoDisplay(num.toLocaleString("es-MX"));
-            }
-          }}
+          onChange={ingresoHandlers.onChange}
+          onBlur={ingresoHandlers.onBlur}
+          onFocus={ingresoHandlers.onFocus}
           placeholder=" "
         />
       </div>
@@ -460,46 +367,9 @@ export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
             prefix="$"
             error={errors.pagoMensualDeudas?.message}
             value={pagoDeudaDisplay}
-            onChange={(e) => {
-              const raw = e.target.value.replace(/[^0-9.]/g, "");
-              const endsWithDot = raw.endsWith(".");
-              const num = parseFloat(raw);
-              if (!isNaN(num)) {
-                const [intPart, decPart] = raw.split(".");
-                const formattedInt = parseInt(
-                  intPart || "0",
-                  10,
-                ).toLocaleString("es-MX");
-                if (endsWithDot) {
-                  setPagoDeudaDisplay(`${formattedInt}.`);
-                } else if (decPart !== undefined) {
-                  setPagoDeudaDisplay(`${formattedInt}.${decPart}`);
-                } else {
-                  setPagoDeudaDisplay(formattedInt);
-                }
-                setValue("pagoMensualDeudas", num, { shouldValidate: true });
-              } else if (raw === "" || raw === ".") {
-                setPagoDeudaDisplay(raw);
-                setValue("pagoMensualDeudas", undefined as unknown as number, {
-                  shouldValidate: true,
-                });
-              }
-            }}
-            onBlur={() => {
-              const num = parseFloat(pagoDeudaDisplay.replace(/,/g, ""));
-              if (!isNaN(num)) {
-                setPagoDeudaDisplay(
-                  num.toLocaleString("es-MX", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }),
-                );
-              }
-            }}
-            onFocus={() => {
-              const num = parseFloat(pagoDeudaDisplay.replace(/,/g, ""));
-              if (!isNaN(num)) setPagoDeudaDisplay(num.toLocaleString("es-MX"));
-            }}
+            onChange={pagoDeudaHandlers.onChange}
+            onBlur={pagoDeudaHandlers.onBlur}
+            onFocus={pagoDeudaHandlers.onFocus}
             placeholder=" "
           />
         </div>

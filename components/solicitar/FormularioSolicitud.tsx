@@ -1,8 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { useSolicitudStore } from "@/lib/solicitud-store"
-import { generateFolio } from "@/lib/generar-folio"
+import { useSolicitudNavigation } from "@/hooks/solicitar/useSolicitudNavigation"
 import BarraPasos from "./BarraPasos"
 import PantallaExito from "./PantallaExito"
 import Paso1DatosPersonales from "./pasos/Paso1DatosPersonales"
@@ -11,14 +9,12 @@ import Paso3SituacionEconomica from "./pasos/Paso3SituacionEconomica"
 import Paso4Referencias from "./pasos/Paso4Referencias"
 import Paso5Documentos from "./pasos/Paso5Documentos"
 import Paso6Revision from "./pasos/Paso6Revision"
-import type {
-  Paso1Data,
-  Paso2Data,
-  Paso3Data,
-  Paso4Data,
-  Paso5Data,
-  Paso6Data,
-} from "@/lib/solicitud-schema"
+
+const TRUST_BADGES = [
+  { icono: "lock", texto: "Datos encriptados" },
+  { icono: "verified_user", texto: "100% seguro" },
+  { icono: "support_agent", texto: "Soporte en 24h" },
+]
 
 function FormSkeleton() {
   return (
@@ -44,46 +40,16 @@ function FormSkeleton() {
 }
 
 export default function FormularioSolicitud() {
-  const pasoActual = useSolicitudStore((s) => s.pasoActual)
-  const setPaso = useSolicitudStore((s) => s.setPaso)
-  const guardarPaso = useSolicitudStore((s) => s.guardarPaso)
-  const datos = useSolicitudStore((s) => s.datos)
-  const comprobantes = useSolicitudStore((s) => s.comprobantes)
-  const hasHydrated = useSolicitudStore((s) => s._hasHydrated)
-
-  const [folio, setFolio] = useState<string | null>(null)
-
-  const handleNext = (
-    paso: number,
-    nuevos: Partial<
-      Paso1Data & Paso2Data & Paso3Data & Paso4Data & Paso5Data & Paso6Data
-    >
-  ) => {
-    guardarPaso(paso, nuevos)
-    setPaso(paso + 1)
-  }
-
-  const handleBack = () => setPaso(pasoActual - 1)
-
-  const handleEditarPaso = (paso: number) => setPaso(paso)
-
-  const handleSubmit = (paso6Data: Paso6Data) => {
-    guardarPaso(6, paso6Data)
-    const folioGenerado = generateFolio()
-    const payload = {
-      ...datos,
-      ...paso6Data,
-      comprobantes: comprobantes.map((f) => ({
-        nombre: f.name,
-        tamano: f.size,
-        tipo: f.type,
-      })),
-      folio: folioGenerado,
-      timestampEnvio: new Date().toISOString(),
-    }
-    console.log("Payload solicitud:", payload)
-    setFolio(folioGenerado)
-  }
+  const {
+    pasoActual,
+    folio,
+    hasHydrated,
+    datos,
+    handleNext,
+    handleBack,
+    handleEditarPaso,
+    handleSubmit,
+  } = useSolicitudNavigation()
 
   if (folio) {
     return <PantallaExito folio={folio} telefono={datos.telefono} />
@@ -141,11 +107,7 @@ export default function FormularioSolicitud() {
 
       {/* Footer de confianza */}
       <div className="mt-6 flex items-center justify-center gap-6 text-center">
-        {[
-          { icono: "lock", texto: "Datos encriptados" },
-          { icono: "verified_user", texto: "100% seguro" },
-          { icono: "support_agent", texto: "Soporte en 24h" },
-        ].map(({ icono, texto }) => (
+        {TRUST_BADGES.map(({ icono, texto }) => (
           <div key={texto} className="flex items-center gap-1.5">
             <span
               className="material-symbols-outlined text-sm text-primary/30"
