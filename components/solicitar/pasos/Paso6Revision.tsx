@@ -1,10 +1,15 @@
 "use client"
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
-import { paso6Schema, type Paso6Data } from "@/lib/solicitud-schema"
+import { usePaso6 } from "@/hooks/solicitar/usePaso6"
 import { useSolicitudStore } from "@/lib/solicitud-store"
+import type { Paso6Data } from "@/lib/solicitud-schema"
+import {
+  DESTINO_LABELS,
+  ACTIVIDAD_LABELS,
+  RELACION_LABELS,
+  maskClabe,
+} from "@/lib/solicitud/utils/lookup-labels"
 import { Checkbox } from "@/components/ui/checkbox"
 import { StepTitle, FieldError } from "../FormUI"
 import { cn } from "@/lib/utils"
@@ -13,20 +18,6 @@ interface Props {
   onSubmit: (datos: Paso6Data) => void
   onBack: () => void
   onEditarPaso: (paso: number) => void
-}
-
-const DESTINO_LABELS: Record<string, string> = {
-  liquidar_deuda: "Liquidar una deuda", capital_trabajo: "Capital de trabajo",
-  gasto_medico: "Gasto médico", equipo_trabajo: "Equipo de trabajo",
-  mejora_hogar: "Mejora del hogar", educacion: "Educación",
-  gasto_familiar: "Gasto familiar", viaje_evento: "Viaje o evento", otro: "Otro",
-}
-const ACTIVIDAD_LABELS: Record<string, string> = {
-  empleado_formal: "Empleado formal", empleado_informal: "Empleado informal",
-  negocio_propio: "Negocio propio", independiente: "Freelance / Honorarios", otro: "Otro",
-}
-const RELACION_LABELS: Record<string, string> = {
-  familiar: "Familiar", trabajo: "Trabajo", amigo: "Amigo", otro: "Otro",
 }
 
 function SeccionCard({
@@ -109,22 +100,11 @@ export default function Paso6Revision({ onSubmit, onBack, onEditarPaso }: Props)
   const datos = useSolicitudStore((s) => s.datos)
   const comprobantes = useSolicitudStore((s) => s.comprobantes)
 
-  const {
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<Paso6Data>({
-    resolver: zodResolver(paso6Schema),
-    defaultValues: { aceptaPrivacidad: undefined, aceptaTerminos: undefined },
-  })
-
-  const privacidad = watch("aceptaPrivacidad")
-  const terminos = watch("aceptaTerminos")
-  const ambosAceptados = privacidad === true && terminos === true
+  const { handleSubmit, setValue, errors, privacidad, terminos, ambosAceptados } =
+    usePaso6(onSubmit)
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form onSubmit={handleSubmit} noValidate>
       <StepTitle
         numero={6}
         titulo="Revisa tu solicitud"
@@ -170,7 +150,7 @@ export default function Paso6Revision({ onSubmit, onBack, onEditarPaso }: Props)
 
         <SeccionCard titulo="Documentos y CLABE" paso={5} onEditar={onEditarPaso} icono="folder_open">
           <Fila label="Comprobantes" value={`${comprobantes.length} archivo${comprobantes.length !== 1 ? "s" : ""}`} />
-          <Fila label="CLABE" value={datos.clabe ? `••••••••••••${datos.clabe.slice(-4)}` : undefined} />
+          <Fila label="CLABE" value={datos.clabe ? maskClabe(datos.clabe) : undefined} />
         </SeccionCard>
       </div>
 

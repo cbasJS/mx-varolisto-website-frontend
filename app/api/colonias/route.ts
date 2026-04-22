@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { env } from "@/lib/env";
+import type { CopomexResponse } from "@/lib/solicitud/types";
 
-export interface CopomexResponse {
-  response: { municipio: string; estado: string; asentamiento: string };
-}
+export type { CopomexResponse }
 
 const CP_REGEX = /^\d{5}$/;
 

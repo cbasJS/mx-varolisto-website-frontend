@@ -1,18 +1,9 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useRef } from "react";
-import { paso2Schema, type Paso2Data } from "@/lib/solicitud-schema";
-import { useSolicitudStore } from "@/lib/solicitud-store";
+import { usePaso2 } from "@/hooks/solicitar/usePaso2";
+import type { Paso2Data } from "@/lib/solicitud-schema";
 import { Slider } from "@/components/ui/slider";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Controller } from "react-hook-form";
 import {
   FloatingInput,
   PillOption,
@@ -50,59 +41,24 @@ const DESTINOS = [
 
 const PLAZOS = ["2", "3", "4", "5", "6"];
 
-const TASA_MENSUAL = 0.0464;
-
-function calcularCuota(monto: number, plazo: number): number {
-  return Math.round(
-    (monto * TASA_MENSUAL * Math.pow(1 + TASA_MENSUAL, plazo)) /
-      (Math.pow(1 + TASA_MENSUAL, plazo) - 1),
-  );
-}
-
 export default function Paso2Solicitud({ onNext, onBack }: Props) {
-  const datos = useSolicitudStore((s) => s.datos);
-
   const {
     register,
     handleSubmit,
     control,
-    watch,
     setValue,
-    formState: { errors, isValid },
-  } = useForm<Paso2Data>({
-    resolver: zodResolver(paso2Schema),
-    defaultValues: {
-      montoSolicitado: datos.montoSolicitado ?? 5000,
-      plazoMeses: datos.plazoMeses ?? "3",
-      primerCredito: datos.primerCredito,
-      destinoPrestamo: datos.destinoPrestamo,
-      destinoOtro: datos.destinoOtro ?? "",
-    },
-  });
-
-  const monto = watch("montoSolicitado") ?? 5000;
-  const plazoStr = watch("plazoMeses") ?? "3";
-  const plazo = parseInt(plazoStr, 10);
-  const destino = watch("destinoPrestamo");
-  const primerCredito = watch("primerCredito");
-  const cuota = calcularCuota(monto, plazo);
-
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => {
-    const subscription = watch((value) => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        useSolicitudStore.getState().guardarPaso(2, value as Partial<Paso2Data>);
-      }, 300);
-    });
-    return () => {
-      subscription.unsubscribe();
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [watch]);
+    errors,
+    isValid,
+    monto,
+    plazoStr,
+    destino,
+    primerCredito,
+    cuota,
+    TASA_MENSUAL,
+  } = usePaso2(onNext);
 
   return (
-    <form onSubmit={handleSubmit(onNext)} noValidate>
+    <form onSubmit={handleSubmit} noValidate>
       <StepTitle
         numero={2}
         titulo="¿Cuánto necesitas?"
