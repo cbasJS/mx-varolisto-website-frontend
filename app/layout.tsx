@@ -47,6 +47,7 @@ export default function RootLayout({
         <Navbar />
         {children}
         <Footer />
+        <div id="datepicker-portal" />
       </body>
     </html>
   );

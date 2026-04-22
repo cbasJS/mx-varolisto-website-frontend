@@ -18,6 +18,10 @@ export default function Navbar() {
   const isHome = pathname === "/";
   const scrolled = useScrolled();
 
+  const DARK_HEADER_ROUTES = ["/solicitar"];
+  const hasDarkHeader = DARK_HEADER_ROUTES.includes(pathname);
+  const logoColor = !scrolled && hasDarkHeader ? "text-white" : "text-primary";
+
   return (
     <motion.header
       className={`fixed top-0 w-full z-50 transition-shadow duration-300 ${
@@ -35,7 +39,7 @@ export default function Navbar() {
       >
         <a
           href="/"
-          className="text-xl md:text-2xl font-extrabold text-primary font-headline tracking-tight"
+          className={`text-xl md:text-2xl font-extrabold ${logoColor} font-headline tracking-tight`}
           aria-label="VaroListo.mx - Inicio"
         >
           Varo<span className="text-secondary">Listo.mx</span>
@@ -58,8 +62,6 @@ export default function Navbar() {
         {isHome && (
           <a
             href={CTA_URL}
-            target="_blank"
-            rel="noopener noreferrer"
             className="bg-primary text-on-primary md:bg-secondary md:text-primary px-6 md:px-5 py-2 rounded-full font-headline font-bold text-sm hover:opacity-80 md:hover:opacity-100 md:hover:brightness-95 transition-opacity md:transition-all duration-150 active:scale-95"
             aria-label="Solicitar préstamo ahora"
           >
