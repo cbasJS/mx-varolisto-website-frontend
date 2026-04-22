@@ -1,11 +1,13 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import type { SolicitudCompleta } from "./solicitud-schema"
+import type { CopomexResponse } from "@/app/api/colonias/route"
 
 interface SolicitudState {
   pasoActual: number
   datos: Partial<SolicitudCompleta>
   timestampInicio: number
+  coloniasCache: Record<string, CopomexResponse[]>
   // comprobantes no persiste (File no es serializable)
   comprobantes: File[]
   _hasHydrated: boolean
@@ -15,6 +17,7 @@ interface SolicitudActions {
   setPaso: (paso: number) => void
   guardarPaso: (paso: number, datos: Partial<SolicitudCompleta>) => void
   setComprobantes: (archivos: File[]) => void
+  setColoniasCache: (cp: string, data: CopomexResponse[]) => void
   resetForm: () => void
   setHasHydrated: (value: boolean) => void
 }
@@ -23,6 +26,7 @@ const estadoInicial: SolicitudState = {
   pasoActual: 1,
   datos: {},
   timestampInicio: Date.now(),
+  coloniasCache: {},
   comprobantes: [],
   _hasHydrated: false,
 }
@@ -35,6 +39,8 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
       guardarPaso: (_, nuevos) =>
         set((state) => ({ datos: { ...state.datos, ...nuevos } })),
       setComprobantes: (archivos) => set({ comprobantes: archivos }),
+      setColoniasCache: (cp, data) =>
+        set((s) => ({ coloniasCache: { ...s.coloniasCache, [cp]: data } })),
       resetForm: () =>
         set({ ...estadoInicial, timestampInicio: Date.now(), comprobantes: [] }),
       setHasHydrated: (value) => set({ _hasHydrated: value }),
@@ -64,6 +70,7 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
           pasoActual: state.pasoActual,
           datos: state.datos,
           timestampInicio: state.timestampInicio,
+          coloniasCache: state.coloniasCache,
         }) as unknown as SolicitudState & SolicitudActions,
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true)
