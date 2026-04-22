@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { AiOutlineFileDone } from "react-icons/ai"
 import { useSolicitudStore } from "@/lib/solicitud-store"
 import Link from "next/link"
 
@@ -24,13 +25,7 @@ export default function PantallaExito({ folio, telefono }: Props) {
         <div className="absolute inset-0 -m-4 rounded-full border-2 border-secondary/20 animate-ping" />
         <div className="absolute inset-0 -m-2 rounded-full border border-secondary/10" />
         <div className="relative flex size-24 items-center justify-center rounded-full bg-secondary shadow-2xl shadow-secondary/30">
-          <span
-            className="material-symbols-outlined text-4xl text-white"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-            aria-hidden
-          >
-            check
-          </span>
+          <AiOutlineFileDone className="text-4xl text-white" aria-hidden />
         </div>
       </div>
 

@@ -148,12 +148,12 @@ export default function FormularioSolicitud() {
         ].map(({ icono, texto }) => (
           <div key={texto} className="flex items-center gap-1.5">
             <span
-              className="material-symbols-outlined text-sm text-white/50"
+              className="material-symbols-outlined text-sm text-primary/30"
               aria-hidden
             >
               {icono}
             </span>
-            <span className="text-xs text-white/40">{texto}</span>
+            <span className="text-xs text-primary/40">{texto}</span>
           </div>
         ))}
       </div>

@@ -30,7 +30,7 @@ export const paso1Schema = z.object({
       /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/,
       "Formato de CURP inválido"
     ),
-  email: zStr().email("Correo electrónico inválido"),
+  email: z.string().email("Correo electrónico inválido").optional().or(z.literal("")),
   telefono: zStr()
     .regex(/^\d{10}$/, "El teléfono debe tener 10 dígitos"),
   codigoPostal: zStr()

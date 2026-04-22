@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 
 const PASOS = [
-  { numero: 1, etiqueta: "Datos", icono: "person" },
+  { numero: 1, etiqueta: "Perfil", icono: "person" },
   { numero: 2, etiqueta: "Importe", icono: "payments" },
   { numero: 3, etiqueta: "Ingresos", icono: "account_balance_wallet" },
   { numero: 4, etiqueta: "Referencias", icono: "group" },
