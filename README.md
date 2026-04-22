@@ -1,58 +1,91 @@
-# VaroListo.mx — Landing Page
+# VaroListo.mx — Frontend
 
-Landing page de captación de leads para **VaroListo**, enfocada en conectar usuarios con opciones de financiamiento personal en México.
+Landing page y flujo de solicitud de crédito para **VaroListo**, plataforma de financiamiento personal en México.
 
 ## Stack
 
-- **Next.js 14** (App Router)
-- **Tailwind CSS** con design tokens personalizados
+- **Next.js 14** (App Router, TypeScript estricto)
+- **Tailwind CSS** con design tokens Material Design 3
 - **Framer Motion** para animaciones
-- **TypeScript**
+- **shadcn/ui** (`radix-nova`) para componentes base
+- **react-hook-form + Zod** — validación del formulario de solicitud
+- **Zustand** — estado global del formulario (persistido en sessionStorage)
+- **@varolisto/shared-schemas** — schemas Zod compartidos (NPM privado vía GitHub Packages)
+
+## Rutas
+
+| Ruta | Descripción |
+|---|---|
+| `/` | Landing page |
+| `/solicitar` | Formulario de solicitud (6 pasos) |
+| `/terminos-condiciones` | Términos y condiciones |
+| `/aviso-de-privacidad-integral` | Aviso de privacidad integral |
+
+## Formulario de solicitud (`/solicitar`)
+
+Flujo de 6 pasos con navegación entre ellos y scroll al top en cada transición:
+
+| Paso | Componente | Datos |
+|---|---|---|
+| 1 | `Paso1DatosPersonales` | Nombre, CURP, correo, teléfono, dirección |
+| 2 | `Paso2Solicitud` | Monto, plazo, destino, primer crédito |
+| 3 | `Paso3SituacionEconomica` | Actividad, empleador, antigüedad, ingresos, deudas |
+| 4 | `Paso4Referencias` | 2 referencias personales |
+| 5 | `Paso5Documentos` | Comprobantes (drag & drop) + CLABE interbancaria |
+| 6 | `Paso6Revision` | Resumen + consentimientos → envío |
 
 ## Estructura
 
 ```
 app/
-  layout.tsx        # Fuentes (Manrope + Inter), metadata, Material Symbols
-  page.tsx          # Composición de secciones
-  globals.css       # Animaciones CSS (shimmer, badge-bob, step-glow)
+  page.tsx                    # Landing page
+  solicitar/                  # Ruta del formulario
+  api/colonias/               # API route: consulta colonias por CP (SEPOMEX)
 components/
-  Navbar.tsx        # Header fijo con sombra dinámica al scroll
-  Hero.tsx          # Headline, badge social proof, CTAs animados
-  TrustCards.tsx    # Trato directo + 100% Confiable
-  Benefits.tsx      # 4 beneficios en grid responsive
-  HowItWorks.tsx    # 3 pasos con conector vertical
-  Testimonials.tsx  # 3 testimonios en grid
-  FinalCTA.tsx      # Sección oscura con CTA principal y WhatsApp
-  Footer.tsx        # Links legales + disclaimer obligatorio
-  BottomNav.tsx     # Barra sticky inferior (solo mobile)
+  layout/                     # Navbar, Footer, BottomNav
+  sections/                   # Secciones de la landing (Hero, Benefits, etc.)
+  solicitar/                  # Formulario completo
+    FormularioSolicitud.tsx   # Orquestador principal
+    BarraPasos.tsx            # Indicador de progreso
+    FormUI.tsx                # Componentes de UI reutilizables del form
+    PantallaExito.tsx         # Pantalla de éxito post-envío
+    pasos/                    # Un componente por paso
+  ui/                         # Componentes shadcn/radix
+content/
+  home.ts                     # Copy de la landing
+  nav.ts                      # Links de navegación y footer
+hooks/
+  solicitar/                  # Hooks por paso + navegación
+    useSolicitudNavigation.ts # Orquestador: next/back/submit + scroll
+    usePaso1.ts … usePaso6.ts # Validación por paso con react-hook-form
 lib/
-  config.ts         # URLs del formulario externo y WhatsApp
+  solicitud/
+    store.ts                  # Zustand store (sessionStorage)
+    schemas/index.ts          # Re-exports de @varolisto/shared-schemas
+    utils/                    # Helpers: labels, CLABE mask, cálculo de cuota, etc.
+  config.ts                   # URLs externas (WhatsApp) y constantes de marca
+  animations.ts               # Variantes Framer Motion reutilizables
+  utils.ts                    # cn() helper
 ```
 
 ## Configuración
 
-Antes de publicar, edita [`lib/config.ts`](lib/config.ts):
+URLs externas en [`lib/config.ts`](lib/config.ts). Actualizar ahí cuando cambie el número de WhatsApp u otros links.
 
-```ts
-export const CTA_URL = "https://tu-formulario-externo.com"
-export const WHATSAPP_NUMBER = "521XXXXXXXXXX"
+El paquete `@varolisto/shared-schemas` se instala desde GitHub Packages. Requiere un `.npmrc` con el token de autenticación:
+
+```
+@varolisto:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=TOKEN
 ```
 
 ## Desarrollo
 
 ```bash
 npm install
-npm run dev
-```
-
-Abre [http://localhost:3000](http://localhost:3000).
-
-## Build
-
-```bash
-npm run build
-npm start
+npm run dev      # http://localhost:3000
+npm run build    # Build de producción
+npm run lint     # ESLint
 ```
 
 ## Diseño
@@ -64,6 +97,4 @@ npm start
 | Fuente titular | Manrope (extrabold) |
 | Fuente cuerpo | Inter |
 
-## Aviso legal
-
-El footer incluye el disclaimer requerido: VaroListo no es una institución financiera. El sitio tiene fines informativos y las solicitudes están sujetas a evaluación y contacto directo.
+Los tokens siguen el sistema Material Design 3 (primary-fixed, on-primary, surface variants, etc.) definidos en `tailwind.config.ts`.

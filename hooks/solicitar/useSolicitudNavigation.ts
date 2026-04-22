@@ -60,6 +60,7 @@ export function useSolicitudNavigation() {
     }
     console.log("Payload solicitud:", payload)
     setFolio(folioGenerado)
+    scrollTop()
   }
 
   return {
