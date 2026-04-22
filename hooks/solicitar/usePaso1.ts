@@ -83,6 +83,10 @@ export function usePaso1(onNext: (datos: Paso1Data) => void) {
 
   useAutoSave(watch, 1)
 
+  const telefonoValue = useWatch({ control, name: "telefono" }) ?? ""
+  const curpValue = useWatch({ control, name: "curp" }) ?? ""
+  const codigoPostalValue = useWatch({ control, name: "codigoPostal" }) ?? ""
+
   return {
     register,
     handleSubmit: handleSubmit(onNext),
@@ -93,6 +97,9 @@ export function usePaso1(onNext: (datos: Paso1Data) => void) {
     sexoActual,
     codigoPostal,
     coloniaActual,
+    telefonoValue,
+    curpValue,
+    codigoPostalValue,
     cpValido,
     colonias,
     cargandoCP,

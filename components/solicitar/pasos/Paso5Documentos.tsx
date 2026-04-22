@@ -37,6 +37,10 @@ export default function Paso5Documentos({ onNext, onBack }: Props) {
     isDragActive,
     eliminarArchivo,
     handleClabeChange,
+    handleClabePaste,
+    clabeValue,
+    duplicadosOmitidos,
+    setDuplicadosOmitidos,
   } = usePaso5(onNext)
 
   return (
@@ -187,6 +191,31 @@ export default function Paso5Documentos({ onNext, onBack }: Props) {
           </ul>
         )}
 
+        {duplicadosOmitidos > 0 && (
+          <div className="mt-3 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <span
+              className="material-symbols-outlined mt-0.5 shrink-0 text-base text-amber-600"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+              aria-hidden
+            >
+              warning
+            </span>
+            <p className="flex-1 text-sm text-amber-800">
+              {duplicadosOmitidos === 1
+                ? "Un archivo ya estaba en la lista y fue omitido."
+                : `${duplicadosOmitidos} archivos ya estaban en la lista y fueron omitidos.`}
+            </p>
+            <button
+              type="button"
+              onClick={() => setDuplicadosOmitidos(0)}
+              className="shrink-0 rounded-lg p-0.5 text-amber-400 transition-colors hover:bg-amber-100 hover:text-amber-700"
+              aria-label="Cerrar aviso"
+            >
+              <span className="material-symbols-outlined text-base" aria-hidden>close</span>
+            </button>
+          </div>
+        )}
+
         <FieldError message={errors.comprobantes?.message as string} />
       </div>
 
@@ -204,7 +233,13 @@ export default function Paso5Documentos({ onNext, onBack }: Props) {
           hint="18 dígitos — no es el número de tu tarjeta"
           {...register("clabe")}
           onChange={handleClabeChange}
+          onPaste={handleClabePaste}
           placeholder=" "
+          suffix={
+            <span className="tabular-nums text-xs text-[#aaa]">
+              {clabeValue.length}/18
+            </span>
+          }
         />
 
         {/* Feedback CLABE */}
