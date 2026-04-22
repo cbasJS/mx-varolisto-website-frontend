@@ -23,24 +23,19 @@ import {
   FieldError,
 } from "../FormUI";
 import { cn } from "@/lib/utils";
+import type { CopomexResponse } from "@/app/api/colonias/route";
 
 interface Props {
   onNext: (datos: Paso1Data) => void;
 }
 
-interface CopomexResponse {
-  response: { municipio: string; estado: string; asentamiento: string };
-}
-
 async function fetchColonias(cp: string): Promise<CopomexResponse[]> {
-  const res = await fetch(
-    `https://api.copomex.com/query/info_cp/${cp}?token=pruebas`,
-  );
+  const res = await fetch(`/api/colonias?cp=${cp}`);
   if (!res.ok) throw new Error("CP no encontrado");
-  const data = await res.json();
+  const data: unknown = await res.json();
   if (!Array.isArray(data) || data.length === 0)
     throw new Error("CP no encontrado");
-  return data;
+  return data as CopomexResponse[];
 }
 
 const SEXO_OPTS = [
@@ -50,7 +45,9 @@ const SEXO_OPTS = [
 ];
 
 export default function Paso1DatosPersonales({ onNext }: Props) {
-  const datos = useSolicitudStore((s) => s.datos);
+  const datos = useSolicitudStore((s) => s.datos)
+  const coloniasCache = useSolicitudStore((s) => s.coloniasCache)
+  const setColoniasCache = useSolicitudStore((s) => s.setColoniasCache);
   const {
     register,
     handleSubmit,
@@ -98,7 +95,16 @@ export default function Paso1DatosPersonales({ onNext }: Props) {
     queryFn: () => fetchColonias(codigoPostal),
     enabled: cpValido,
     retry: false,
+    initialData: coloniasCache[codigoPostal],
+    initialDataUpdatedAt: 0,
+    staleTime: 24 * 60 * 60 * 1000,
   });
+
+  useEffect(() => {
+    if (colonias && colonias.length > 0 && cpValido) {
+      setColoniasCache(codigoPostal, colonias);
+    }
+  }, [colonias, codigoPostal, cpValido, setColoniasCache]);
 
   const prevCpRef = useRef<string>("");
 
