@@ -218,7 +218,7 @@ export default function Paso1DatosPersonales({ onNext }: Props) {
         <FloatingInput
           label="Correo electrónico"
           type="email"
-          required
+          optional
           error={errors.email?.message}
           {...register("email")}
           placeholder=" "
