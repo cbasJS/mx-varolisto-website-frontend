@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useDropzone } from "react-dropzone"
 import { paso5Schema, type Paso5Data } from "@/lib/solicitud/schemas/index"
 import { useSolicitudStore } from "@/lib/solicitud/store"
-import { validateClabe, getBancoFromClabe } from "@/lib/clabe-validator"
+import { validateClabe, getBancoFromClabe } from "@varolisto/shared-schemas/clabe"
 import { useAutoSave } from "./useAutoSave"
 
 const COPY_DOCUMENTOS: Record<string, string> = {
@@ -52,7 +52,7 @@ export function usePaso5(onNext: (datos: Paso5Data) => void) {
   const { register, handleSubmit, setValue, watch, formState: { errors, isValid } } =
     useForm<Paso5Data>({
       resolver: zodResolver(paso5Schema),
-      defaultValues: { comprobantes: comprobantesStore, clabe: datos.clabe ?? "" },
+      defaultValues: { comprobantes: comprobantesStore.map(f => f.name), clabe: datos.clabe ?? "" },
     })
 
   const onDrop = useCallback(
@@ -68,7 +68,7 @@ export function usePaso5(onNext: (datos: Paso5Data) => void) {
       const nuevos = [...archivos, ...sinDuplicados].slice(0, 5)
       setArchivos(nuevos)
       setComprobantes(nuevos)
-      setValue("comprobantes", nuevos, { shouldValidate: true })
+      setValue("comprobantes", nuevos.map(f => f.name), { shouldValidate: true })
     },
     [archivos, setComprobantes, setValue]
   )
@@ -93,7 +93,7 @@ export function usePaso5(onNext: (datos: Paso5Data) => void) {
     const nuevos = archivos.filter((_, i) => i !== index)
     setArchivos(nuevos)
     setComprobantes(nuevos)
-    setValue("comprobantes", nuevos, { shouldValidate: true })
+    setValue("comprobantes", nuevos.map(f => f.name), { shouldValidate: true })
   }
 
   const handleClabeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
