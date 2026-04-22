@@ -1,0 +1,36 @@
+import { NextRequest, NextResponse } from "next/server";
+import { env } from "@/lib/env";
+
+export interface CopomexResponse {
+  response: { municipio: string; estado: string; asentamiento: string };
+}
+
+const CP_REGEX = /^\d{5}$/;
+
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  const cp = request.nextUrl.searchParams.get("cp") ?? "";
+
+  if (!CP_REGEX.test(cp)) {
+    return NextResponse.json(
+      { error: "El parámetro cp debe ser un número de 5 dígitos." },
+      { status: 400 },
+    );
+  }
+
+  const upstream = await fetch(
+    `${env.copomex.baseUrl}/info_cp/${cp}?token=${env.copomex.token}`,
+    { next: { revalidate: 86400 } },
+  );
+
+  if (!upstream.ok) {
+    return NextResponse.json({ error: "CP no encontrado" }, { status: 404 });
+  }
+
+  const data: unknown = await upstream.json();
+
+  if (!Array.isArray(data) || data.length === 0) {
+    return NextResponse.json({ error: "CP no encontrado" }, { status: 404 });
+  }
+
+  return NextResponse.json(data as CopomexResponse[]);
+}
