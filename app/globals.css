@@ -1,9 +1,19 @@
+@import "react-datepicker/dist/react-datepicker.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Radix Select inyecta overflow:hidden en el body al abrir un dropdown
+   (via data-scroll-locked). Esto recorta los portales del SelectContent.
+   Anulamos esa regla para que los dropdowns se rendericen correctamente. */
+html body[data-scroll-locked] {
+  overflow: visible !important;
+  overscroll-behavior: auto !important;
 }
 
 .material-symbols-outlined {
@@ -64,4 +74,193 @@ html {
 
 .badge-bob {
   animation: badge-bob 3s ease-in-out infinite;
+}
+
+/* ── react-datepicker: diseño premium VaroListo ─────────────────────────── */
+
+.react-datepicker-popper  { z-index: 9999 !important; }
+.react-datepicker-wrapper { width: 100% !important; }
+.react-datepicker__triangle { display: none !important; }
+
+/* Contenedor principal */
+.react-datepicker {
+  border: 1.5px solid #e2e4f0 !important;
+  border-radius: 1rem !important;
+  box-shadow:
+    0 4px 6px -1px rgb(0 6 102 / 0.06),
+    0 20px 40px -8px rgb(0 6 102 / 0.14) !important;
+  font-family: inherit !important;
+  font-size: 0.8125rem !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+/* Header — navy con padding generoso */
+.react-datepicker__header {
+  background-color: #000666 !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+  padding: 1rem 1rem 0 !important;
+}
+
+/* Mes y año en header */
+.react-datepicker__current-month {
+  color: #ffffff !important;
+  font-size: 0.9375rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+  margin-bottom: 0.625rem !important;
+}
+
+/* Dropdowns de mes/año — apariencia limpia sobre navy */
+.react-datepicker__month-select,
+.react-datepicker__year-select {
+  background-color: rgba(255 255 255 / 0.12) !important;
+  border: 1px solid rgba(255 255 255 / 0.25) !important;
+  border-radius: 0.5rem !important;
+  color: #ffffff !important;
+  font-family: inherit !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  padding: 0.25rem 0.5rem !important;
+  cursor: pointer !important;
+  appearance: auto !important;
+}
+
+.react-datepicker__month-select option,
+.react-datepicker__year-select option {
+  background-color: #000666 !important;
+  color: #ffffff !important;
+}
+
+/* Fila de nombres de días — banda sutil entre header y grid */
+.react-datepicker__day-names {
+  background-color: #000666 !important;
+  border-bottom: 1px solid rgba(255 255 255 / 0.1) !important;
+  padding: 0.5rem 0.25rem 0.375rem !important;
+  margin: 0 !important;
+}
+
+.react-datepicker__day-name {
+  color: rgba(255 255 255 / 0.85) !important;
+  font-size: 0.6875rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  width: 2rem !important;
+  line-height: 1 !important;
+}
+
+/* Navegación — flechas bien visibles */
+.react-datepicker__navigation {
+  top: 1rem !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: rgba(255 255 255 / 0.9) !important;
+  border-width: 2px 2px 0 0 !important;
+  width: 7px !important;
+  height: 7px !important;
+}
+
+.react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: #2ECC71 !important;
+}
+
+/* Grid de días */
+.react-datepicker__month {
+  background-color: #ffffff !important;
+  margin: 0 !important;
+  padding: 0.625rem 0.5rem 0.75rem !important;
+}
+
+.react-datepicker__week {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+/* Días individuales */
+.react-datepicker__day {
+  border-radius: 0.5rem !important;
+  color: #1a1c1c !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  line-height: 2rem !important;
+  margin: 0.125rem !important;
+  transition: background-color 120ms, color 120ms, transform 80ms !important;
+}
+
+.react-datepicker__day:hover:not(.react-datepicker__day--disabled):not(.react-datepicker__day--selected) {
+  background-color: rgba(0, 6, 102, 0.08) !important;
+  color: #000666 !important;
+  transform: scale(1.05) !important;
+}
+
+/* Día seleccionado — verde marca */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #2ECC71 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 2px 8px rgb(46 204 113 / 0.4) !important;
+}
+
+.react-datepicker__day--selected:hover,
+.react-datepicker__day--keyboard-selected:hover {
+  background-color: #27b765 !important;
+  transform: scale(1.05) !important;
+}
+
+/* Días de otro mes */
+.react-datepicker__day--outside-month {
+  color: #c4c6d0 !important;
+  font-weight: 400 !important;
+}
+
+/* Días deshabilitados */
+.react-datepicker__day--disabled {
+  color: #d0d2db !important;
+  cursor: not-allowed !important;
+  background: none !important;
+  transform: none !important;
+}
+
+/* Dropdowns de mes/año como overlays */
+.react-datepicker__month-dropdown,
+.react-datepicker__year-dropdown {
+  background-color: #ffffff !important;
+  border: 1.5px solid #e2e4f0 !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 8px 24px rgb(0 6 102 / 0.12) !important;
+  top: 2.5rem !important;
+  overflow: hidden !important;
+}
+
+.react-datepicker__month-option,
+.react-datepicker__year-option {
+  color: #1a1c1c !important;
+  font-size: 0.8125rem !important;
+  padding: 0.375rem 1rem !important;
+  transition: background-color 100ms !important;
+}
+
+.react-datepicker__month-option:hover,
+.react-datepicker__year-option:hover {
+  background-color: rgba(0, 6, 102, 0.06) !important;
+  color: #000666 !important;
+}
+
+.react-datepicker__month-option--selected_month,
+.react-datepicker__year-option--selected_year {
+  background-color: rgba(0, 6, 102, 0.08) !important;
+  color: #000666 !important;
+  font-weight: 700 !important;
+}
+
+.react-datepicker__month-option--selected,
+.react-datepicker__year-option--selected {
+  color: #2ECC71 !important;
 }
