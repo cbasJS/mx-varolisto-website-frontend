@@ -5,11 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { paso4Schema, type Paso4Data } from "@/lib/solicitud/schemas/index"
 import { useSolicitudStore } from "@/lib/solicitud/store"
 import { useAutoSave } from "./useAutoSave"
+import { normalizeRegister } from "@/lib/solicitud/utils/normalizeRegister"
 
 export function usePaso4(onNext: (datos: Paso4Data) => void) {
   const datos = useSolicitudStore((s) => s.datos)
 
-  const { register, handleSubmit, control, setValue, watch, formState: { errors, isValid } } =
+  const { register: _register, handleSubmit, control, setValue, watch, formState: { errors, isValid } } =
     useForm<Paso4Data>({
       resolver: zodResolver(paso4Schema),
       mode: "onChange",
@@ -24,6 +25,8 @@ export function usePaso4(onNext: (datos: Paso4Data) => void) {
         ref2Email: datos.ref2Email ?? "",
       },
     })
+
+  const register = normalizeRegister(_register)
 
   useAutoSave(watch, 4)
 

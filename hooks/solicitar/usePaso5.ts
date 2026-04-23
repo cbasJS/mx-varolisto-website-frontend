@@ -6,30 +6,13 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useDropzone } from "react-dropzone"
 import { paso5Schema, type Paso5Data } from "@/lib/solicitud/schemas/index"
 import { useSolicitudStore } from "@/lib/solicitud/store"
-import { validateClabe, getBancoFromClabe } from "@varolisto/shared-schemas/clabe"
+import { validateClabe, getBancoFromClabe } from "@varolisto/shared-schemas/validators"
 import { useAutoSave } from "./useAutoSave"
-
-const COPY_DOCUMENTOS: Record<string, string> = {
-  empleado_formal:
-    "Al menos 2 comprobantes de nómina / estados de cuenta de los últimos 3 meses.",
-  negocio_propio:
-    "Al menos 2 estados de cuenta con depósitos de los últimos 3 meses. También puedes incluir recibos de proveedores o fotos de tu negocio.",
-  empleado_informal:
-    "Al menos 2 estados de cuenta con depósitos de los últimos 3 meses.",
-  independiente:
-    "Estados de cuenta de los últimos 3 meses o comprobantes de depósitos por honorarios.",
-}
-
-const TIPOS_SIN_BANCO = ["negocio_propio", "empleado_informal", "otro"]
-
-const COPY_ALTERNATIVOS: Record<string, string> = {
-  negocio_propio:
-    "Puedes subir fotos de tu negocio o mercancía, notas de venta, facturas a proveedores, comprobantes de pago a distribuidores, o cualquier documento que muestre la actividad de tu negocio.",
-  empleado_informal:
-    "Puedes subir una carta de tu empleador, fotos de recibos de pago en efectivo, notas de venta en las que aparezca tu nombre, o cualquier otro comprobante de tus ingresos.",
-  otro:
-    "Puedes subir cualquier documento que muestre tus ingresos: recibos de pago, transferencias, capturas de depósitos, notas de venta, o fotos de tu actividad económica.",
-}
+import {
+  COPY_DOCUMENTOS,
+  TIPOS_SIN_BANCO,
+  COPY_ALTERNATIVOS,
+} from "@/lib/solicitud/utils/lookup-labels"
 
 export function usePaso5(onNext: (datos: Paso5Data) => void) {
   const datos = useSolicitudStore((s) => s.datos)
@@ -46,7 +29,7 @@ export function usePaso5(onNext: (datos: Paso5Data) => void) {
     COPY_DOCUMENTOS[datos.tipoActividad ?? ""] ??
     "Al menos 2 documentos que muestren tus ingresos de los últimos 3 meses."
 
-  const puedeOmitirBanco = TIPOS_SIN_BANCO.includes(datos.tipoActividad ?? "")
+  const puedeOmitirBanco = (TIPOS_SIN_BANCO as readonly string[]).includes(datos.tipoActividad ?? "")
   const copyAlternativo = COPY_ALTERNATIVOS[datos.tipoActividad ?? ""] ?? ""
 
   const { register, handleSubmit, setValue, watch, formState: { errors, isValid } } =

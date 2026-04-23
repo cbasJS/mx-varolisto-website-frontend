@@ -2,6 +2,8 @@
 
 import { usePaso1 } from "@/hooks/solicitar/usePaso1";
 import type { Paso1Data } from "@/lib/solicitud-schema";
+import { SEXO } from "@varolisto/shared-schemas/enums";
+import { SEXO_META } from "@/lib/solicitud/utils/lookup-labels";
 import {
   Select,
   SelectContent,
@@ -24,11 +26,6 @@ interface Props {
   onNext: (datos: Paso1Data) => void;
 }
 
-const SEXO_OPTS = [
-  { value: "M", label: "Hombre", icono: "man" },
-  { value: "F", label: "Mujer", icono: "woman" },
-  { value: "ND", label: "Prefiero no decir", icono: "person" },
-];
 
 export default function Paso1DatosPersonales({ onNext }: Props) {
   const {
@@ -42,6 +39,7 @@ export default function Paso1DatosPersonales({ onNext }: Props) {
     coloniaActual,
     telefonoValue,
     curpValue,
+    rfcValue,
     codigoPostalValue,
     cpValido,
     colonias,
@@ -94,18 +92,14 @@ export default function Paso1DatosPersonales({ onNext }: Props) {
           </span>
         </p>
         <div className="flex flex-wrap gap-2">
-          {SEXO_OPTS.map(({ value, label, icono }) => (
+          {SEXO.map((value) => (
             <PillOption
               key={value}
               selected={sexoActual === value}
-              onClick={() =>
-                setValue("sexo", value as "M" | "F" | "ND", {
-                  shouldValidate: true,
-                })
-              }
-              icon={icono}
+              onClick={() => setValue("sexo", value, { shouldValidate: true })}
+              icon={SEXO_META[value].icono}
             >
-              {label}
+              {SEXO_META[value].label}
             </PillOption>
           ))}
         </div>
@@ -139,11 +133,26 @@ export default function Paso1DatosPersonales({ onNext }: Props) {
         />
         <FloatingInput
           label="Correo electrónico"
-          type="email"
-          optional
+          type="text"
+          inputMode="email"
+          required
           error={errors.email?.message}
           {...register("email")}
           placeholder=" "
+        />
+        <FloatingInput
+          label="RFC"
+          optional
+          error={errors.rfc?.message}
+          {...register("rfc")}
+          placeholder=" "
+          maxLength={13}
+          className="uppercase"
+          suffix={
+            <span className="tabular-nums text-xs text-[#aaa]">
+              {(rfcValue as string).length}/13
+            </span>
+          }
         />
         <FloatingInput
           label="Teléfono celular"

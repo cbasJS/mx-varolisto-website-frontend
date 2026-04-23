@@ -2,6 +2,8 @@
 
 import { usePaso4 } from "@/hooks/solicitar/usePaso4"
 import type { Paso4Data } from "@/lib/solicitud-schema"
+import { RELACION_REFERENCIA } from "@varolisto/shared-schemas/enums"
+import { RELACIONES_META } from "@/lib/solicitud/utils/lookup-labels"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import {
   Select,
@@ -24,12 +26,6 @@ interface Props {
   onBack: () => void
 }
 
-const RELACIONES = [
-  { value: "familiar", label: "Familiar" },
-  { value: "trabajo", label: "Trabajo" },
-  { value: "amigo", label: "Amigo" },
-  { value: "otro", label: "Otro" },
-]
 
 function RefCard({
   numero,
@@ -128,9 +124,9 @@ function RefCard({
                       <SelectValue placeholder="" />
                     </SelectTrigger>
                     <SelectContent>
-                      {RELACIONES.map((r) => (
-                        <SelectItem key={r.value} value={r.value}>
-                          {r.label}
+                      {RELACION_REFERENCIA.map((v) => (
+                        <SelectItem key={v} value={v}>
+                          {RELACIONES_META[v]}
                         </SelectItem>
                       ))}
                     </SelectContent>

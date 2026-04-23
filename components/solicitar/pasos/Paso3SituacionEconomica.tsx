@@ -2,6 +2,18 @@
 
 import { usePaso3 } from "@/hooks/solicitar/usePaso3";
 import type { Paso3Data } from "@/lib/solicitud-schema";
+import {
+  TIPO_ACTIVIDAD,
+  ANTIGUEDAD,
+  CANTIDAD_DEUDAS,
+  MONTO_TOTAL_DEUDAS,
+} from "@varolisto/shared-schemas/enums";
+import {
+  ACTIVIDADES_META,
+  CANTIDAD_DEUDAS_META,
+  ANTIGUEDAD_META,
+  MONTO_TOTAL_DEUDAS_META,
+} from "@/lib/solicitud/utils/lookup-labels";
 import { Controller } from "react-hook-form";
 import {
   Select,
@@ -25,39 +37,6 @@ interface Props {
   onBack: () => void;
 }
 
-const ACTIVIDADES = [
-  {
-    value: "empleado_formal",
-    label: "Empleado formal",
-    icono: "badge",
-    hint: "Con comprobante de nómina",
-  },
-  {
-    value: "empleado_informal",
-    label: "Empleado informal",
-    icono: "handshake",
-    hint: "Sin contrato",
-  },
-  {
-    value: "negocio_propio",
-    label: "Negocio propio",
-    icono: "store",
-    hint: "Dueño de negocio",
-  },
-  {
-    value: "independiente",
-    label: "Freelance",
-    icono: "laptop_mac",
-    hint: "Honorarios",
-  },
-  { value: "otro", label: "Otro", icono: "more_horiz", hint: "" },
-];
-
-const CANTIDAD_DEUDAS = [
-  { value: "1", label: "1 deuda" },
-  { value: "2", label: "2 deudas" },
-  { value: "3_o_mas", label: "3 o más" },
-];
 
 export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
   const {
@@ -100,47 +79,48 @@ export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
           </span>
         </p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {ACTIVIDADES.map(({ value, label, icono, hint }) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() =>
-                setValue("tipoActividad", value as Paso3Data["tipoActividad"], {
-                  shouldValidate: true,
-                })
-              }
-              className={cn(
-                "flex flex-col items-start gap-1 rounded-xl border-2 p-3 text-left transition-all active:scale-[0.97]",
-                tipoActividad === value
-                  ? "border-primary bg-primary text-white"
-                  : "border-[#e8e8e8] bg-white hover:border-primary/30",
-              )}
-            >
-              <span
+          {TIPO_ACTIVIDAD.map((value) => {
+            const { label, icono, hint } = ACTIVIDADES_META[value]
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() =>
+                  setValue("tipoActividad", value, { shouldValidate: true })
+                }
                 className={cn(
-                  "material-symbols-outlined text-lg",
-                  tipoActividad === value ? "text-secondary" : "text-[#aaa]",
+                  "flex flex-col items-start gap-1 rounded-xl border-2 p-3 text-left transition-all active:scale-[0.97]",
+                  tipoActividad === value
+                    ? "border-primary bg-primary text-white"
+                    : "border-[#e8e8e8] bg-white hover:border-primary/30",
                 )}
-                style={{ fontVariationSettings: "'FILL' 1" }}
-                aria-hidden
               >
-                {icono}
-              </span>
-              <span className="text-sm font-semibold leading-tight">
-                {label}
-              </span>
-              {hint && (
                 <span
                   className={cn(
-                    "text-[11px]",
-                    tipoActividad === value ? "text-white/70" : "text-[#aaa]",
+                    "material-symbols-outlined text-lg",
+                    tipoActividad === value ? "text-secondary" : "text-[#aaa]",
                   )}
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                  aria-hidden
                 >
-                  {hint}
+                  {icono}
                 </span>
-              )}
-            </button>
-          ))}
+                <span className="text-sm font-semibold leading-tight">
+                  {label}
+                </span>
+                {hint && (
+                  <span
+                    className={cn(
+                      "text-[11px]",
+                      tipoActividad === value ? "text-white/70" : "text-[#aaa]",
+                    )}
+                  >
+                    {hint}
+                  </span>
+                )}
+              </button>
+            )
+          })}
         </div>
         <FieldError message={errors.tipoActividad?.message} />
       </div>
@@ -198,9 +178,9 @@ export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
                     <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="menos_1">Menos de 1 año</SelectItem>
-                    <SelectItem value="uno_a_dos">Entre 1 y 2 años</SelectItem>
-                    <SelectItem value="mas_2">Más de 2 años</SelectItem>
+                    {ANTIGUEDAD.map((v) => (
+                      <SelectItem key={v} value={v}>{ANTIGUEDAD_META[v]}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               )}
@@ -250,11 +230,14 @@ export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
             <PillOption
               key={value}
               selected={tieneDeudas === value}
-              onClick={() =>
-                setValue("tieneDeudas", value as "si" | "no", {
-                  shouldValidate: true,
-                })
-              }
+              onClick={() => {
+                setValue("tieneDeudas", value as "si" | "no", { shouldValidate: true })
+                if (value === "no") {
+                  setValue("cantidadDeudas", "sin_deudas", { shouldValidate: true })
+                } else {
+                  setValue("cantidadDeudas", undefined, { shouldValidate: true })
+                }
+              }}
               icon={icono}
               fullWidth
             >
@@ -277,16 +260,12 @@ export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
               </span>
             </p>
             <div className="flex gap-2">
-              {CANTIDAD_DEUDAS.map(({ value, label }) => (
+              {CANTIDAD_DEUDAS.filter((v) => v !== "sin_deudas").map((value) => (
                 <button
                   key={value}
                   type="button"
                   onClick={() =>
-                    setValue(
-                      "cantidadDeudas",
-                      value as Paso3Data["cantidadDeudas"],
-                      { shouldValidate: true },
-                    )
+                    setValue("cantidadDeudas", value, { shouldValidate: true })
                   }
                   className={cn(
                     "flex-1 rounded-xl border-2 py-2.5 text-sm font-semibold transition-all",
@@ -295,7 +274,7 @@ export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
                       : "border-[#e8e8e8] bg-white text-[#454652] hover:border-primary/40",
                   )}
                 >
-                  {label}
+                  {CANTIDAD_DEUDAS_META[value]}
                 </button>
               ))}
             </div>
@@ -346,10 +325,9 @@ export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
                       <SelectValue placeholder="" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="menos_5k">Menos de $5,000</SelectItem>
-                      <SelectItem value="5k_15k">$5,000 – $15,000</SelectItem>
-                      <SelectItem value="15k_30k">$15,000 – $30,000</SelectItem>
-                      <SelectItem value="mas_30k">Más de $30,000</SelectItem>
+                      {MONTO_TOTAL_DEUDAS.map((v) => (
+                        <SelectItem key={v} value={v}>{MONTO_TOTAL_DEUDAS_META[v]}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 )}
