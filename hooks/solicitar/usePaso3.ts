@@ -12,11 +12,12 @@ import {
   formatCurrencyOnFocus,
 } from "@/lib/solicitud/utils/formatCurrency"
 import { useAutoSave } from "./useAutoSave"
+import { normalizeRegister } from "@/lib/solicitud/utils/normalizeRegister"
 
 export function usePaso3(onNext: (datos: Paso3Data) => void) {
   const datos = useSolicitudStore((s) => s.datos)
 
-  const { register, handleSubmit, control, watch, setValue, formState: { errors, isValid } } =
+  const { register: _register, handleSubmit, control, watch, setValue, formState: { errors, isValid } } =
     useForm<Paso3Data>({
       resolver: zodResolver(paso3Schema),
       defaultValues: {
@@ -30,6 +31,8 @@ export function usePaso3(onNext: (datos: Paso3Data) => void) {
         pagoMensualDeudas: datos.pagoMensualDeudas,
       },
     })
+
+  const register = normalizeRegister(_register)
 
   const [ingresoDisplay, setIngresoDisplay] = useState<string>(
     initCurrencyDisplay(datos.ingresoMensual)

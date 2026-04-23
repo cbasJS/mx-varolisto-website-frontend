@@ -8,6 +8,7 @@ import {
   DESTINO_LABELS,
   ACTIVIDAD_LABELS,
   RELACION_LABELS,
+  ANTIGUEDAD_LABELS,
   maskClabe,
 } from "@/lib/solicitud/utils/lookup-labels";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -202,15 +203,7 @@ export default function Paso6Revision({
           />
           <Fila
             label="Antigüedad"
-            value={
-              datos.antiguedad === "menos_1"
-                ? "Menos de 1 año"
-                : datos.antiguedad === "uno_a_dos"
-                  ? "1–2 años"
-                  : datos.antiguedad === "mas_2"
-                    ? "Más de 2 años"
-                    : undefined
-            }
+            value={datos.antiguedad ? ANTIGUEDAD_LABELS[datos.antiguedad] : undefined}
           />
           <Fila
             label="Ingreso mensual"

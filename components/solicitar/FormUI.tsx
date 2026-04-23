@@ -116,6 +116,9 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
                 suffix ? "pr-2" : "pr-4",
                 className,
               )}
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
               aria-invalid={!!error}
               aria-describedby={error ? `${inputId}-error` : undefined}
               {...props}

@@ -6,11 +6,12 @@ import { paso2Schema, type Paso2Data } from "@/lib/solicitud/schemas/index"
 import { useSolicitudStore } from "@/lib/solicitud/store"
 import { calcularCuota, TASA_MENSUAL } from "@/lib/solicitud/utils/calcularCuota"
 import { useAutoSave } from "./useAutoSave"
+import { normalizeRegister } from "@/lib/solicitud/utils/normalizeRegister"
 
 export function usePaso2(onNext: (datos: Paso2Data) => void) {
   const datos = useSolicitudStore((s) => s.datos)
 
-  const { register, handleSubmit, control, watch, setValue, formState: { errors, isValid } } =
+  const { register: _register, handleSubmit, control, watch, setValue, formState: { errors, isValid } } =
     useForm<Paso2Data>({
       resolver: zodResolver(paso2Schema),
       defaultValues: {
@@ -21,6 +22,8 @@ export function usePaso2(onNext: (datos: Paso2Data) => void) {
         destinoOtro: datos.destinoOtro ?? "",
       },
     })
+
+  const register = normalizeRegister(_register)
 
   const monto = watch("montoSolicitado") ?? 5000
   const plazoStr = watch("plazoMeses") ?? "3"

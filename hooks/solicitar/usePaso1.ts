@@ -8,6 +8,7 @@ import { paso1Schema, type Paso1Data } from "@/lib/solicitud/schemas/index"
 import { useSolicitudStore } from "@/lib/solicitud/store"
 import { fetchColonias } from "@/lib/solicitud/utils/fetchColonias"
 import { useAutoSave } from "./useAutoSave"
+import { normalizeRegister } from "@/lib/solicitud/utils/normalizeRegister"
 
 export function usePaso1(onNext: (datos: Paso1Data) => void) {
   const datos = useSolicitudStore((s) => s.datos)
@@ -25,17 +26,20 @@ export function usePaso1(onNext: (datos: Paso1Data) => void) {
       fechaNacimiento: datos.fechaNacimiento ?? "",
       curp: datos.curp ?? "",
       email: datos.email ?? "",
+      rfc: datos.rfc ?? undefined,
       telefono: datos.telefono ?? "",
       codigoPostal: datos.codigoPostal ?? "",
       colonia: datos.colonia ?? "",
       municipio: datos.municipio ?? "",
       calle: datos.calle ?? "",
       numeroExterior: datos.numeroExterior ?? "",
-      numeroInterior: datos.numeroInterior ?? "",
+      numeroInterior: datos.numeroInterior ?? undefined,
     },
   })
 
-  const { register, handleSubmit, setValue, control, watch, formState: { errors, isValid } } = form
+  const { register: _register, handleSubmit, setValue, control, watch, formState: { errors, isValid } } = form
+
+  const register = normalizeRegister(_register)
 
   const maxDateNacimiento = useMemo(() => {
     const d = new Date()
@@ -85,6 +89,7 @@ export function usePaso1(onNext: (datos: Paso1Data) => void) {
 
   const telefonoValue = useWatch({ control, name: "telefono" }) ?? ""
   const curpValue = useWatch({ control, name: "curp" }) ?? ""
+  const rfcValue = useWatch({ control, name: "rfc" }) ?? ""
   const codigoPostalValue = useWatch({ control, name: "codigoPostal" }) ?? ""
 
   return {
@@ -99,6 +104,7 @@ export function usePaso1(onNext: (datos: Paso1Data) => void) {
     coloniaActual,
     telefonoValue,
     curpValue,
+    rfcValue,
     codigoPostalValue,
     cpValido,
     colonias,

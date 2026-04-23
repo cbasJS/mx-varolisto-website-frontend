@@ -2,6 +2,8 @@
 
 import { usePaso2 } from "@/hooks/solicitar/usePaso2";
 import type { Paso2Data } from "@/lib/solicitud-schema";
+import { DESTINO_PRESTAMO, PLAZO_MESES } from "@varolisto/shared-schemas/enums";
+import { DESTINOS_META } from "@/lib/solicitud/utils/lookup-labels";
 import { Slider } from "@/components/ui/slider";
 import { Controller } from "react-hook-form";
 import {
@@ -19,27 +21,6 @@ interface Props {
   onBack: () => void;
 }
 
-const DESTINOS = [
-  { value: "liquidar_deuda", label: "Liquidar una deuda", icono: "sync_alt" },
-  { value: "capital_trabajo", label: "Capital de trabajo", icono: "store" },
-  { value: "gasto_medico", label: "Gasto médico", icono: "local_hospital" },
-  { value: "equipo_trabajo", label: "Equipo de trabajo", icono: "build" },
-  {
-    value: "mejora_hogar",
-    label: "Mejora del hogar",
-    icono: "home_repair_service",
-  },
-  { value: "educacion", label: "Educación", icono: "school" },
-  {
-    value: "gasto_familiar",
-    label: "Gasto familiar",
-    icono: "family_restroom",
-  },
-  { value: "viaje_evento", label: "Viaje o evento", icono: "flight" },
-  { value: "otro", label: "Otro", icono: "more_horiz" },
-];
-
-const PLAZOS = ["2", "3", "4", "5", "6"];
 
 export default function Paso2Solicitud({ onNext, onBack }: Props) {
   const {
@@ -106,14 +87,12 @@ export default function Paso2Solicitud({ onNext, onBack }: Props) {
           <span className="text-error" aria-hidden>*</span>
         </p>
         <div className="flex gap-2">
-          {PLAZOS.map((m) => (
+          {PLAZO_MESES.map((m) => (
             <button
               key={m}
               type="button"
               onClick={() =>
-                setValue("plazoMeses", m as Paso2Data["plazoMeses"], {
-                  shouldValidate: true,
-                })
+                setValue("plazoMeses", m, { shouldValidate: true })
               }
               className={cn(
                 "flex-1 rounded-xl border-2 py-3 text-sm font-bold transition-all active:scale-[0.96]",
@@ -196,21 +175,17 @@ export default function Paso2Solicitud({ onNext, onBack }: Props) {
           <span className="text-error" aria-hidden>*</span>
         </p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {DESTINOS.map(({ value, label, icono }) => (
+          {DESTINO_PRESTAMO.map((value) => (
             <PillOption
               key={value}
               selected={destino === value}
               onClick={() =>
-                setValue(
-                  "destinoPrestamo",
-                  value as Paso2Data["destinoPrestamo"],
-                  { shouldValidate: true },
-                )
+                setValue("destinoPrestamo", value, { shouldValidate: true })
               }
-              icon={icono}
+              icon={DESTINOS_META[value].icono}
               fullWidth
             >
-              {label}
+              {DESTINOS_META[value].label}
             </PillOption>
           ))}
         </div>
