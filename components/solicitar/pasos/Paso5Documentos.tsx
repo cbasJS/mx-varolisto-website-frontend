@@ -260,13 +260,13 @@ export default function Paso5Documentos({ onNext, onBack }: Props) {
             </div>
           </div>
         )}
-        {clabeValida === false && (
+        {/* {clabeValida === false && (
           <div className="mt-2 rounded-xl bg-red-50 border border-red-200 px-4 py-2.5">
             <p className="text-sm font-medium text-error">
               CLABE inválida — verifica que no sea el número de tu tarjeta.
             </p>
           </div>
-        )}
+        )} */}
       </div>
 
       <FormActions onBack={onBack} submitLabel="Continuar" disabled={!isValid} />
