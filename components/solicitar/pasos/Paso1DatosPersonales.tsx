@@ -157,6 +157,7 @@ export default function Paso1DatosPersonales({ onNext }: Props) {
         <FloatingInput
           label="Teléfono celular"
           type="tel"
+          inputMode="numeric"
           required
           error={errors.telefono?.message}
           {...register("telefono")}

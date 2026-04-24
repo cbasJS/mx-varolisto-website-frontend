@@ -11,11 +11,11 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-query": "^5.99.2",
-    "@varolisto/shared-schemas": "^0.2.1",
+    "@varolisto/shared-schemas": "^0.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
-    "lucide-react": "^1.8.0",
+    "lucide-react": "^1.9.0",
     "next": "15.5.15",
     "radix-ui": "^1.4.3",
     "react": "^18.3.0",
