@@ -1,6 +1,8 @@
 "use client"
 
+import { useEffect } from "react"
 import { useSolicitudNavigation } from "@/hooks/solicitar/useSolicitudNavigation"
+import { useSolicitudStore } from "@/lib/solicitud/store"
 import BarraPasos from "./BarraPasos"
 import PantallaExito from "./PantallaExito"
 import Paso1DatosPersonales from "./pasos/Paso1DatosPersonales"
@@ -40,11 +42,21 @@ function FormSkeleton() {
 }
 
 export default function FormularioSolicitud() {
+  const inicializarSession = useSolicitudStore((s) => s.inicializarSession)
+
+  useEffect(() => {
+    inicializarSession()
+  }, [inicializarSession])
+
   const {
     pasoActual,
     folio,
     hasHydrated,
     datos,
+    enviando,
+    errorSubmit,
+    limpiarErrorSubmit,
+    handleConflictoConfirmado,
     handleNext,
     handleBack,
     handleEditarPaso,
@@ -100,6 +112,10 @@ export default function FormularioSolicitud() {
               onSubmit={handleSubmit}
               onBack={handleBack}
               onEditarPaso={handleEditarPaso}
+              enviando={enviando}
+              errorSubmit={errorSubmit}
+              onLimpiarError={limpiarErrorSubmit}
+              onConflictoConfirmado={handleConflictoConfirmado}
             />
           )}
         </div>

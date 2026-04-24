@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollRestorationClient from "@/components/layout/ScrollRestorationClient";
+import { Toaster } from "sonner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -48,6 +49,7 @@ export default function RootLayout({
         {children}
         <Footer />
         <div id="datepicker-portal" />
+        <Toaster position="top-center" richColors closeButton />
       </body>
     </html>
   );
