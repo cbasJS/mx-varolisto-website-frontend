@@ -8,7 +8,7 @@
 import React, { useState, useId, forwardRef } from "react";
 import { cn } from "@/lib/utils";
 import DatePicker, { registerLocale } from "react-datepicker";
-import { es } from "date-fns/locale/es";
+import { es } from "date-fns/locale";
 import {
   Controller,
   type Control,
