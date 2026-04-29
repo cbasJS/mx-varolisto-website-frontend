@@ -1,7 +1,7 @@
 "use client"
 
-import { usePaso4 } from "@/hooks/solicitar/usePaso4"
-import type { Paso4Data } from "@/lib/solicitud-schema"
+import { usePaso5 } from "@/hooks/solicitar/usePaso5"
+import type { Paso5Data } from "@/lib/solicitud-schema"
 import { RELACION_REFERENCIA } from "@varolisto/shared-schemas/enums"
 import { RELACIONES_META } from "@/lib/solicitud/utils/lookup-labels"
 import { Controller, useForm, useWatch } from "react-hook-form"
@@ -22,10 +22,9 @@ import {
 import { cn } from "@/lib/utils"
 
 interface Props {
-  onNext: (datos: Paso4Data) => void
+  onNext: (datos: Paso5Data) => void
   onBack: () => void
 }
-
 
 function RefCard({
   numero,
@@ -33,21 +32,19 @@ function RefCard({
   register,
   control,
   errors,
-  defaultRelacion,
   setValue,
 }: {
   numero: 1 | 2
   prefix: "ref1" | "ref2"
-  register: ReturnType<typeof useForm<Paso4Data>>["register"]
-  control: ReturnType<typeof useForm<Paso4Data>>["control"]
-  errors: ReturnType<typeof useForm<Paso4Data>>["formState"]["errors"]
-  defaultRelacion?: string
-  setValue: ReturnType<typeof useForm<Paso4Data>>["setValue"]
+  register: ReturnType<typeof useForm<Paso5Data>>["register"]
+  control: ReturnType<typeof useForm<Paso5Data>>["control"]
+  errors: ReturnType<typeof useForm<Paso5Data>>["formState"]["errors"]
+  setValue: ReturnType<typeof useForm<Paso5Data>>["setValue"]
 }) {
-  const nombreKey = `${prefix}Nombre` as keyof Paso4Data
-  const telefonoKey = `${prefix}Telefono` as keyof Paso4Data
-  const relacionKey = `${prefix}Relacion` as keyof Paso4Data
-  const emailKey = `${prefix}Email` as keyof Paso4Data
+  const nombreKey = `${prefix}Nombre` as keyof Paso5Data
+  const telefonoKey = `${prefix}Telefono` as keyof Paso5Data
+  const relacionKey = `${prefix}Relacion` as keyof Paso5Data
+  const emailKey = `${prefix}Email` as keyof Paso5Data
 
   const telefonoValue = (useWatch({ control, name: telefonoKey }) as string) ?? ""
 
@@ -118,7 +115,6 @@ function RefCard({
                   <Select
                     value={field.value as string}
                     onValueChange={field.onChange}
-                    defaultValue={defaultRelacion}
                   >
                     <SelectTrigger data-size="" className={cn("!h-[52px] w-full rounded-xl border-0 bg-transparent pl-4 pr-3 text-sm shadow-none focus:ring-0", hasValue ? "pb-2 pt-6" : "py-0")}>
                       <SelectValue placeholder="" />
@@ -152,13 +148,13 @@ function RefCard({
   )
 }
 
-export default function Paso4Referencias({ onNext, onBack }: Props) {
-  const { register, handleSubmit, control, setValue, errors, isValid } = usePaso4(onNext)
+export default function Paso5Referencias({ onNext, onBack }: Props) {
+  const { register, handleSubmit, control, setValue, errors, isValid } = usePaso5(onNext)
 
   return (
     <form onSubmit={handleSubmit} noValidate>
       <StepTitle
-        numero={4}
+        numero={5}
         titulo="Referencias personales"
         subtitulo="Necesitamos dos personas que puedan confirmar tu solicitud."
       />

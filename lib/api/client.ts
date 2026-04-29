@@ -2,7 +2,8 @@ import { ApiError } from "./errors"
 
 const DEFAULT_TIMEOUT_MS = 30_000
 
-export async function apiPost<TReq, TRes>(
+async function apiFetch<TReq, TRes>(
+  method: string,
   path: string,
   body: TReq,
   options?: { timeoutMs?: number },
@@ -17,7 +18,7 @@ export async function apiPost<TReq, TRes>(
   let response: Response
   try {
     response = await fetch(`${baseUrl}${path}`, {
-      method: "POST",
+      method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
       signal: controller.signal,
@@ -45,4 +46,20 @@ export async function apiPost<TReq, TRes>(
     mensaje: errorBody.mensaje,
     detalles: errorBody.detalles,
   })
+}
+
+export async function apiPost<TReq, TRes>(
+  path: string,
+  body: TReq,
+  options?: { timeoutMs?: number },
+): Promise<TRes> {
+  return apiFetch("POST", path, body, options)
+}
+
+export async function apiDelete<TReq, TRes>(
+  path: string,
+  body: TReq,
+  options?: { timeoutMs?: number },
+): Promise<TRes> {
+  return apiFetch("DELETE", path, body, options)
 }

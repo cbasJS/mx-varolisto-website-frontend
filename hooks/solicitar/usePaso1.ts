@@ -1,115 +1,43 @@
 "use client"
 
-import { useEffect, useMemo, useRef } from "react"
-import { useForm, useWatch } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useQuery } from "@tanstack/react-query"
-import { paso1Schema, type Paso1Data } from "@/lib/solicitud/schemas/index"
+import { paso2Schema, type Paso2Data } from "@/lib/solicitud/schemas/index"
 import { useSolicitudStore } from "@/lib/solicitud/store"
-import { fetchColonias } from "@/lib/solicitud/utils/fetchColonias"
+import { calcularCuota, TASA_MENSUAL } from "@/lib/solicitud/utils/calcularCuota"
 import { useAutoSave } from "./useAutoSave"
-import { normalizeRegister } from "@/lib/solicitud/utils/normalizeRegister"
 
-export function usePaso1(onNext: (datos: Paso1Data) => void) {
+export function usePaso1(onNext: (datos: Paso2Data) => void) {
   const datos = useSolicitudStore((s) => s.datos)
-  const coloniasCache = useSolicitudStore((s) => s.coloniasCache)
-  const setColoniasCache = useSolicitudStore((s) => s.setColoniasCache)
 
-  const form = useForm<Paso1Data>({
-    resolver: zodResolver(paso1Schema),
-    mode: "onTouched",
-    defaultValues: {
-      nombre: datos.nombre ?? "",
-      apellidoPaterno: datos.apellidoPaterno ?? "",
-      apellidoMaterno: datos.apellidoMaterno ?? "",
-      sexo: datos.sexo,
-      fechaNacimiento: datos.fechaNacimiento ?? "",
-      curp: datos.curp ?? "",
-      email: datos.email ?? "",
-      rfc: datos.rfc ?? undefined,
-      telefono: datos.telefono ?? "",
-      codigoPostal: datos.codigoPostal ?? "",
-      colonia: datos.colonia ?? "",
-      municipio: datos.municipio ?? "",
-      calle: datos.calle ?? "",
-      numeroExterior: datos.numeroExterior ?? "",
-      numeroInterior: datos.numeroInterior ?? undefined,
-    },
-  })
+  const { handleSubmit, control, watch, setValue, formState: { errors, isValid } } =
+    useForm<Paso2Data>({
+      resolver: zodResolver(paso2Schema),
+      defaultValues: {
+        montoSolicitado: datos.montoSolicitado ?? 5000,
+        plazoMeses: datos.plazoMeses ?? "3",
+        destinoPrestamo: datos.destinoPrestamo,
+      },
+    })
 
-  const { register: _register, handleSubmit, setValue, control, watch, formState: { errors, isValid } } = form
-
-  const register = normalizeRegister(_register)
-
-  const maxDateNacimiento = useMemo(() => {
-    const d = new Date()
-    d.setFullYear(d.getFullYear() - 18)
-    return d
-  }, [])
-
-  const sexoActual = useWatch({ control, name: "sexo" })
-  const codigoPostal = useWatch({ control, name: "codigoPostal" }) ?? ""
-  const coloniaActual = useWatch({ control, name: "colonia" }) ?? ""
-  const cpValido = /^\d{5}$/.test(codigoPostal)
-
-  const {
-    data: colonias,
-    isLoading: cargandoCP,
-    isError: cpError,
-  } = useQuery({
-    queryKey: ["cp", codigoPostal],
-    queryFn: () => fetchColonias(codigoPostal),
-    enabled: cpValido,
-    retry: false,
-    initialData: coloniasCache[codigoPostal],
-    initialDataUpdatedAt: 0,
-    staleTime: 24 * 60 * 60 * 1000,
-  })
-
-  useEffect(() => {
-    if (colonias && colonias.length > 0 && cpValido) {
-      setColoniasCache(codigoPostal, colonias)
-    }
-  }, [colonias, codigoPostal, cpValido, setColoniasCache])
-
-  const prevCpRef = useRef<string>("")
-
-  useEffect(() => {
-    if (colonias && colonias.length > 0) {
-      setValue("municipio", colonias[0].response.municipio)
-      const opciones = colonias.map((c) => c.response.asentamiento)
-      if (!opciones.includes(coloniaActual) && prevCpRef.current !== "" && prevCpRef.current !== codigoPostal) {
-        setValue("colonia", "")
-      }
-    }
-    prevCpRef.current = codigoPostal
-  }, [colonias, setValue, coloniaActual, codigoPostal])
+  const monto = watch("montoSolicitado") ?? 5000
+  const plazoStr = watch("plazoMeses") ?? "3"
+  const plazo = parseInt(plazoStr, 10)
+  const destino = watch("destinoPrestamo")
+  const cuota = calcularCuota(monto, plazo)
 
   useAutoSave(watch, 1)
 
-  const telefonoValue = useWatch({ control, name: "telefono" }) ?? ""
-  const curpValue = useWatch({ control, name: "curp" }) ?? ""
-  const rfcValue = useWatch({ control, name: "rfc" }) ?? ""
-  const codigoPostalValue = useWatch({ control, name: "codigoPostal" }) ?? ""
-
   return {
-    register,
     handleSubmit: handleSubmit(onNext),
-    setValue,
     control,
+    setValue,
     errors,
     isValid,
-    sexoActual,
-    codigoPostal,
-    coloniaActual,
-    telefonoValue,
-    curpValue,
-    rfcValue,
-    codigoPostalValue,
-    cpValido,
-    colonias,
-    cargandoCP,
-    cpError,
-    maxDateNacimiento,
+    monto,
+    plazoStr,
+    destino,
+    cuota,
+    TASA_MENSUAL,
   }
 }
