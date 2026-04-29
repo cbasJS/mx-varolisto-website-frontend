@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { useDropzone } from "react-dropzone"
 import { useSolicitudStore } from "@/lib/solicitud/store"
 import { useUploadArchivo } from "./useUploadArchivo"
@@ -12,6 +12,15 @@ import {
   TIPOS_SIN_BANCO,
   COPY_ALTERNATIVOS,
 } from "@/lib/solicitud/utils/lookup-labels"
+import { apiGet } from "@/lib/api"
+
+interface ArchivoStagingRemoto {
+  storagePath: string
+  tipoArchivo: TipoArchivo | null
+  tamanoBytes: number
+  mimeType: string
+  uploadedAt: string | null
+}
 
 export interface Paso6StoreData {
   tipoIdentificacion: TipoIdentificacion
@@ -22,16 +31,54 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   const archivosSubidos = useSolicitudStore((s) => s.archivosSubidos)
   const tipoIdentificacion = useSolicitudStore((s) => s.tipoIdentificacion)
   const setTipoIdentificacion = useSolicitudStore((s) => s.setTipoIdentificacion)
+  const sessionUuid = useSolicitudStore((s) => s.sessionUuid)
+  const agregarArchivoSubido = useSolicitudStore((s) => s.agregarArchivoSubido)
 
   const [sinEstadosCuenta, setSinEstadosCuenta] = useState(false)
   const [duplicadosOmitidos, setDuplicadosOmitidos] = useState(0)
   const [isCleaningUp, setIsCleaningUp] = useState(false)
+
+  // Ref para evitar que StrictMode double-invoke dispare dos fetches simultáneos
+  const hidratacionDisparada = useRef(false)
+
+  // Pieza 2 — Reconciliación al montar: hidrata archivos ya subidos en staging
+  useEffect(() => {
+    if (!sessionUuid) return
+    if (archivosSubidos.length > 0) return
+    if (hidratacionDisparada.current) return
+    hidratacionDisparada.current = true
+
+    apiGet<{ archivos: ArchivoStagingRemoto[] }>(`/api/archivos/staging/${sessionUuid}`)
+      .then(({ archivos }) => {
+        const nuevos = archivos
+          .filter((a) => a.tipoArchivo !== null)
+          .map((a) => ({
+            clienteId: crypto.randomUUID(),
+            archivoId: crypto.randomUUID(),
+            tipoArchivo: a.tipoArchivo!,
+            nombreOriginal: a.storagePath.split("/").at(-1) ?? a.storagePath,
+            mimeType: a.mimeType,
+            tamanoBytes: a.tamanoBytes,
+            storagePath: a.storagePath,
+          }))
+        for (const archivo of nuevos) {
+          agregarArchivoSubido(archivo)
+        }
+        hidratarEntradas(nuevos)
+      })
+      .catch(() => {
+        // Error de red — no bloquear. El usuario puede continuar y subir archivos nuevos.
+        hidratacionDisparada.current = false
+      })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionUuid])
 
   const {
     entradas,
     agregarArchivos,
     eliminarEntrada,
     reintentarUpload,
+    hidratarEntradas,
     hayEnVuelo,
     errorEliminacion,
     setErrorEliminacion,
@@ -126,10 +173,20 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     [archivosSubidos, entradas, totalArchivos, totalComprobantes, agregarArchivos]
   )
 
-  const disabledComprobante = totalComprobantes >= MAX_COMPROBANTES
-  const disabledIneFrente = tiposSubidos.includes("ine_frente") || totalArchivos >= 7
-  const disabledIneReverso = tiposSubidos.includes("ine_reverso") || totalArchivos >= 7
-  const disabledPasaporte = tiposSubidos.includes("pasaporte_principal") || totalArchivos >= 7
+  const ineFrenteEnVuelo = entradas.some(
+    (e) => e.tipoArchivo === "ine_frente" && (e.estado === "pending" || e.estado === "uploading")
+  )
+  const ineReversoEnVuelo = entradas.some(
+    (e) => e.tipoArchivo === "ine_reverso" && (e.estado === "pending" || e.estado === "uploading")
+  )
+  const pasaporteEnVuelo = entradas.some(
+    (e) => e.tipoArchivo === "pasaporte_principal" && (e.estado === "pending" || e.estado === "uploading")
+  )
+
+  const disabledComprobante = totalComprobantes >= MAX_COMPROBANTES || comprobantesEnVuelo > 0
+  const disabledIneFrente = tiposSubidos.includes("ine_frente") || ineFrenteEnVuelo || totalArchivos >= 7
+  const disabledIneReverso = tiposSubidos.includes("ine_reverso") || ineReversoEnVuelo || totalArchivos >= 7
+  const disabledPasaporte = tiposSubidos.includes("pasaporte_principal") || pasaporteEnVuelo || totalArchivos >= 7
 
   const onDropComprobante = useCallback(
     (accepted: File[]) => agregarConTipo(accepted, "comprobante_ingreso"),

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { useSolicitudNavigation } from "@/hooks/solicitar/useSolicitudNavigation"
+import { useBeforeUnloadCleanup } from "@/hooks/solicitar/useBeforeUnloadCleanup"
 import { useSolicitudStore } from "@/lib/solicitud/store"
 import BarraPasos from "./BarraPasos"
 import PantallaExito from "./PantallaExito"
@@ -64,6 +65,8 @@ export default function FormularioSolicitud() {
     handleSubmit,
   } = useSolicitudNavigation()
 
+  useBeforeUnloadCleanup(enviando)
+
   if (folio) {
     return <PantallaExito folio={folio} telefono={datos.telefono} />
   }
@@ -71,7 +74,7 @@ export default function FormularioSolicitud() {
   if (!hasHydrated) {
     return (
       <div>
-        <BarraPasos pasoActual={pasoActual} />
+        <BarraPasos pasoActual={1} />
         <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 border-t-4 border-t-secondary">
           <div className="p-6 md:p-10">
             <FormSkeleton />
