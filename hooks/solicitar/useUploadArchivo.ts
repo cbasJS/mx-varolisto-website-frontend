@@ -218,6 +218,21 @@ export function useUploadArchivo() {
     [entradas, subirArchivo]
   )
 
+  const hidratarEntradas = useCallback(
+    (archivos: ArchivoSubido[]) => {
+      setEntradas((prev) => {
+        const next = new Map(prev)
+        for (const a of archivos) {
+          if (!next.has(a.clienteId)) {
+            next.set(a.clienteId, archivoSubidoAEntrada(a))
+          }
+        }
+        return next
+      })
+    },
+    []
+  )
+
   const listaEntradas = Array.from(entradas.values())
 
   const hayEnVuelo = listaEntradas.some(
@@ -229,6 +244,7 @@ export function useUploadArchivo() {
     agregarArchivos,
     eliminarEntrada,
     reintentarUpload,
+    hidratarEntradas,
     hayEnVuelo,
     errorEliminacion,
     setErrorEliminacion,

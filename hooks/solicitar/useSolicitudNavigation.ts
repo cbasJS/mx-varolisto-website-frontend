@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useSolicitudStore } from "@/lib/solicitud/store"
+import { useSetSubmitting } from "@/lib/solicitud/submitting-context"
 import { apiPost, ApiError, esErrorDeConflicto, esErrorDeValidacion } from "@/lib/api"
 import type { CrearSolicitudRequest, CrearSolicitudResponse } from "@varolisto/shared-schemas/api"
 import type {
@@ -35,9 +36,16 @@ export function useSolicitudNavigation() {
   const tipoIdentificacion = useSolicitudStore((s) => s.tipoIdentificacion)
   const resetForm = useSolicitudStore((s) => s.resetForm)
 
+  const setSubmittingContext = useSetSubmitting()
+
   const [folio, setFolio] = useState<string | null>(null)
   const [enviando, setEnviando] = useState(false)
   const [errorSubmit, setErrorSubmit] = useState<ErrorSubmit | null>(null)
+
+  const setEnviandoSync = (v: boolean) => {
+    setEnviando(v)
+    setSubmittingContext(v)
+  }
 
   const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" })
 
@@ -69,7 +77,7 @@ export function useSolicitudNavigation() {
     if (enviando) return
 
     guardarPaso(7, paso7Data)
-    setEnviando(true)
+    setEnviandoSync(true)
     setErrorSubmit(null)
 
     const payload: CrearSolicitudRequest = {
@@ -156,7 +164,7 @@ export function useSolicitudNavigation() {
         setErrorSubmit({ tipo: "desconocido", mensaje })
       }
     } finally {
-      setEnviando(false)
+      setEnviandoSync(false)
     }
   }
 
