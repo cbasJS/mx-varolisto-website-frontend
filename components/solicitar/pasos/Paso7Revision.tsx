@@ -2,16 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { usePaso6 } from "@/hooks/solicitar/usePaso6";
-import { useSolicitudStore } from "@/lib/solicitud-store";
-import type { Paso6Data } from "@/lib/solicitud-schema";
+import { usePaso7 } from "@/hooks/solicitar/usePaso7";
+import { useSolicitudStore } from "@/lib/solicitud/store";
+import type { Paso7Data } from "@/lib/solicitud-schema";
 import type { ErrorSubmit } from "@/hooks/solicitar/useSolicitudNavigation";
 import {
   DESTINO_LABELS,
   ACTIVIDAD_LABELS,
   RELACION_LABELS,
   ANTIGUEDAD_LABELS,
-  maskClabe,
+  ANIOS_VIVIENDO_LABELS,
+  TIPO_VIVIENDA_LABELS,
+  ESTADO_CIVIL_LABELS,
+  DEPENDIENTES_LABELS,
+  TIPO_IDENTIFICACION_LABELS,
 } from "@/lib/solicitud/utils/lookup-labels";
 import { WHATSAPP_URL } from "@/lib/config";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -19,7 +23,7 @@ import { StepTitle, FieldError } from "../FormUI";
 import { cn } from "@/lib/utils";
 
 interface Props {
-  onSubmit: (datos: Paso6Data) => void;
+  onSubmit: (datos: Paso7Data) => void;
   onBack: () => void;
   onEditarPaso: (paso: number) => void;
   enviando: boolean;
@@ -154,7 +158,7 @@ function ModalConflicto({ onConfirmado }: { onConfirmado: () => void }) {
   );
 }
 
-export default function Paso6Revision({
+export default function Paso7Revision({
   onSubmit,
   onBack,
   onEditarPaso,
@@ -165,6 +169,7 @@ export default function Paso6Revision({
 }: Props) {
   const datos = useSolicitudStore((s) => s.datos);
   const archivosSubidos = useSolicitudStore((s) => s.archivosSubidos);
+  const tipoIdentificacion = useSolicitudStore((s) => s.tipoIdentificacion);
 
   const {
     handleSubmit,
@@ -173,9 +178,8 @@ export default function Paso6Revision({
     privacidad,
     terminos,
     ambosAceptados,
-  } = usePaso6(onSubmit);
+  } = usePaso7(onSubmit);
 
-  // Errores 500/red: toast fijo en viewport para que sea visible en mobile sin scroll
   useEffect(() => {
     if (errorSubmit?.tipo === "red") {
       toast.error("Algo salió mal al enviar. Revisa tu conexión e inténtalo de nuevo.", {
@@ -192,25 +196,33 @@ export default function Paso6Revision({
 
   return (
     <>
-      {/* Modal 409 — no dismissible excepto con el botón */}
       {errorSubmit?.tipo === "conflicto" && (
         <ModalConflicto onConfirmado={onConflictoConfirmado} />
       )}
 
       <form onSubmit={handleSubmit} noValidate>
         <StepTitle
-          numero={6}
+          numero={7}
           titulo="Revisa tu solicitud"
           subtitulo="Confirma que todo esté correcto antes de enviar."
         />
 
         <div className="space-y-3 mb-8">
-          <SeccionCard
-            titulo="Perfil"
-            paso={1}
-            onEditar={onEditarPaso}
-            icono="person"
-          >
+          {/* Paso 1 — Préstamo */}
+          <SeccionCard titulo="Préstamo deseado" paso={1} onEditar={onEditarPaso} icono="payments">
+            <Fila
+              label="Monto"
+              value={datos.montoSolicitado ? `$${datos.montoSolicitado.toLocaleString("es-MX")}` : undefined}
+            />
+            <Fila label="Plazo" value={datos.plazoMeses ? `${datos.plazoMeses} meses` : undefined} />
+            <Fila
+              label="Destino"
+              value={datos.destinoPrestamo ? DESTINO_LABELS[datos.destinoPrestamo] : undefined}
+            />
+          </SeccionCard>
+
+          {/* Paso 2 — Identidad */}
+          <SeccionCard titulo="Identidad" paso={2} onEditar={onEditarPaso} icono="person">
             <Fila
               label="Nombre"
               value={`${datos.nombre ?? ""} ${datos.apellidoPaterno ?? ""} ${datos.apellidoMaterno ?? ""}`.trim()}
@@ -218,133 +230,68 @@ export default function Paso6Revision({
             <Fila label="CURP" value={datos.curp} />
             <Fila label="Correo" value={datos.email} />
             <Fila label="Teléfono" value={datos.telefono} />
+          </SeccionCard>
+
+          {/* Paso 3 — Domicilio */}
+          <SeccionCard titulo="Domicilio" paso={3} onEditar={onEditarPaso} icono="home">
             <Fila
               label="Dirección"
               value={
                 datos.calle
-                  ? `${datos.calle} ${datos.numeroExterior ?? ""}, ${datos.colonia ?? ""}, ${datos.municipio ?? ""} CP ${datos.codigoPostal ?? ""}`
+                  ? `${datos.calle} ${datos.numeroExterior ?? ""}${datos.numeroInterior ? " Int. " + datos.numeroInterior : ""}, ${datos.colonia ?? ""}, ${datos.municipio ?? ""} CP ${datos.codigoPostal ?? ""}`
                   : undefined
               }
+            />
+            <Fila
+              label="Tiempo viviendo"
+              value={datos.aniosViviendo ? ANIOS_VIVIENDO_LABELS[datos.aniosViviendo] : undefined}
+            />
+            <Fila
+              label="Tipo de vivienda"
+              value={datos.tipoVivienda ? TIPO_VIVIENDA_LABELS[datos.tipoVivienda] : undefined}
             />
           </SeccionCard>
 
-          <SeccionCard
-            titulo="Importe"
-            paso={2}
-            onEditar={onEditarPaso}
-            icono="payments"
-          >
+          {/* Paso 4 — Economía */}
+          <SeccionCard titulo="Situación económica" paso={4} onEditar={onEditarPaso} icono="account_balance_wallet">
+            <Fila label="Actividad" value={datos.tipoActividad ? ACTIVIDAD_LABELS[datos.tipoActividad] : undefined} />
+            <Fila label="Empleador / Negocio" value={datos.nombreEmpleadorNegocio} />
+            <Fila label="Antigüedad" value={datos.antiguedad ? ANTIGUEDAD_LABELS[datos.antiguedad] : undefined} />
+            <Fila label="Estado civil" value={datos.estadoCivil ? ESTADO_CIVIL_LABELS[datos.estadoCivil] : undefined} />
             <Fila
-              label="Monto"
-              value={
-                datos.montoSolicitado
-                  ? `$${datos.montoSolicitado.toLocaleString("es-MX")}`
-                  : undefined
-              }
-            />
-            <Fila
-              label="Plazo"
-              value={datos.plazoMeses ? `${datos.plazoMeses} meses` : undefined}
-            />
-            <Fila
-              label="Primer crédito"
-              value={datos.primerCredito === "si" ? "Sí" : "No"}
-            />
-            <Fila
-              label="Destino"
-              value={
-                datos.destinoPrestamo
-                  ? datos.destinoPrestamo === "otro"
-                    ? `Otro: ${datos.destinoOtro ?? ""}`
-                    : DESTINO_LABELS[datos.destinoPrestamo]
-                  : undefined
-              }
-            />
-          </SeccionCard>
-
-          <SeccionCard
-            titulo="Ingresos"
-            paso={3}
-            onEditar={onEditarPaso}
-            icono="account_balance_wallet"
-          >
-            <Fila
-              label="Actividad"
-              value={
-                datos.tipoActividad
-                  ? ACTIVIDAD_LABELS[datos.tipoActividad]
-                  : undefined
-              }
-            />
-            <Fila
-              label="Empleador / Negocio"
-              value={datos.nombreEmpleadorNegocio}
-            />
-            <Fila
-              label="Antigüedad"
-              value={
-                datos.antiguedad ? ANTIGUEDAD_LABELS[datos.antiguedad] : undefined
-              }
+              label="Dependientes"
+              value={datos.dependientesEconomicos ? DEPENDIENTES_LABELS[datos.dependientesEconomicos] : undefined}
             />
             <Fila
               label="Ingreso mensual"
-              value={
-                datos.ingresoMensual
-                  ? `$${datos.ingresoMensual.toLocaleString("es-MX")}`
-                  : undefined
-              }
+              value={datos.ingresoMensual ? `$${datos.ingresoMensual.toLocaleString("es-MX")}` : undefined}
             />
-            <Fila
-              label="Tiene deudas"
-              value={datos.tieneDeudas === "si" ? "Sí" : "No"}
-            />
+            <Fila label="Tiene deudas" value={datos.tieneDeudas === "si" ? "Sí" : "No"} />
           </SeccionCard>
 
-          <SeccionCard
-            titulo="Referencias"
-            paso={4}
-            onEditar={onEditarPaso}
-            icono="group"
-          >
+          {/* Paso 5 — Referencias */}
+          <SeccionCard titulo="Referencias" paso={5} onEditar={onEditarPaso} icono="group">
             <SubLabel>Referencia 1</SubLabel>
             <Fila label="Nombre" value={datos.ref1Nombre} />
             <Fila label="Teléfono" value={datos.ref1Telefono} />
-            <Fila
-              label="Relación"
-              value={
-                datos.ref1Relacion
-                  ? RELACION_LABELS[datos.ref1Relacion]
-                  : undefined
-              }
-            />
+            <Fila label="Relación" value={datos.ref1Relacion ? RELACION_LABELS[datos.ref1Relacion] : undefined} />
             {datos.ref1Email && <Fila label="Correo" value={datos.ref1Email} />}
             <SubLabel>Referencia 2</SubLabel>
             <Fila label="Nombre" value={datos.ref2Nombre} />
             <Fila label="Teléfono" value={datos.ref2Telefono} />
-            <Fila
-              label="Relación"
-              value={
-                datos.ref2Relacion
-                  ? RELACION_LABELS[datos.ref2Relacion]
-                  : undefined
-              }
-            />
+            <Fila label="Relación" value={datos.ref2Relacion ? RELACION_LABELS[datos.ref2Relacion] : undefined} />
             {datos.ref2Email && <Fila label="Correo" value={datos.ref2Email} />}
           </SeccionCard>
 
-          <SeccionCard
-            titulo="Documentos y CLABE"
-            paso={5}
-            onEditar={onEditarPaso}
-            icono="folder_open"
-          >
+          {/* Paso 6 — Documentos */}
+          <SeccionCard titulo="Documentos" paso={6} onEditar={onEditarPaso} icono="folder_open">
             <Fila
-              label="Comprobantes"
-              value={`${archivosSubidos.length} archivo${archivosSubidos.length !== 1 ? "s" : ""} subido${archivosSubidos.length !== 1 ? "s" : ""}`}
+              label="Identificación"
+              value={tipoIdentificacion ? TIPO_IDENTIFICACION_LABELS[tipoIdentificacion] : undefined}
             />
             <Fila
-              label="CLABE"
-              value={datos.clabe ? maskClabe(datos.clabe) : undefined}
+              label="Archivos subidos"
+              value={`${archivosSubidos.length} archivo${archivosSubidos.length !== 1 ? "s" : ""}`}
             />
           </SeccionCard>
         </div>
@@ -418,9 +365,7 @@ export default function Paso6Revision({
             disabled={enviando}
             className="flex items-center gap-1.5 rounded-xl border-2 border-[#e8e8e8] bg-white px-6 py-3 text-sm font-semibold text-[#454652] transition-all hover:border-[#c8c8c8] hover:bg-[#fafafa] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span className="material-symbols-outlined text-sm" aria-hidden>
-              arrow_back
-            </span>
+            <span className="material-symbols-outlined text-sm" aria-hidden>arrow_back</span>
             Atrás
           </button>
           <button

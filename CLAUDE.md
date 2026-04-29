@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Comandos
 
-- `npm run dev` — Servidor de desarrollo en http://localhost:3000
-- `npm run build` — Build de producción
-- `npm run lint` — ESLint vía Next.js
+- `pnpm dev` — Servidor de desarrollo en http://localhost:3000
+- `pnpm build` — Build de producción
+- `pnpm lint` — ESLint vía Next.js
 
 No hay framework de pruebas configurado.
 

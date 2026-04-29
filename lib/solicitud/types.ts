@@ -1,3 +1,3 @@
 export interface CopomexResponse {
-  response: { municipio: string; estado: string; asentamiento: string }
+  response: { municipio: string; estado: string; ciudad?: string; asentamiento: string }
 }

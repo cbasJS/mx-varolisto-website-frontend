@@ -5,12 +5,13 @@ import { useSolicitudNavigation } from "@/hooks/solicitar/useSolicitudNavigation
 import { useSolicitudStore } from "@/lib/solicitud/store"
 import BarraPasos from "./BarraPasos"
 import PantallaExito from "./PantallaExito"
-import Paso1DatosPersonales from "./pasos/Paso1DatosPersonales"
-import Paso2Solicitud from "./pasos/Paso2Solicitud"
-import Paso3SituacionEconomica from "./pasos/Paso3SituacionEconomica"
-import Paso4Referencias from "./pasos/Paso4Referencias"
-import Paso5Documentos from "./pasos/Paso5Documentos"
-import Paso6Revision from "./pasos/Paso6Revision"
+import Paso1Prestamo from "./pasos/Paso1Prestamo"
+import Paso2Identidad from "./pasos/Paso2Identidad"
+import Paso3Domicilio from "./pasos/Paso3Domicilio"
+import Paso4Economia from "./pasos/Paso4Economia"
+import Paso5Referencias from "./pasos/Paso5Referencias"
+import Paso6Documentos from "./pasos/Paso6Documentos"
+import Paso7Revision from "./pasos/Paso7Revision"
 
 const TRUST_BADGES = [
   { icono: "lock", texto: "Datos encriptados" },
@@ -82,33 +83,30 @@ export default function FormularioSolicitud() {
 
   return (
     <div>
-      {/* Stepper — vive sobre la banda navy */}
       <BarraPasos pasoActual={pasoActual} />
 
-      {/* Tarjeta principal — borde superior verde sólido como acento */}
       <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 border-t-4 border-t-secondary">
-
         <div className="p-6 md:p-10">
           {pasoActual === 1 && (
-            <Paso1DatosPersonales onNext={(d) => handleNext(1, d)} />
+            <Paso1Prestamo onNext={(d) => handleNext(1, d)} />
           )}
           {pasoActual === 2 && (
-            <Paso2Solicitud onNext={(d) => handleNext(2, d)} onBack={handleBack} />
+            <Paso2Identidad onNext={(d) => handleNext(2, d)} onBack={handleBack} />
           )}
           {pasoActual === 3 && (
-            <Paso3SituacionEconomica
-              onNext={(d) => handleNext(3, d)}
-              onBack={handleBack}
-            />
+            <Paso3Domicilio onNext={(d) => handleNext(3, d)} onBack={handleBack} />
           )}
           {pasoActual === 4 && (
-            <Paso4Referencias onNext={(d) => handleNext(4, d)} onBack={handleBack} />
+            <Paso4Economia onNext={(d) => handleNext(4, d)} onBack={handleBack} />
           )}
           {pasoActual === 5 && (
-            <Paso5Documentos onNext={(d) => handleNext(5, d)} onBack={handleBack} />
+            <Paso5Referencias onNext={(d) => handleNext(5, d)} onBack={handleBack} />
           )}
           {pasoActual === 6 && (
-            <Paso6Revision
+            <Paso6Documentos onNext={(d) => handleNext(6, d)} onBack={handleBack} />
+          )}
+          {pasoActual === 7 && (
+            <Paso7Revision
               onSubmit={handleSubmit}
               onBack={handleBack}
               onEditarPaso={handleEditarPaso}
@@ -121,7 +119,6 @@ export default function FormularioSolicitud() {
         </div>
       </div>
 
-      {/* Footer de confianza */}
       <div className="mt-6 flex items-center justify-center gap-6 text-center">
         {TRUST_BADGES.map(({ icono, texto }) => (
           <div key={texto} className="flex items-center gap-1.5">

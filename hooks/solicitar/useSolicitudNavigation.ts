@@ -9,12 +9,13 @@ import type {
   Paso2Data,
   Paso3Data,
   Paso4Data,
-  Paso6Data,
+  Paso5Data,
+  Paso7Data,
 } from "@/lib/solicitud/schemas/index"
-import type { Paso5StoreData } from "@/hooks/solicitar/usePaso5"
+import type { Paso6StoreData } from "@/hooks/solicitar/usePaso6"
 
 type PasoData = Partial<
-  Paso1Data & Paso2Data & Paso3Data & Paso4Data & Paso5StoreData & Paso6Data
+  Paso1Data & Paso2Data & Paso3Data & Paso4Data & Paso5Data & Paso6StoreData & Paso7Data
 >
 
 export type ErrorSubmit =
@@ -31,6 +32,7 @@ export function useSolicitudNavigation() {
   const hasHydrated = useSolicitudStore((s) => s._hasHydrated)
   const sessionUuid = useSolicitudStore((s) => s.sessionUuid)
   const archivosSubidos = useSolicitudStore((s) => s.archivosSubidos)
+  const tipoIdentificacion = useSolicitudStore((s) => s.tipoIdentificacion)
   const resetForm = useSolicitudStore((s) => s.resetForm)
 
   const [folio, setFolio] = useState<string | null>(null)
@@ -58,21 +60,20 @@ export function useSolicitudNavigation() {
   const limpiarErrorSubmit = () => setErrorSubmit(null)
 
   const handleConflictoConfirmado = () => {
-    // 409: limpiar store y error. El usuario arranca desde cero.
     resetForm()
     setErrorSubmit(null)
   }
 
-  const handleSubmit = async (paso6Data: Paso6Data) => {
+  const handleSubmit = async (paso7Data: Paso7Data) => {
     if (!sessionUuid) return
     if (enviando) return
 
-    guardarPaso(6, paso6Data)
+    guardarPaso(7, paso7Data)
     setEnviando(true)
     setErrorSubmit(null)
 
     const payload: CrearSolicitudRequest = {
-      // Paso 1 — datos personales
+      // Paso 2 (UI) — identidad (schema paso1)
       nombre: datos.nombre ?? "",
       apellidoPaterno: datos.apellidoPaterno ?? "",
       apellidoMaterno: datos.apellidoMaterno ?? "",
@@ -82,28 +83,33 @@ export function useSolicitudNavigation() {
       email: datos.email ?? "",
       rfc: datos.rfc,
       telefono: datos.telefono ?? "",
+      // Paso 3 (UI) — domicilio (schema paso3)
       codigoPostal: datos.codigoPostal ?? "",
       colonia: datos.colonia ?? "",
       municipio: datos.municipio ?? "",
+      estado: datos.estado ?? "",
+      ciudad: datos.ciudad ?? undefined,
       calle: datos.calle ?? "",
       numeroExterior: datos.numeroExterior ?? "",
       numeroInterior: datos.numeroInterior,
-      // Paso 2 — solicitud
+      aniosViviendo: datos.aniosViviendo!,
+      tipoVivienda: datos.tipoVivienda!,
+      // Paso 1 (UI) — préstamo (schema paso2)
       montoSolicitado: datos.montoSolicitado!,
       plazoMeses: datos.plazoMeses!,
-      primerCredito: datos.primerCredito!,
       destinoPrestamo: datos.destinoPrestamo!,
-      destinoOtro: datos.destinoOtro,
-      // Paso 3 — situación económica
+      // Paso 4 (UI) — economía (schema paso4)
       tipoActividad: datos.tipoActividad!,
       nombreEmpleadorNegocio: datos.nombreEmpleadorNegocio ?? "",
       antiguedad: datos.antiguedad!,
+      estadoCivil: datos.estadoCivil!,
+      dependientesEconomicos: datos.dependientesEconomicos!,
       ingresoMensual: datos.ingresoMensual!,
       tieneDeudas: datos.tieneDeudas!,
       cantidadDeudas: datos.cantidadDeudas,
       montoTotalDeudas: datos.montoTotalDeudas,
       pagoMensualDeudas: datos.pagoMensualDeudas,
-      // Paso 4 — referencias
+      // Paso 5 (UI) — referencias (schema paso5)
       ref1Nombre: datos.ref1Nombre ?? "",
       ref1Telefono: datos.ref1Telefono ?? "",
       ref1Relacion: datos.ref1Relacion!,
@@ -112,18 +118,18 @@ export function useSolicitudNavigation() {
       ref2Telefono: datos.ref2Telefono ?? "",
       ref2Relacion: datos.ref2Relacion!,
       ref2Email: datos.ref2Email,
-      // Paso 5 — documentos y CLABE
+      // Paso 6 (UI) — documentos (schema paso6)
       sessionUuid,
+      tipoIdentificacion: tipoIdentificacion!,
       archivosDeclarados: archivosSubidos.map((a) => ({
         tipoArchivo: a.tipoArchivo,
         nombreOriginal: a.nombreOriginal,
         mimeType: a.mimeType,
         tamanoBytes: a.tamanoBytes,
       })),
-      clabe: datos.clabe ?? "",
-      // Paso 6 — consentimientos
-      aceptaPrivacidad: paso6Data.aceptaPrivacidad,
-      aceptaTerminos: paso6Data.aceptaTerminos,
+      // Paso 7 (UI) — consentimientos (schema paso7)
+      aceptaPrivacidad: paso7Data.aceptaPrivacidad,
+      aceptaTerminos: paso7Data.aceptaTerminos,
     }
 
     try {
@@ -132,25 +138,20 @@ export function useSolicitudNavigation() {
         payload,
         { timeoutMs: 30_000 }
       )
-      // 201: limpiar store y mostrar pantalla de éxito
       resetForm()
       setFolio(response.folio)
       scrollTop()
     } catch (err) {
       if (esErrorDeConflicto(err)) {
-        // 409: el modal maneja el resetForm() al confirmar
         setErrorSubmit({ tipo: "conflicto" })
       } else if (esErrorDeValidacion(err)) {
-        // 422: mantener store intacto
         setErrorSubmit({
           tipo: "validacion",
           detalles: (err as ApiError).detalles,
         })
       } else if (err instanceof ApiError && err.status === 0) {
-        // red / timeout: mantener store intacto
         setErrorSubmit({ tipo: "red" })
       } else {
-        // 500+: mantener store intacto
         const mensaje = err instanceof ApiError ? err.mensaje : undefined
         setErrorSubmit({ tipo: "desconocido", mensaje })
       }

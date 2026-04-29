@@ -1,18 +1,22 @@
 "use client";
 
-import { usePaso3 } from "@/hooks/solicitar/usePaso3";
-import type { Paso3Data } from "@/lib/solicitud-schema";
+import { usePaso4 } from "@/hooks/solicitar/usePaso4";
+import type { Paso4Data } from "@/lib/solicitud-schema";
 import {
   TIPO_ACTIVIDAD,
   ANTIGUEDAD,
   CANTIDAD_DEUDAS,
   MONTO_TOTAL_DEUDAS,
+  ESTADO_CIVIL,
+  DEPENDIENTES_ECONOMICOS,
 } from "@varolisto/shared-schemas/enums";
 import {
   ACTIVIDADES_META,
   CANTIDAD_DEUDAS_META,
   ANTIGUEDAD_META,
   MONTO_TOTAL_DEUDAS_META,
+  ESTADO_CIVIL_LABELS,
+  DEPENDIENTES_LABELS,
 } from "@/lib/solicitud/utils/lookup-labels";
 import { Controller } from "react-hook-form";
 import {
@@ -33,12 +37,11 @@ import {
 import { cn } from "@/lib/utils";
 
 interface Props {
-  onNext: (datos: Paso3Data) => void;
+  onNext: (datos: Paso4Data) => void;
   onBack: () => void;
 }
 
-
-export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
+export default function Paso4Economia({ onNext, onBack }: Props) {
   const {
     register,
     handleSubmit,
@@ -52,6 +55,12 @@ export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
     antiguedadActual,
     antiguedadOpen,
     setAntiguedadOpen,
+    estadoCivilActual,
+    estadoCivilOpen,
+    setEstadoCivilOpen,
+    dependientesActual,
+    dependientesOpen,
+    setDependientesOpen,
     montoTotalDeudasActual,
     montoTotalOpen,
     setMontoTotalOpen,
@@ -60,12 +69,12 @@ export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
     ingresoHandlers,
     pagoDeudaDisplay,
     pagoDeudaHandlers,
-  } = usePaso3(onNext);
+  } = usePaso4(onNext);
 
   return (
     <form onSubmit={handleSubmit} noValidate>
       <StepTitle
-        numero={3}
+        numero={4}
         titulo="Tu situación económica"
         subtitulo="Esta información nos ayuda a diseñar la mejor oferta para ti."
       />
@@ -188,6 +197,117 @@ export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
           </div>
           <FieldError message={errors.antiguedad?.message} />
         </div>
+
+        {/* Estado civil */}
+        <div>
+          <div
+            className={cn(
+              "relative rounded-xl border-2 bg-white transition-all duration-200",
+              errors.estadoCivil
+                ? "border-error"
+                : estadoCivilOpen
+                  ? "border-primary shadow-sm shadow-primary/10"
+                  : "border-[#e8e8e8] hover:border-[#c8c8c8]",
+            )}
+          >
+            <span
+              className={cn(
+                "pointer-events-none absolute left-4 z-10 select-none transition-all duration-200",
+                estadoCivilActual
+                  ? "top-2 text-[10px] font-semibold uppercase tracking-widest text-[#aaa]"
+                  : "top-1/2 -translate-y-1/2 text-sm text-[#aaa]",
+              )}
+            >
+              Estado civil{" "}
+              <span className="text-error" aria-hidden>
+                *
+              </span>
+            </span>
+            <Controller
+              control={control}
+              name="estadoCivil"
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  onOpenChange={setEstadoCivilOpen}
+                >
+                  <SelectTrigger
+                    data-size=""
+                    className={cn(
+                      "!h-[52px] w-full rounded-xl border-0 bg-transparent pl-4 pr-3 text-sm shadow-none focus:ring-0",
+                      estadoCivilActual ? "pb-2 pt-6" : "py-0",
+                    )}
+                  >
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ESTADO_CIVIL.map((v) => (
+                      <SelectItem key={v} value={v}>{ESTADO_CIVIL_LABELS[v]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+          <FieldError message={errors.estadoCivil?.message} />
+        </div>
+
+        {/* Dependientes económicos */}
+        <div>
+          <div
+            className={cn(
+              "relative rounded-xl border-2 bg-white transition-all duration-200",
+              errors.dependientesEconomicos
+                ? "border-error"
+                : dependientesOpen
+                  ? "border-primary shadow-sm shadow-primary/10"
+                  : "border-[#e8e8e8] hover:border-[#c8c8c8]",
+            )}
+          >
+            <span
+              className={cn(
+                "pointer-events-none absolute left-4 z-10 select-none transition-all duration-200",
+                dependientesActual
+                  ? "top-2 text-[10px] font-semibold uppercase tracking-widest text-[#aaa]"
+                  : "top-1/2 -translate-y-1/2 text-sm text-[#aaa]",
+              )}
+            >
+              Dependientes económicos{" "}
+              <span className="text-error" aria-hidden>
+                *
+              </span>
+            </span>
+            <Controller
+              control={control}
+              name="dependientesEconomicos"
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  onOpenChange={setDependientesOpen}
+                >
+                  <SelectTrigger
+                    data-size=""
+                    className={cn(
+                      "!h-[52px] w-full rounded-xl border-0 bg-transparent pl-4 pr-3 text-sm shadow-none focus:ring-0",
+                      dependientesActual ? "pb-2 pt-6" : "py-0",
+                    )}
+                  >
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DEPENDIENTES_ECONOMICOS.map((v) => (
+                      <SelectItem key={v} value={v}>{DEPENDIENTES_LABELS[v]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+          <p className="mt-1.5 text-xs text-[#999]">Personas que dependen de tu ingreso</p>
+          <FieldError message={errors.dependientesEconomicos?.message} />
+        </div>
       </div>
 
       {/* Ingreso mensual */}
@@ -248,7 +368,6 @@ export default function Paso3SituacionEconomica({ onNext, onBack }: Props) {
         <FieldError message={errors.tieneDeudas?.message} />
       </div>
 
-      {/* Detalles de deudas */}
       {tieneDeudas === "si" && (
         <div className="rounded-2xl border-2 border-[#e8e8e8] bg-[#fafafa] p-4 space-y-4">
           {/* Cantidad */}

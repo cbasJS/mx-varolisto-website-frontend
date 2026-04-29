@@ -1,13 +1,12 @@
 "use client";
 
-import { usePaso2 } from "@/hooks/solicitar/usePaso2";
+import { usePaso1 } from "@/hooks/solicitar/usePaso1";
 import type { Paso2Data } from "@/lib/solicitud-schema";
 import { DESTINO_PRESTAMO, PLAZO_MESES } from "@varolisto/shared-schemas/enums";
 import { DESTINOS_META } from "@/lib/solicitud/utils/lookup-labels";
 import { Slider } from "@/components/ui/slider";
 import { Controller } from "react-hook-form";
 import {
-  FloatingInput,
   PillOption,
   SectionDivider,
   StepTitle,
@@ -18,13 +17,10 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   onNext: (datos: Paso2Data) => void;
-  onBack: () => void;
 }
 
-
-export default function Paso2Solicitud({ onNext, onBack }: Props) {
+export default function Paso1Prestamo({ onNext }: Props) {
   const {
-    register,
     handleSubmit,
     control,
     setValue,
@@ -33,22 +29,20 @@ export default function Paso2Solicitud({ onNext, onBack }: Props) {
     monto,
     plazoStr,
     destino,
-    primerCredito,
     cuota,
     TASA_MENSUAL,
-  } = usePaso2(onNext);
+  } = usePaso1(onNext);
 
   return (
     <form onSubmit={handleSubmit} noValidate>
       <StepTitle
-        numero={2}
+        numero={1}
         titulo="¿Cuánto necesitas?"
         subtitulo="Mueve el control para elegir el monto y plazo que mejor te funcione."
       />
 
       {/* ── Monto ────────────────────────────────────────────── */}
       <div className="mb-8">
-        {/* Monto grande */}
         <div className="mb-5 rounded-2xl bg-primary p-5 text-white">
           <p className="mb-0.5 text-xs font-semibold uppercase tracking-widest text-white/50">
             Monto solicitado
@@ -115,7 +109,7 @@ export default function Paso2Solicitud({ onNext, onBack }: Props) {
       <div className="mb-6 flex items-center justify-between rounded-2xl border-2 border-secondary/30 bg-secondary/5 px-5 py-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-[#767683]">
-            Cuota referencial
+            Cuota referencial Perfil A
           </p>
           <p className="font-headline text-3xl font-bold text-primary">
             ${cuota.toLocaleString("es-MX")}
@@ -137,43 +131,10 @@ export default function Paso2Solicitud({ onNext, onBack }: Props) {
         evaluación.
       </p>
 
-      <SectionDivider label="Información adicional" />
-
-      {/* ── ¿Primer crédito? ─────────────────────────────────── */}
-      <div className="mb-6">
-        <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-[#aaa]">
-          ¿Es tu primer crédito con VaroListo?{" "}
-          <span className="text-error" aria-hidden>*</span>
-        </p>
-        <div className="flex gap-3">
-          {[
-            { value: "si", label: "Sí, es mi primero", icono: "star" },
-            { value: "no", label: "Ya he tenido uno", icono: "repeat" },
-          ].map(({ value, label, icono }) => (
-            <PillOption
-              key={value}
-              selected={primerCredito === value}
-              onClick={() =>
-                setValue("primerCredito", value as "si" | "no", {
-                  shouldValidate: true,
-                })
-              }
-              icon={icono}
-              fullWidth
-            >
-              {label}
-            </PillOption>
-          ))}
-        </div>
-        <FieldError message={errors.primerCredito?.message} />
-      </div>
+      <SectionDivider label="¿Para qué usarás el dinero?" />
 
       {/* ── Destino ──────────────────────────────────────────── */}
       <div className="mb-6">
-        <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-[#aaa]">
-          ¿Para qué usarás el dinero?{" "}
-          <span className="text-error" aria-hidden>*</span>
-        </p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {DESTINO_PRESTAMO.map((value) => (
             <PillOption
@@ -192,19 +153,7 @@ export default function Paso2Solicitud({ onNext, onBack }: Props) {
         <FieldError message={errors.destinoPrestamo?.message} />
       </div>
 
-      {destino === "otro" && (
-        <div className="mb-6">
-          <FloatingInput
-            label="¿Cuál es el destino?"
-            required
-            error={errors.destinoOtro?.message}
-            {...register("destinoOtro")}
-            placeholder=" "
-          />
-        </div>
-      )}
-
-      <FormActions onBack={onBack} submitLabel="Continuar" disabled={!isValid} />
+      <FormActions submitLabel="Continuar" isFirst disabled={!isValid} />
     </form>
   );
 }

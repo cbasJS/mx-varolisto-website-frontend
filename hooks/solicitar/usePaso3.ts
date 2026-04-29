@@ -1,103 +1,107 @@
 "use client"
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { useEffect, useRef, useState } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useQuery } from "@tanstack/react-query"
 import { paso3Schema, type Paso3Data } from "@/lib/solicitud/schemas/index"
 import { useSolicitudStore } from "@/lib/solicitud/store"
-import {
-  initCurrencyDisplay,
-  formatCurrencyOnChange,
-  formatCurrencyOnBlur,
-  formatCurrencyOnFocus,
-} from "@/lib/solicitud/utils/formatCurrency"
+import { fetchColonias } from "@/lib/solicitud/utils/fetchColonias"
 import { useAutoSave } from "./useAutoSave"
 import { normalizeRegister } from "@/lib/solicitud/utils/normalizeRegister"
 
 export function usePaso3(onNext: (datos: Paso3Data) => void) {
   const datos = useSolicitudStore((s) => s.datos)
+  const coloniasCache = useSolicitudStore((s) => s.coloniasCache)
+  const setColoniasCache = useSolicitudStore((s) => s.setColoniasCache)
 
-  const { register: _register, handleSubmit, control, watch, setValue, formState: { errors, isValid } } =
-    useForm<Paso3Data>({
-      resolver: zodResolver(paso3Schema),
-      defaultValues: {
-        tipoActividad: datos.tipoActividad,
-        nombreEmpleadorNegocio: datos.nombreEmpleadorNegocio ?? "",
-        antiguedad: datos.antiguedad,
-        ingresoMensual: datos.ingresoMensual,
-        tieneDeudas: datos.tieneDeudas,
-        cantidadDeudas: datos.cantidadDeudas,
-        montoTotalDeudas: datos.montoTotalDeudas,
-        pagoMensualDeudas: datos.pagoMensualDeudas,
-      },
-    })
+  const form = useForm<Paso3Data>({
+    resolver: zodResolver(paso3Schema),
+    mode: "onTouched",
+    defaultValues: {
+      codigoPostal: datos.codigoPostal ?? "",
+      colonia: datos.colonia ?? "",
+      municipio: datos.municipio ?? "",
+      estado: datos.estado ?? "",
+      ciudad: datos.ciudad ?? undefined,
+      calle: datos.calle ?? "",
+      numeroExterior: datos.numeroExterior ?? "",
+      numeroInterior: datos.numeroInterior ?? undefined,
+      aniosViviendo: datos.aniosViviendo,
+      tipoVivienda: datos.tipoVivienda,
+    },
+  })
 
+  const { register: _register, handleSubmit, setValue, control, watch, formState: { errors, isValid } } = form
   const register = normalizeRegister(_register)
 
-  const [ingresoDisplay, setIngresoDisplay] = useState<string>(
-    initCurrencyDisplay(datos.ingresoMensual)
-  )
-  const [pagoDeudaDisplay, setPagoDeudaDisplay] = useState<string>(
-    initCurrencyDisplay(datos.pagoMensualDeudas)
-  )
-  const [antiguedadOpen, setAntiguedadOpen] = useState(false)
-  const [montoTotalOpen, setMontoTotalOpen] = useState(false)
+  const codigoPostal = useWatch({ control, name: "codigoPostal" }) ?? ""
+  const coloniaActual = useWatch({ control, name: "colonia" }) ?? ""
+  const aniosViviendoActual = useWatch({ control, name: "aniosViviendo" })
+  const tipoViviendaActual = useWatch({ control, name: "tipoVivienda" })
+  const cpValido = /^\d{5}$/.test(codigoPostal)
+  const codigoPostalValue = codigoPostal
 
-  const tipoActividad = watch("tipoActividad")
-  const tieneDeudas = watch("tieneDeudas")
-  const cantidadDeudas = watch("cantidadDeudas")
-  const antiguedadActual = watch("antiguedad")
-  const montoTotalDeudasActual = watch("montoTotalDeudas")
+  const [aniosViviendoOpen, setAniosViviendoOpen] = useState(false)
+  const [tipoViviendaOpen, setTipoViviendaOpen] = useState(false)
 
-  const labelEmpleador =
-    tipoActividad === "negocio_propio"
-      ? "Nombre de tu negocio"
-      : tipoActividad === "independiente"
-        ? "Actividad principal"
-        : "Empresa / Empleador"
+  const {
+    data: colonias,
+    isLoading: cargandoCP,
+    isError: cpError,
+  } = useQuery({
+    queryKey: ["cp", codigoPostal],
+    queryFn: () => fetchColonias(codigoPostal),
+    enabled: cpValido,
+    retry: false,
+    initialData: coloniasCache[codigoPostal],
+    initialDataUpdatedAt: 0,
+    staleTime: 24 * 60 * 60 * 1000,
+  })
 
-  const ingresoHandlers = {
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { display, num } = formatCurrencyOnChange(e.target.value)
-      setIngresoDisplay(display)
-      setValue("ingresoMensual", num as number, { shouldValidate: true })
-    },
-    onBlur: () => setIngresoDisplay(formatCurrencyOnBlur(ingresoDisplay)),
-    onFocus: () => setIngresoDisplay(formatCurrencyOnFocus(ingresoDisplay)),
-  }
+  useEffect(() => {
+    if (colonias && colonias.length > 0 && cpValido) {
+      setColoniasCache(codigoPostal, colonias)
+    }
+  }, [colonias, codigoPostal, cpValido, setColoniasCache])
 
-  const pagoDeudaHandlers = {
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { display, num } = formatCurrencyOnChange(e.target.value)
-      setPagoDeudaDisplay(display)
-      setValue("pagoMensualDeudas", num as number, { shouldValidate: true })
-    },
-    onBlur: () => setPagoDeudaDisplay(formatCurrencyOnBlur(pagoDeudaDisplay)),
-    onFocus: () => setPagoDeudaDisplay(formatCurrencyOnFocus(pagoDeudaDisplay)),
-  }
+  const prevCpRef = useRef<string>("")
+
+  useEffect(() => {
+    if (colonias && colonias.length > 0) {
+      const first = colonias[0].response
+      setValue("municipio", first.municipio)
+      setValue("estado", first.estado)
+      setValue("ciudad", first.ciudad?.trim() || first.municipio)
+      const opciones = colonias.map((c) => c.response.asentamiento)
+      // Only reset colonia on CP change; preserve other fields
+      if (!opciones.includes(coloniaActual) && prevCpRef.current !== "" && prevCpRef.current !== codigoPostal) {
+        setValue("colonia", "")
+      }
+    }
+    prevCpRef.current = codigoPostal
+  }, [colonias, setValue, coloniaActual, codigoPostal])
 
   useAutoSave(watch, 3)
 
   return {
     register,
     handleSubmit: handleSubmit(onNext),
-    control,
     setValue,
+    control,
     errors,
     isValid,
-    tipoActividad,
-    tieneDeudas,
-    cantidadDeudas,
-    antiguedadActual,
-    antiguedadOpen,
-    setAntiguedadOpen,
-    montoTotalDeudasActual,
-    montoTotalOpen,
-    setMontoTotalOpen,
-    labelEmpleador,
-    ingresoDisplay,
-    ingresoHandlers,
-    pagoDeudaDisplay,
-    pagoDeudaHandlers,
+    coloniaActual,
+    codigoPostalValue,
+    cpValido,
+    colonias,
+    cargandoCP,
+    cpError,
+    aniosViviendoActual,
+    tipoViviendaActual,
+    aniosViviendoOpen,
+    setAniosViviendoOpen,
+    tipoViviendaOpen,
+    setTipoViviendaOpen,
   }
 }

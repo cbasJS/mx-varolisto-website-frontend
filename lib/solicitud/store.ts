@@ -2,7 +2,7 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import type { SolicitudCompleta } from "./schemas/index"
 import type { CopomexResponse } from "./types"
-import type { TipoArchivo } from "@varolisto/shared-schemas/enums"
+import type { TipoArchivo, TipoIdentificacion } from "@varolisto/shared-schemas/enums"
 
 export interface ArchivoSubido {
   clienteId: string
@@ -21,6 +21,7 @@ export interface SolicitudState {
   coloniasCache: Record<string, CopomexResponse[]>
   sessionUuid: string | null
   archivosSubidos: ArchivoSubido[]
+  tipoIdentificacion: TipoIdentificacion | null
   // comprobantes no persiste (File no es serializable)
   comprobantes: File[]
   _hasHydrated: boolean
@@ -34,6 +35,7 @@ export interface SolicitudActions {
   inicializarSession: () => void
   agregarArchivoSubido: (archivo: ArchivoSubido) => void
   removerArchivoSubido: (clienteId: string) => void
+  setTipoIdentificacion: (tipo: TipoIdentificacion) => void
   resetForm: () => void
   setHasHydrated: (value: boolean) => void
 }
@@ -45,6 +47,7 @@ const estadoInicial: SolicitudState = {
   coloniasCache: {},
   sessionUuid: null,
   archivosSubidos: [],
+  tipoIdentificacion: null,
   comprobantes: [],
   _hasHydrated: false,
 }
@@ -65,11 +68,17 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
         }
       },
       agregarArchivoSubido: (archivo) =>
-        set((s) => ({ archivosSubidos: [...s.archivosSubidos, archivo] })),
+        set((s) => {
+          if (s.archivosSubidos.some((a) => a.clienteId === archivo.clienteId)) {
+            return s
+          }
+          return { archivosSubidos: [...s.archivosSubidos, archivo] }
+        }),
       removerArchivoSubido: (clienteId) =>
         set((s) => ({
           archivosSubidos: s.archivosSubidos.filter((a) => a.clienteId !== clienteId),
         })),
+      setTipoIdentificacion: (tipo) => set({ tipoIdentificacion: tipo }),
       resetForm: () =>
         set({ ...estadoInicial, timestampInicio: Date.now(), comprobantes: [] }),
       setHasHydrated: (value) => set({ _hasHydrated: value }),
@@ -100,7 +109,7 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
           timestampInicio: state.timestampInicio,
           coloniasCache: state.coloniasCache,
           sessionUuid: state.sessionUuid,
-          archivosSubidos: state.archivosSubidos,
+          tipoIdentificacion: state.tipoIdentificacion,
         }) as unknown as SolicitudState & SolicitudActions,
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true)
