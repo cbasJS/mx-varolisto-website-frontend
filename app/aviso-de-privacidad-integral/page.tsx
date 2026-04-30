@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import LegalPageLayout from "@/components/layout/LegalPageLayout";
 
 export const metadata: Metadata = {
   title: "Aviso de Privacidad Integral — VaroListo.mx",
@@ -8,14 +9,10 @@ export const metadata: Metadata = {
 
 export default function AvisoPrivacidadPage() {
   return (
-    <main className="bg-white text-gray-900 min-h-screen pt-16">
-      <div className="max-w-3xl mx-auto px-6 py-12">
-        <h1 className="text-4xl font-bold mb-2">
-          Aviso de Privacidad Integral
-        </h1>
-        <p className="text-sm text-gray-400 mb-10">
-          Abril 2026 · Actualización
-        </p>
+    <LegalPageLayout
+      titulo="Aviso de Privacidad Integral"
+      fechaActualizacion="Abril 2026 · Actualización"
+    >
 
         <p className="mb-6 leading-relaxed">
           En virtud de lo dispuesto por la{" "}
@@ -501,7 +498,6 @@ export default function AvisoPrivacidadPage() {
           </strong>
           , en <strong>inai.org.mx</strong>.
         </p>
-      </div>
-    </main>
+    </LegalPageLayout>
   );
 }

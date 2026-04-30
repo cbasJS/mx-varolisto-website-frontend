@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { CTA_URL, DARK_HEADER_ROUTES, NAVBAR_HEIGHT } from "@/lib/config";
 import { useScrolled } from "@/hooks/useScrolled";
 import { navLinks } from "@/content/nav";
+import BrandName from "@/components/layout/BrandName";
 
 function scrollToSection(id: string) {
   const el = document.getElementById(id);
@@ -41,7 +42,7 @@ export default function Navbar() {
           className={`text-xl md:text-2xl font-extrabold ${logoColor} font-headline tracking-tight`}
           aria-label="VaroListo.mx - Inicio"
         >
-          Varo<span className="text-secondary">Listo.mx</span>
+          <BrandName />
         </a>
 
         {isHome && (

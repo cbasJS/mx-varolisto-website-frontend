@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import LegalPageLayout from "@/components/layout/LegalPageLayout";
 
 export const metadata: Metadata = {
   title: "Términos y Condiciones — VaroListo.mx",
@@ -8,14 +9,10 @@ export const metadata: Metadata = {
 
 export default function TerminosCondicionesPage() {
   return (
-    <main className="bg-white text-gray-900 min-h-screen pt-16">
-      <div className="max-w-3xl mx-auto px-6 py-12">
-        <h1 className="text-4xl font-bold mb-2">
-          Términos y Condiciones Generales de Uso
-        </h1>
-        <p className="text-sm text-gray-400 mb-10">
-          Abril 2026 · Actualización
-        </p>
+    <LegalPageLayout
+      titulo="Términos y Condiciones Generales de Uso"
+      fechaActualizacion="Abril 2026 · Actualización"
+    >
 
         <p className="mb-6 leading-relaxed">
           <strong>VaroListo.mx</strong> (en lo sucesivo &quot;VaroListo&quot;),
@@ -560,7 +557,6 @@ export default function TerminosCondicionesPage() {
           formalizados continuarán rigiéndose por los términos vigentes al
           momento de su firma, salvo acuerdo expreso en contrario.
         </p>
-      </div>
-    </main>
+    </LegalPageLayout>
   );
 }

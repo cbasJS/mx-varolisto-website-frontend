@@ -1,6 +1,7 @@
 "use client"
 
 import { AlertDialog, AlertDialogOverlay, AlertDialogPortal } from "@/components/ui/alert-dialog"
+import { salidaCopy } from "@/content/solicitar"
 
 interface Props {
   open: boolean
@@ -9,23 +10,8 @@ interface Props {
   onSalir: () => void
 }
 
-const COPY = {
-  submitting: {
-    titulo: "¿Seguro que quieres salir?",
-    descripcion: "Estamos enviando tu solicitud. Si sales ahora, podríamos perder los datos.",
-  },
-  archivos: {
-    titulo: "¿Seguro que quieres salir?",
-    descripcion: "Si sales ahora, perderás los archivos que ya subiste y la información capturada. Tendrías que empezar de nuevo.",
-  },
-  datos: {
-    titulo: "¿Seguro que quieres salir?",
-    descripcion: "Si sales ahora, perderás la información que has capturado y tendrías que empezar de nuevo.",
-  },
-}
-
 export default function ConfirmacionSalidaDialog({ open, variante, onQuedarme, onSalir }: Props) {
-  const { titulo, descripcion } = COPY[variante]
+  const { titulo, descripcion } = salidaCopy[variante]
 
   return (
     <AlertDialog open={open}>
@@ -67,7 +53,7 @@ export default function ConfirmacionSalidaDialog({ open, variante, onQuedarme, o
                 >
                   {/* Shimmer */}
                   <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-20deg] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
-                  <span className="relative">Quedarme</span>
+                  <span className="relative">{salidaCopy.botonQuedarme}</span>
                 </button>
 
                 {/* Acción secundaria — ghost */}
@@ -75,7 +61,7 @@ export default function ConfirmacionSalidaDialog({ open, variante, onQuedarme, o
                   onClick={onSalir}
                   className="w-full rounded-2xl border border-white/15 bg-white/5 px-5 py-3 font-headline text-[14px] font-medium text-white/55 transition-all duration-200 hover:border-white/30 hover:bg-white/10 hover:text-white/80 active:scale-[0.98]"
                 >
-                  Salir de todas formas
+                  {salidaCopy.botonSalir}
                 </button>
               </div>
             </div>

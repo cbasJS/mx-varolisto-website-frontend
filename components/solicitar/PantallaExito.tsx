@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import { AiOutlineFileDone } from "react-icons/ai"
 import { useSolicitudStore } from "@/lib/solicitud/store"
 import Link from "next/link"
+import { exitoCopy as copy } from "@/content/solicitar"
 
 interface Props {
   folio: string
@@ -30,19 +31,19 @@ export default function PantallaExito({ folio, telefono }: Props) {
       </div>
 
       <p className="mb-1 text-sm font-bold uppercase tracking-widest text-[#aaa]">
-        Solicitud recibida
+        {copy.etiquetaRecibida}
       </p>
       <h1 className="mb-2 font-headline text-4xl font-bold text-[#1a1c1c] tracking-tight">
-        ¡Todo listo!
+        {copy.titulo}
       </h1>
       <p className="mb-8 text-base text-[#767683]">
-        Tu solicitud fue enviada exitosamente.
+        {copy.subtitulo}
       </p>
 
       {/* Tarjeta de folio */}
       <div className="mb-6 w-full max-w-sm rounded-2xl border-2 border-primary/20 bg-primary/5 p-5">
         <p className="mb-1 text-xs font-bold uppercase tracking-widest text-primary/50">
-          Número de folio
+          {copy.labelFolio}
         </p>
         <p className="font-headline text-3xl font-bold tracking-widest text-primary">
           {folio}
@@ -56,7 +57,7 @@ export default function PantallaExito({ folio, telefono }: Props) {
             bookmark
           </span>
           <p className="text-xs text-[#454652] leading-relaxed">
-            Guarda este folio — lo necesitarás para cualquier consulta sobre tu solicitud.
+            {copy.avisoFolio}
           </p>
         </div>
       </div>
@@ -71,14 +72,10 @@ export default function PantallaExito({ folio, telefono }: Props) {
           >
             chat
           </span>
-          <span className="text-sm font-bold text-[#1a1c1c]">Próximos pasos</span>
+          <span className="text-sm font-bold text-[#1a1c1c]">{copy.labelProximosPasos}</span>
         </div>
         <p className="text-sm text-[#454652] leading-relaxed">
-          Te contactaremos por <strong>WhatsApp</strong>
-          {telefono && (
-            <> al número <strong>{telefono}</strong></>
-          )}{" "}
-          en un máximo de <strong>24 horas hábiles</strong> para informarte el resultado.
+          {copy.mensajeContacto(telefono)}
         </p>
       </div>
 
@@ -89,7 +86,7 @@ export default function PantallaExito({ folio, telefono }: Props) {
         <span className="material-symbols-outlined text-sm" aria-hidden>
           home
         </span>
-        Volver al inicio
+        {copy.botonInicio}
       </Link>
     </div>
   )
