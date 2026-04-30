@@ -1,6 +1,12 @@
 // Internal lead capture form route
 export const CTA_URL = "/solicitar"
 
+// Routes that use the dark (navy) header variant
+export const DARK_HEADER_ROUTES = [CTA_URL]
+
+// React Query stale time for colonias and other reference data (ms)
+export const QUERY_STALE_TIME_MS = 60_000
+
 // WhatsApp number in international format, without + or spaces
 export const WHATSAPP_NUMBER = "+525650456534"
 

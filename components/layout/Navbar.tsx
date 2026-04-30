@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { CTA_URL, NAVBAR_HEIGHT } from "@/lib/config";
+import { CTA_URL, DARK_HEADER_ROUTES, NAVBAR_HEIGHT } from "@/lib/config";
 import { useScrolled } from "@/hooks/useScrolled";
 import { navLinks } from "@/content/nav";
 
@@ -18,7 +18,6 @@ export default function Navbar() {
   const isHome = pathname === "/";
   const scrolled = useScrolled();
 
-  const DARK_HEADER_ROUTES = ["/solicitar"];
   const hasDarkHeader = DARK_HEADER_ROUTES.includes(pathname);
   const logoColor = !scrolled && hasDarkHeader ? "text-white" : "text-primary";
 

@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useState } from "react"
+import { QUERY_STALE_TIME_MS } from "@/lib/config"
 
 export default function SolicitudProviders({
   children,
@@ -11,7 +12,7 @@ export default function SolicitudProviders({
   const [queryClient] = useState(
     () =>
       new QueryClient({
-        defaultOptions: { queries: { staleTime: 60_000 } },
+        defaultOptions: { queries: { staleTime: QUERY_STALE_TIME_MS } },
       }),
   )
 
