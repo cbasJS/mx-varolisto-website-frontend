@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { toast } from "sonner";
 import { usePaso3 } from "@/hooks/solicitar/usePaso3";
 import type { Paso3Data } from "@/lib/solicitud/schemas/index";
 import { ANIOS_VIVIENDO, TIPO_VIVIENDA } from "@varolisto/shared-schemas/enums";
@@ -40,6 +42,7 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
     colonias,
     cargandoCP,
     cpError,
+    cpServiceError,
     aniosViviendoActual,
     tipoViviendaActual,
     aniosViviendoOpen,
@@ -47,6 +50,12 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
     tipoViviendaOpen,
     setTipoViviendaOpen,
   } = usePaso3(onNext);
+
+  useEffect(() => {
+    if (cpServiceError) {
+      toast.error(cpServiceError)
+    }
+  }, [cpServiceError])
 
   return (
     <form onSubmit={handleSubmit} noValidate>
