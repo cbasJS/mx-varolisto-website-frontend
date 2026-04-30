@@ -1,4 +1,4 @@
-export interface ApiErrorPayload {
+interface ApiErrorPayload {
   status: number
   code?: string
   mensaje?: string
@@ -27,8 +27,4 @@ export function esErrorDeValidacion(e: unknown): e is ApiError {
 
 export function esErrorDeConflicto(e: unknown): e is ApiError {
   return e instanceof ApiError && e.status === 409
-}
-
-export function esErrorDeRed(e: unknown): e is ApiError {
-  return e instanceof ApiError && e.status === 0
 }

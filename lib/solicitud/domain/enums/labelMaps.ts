@@ -163,8 +163,3 @@ export const COPY_ALTERNATIVOS: Record<string, string> = {
     "Puedes subir cualquier documento que muestre tus ingresos: recibos de pago, transferencias, capturas de depósitos, notas de venta, o fotos de tu actividad económica.",
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-export function maskClabe(clabe: string): string {
-  return `••••••••••••${clabe.slice(-4)}`
-}
