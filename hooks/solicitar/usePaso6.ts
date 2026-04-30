@@ -156,8 +156,8 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   const agregarConTipo = useCallback(
     (files: File[], tipo: TipoArchivo) => {
       const yaPresentes = new Set([
-        ...archivosSubidos.map((a) => a.nombreOriginal),
-        ...entradas.map((e) => e.file.name),
+        ...archivosSubidos.filter((a) => a.tipoArchivo === tipo).map((a) => a.nombreOriginal),
+        ...entradas.filter((e) => e.tipoArchivo === tipo).map((e) => e.file.name),
       ])
       const sinDuplicados = files.filter((f) => !yaPresentes.has(f.name))
       const omitidos = files.length - sinDuplicados.length

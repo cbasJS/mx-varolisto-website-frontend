@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSolicitudStore } from "@/lib/solicitud/store"
 import { useSetSubmitting } from "@/lib/solicitud/submitting-context"
 import { apiPost, ApiError, esErrorDeConflicto, esErrorDeValidacion } from "@/lib/api"
@@ -47,22 +47,21 @@ export function useSolicitudNavigation() {
     setSubmittingContext(v)
   }
 
-  const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" })
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pasoActual])
 
   const handleNext = (paso: number, nuevos: PasoData) => {
     guardarPaso(paso, nuevos)
     setPaso(paso + 1)
-    scrollTop()
   }
 
   const handleBack = () => {
     setPaso(pasoActual - 1)
-    scrollTop()
   }
 
   const handleEditarPaso = (paso: number) => {
     setPaso(paso)
-    scrollTop()
   }
 
   const limpiarErrorSubmit = () => setErrorSubmit(null)
@@ -148,7 +147,7 @@ export function useSolicitudNavigation() {
       )
       resetForm()
       setFolio(response.folio)
-      scrollTop()
+      window.scrollTo(0, 0)
     } catch (err) {
       if (esErrorDeConflicto(err)) {
         setErrorSubmit({ tipo: "conflicto" })
