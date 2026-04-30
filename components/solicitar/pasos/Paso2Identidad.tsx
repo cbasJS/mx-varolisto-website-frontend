@@ -1,7 +1,7 @@
 "use client";
 
 import { usePaso2 } from "@/hooks/solicitar/usePaso2";
-import type { Paso1Data } from "@/lib/solicitud-schema";
+import type { Paso1Data } from "@/lib/solicitud/schemas/index";
 import { SEXO } from "@varolisto/shared-schemas/enums";
 import { SEXO_META } from "@/lib/solicitud/utils/lookup-labels";
 import { FloatingInput } from "../FloatingInput";
@@ -66,7 +66,7 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
 
       {/* Sexo */}
       <div className="mb-4 mt-4">
-        <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-[#aaa]">
+        <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-outline">
           Sexo{" "}
           <span className="text-error" aria-hidden>
             *
@@ -108,7 +108,7 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
           maxLength={18}
           className="uppercase"
           suffix={
-            <span className="tabular-nums text-xs text-[#aaa]">
+            <span className="tabular-nums text-xs text-outline">
               {curpValue.length}/18
             </span>
           }
@@ -132,7 +132,7 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
           placeholder=" "
           maxLength={10}
           suffix={
-            <span className="tabular-nums text-xs text-[#aaa]">
+            <span className="tabular-nums text-xs text-outline">
               {telefonoValue.length}/10
             </span>
           }

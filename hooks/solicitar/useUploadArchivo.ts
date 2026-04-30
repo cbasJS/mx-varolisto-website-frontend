@@ -2,9 +2,16 @@
 
 import { useState, useCallback } from "react"
 import { apiPost, apiDelete, ApiError } from "@/lib/api"
+import { apiRoutes } from "@/lib/solicitud/infrastructure/config/apiConfig"
 import { useSolicitudStore } from "@/lib/solicitud/store"
 import type { ArchivoSubido } from "@/lib/solicitud/store"
 import type { TipoArchivo } from "@varolisto/shared-schemas/enums"
+import type {
+  UploadUrlRequest,
+  UploadUrlResponse,
+  EliminarStagingRequest,
+  EliminarStagingResponse,
+} from "@/lib/solicitud/infrastructure/http/types"
 import { generateUUID } from "@/lib/utils"
 
 export type EstadoUpload = "pending" | "uploading" | "uploaded" | "failed" | "deleting"
@@ -15,31 +22,6 @@ export interface EntradaUpload {
   tipoArchivo: TipoArchivo
   estado: EstadoUpload
   error: string | null
-}
-
-interface UploadUrlResponse {
-  uploadUrl: string
-  storagePath: string
-  archivoId: string
-  expiresIn: number
-}
-
-interface UploadUrlRequest {
-  sessionUuid: string
-  tipoArchivo: TipoArchivo
-  nombreOriginal: string
-  mimeType: string
-  tamanoBytes: number
-}
-
-interface EliminarStagingRequest {
-  sessionUuid: string
-  storagePath: string
-  motivo: "user_action" | "tipo_identificacion_changed"
-}
-
-interface EliminarStagingResponse {
-  deleted: boolean
 }
 
 function archivoSubidoAEntrada(a: ArchivoSubido): EntradaUpload {
@@ -60,7 +42,7 @@ async function intentarEliminarDeStaging(
   const req: EliminarStagingRequest = { sessionUuid, storagePath, motivo }
   try {
     await apiDelete<EliminarStagingRequest, EliminarStagingResponse>(
-      "/api/archivos/staging",
+      apiRoutes.archivoDelete,
       req,
       { timeoutMs: 10_000 },
     )
@@ -68,7 +50,7 @@ async function intentarEliminarDeStaging(
     // backoff y retry único
     await new Promise((r) => setTimeout(r, 500))
     await apiDelete<EliminarStagingRequest, EliminarStagingResponse>(
-      "/api/archivos/staging",
+      apiRoutes.archivoDelete,
       req,
       { timeoutMs: 10_000 },
     )
@@ -112,7 +94,7 @@ export function useUploadArchivo() {
 
       try {
         const urlResponse = await apiPost<UploadUrlRequest, UploadUrlResponse>(
-          "/api/archivos/upload-url",
+          apiRoutes.archivoUpload,
           {
             sessionUuid,
             tipoArchivo,

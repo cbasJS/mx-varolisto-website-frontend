@@ -1,16 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-
-const PASOS = [
-  { numero: 1, etiqueta: "Préstamo",   icono: "payments" },
-  { numero: 2, etiqueta: "Identidad",  icono: "person" },
-  { numero: 3, etiqueta: "Domicilio",  icono: "home" },
-  { numero: 4, etiqueta: "Economía",   icono: "account_balance_wallet" },
-  { numero: 5, etiqueta: "Referencias", icono: "group" },
-  { numero: 6, etiqueta: "Documentos", icono: "folder_open" },
-  { numero: 7, etiqueta: "Revisión",   icono: "fact_check" },
-];
+import { pasos as PASOS } from "@/content/solicitar";
 
 interface BarraPasosProps {
   pasoActual: number;

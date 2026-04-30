@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { footerLinks } from "@/content/nav";
+import BrandName from "@/components/layout/BrandName";
 
 const currentYear = new Date().getFullYear();
 
@@ -19,7 +20,7 @@ export default function Footer() {
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
           <a href="/" className="font-headline font-extrabold text-primary text-xl">
-            Varo<span className="text-secondary">Listo.mx</span>
+            <BrandName />
           </a>
 
           <nav aria-label="Links del pie de página">
@@ -40,16 +41,14 @@ export default function Footer() {
 
         <div className="border-t border-surface-container pt-8 space-y-2">
           <p className="text-xs text-on-surface-variant/60 leading-relaxed text-center md:text-left">
-            <span className="text-primary">Varo</span>
-            <span className="text-secondary">Listo.mx</span> no es una
+            <BrandName className="text-primary" /> no es una
             institución financiera. Este sitio tiene fines informativos. Las
             solicitudes están sujetas a evaluación y contacto directo. El uso de
             este sitio web implica la aceptación de nuestros términos y
             condiciones.
           </p>
           <p className="text-xs text-on-surface-variant/60 text-center md:text-left">
-            © {currentYear} <span className="text-primary">Varo</span>
-            <span className="text-secondary">Listo.mx</span> México.
+            © {currentYear} <BrandName className="text-primary" /> México.
           </p>
         </div>
       </div>

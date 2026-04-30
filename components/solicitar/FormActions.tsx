@@ -26,7 +26,7 @@ export function FormActions({
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1.5 rounded-xl border-2 border-[#e8e8e8] bg-white px-6 py-3 text-sm font-semibold text-[#454652] transition-all hover:border-[#c8c8c8] hover:bg-[#fafafa] active:scale-[0.98]"
+          className="flex items-center gap-1.5 rounded-xl border-2 border-surface-container-high bg-white px-6 py-3 text-sm font-semibold text-on-surface-variant transition-all hover:border-outline-variant hover:bg-surface-bright active:scale-[0.98]"
         >
           <span className="material-symbols-outlined text-sm" aria-hidden>
             arrow_back
@@ -40,7 +40,7 @@ export function FormActions({
         className={cn(
           "flex items-center gap-2 rounded-xl px-8 py-3 text-sm font-bold text-white transition-all",
           disabled
-            ? "cursor-not-allowed bg-[#c8c8c8] shadow-none"
+            ? "cursor-not-allowed bg-outline-variant shadow-none"
             : "bg-primary shadow-lg shadow-primary/30 hover:bg-primary/90 active:scale-[0.98]",
         )}
       >

@@ -1,7 +1,7 @@
 "use client"
 
 import { usePaso5 } from "@/hooks/solicitar/usePaso5"
-import type { Paso5Data } from "@/lib/solicitud-schema"
+import type { Paso5Data } from "@/lib/solicitud/schemas/index"
 import { RELACION_REFERENCIA } from "@varolisto/shared-schemas/enums"
 import { RELACIONES_META } from "@/lib/solicitud/utils/lookup-labels"
 import { Controller, useForm, useWatch } from "react-hook-form"
@@ -30,14 +30,12 @@ function RefCard({
   register,
   control,
   errors,
-  setValue,
 }: {
   numero: 1 | 2
   prefix: "ref1" | "ref2"
   register: ReturnType<typeof useForm<Paso5Data>>["register"]
   control: ReturnType<typeof useForm<Paso5Data>>["control"]
   errors: ReturnType<typeof useForm<Paso5Data>>["formState"]["errors"]
-  setValue: ReturnType<typeof useForm<Paso5Data>>["setValue"]
 }) {
   const nombreKey = `${prefix}Nombre` as keyof Paso5Data
   const telefonoKey = `${prefix}Telefono` as keyof Paso5Data
@@ -47,12 +45,12 @@ function RefCard({
   const telefonoValue = (useWatch({ control, name: telefonoKey }) as string) ?? ""
 
   return (
-    <div className="rounded-2xl border-2 border-[#e8e8e8] bg-[#fafafa] p-5">
+    <div className="rounded-2xl border-2 border-surface-container-high bg-surface-bright p-5">
       <div className="mb-4 flex items-center gap-2">
         <div className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
           {numero}
         </div>
-        <h3 className="font-headline text-base font-semibold text-[#1a1c1c]">
+        <h3 className="font-headline text-base font-semibold text-on-surface">
           Referencia {numero}
         </h3>
       </div>
@@ -81,7 +79,7 @@ function RefCard({
           })}
           placeholder=" "
           suffix={
-            <span className="tabular-nums text-xs text-[#aaa]">
+            <span className="tabular-nums text-xs text-outline">
               {telefonoValue.length}/10
             </span>
           }
@@ -96,15 +94,15 @@ function RefCard({
                 <div
                   className={cn(
                     "relative rounded-xl border-2 bg-white transition-all duration-200",
-                    errors[relacionKey] ? "border-error" : "border-[#e8e8e8] hover:border-[#c8c8c8]"
+                    errors[relacionKey] ? "border-error" : "border-surface-container-high hover:border-outline-variant"
                   )}
                 >
                   <span
                     className={cn(
                       "pointer-events-none absolute left-4 z-10 select-none transition-all duration-200",
                       hasValue
-                        ? "top-2 text-[10px] font-semibold uppercase tracking-widest text-[#aaa]"
-                        : "top-1/2 -translate-y-1/2 text-sm text-[#aaa]"
+                        ? "top-2 text-[10px] font-semibold uppercase tracking-widest text-outline"
+                        : "top-1/2 -translate-y-1/2 text-sm text-outline"
                     )}
                   >
                     Relación{" "}
@@ -147,7 +145,7 @@ function RefCard({
 }
 
 export default function Paso5Referencias({ onNext, onBack }: Props) {
-  const { register, handleSubmit, control, setValue, errors, isValid } = usePaso5(onNext)
+  const { register, handleSubmit, control, errors, isValid } = usePaso5(onNext)
 
   return (
     <form onSubmit={handleSubmit} noValidate>
@@ -170,7 +168,6 @@ export default function Paso5Referencias({ onNext, onBack }: Props) {
           register={register}
           control={control}
           errors={errors}
-          setValue={setValue}
         />
         <RefCard
           numero={2}
@@ -178,7 +175,6 @@ export default function Paso5Referencias({ onNext, onBack }: Props) {
           register={register}
           control={control}
           errors={errors}
-          setValue={setValue}
         />
       </div>
 

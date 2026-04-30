@@ -1,7 +1,7 @@
 "use client";
 
 import { usePaso1 } from "@/hooks/solicitar/usePaso1";
-import type { Paso2Data } from "@/lib/solicitud-schema";
+import type { Paso2Data } from "@/lib/solicitud/schemas/index";
 import { DESTINO_PRESTAMO, PLAZO_MESES } from "@varolisto/shared-schemas/enums";
 import { DESTINOS_META } from "@/lib/solicitud/utils/lookup-labels";
 import { Slider } from "@/components/ui/slider";
@@ -65,7 +65,7 @@ export default function Paso1Prestamo({ onNext }: Props) {
             />
           )}
         />
-        <div className="flex justify-between text-xs font-medium text-[#aaa]">
+        <div className="flex justify-between text-xs font-medium text-outline">
           <span>$2,000</span>
           <span>$20,000</span>
         </div>
@@ -74,7 +74,7 @@ export default function Paso1Prestamo({ onNext }: Props) {
 
       {/* ── Plazo ────────────────────────────────────────────── */}
       <div className="mb-6">
-        <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-[#aaa]">
+        <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-outline">
           Plazo de pago{" "}
           <span className="text-error" aria-hidden>*</span>
         </p>
@@ -90,7 +90,7 @@ export default function Paso1Prestamo({ onNext }: Props) {
                 "flex-1 rounded-xl border-2 py-3 text-sm font-bold transition-all active:scale-[0.96]",
                 plazoStr === m
                   ? "border-primary bg-primary text-white shadow-md"
-                  : "border-[#e8e8e8] bg-white text-[#454652] hover:border-primary/40",
+                  : "border-surface-container-high bg-white text-on-surface-variant hover:border-primary/40",
               )}
             >
               {m}
@@ -106,12 +106,12 @@ export default function Paso1Prestamo({ onNext }: Props) {
       {/* ── Estimación cuota ─────────────────────────────────── */}
       <div className="mb-6 flex items-center justify-between rounded-2xl border-2 border-secondary/30 bg-secondary/5 px-5 py-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#767683]">
+          <p className="text-xs font-semibold uppercase tracking-widest text-outline">
             Cuota referencial Perfil A
           </p>
           <p className="font-headline text-3xl font-bold text-primary">
             ${cuota.toLocaleString("es-MX")}
-            <span className="text-base font-normal text-[#767683]">/mes</span>
+            <span className="text-base font-normal text-outline">/mes</span>
           </p>
         </div>
         <div className="flex size-12 items-center justify-center rounded-full bg-secondary/10">
@@ -124,7 +124,7 @@ export default function Paso1Prestamo({ onNext }: Props) {
           </span>
         </div>
       </div>
-      <p className="mb-6 text-xs text-[#aaa]">
+      <p className="mb-6 text-xs text-outline">
         * Tasa {(TASA_MENSUAL * 100).toFixed(2)}% mensual. Cuota final sujeta a
         evaluación.
       </p>

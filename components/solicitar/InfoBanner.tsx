@@ -12,7 +12,7 @@ export function InfoBanner({
 }) {
   const styles = {
     info: "bg-primary/5 border-primary/20 text-primary",
-    success: "bg-secondary/10 border-secondary/30 text-[#006e1c]",
+    success: "bg-secondary/10 border-secondary/30 text-secondary-mobile",
     warning: "bg-amber-50 border-amber-200 text-amber-800",
   };
   const icons = { info: "info", success: "check_circle", warning: "warning" };

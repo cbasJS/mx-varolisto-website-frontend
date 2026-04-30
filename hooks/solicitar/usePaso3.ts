@@ -6,7 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useQuery } from "@tanstack/react-query"
 import { paso3Schema, type Paso3Data } from "@/lib/solicitud/schemas/index"
 import { useSolicitudStore } from "@/lib/solicitud/store"
-import { fetchColonias } from "@/lib/solicitud/utils/fetchColonias"
+import { fetchColonias, ColoniaServiceError } from "@/lib/solicitud/infrastructure/colonias/coloniaRepository"
+import { COLONIAS_STALE_TIME_MS } from "@/lib/config"
 import { useAutoSave } from "./useAutoSave"
 import { normalizeRegister } from "@/lib/solicitud/utils/normalizeRegister"
 
@@ -49,15 +50,18 @@ export function usePaso3(onNext: (datos: Paso3Data) => void) {
     data: colonias,
     isLoading: cargandoCP,
     isError: cpError,
+    error: cpErrorObj,
   } = useQuery({
     queryKey: ["cp", codigoPostal],
     queryFn: () => fetchColonias(codigoPostal),
     enabled: cpValido,
     retry: false,
     initialData: coloniasCache[codigoPostal],
-    initialDataUpdatedAt: 0,
-    staleTime: 24 * 60 * 60 * 1000,
+    initialDataUpdatedAt: coloniasCache[codigoPostal] ? Date.now() : 0,
+    staleTime: COLONIAS_STALE_TIME_MS,
   })
+
+  const cpServiceError = cpErrorObj instanceof ColoniaServiceError ? cpErrorObj.message : null
 
   useEffect(() => {
     if (colonias && colonias.length > 0 && cpValido) {
@@ -97,6 +101,7 @@ export function usePaso3(onNext: (datos: Paso3Data) => void) {
     colonias,
     cargandoCP,
     cpError,
+    cpServiceError,
     aniosViviendoActual,
     tipoViviendaActual,
     aniosViviendoOpen,

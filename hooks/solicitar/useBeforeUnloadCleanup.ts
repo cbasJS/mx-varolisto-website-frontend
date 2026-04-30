@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { useSolicitudStore } from "@/lib/solicitud/store"
+import { baseUrls, apiRoutes } from "@/lib/solicitud/infrastructure/config/apiConfig"
 
 export function useBeforeUnloadCleanup(isSubmitting: boolean) {
   const archivosSubidos = useSolicitudStore((s) => s.archivosSubidos)
@@ -17,15 +18,13 @@ export function useBeforeUnloadCleanup(isSubmitting: boolean) {
 
       if (!sessionUuid || archivosSubidos.length === 0) return
 
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? ""
-
       archivosSubidos.forEach((archivo) => {
         // text/plain evita el preflight CORS — garantiza que el request sale antes del unload
         const blob = new Blob(
           [JSON.stringify({ sessionUuid, storagePath: archivo.storagePath, motivo: "beforeunload" })],
           { type: "text/plain" },
         )
-        navigator.sendBeacon(`${baseUrl}/api/archivos/staging/beacon-cleanup`, blob)
+        navigator.sendBeacon(`${baseUrls.varolisto}${apiRoutes.beaconCleanup}`, blob)
       })
     }
 
