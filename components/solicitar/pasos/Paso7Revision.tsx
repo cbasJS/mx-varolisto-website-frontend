@@ -49,7 +49,7 @@ function SeccionCard({
   const [abierto, setAbierto] = useState(true);
 
   return (
-    <div className="overflow-hidden rounded-2xl border-2 border-[#e8e8e8] bg-white">
+    <div className="overflow-hidden rounded-2xl border-2 border-surface-container-high bg-white">
       <div className="flex w-full items-center gap-3 px-5 py-4">
         <button
           type="button"
@@ -65,14 +65,14 @@ function SeccionCard({
               {icono}
             </span>
           </div>
-          <span className="flex-1 text-sm font-semibold text-[#1a1c1c]">
+          <span className="flex-1 text-sm font-semibold text-on-surface">
             {titulo}
           </span>
         </button>
         <button
           type="button"
           onClick={() => onEditar(paso)}
-          className="rounded-lg border border-[#e8e8e8] px-2.5 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
+          className="rounded-lg border border-surface-container-high px-2.5 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
         >
           Editar
         </button>
@@ -84,7 +84,7 @@ function SeccionCard({
         >
           <span
             className={cn(
-              "material-symbols-outlined text-base text-[#aaa] transition-transform duration-200",
+              "material-symbols-outlined text-base text-outline transition-transform duration-200",
               abierto && "rotate-180",
             )}
             aria-hidden
@@ -94,7 +94,7 @@ function SeccionCard({
         </button>
       </div>
       {abierto && (
-        <div className="border-t border-[#f0f0f0] px-5 py-4">{children}</div>
+        <div className="border-t border-surface-container px-5 py-4">{children}</div>
       )}
     </div>
   );
@@ -104,15 +104,15 @@ function Fila({ label, value }: { label: string; value?: string | number }) {
   if (!value && value !== 0) return null;
   return (
     <div className="flex items-start justify-between gap-4 py-1.5 text-sm">
-      <span className="shrink-0 text-[#aaa]">{label}</span>
-      <span className="text-right font-medium text-[#1a1c1c]">{value}</span>
+      <span className="shrink-0 text-outline">{label}</span>
+      <span className="text-right font-medium text-on-surface">{value}</span>
     </div>
   );
 }
 
 function SubLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-1.5 mt-3 text-[10px] font-bold uppercase tracking-widest text-[#aaa] first:mt-0">
+    <p className="mb-1.5 mt-3 text-[10px] font-bold uppercase tracking-widest text-outline first:mt-0">
       {children}
     </p>
   );
@@ -131,10 +131,10 @@ function ModalConflicto({ onConfirmado }: { onConfirmado: () => void }) {
             warning
           </span>
         </div>
-        <h2 className="mb-2 text-lg font-bold text-[#1a1c1c]">
+        <h2 className="mb-2 text-lg font-bold text-on-surface">
           Solicitud activa existente
         </h2>
-        <p className="mb-6 text-sm text-[#454652] leading-relaxed">
+        <p className="mb-6 text-sm text-on-surface-variant leading-relaxed">
           Ya existe una solicitud activa con estos datos. Si necesitas ayuda,
           escríbenos por{" "}
           <a
@@ -298,8 +298,8 @@ export default function Paso7Revision({
         </div>
 
         {/* Consentimientos */}
-        <div className="mb-8 space-y-3 rounded-2xl border-2 border-[#e8e8e8] bg-[#fafafa] p-5">
-          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-[#aaa]">
+        <div className="mb-8 space-y-3 rounded-2xl border-2 border-surface-container-high bg-surface-bright p-5">
+          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-outline">
             Acepto los términos
           </p>
 
@@ -316,7 +316,7 @@ export default function Paso7Revision({
               }
               className="mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
             />
-            <span className="text-sm text-[#454652] leading-relaxed">
+            <span className="text-sm text-on-surface-variant leading-relaxed">
               He leído y acepto el{" "}
               <a
                 href="/aviso-de-privacidad-integral"
@@ -343,7 +343,7 @@ export default function Paso7Revision({
               }
               className="mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
             />
-            <span className="text-sm text-[#454652] leading-relaxed">
+            <span className="text-sm text-on-surface-variant leading-relaxed">
               He leído y acepto los{" "}
               <a
                 href="/terminos-condiciones"
@@ -364,7 +364,7 @@ export default function Paso7Revision({
             type="button"
             onClick={onBack}
             disabled={enviando}
-            className="flex items-center gap-1.5 rounded-xl border-2 border-[#e8e8e8] bg-white px-6 py-3 text-sm font-semibold text-[#454652] transition-all hover:border-[#c8c8c8] hover:bg-[#fafafa] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 rounded-xl border-2 border-surface-container-high bg-white px-6 py-3 text-sm font-semibold text-on-surface-variant transition-all hover:border-outline-variant hover:bg-surface-bright active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span className="material-symbols-outlined text-sm" aria-hidden>arrow_back</span>
             Atrás

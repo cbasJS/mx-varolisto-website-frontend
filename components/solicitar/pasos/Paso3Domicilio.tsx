@@ -7,7 +7,6 @@ import {
   ANIOS_VIVIENDO_LABELS,
   TIPO_VIVIENDA_LABELS,
 } from "@/lib/solicitud/utils/lookup-labels";
-import { Controller } from "react-hook-form";
 import {
   Select,
   SelectContent,
@@ -16,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FloatingInput } from "../FloatingInput";
+import { FloatingSelect } from "../FloatingSelect";
 import { SectionDivider } from "../SectionDivider";
 import { StepTitle } from "../StepTitle";
 import { FormActions } from "../FormActions";
@@ -32,7 +32,6 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
     register,
     handleSubmit,
     setValue,
-    control,
     errors,
     isValid,
     coloniaActual,
@@ -69,7 +68,7 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
             maxLength={5}
             inputMode="numeric"
             suffix={
-              <span className="tabular-nums text-xs text-[#aaa]">
+              <span className="tabular-nums text-xs text-outline">
                 {codigoPostalValue.length}/5
               </span>
             }
@@ -85,14 +84,14 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
         {cpValido && !cpError && (
           <div>
             {cargandoCP ? (
-              <div className="h-[52px] animate-pulse rounded-xl bg-[#f5f5f7]" />
+              <div className="h-[52px] animate-pulse rounded-xl bg-surface-bright" />
             ) : (
               <div
                 className={cn(
                   "relative rounded-xl border-2 bg-white transition-all duration-200",
                   errors.colonia
                     ? "border-error"
-                    : "border-[#e8e8e8] hover:border-[#c8c8c8]",
+                    : "border-surface-container-high hover:border-outline-variant",
                   !colonias && "opacity-50",
                 )}
               >
@@ -100,8 +99,8 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
                   className={cn(
                     "pointer-events-none absolute left-4 z-10 select-none transition-all duration-200",
                     coloniaActual
-                      ? "top-2 text-[10px] font-semibold uppercase tracking-widest text-[#aaa]"
-                      : "top-1/2 -translate-y-1/2 text-sm text-[#aaa]",
+                      ? "top-2 text-[10px] font-semibold uppercase tracking-widest text-outline"
+                      : "top-1/2 -translate-y-1/2 text-sm text-outline",
                   )}
                 >
                   Colonia{" "}
@@ -141,7 +140,7 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
               </div>
             )}
             {!errors.colonia && !coloniaActual && colonias && (
-              <p className="mt-1.5 text-xs text-[#999]">
+              <p className="mt-1.5 text-xs text-outline">
                 Selecciona tu colonia
               </p>
             )}
@@ -156,7 +155,7 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
             {...register("municipio")}
             readOnly
             placeholder=" "
-            className="cursor-default text-[#aaa]"
+            className="cursor-default text-outline"
             // hint="Se llena automáticamente con tu CP"
           />
         )}
@@ -168,7 +167,7 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
             {...register("estado")}
             readOnly
             placeholder=" "
-            className="cursor-default text-[#aaa]"
+            className="cursor-default text-outline"
             // hint="Se llena automáticamente con tu CP"
           />
         )}
@@ -180,7 +179,7 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
             {...register("ciudad")}
             readOnly
             placeholder=" "
-            className="cursor-default text-[#aaa]"
+            className="cursor-default text-outline"
             // hint="Se llena automáticamente con tu CP"
           />
         )}
@@ -210,119 +209,26 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
       <SectionDivider label="Situación de vivienda" />
 
       <div className="grid gap-3 sm:grid-cols-2">
-        {/* Años viviendo */}
-        <div>
-          <div
-            className={cn(
-              "relative rounded-xl border-2 bg-white transition-all duration-200",
-              errors.aniosViviendo
-                ? "border-error"
-                : aniosViviendoOpen
-                  ? "border-primary shadow-sm shadow-primary/10"
-                  : "border-[#e8e8e8] hover:border-[#c8c8c8]",
-            )}
-          >
-            <span
-              className={cn(
-                "pointer-events-none absolute left-4 z-10 select-none transition-all duration-200",
-                aniosViviendoActual
-                  ? "top-2 text-[10px] font-semibold uppercase tracking-widest text-[#aaa]"
-                  : "top-1/2 -translate-y-1/2 text-sm text-[#aaa]",
-              )}
-            >
-              Tiempo viviendo aquí{" "}
-              <span className="text-error" aria-hidden>
-                *
-              </span>
-            </span>
-            <Controller
-              control={control}
-              name="aniosViviendo"
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  onOpenChange={setAniosViviendoOpen}
-                >
-                  <SelectTrigger
-                    data-size=""
-                    className={cn(
-                      "!h-[52px] w-full rounded-xl border-0 bg-transparent pl-4 pr-3 text-sm shadow-none focus:ring-0",
-                      aniosViviendoActual ? "pb-2 pt-6" : "py-0",
-                    )}
-                  >
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ANIOS_VIVIENDO.map((v) => (
-                      <SelectItem key={v} value={v}>
-                        {ANIOS_VIVIENDO_LABELS[v]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-          <FieldError message={errors.aniosViviendo?.message} />
-        </div>
-
-        {/* Tipo de vivienda */}
-        <div>
-          <div
-            className={cn(
-              "relative rounded-xl border-2 bg-white transition-all duration-200",
-              errors.tipoVivienda
-                ? "border-error"
-                : tipoViviendaOpen
-                  ? "border-primary shadow-sm shadow-primary/10"
-                  : "border-[#e8e8e8] hover:border-[#c8c8c8]",
-            )}
-          >
-            <span
-              className={cn(
-                "pointer-events-none absolute left-4 z-10 select-none transition-all duration-200",
-                tipoViviendaActual
-                  ? "top-2 text-[10px] font-semibold uppercase tracking-widest text-[#aaa]"
-                  : "top-1/2 -translate-y-1/2 text-sm text-[#aaa]",
-              )}
-            >
-              Tipo de vivienda{" "}
-              <span className="text-error" aria-hidden>
-                *
-              </span>
-            </span>
-            <Controller
-              control={control}
-              name="tipoVivienda"
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  onOpenChange={setTipoViviendaOpen}
-                >
-                  <SelectTrigger
-                    data-size=""
-                    className={cn(
-                      "!h-[52px] w-full rounded-xl border-0 bg-transparent pl-4 pr-3 text-sm shadow-none focus:ring-0",
-                      tipoViviendaActual ? "pb-2 pt-6" : "py-0",
-                    )}
-                  >
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TIPO_VIVIENDA.map((v) => (
-                      <SelectItem key={v} value={v}>
-                        {TIPO_VIVIENDA_LABELS[v]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-          <FieldError message={errors.tipoVivienda?.message} />
-        </div>
+        <FloatingSelect
+          label="Tiempo viviendo aquí"
+          required
+          value={aniosViviendoActual}
+          onValueChange={(val) => setValue("aniosViviendo", val as typeof ANIOS_VIVIENDO[number], { shouldValidate: true })}
+          onOpenChange={setAniosViviendoOpen}
+          isOpen={aniosViviendoOpen}
+          options={ANIOS_VIVIENDO.map((v) => ({ value: v, label: ANIOS_VIVIENDO_LABELS[v] }))}
+          error={errors.aniosViviendo?.message}
+        />
+        <FloatingSelect
+          label="Tipo de vivienda"
+          required
+          value={tipoViviendaActual}
+          onValueChange={(val) => setValue("tipoVivienda", val as typeof TIPO_VIVIENDA[number], { shouldValidate: true })}
+          onOpenChange={setTipoViviendaOpen}
+          isOpen={tipoViviendaOpen}
+          options={TIPO_VIVIENDA.map((v) => ({ value: v, label: TIPO_VIVIENDA_LABELS[v] }))}
+          error={errors.tipoVivienda?.message}
+        />
       </div>
 
       <FormActions

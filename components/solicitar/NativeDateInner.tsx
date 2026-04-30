@@ -46,7 +46,7 @@ export function NativeDateInner({
             ? "border-primary shadow-sm shadow-primary/10"
             : error
               ? "border-error"
-              : "border-[#e8e8e8] hover:border-[#c8c8c8]",
+              : "border-surface-container-high hover:border-outline-variant",
         )}
       >
         <label
@@ -56,7 +56,7 @@ export function NativeDateInner({
             lifted
               ? "top-2 text-[10px] font-semibold uppercase tracking-widest"
               : "top-1/2 -translate-y-1/2 text-sm",
-            focused ? "text-primary" : error ? "text-error" : "text-[#aaa]",
+            focused ? "text-primary" : error ? "text-error" : "text-outline",
           )}
         >
           {label}
@@ -71,7 +71,7 @@ export function NativeDateInner({
             </span>
           )}
         </label>
-        <div className="w-full pb-2 pt-6 pl-4 pr-4 text-base text-[#1a1c1c]">
+        <div className="w-full pb-2 pt-6 pl-4 pr-4 text-base text-on-surface">
           {hasValue ? formatDDMMYYYY(value) : " "}
         </div>
         <input
@@ -99,7 +99,7 @@ export function NativeDateInner({
           {error.message}
         </p>
       )}
-      {!error && hint && <p className="mt-1.5 text-xs text-[#999]">{hint}</p>}
+      {!error && hint && <p className="mt-1.5 text-xs text-outline">{hint}</p>}
     </div>
   );
 }

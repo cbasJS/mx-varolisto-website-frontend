@@ -45,12 +45,12 @@ function RefCard({
   const telefonoValue = (useWatch({ control, name: telefonoKey }) as string) ?? ""
 
   return (
-    <div className="rounded-2xl border-2 border-[#e8e8e8] bg-[#fafafa] p-5">
+    <div className="rounded-2xl border-2 border-surface-container-high bg-surface-bright p-5">
       <div className="mb-4 flex items-center gap-2">
         <div className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
           {numero}
         </div>
-        <h3 className="font-headline text-base font-semibold text-[#1a1c1c]">
+        <h3 className="font-headline text-base font-semibold text-on-surface">
           Referencia {numero}
         </h3>
       </div>
@@ -79,7 +79,7 @@ function RefCard({
           })}
           placeholder=" "
           suffix={
-            <span className="tabular-nums text-xs text-[#aaa]">
+            <span className="tabular-nums text-xs text-outline">
               {telefonoValue.length}/10
             </span>
           }
@@ -94,15 +94,15 @@ function RefCard({
                 <div
                   className={cn(
                     "relative rounded-xl border-2 bg-white transition-all duration-200",
-                    errors[relacionKey] ? "border-error" : "border-[#e8e8e8] hover:border-[#c8c8c8]"
+                    errors[relacionKey] ? "border-error" : "border-surface-container-high hover:border-outline-variant"
                   )}
                 >
                   <span
                     className={cn(
                       "pointer-events-none absolute left-4 z-10 select-none transition-all duration-200",
                       hasValue
-                        ? "top-2 text-[10px] font-semibold uppercase tracking-widest text-[#aaa]"
-                        : "top-1/2 -translate-y-1/2 text-sm text-[#aaa]"
+                        ? "top-2 text-[10px] font-semibold uppercase tracking-widest text-outline"
+                        : "top-1/2 -translate-y-1/2 text-sm text-outline"
                     )}
                   >
                     Relación{" "}

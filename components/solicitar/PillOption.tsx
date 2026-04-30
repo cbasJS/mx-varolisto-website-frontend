@@ -29,7 +29,7 @@ export function PillOption({
         fullWidth && "w-full",
         selected
           ? "border-primary bg-primary text-white shadow-md shadow-primary/20"
-          : "border-[#e8e8e8] bg-white text-[#454652] hover:border-[#c8c8c8] hover:bg-[#fafafa]",
+          : "border-surface-container-high bg-white text-on-surface-variant hover:border-outline-variant hover:bg-surface-bright",
         className,
       )}
     >
@@ -37,7 +37,7 @@ export function PillOption({
         <span
           className={cn(
             "material-symbols-outlined text-base shrink-0",
-            selected ? "text-secondary" : "text-[#aaa]",
+            selected ? "text-secondary" : "text-outline",
           )}
           style={{ fontVariationSettings: "'FILL' 1" }}
           aria-hidden

@@ -30,13 +30,13 @@ export default function PantallaExito({ folio, telefono }: Props) {
         </div>
       </div>
 
-      <p className="mb-1 text-sm font-bold uppercase tracking-widest text-[#aaa]">
+      <p className="mb-1 text-sm font-bold uppercase tracking-widest text-outline">
         {copy.etiquetaRecibida}
       </p>
-      <h1 className="mb-2 font-headline text-4xl font-bold text-[#1a1c1c] tracking-tight">
+      <h1 className="mb-2 font-headline text-4xl font-bold text-on-surface tracking-tight">
         {copy.titulo}
       </h1>
-      <p className="mb-8 text-base text-[#767683]">
+      <p className="mb-8 text-base text-outline">
         {copy.subtitulo}
       </p>
 
@@ -48,7 +48,7 @@ export default function PantallaExito({ folio, telefono }: Props) {
         <p className="font-headline text-3xl font-bold tracking-widest text-primary">
           {folio}
         </p>
-        <div className="mt-3 flex items-start gap-2 rounded-xl bg-white border border-[#e8e8e8] p-3 text-left">
+        <div className="mt-3 flex items-start gap-2 rounded-xl bg-white border border-surface-container-high p-3 text-left">
           <span
             className="material-symbols-outlined mt-0.5 shrink-0 text-base text-secondary"
             style={{ fontVariationSettings: "'FILL' 1" }}
@@ -56,14 +56,14 @@ export default function PantallaExito({ folio, telefono }: Props) {
           >
             bookmark
           </span>
-          <p className="text-xs text-[#454652] leading-relaxed">
+          <p className="text-xs text-on-surface-variant leading-relaxed">
             {copy.avisoFolio}
           </p>
         </div>
       </div>
 
       {/* Mensaje de contacto */}
-      <div className="mb-8 w-full max-w-sm rounded-2xl border-2 border-[#e8e8e8] bg-white p-5 text-left">
+      <div className="mb-8 w-full max-w-sm rounded-2xl border-2 border-surface-container-high bg-white p-5 text-left">
         <div className="mb-3 flex items-center gap-2">
           <span
             className="material-symbols-outlined text-lg text-[#25D366]"
@@ -72,16 +72,16 @@ export default function PantallaExito({ folio, telefono }: Props) {
           >
             chat
           </span>
-          <span className="text-sm font-bold text-[#1a1c1c]">{copy.labelProximosPasos}</span>
+          <span className="text-sm font-bold text-on-surface">{copy.labelProximosPasos}</span>
         </div>
-        <p className="text-sm text-[#454652] leading-relaxed">
+        <p className="text-sm text-on-surface-variant leading-relaxed">
           {copy.mensajeContacto(telefono)}
         </p>
       </div>
 
       <Link
         href="/"
-        className="flex items-center gap-2 rounded-xl border-2 border-[#e8e8e8] bg-white px-8 py-3 text-sm font-semibold text-[#454652] shadow-sm transition-all hover:border-[#c8c8c8] hover:bg-[#fafafa] active:scale-[0.98]"
+        className="flex items-center gap-2 rounded-xl border-2 border-surface-container-high bg-white px-8 py-3 text-sm font-semibold text-on-surface-variant shadow-sm transition-all hover:border-outline-variant hover:bg-surface-bright active:scale-[0.98]"
       >
         <span className="material-symbols-outlined text-sm" aria-hidden>
           home

@@ -11,7 +11,7 @@ export default function SolicitarPage() {
   return (
     <SolicitudProviders>
       {/* Shell bicolor: navy arriba, gris claro abajo */}
-      <div className="relative min-h-screen bg-[#f5f5f7]">
+      <div className="relative min-h-screen bg-surface-bright">
         {/* Banda navy superior */}
         <div className="absolute inset-x-0 top-0 h-64 bg-primary md:h-72" />
 

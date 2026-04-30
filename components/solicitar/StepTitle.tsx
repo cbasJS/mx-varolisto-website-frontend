@@ -15,14 +15,14 @@ export function StepTitle({
         <span className="flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
           {numero}
         </span>
-        <span className="text-xs font-semibold uppercase tracking-widest text-[#aaa]">
+        <span className="text-xs font-semibold uppercase tracking-widest text-outline">
           Paso {numero} de 6
         </span>
       </div>
-      <h2 className="font-headline text-2xl font-bold text-[#1a1c1c]">
+      <h2 className="font-headline text-2xl font-bold text-on-surface">
         {titulo}
       </h2>
-      {subtitulo && <p className="mt-1 text-sm text-[#767683]">{subtitulo}</p>}
+      {subtitulo && <p className="mt-1 text-sm text-outline">{subtitulo}</p>}
     </div>
   );
 }

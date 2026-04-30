@@ -45,16 +45,16 @@ function BadgeEstado({ estado }: { estado: EstadoUpload }) {
   if (estado === "uploading" || estado === "pending") {
     return (
       <div className="flex items-center gap-1.5">
-        <span className="inline-block size-4 animate-spin rounded-full border-2 border-[#e8e8e8] border-t-primary" />
-        <span className="text-xs text-[#aaa]">Subiendo…</span>
+        <span className="inline-block size-4 animate-spin rounded-full border-2 border-surface-container-high border-t-primary" />
+        <span className="text-xs text-outline">Subiendo…</span>
       </div>
     );
   }
   if (estado === "deleting") {
     return (
       <div className="flex items-center gap-1.5">
-        <span className="inline-block size-4 animate-spin rounded-full border-2 border-[#e8e8e8] border-t-error" />
-        <span className="text-xs text-[#aaa]">Eliminando…</span>
+        <span className="inline-block size-4 animate-spin rounded-full border-2 border-surface-container-high border-t-error" />
+        <span className="text-xs text-outline">Eliminando…</span>
       </div>
     );
   }
@@ -95,15 +95,15 @@ function ListaEntradas({
               ? "border-red-200 bg-red-50"
               : entrada.estado === "uploaded"
                 ? "border-secondary/30"
-                : "border-[#e8e8e8]",
+                : "border-surface-container-high",
           )}
         >
           <IconoArchivo mimeType={entrada.file.type} />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-[#1a1c1c]">
+            <p className="truncate text-sm font-medium text-on-surface">
               {entrada.file.name}
             </p>
-            <p className="text-xs text-[#aaa]">
+            <p className="text-xs text-outline">
               {formatBytes(entrada.file.size)}
             </p>
             {entrada.estado === "failed" && entrada.error && (
@@ -127,7 +127,7 @@ function ListaEntradas({
               <button
                 type="button"
                 onClick={() => eliminarEntrada(entrada.clienteId)}
-                className="rounded-lg p-1 text-[#ccc] transition-colors hover:bg-red-50 hover:text-error"
+                className="rounded-lg p-1 text-outline-variant transition-colors hover:bg-red-50 hover:text-error"
                 aria-label={`Eliminar ${entrada.file.name}`}
               >
                 <span
@@ -183,7 +183,7 @@ function DropzoneCard({
         !disabled &&
           !done &&
           !isDragActive &&
-          "border-[#ddd] bg-[#fafafa] hover:border-primary/40 hover:bg-primary/3",
+          "border-outline-variant bg-surface-bright hover:border-primary/40 hover:bg-primary/3",
       )}
     >
       <input {...inputProps} {...(capture ? { capture: "environment" } : {})} />
@@ -195,7 +195,7 @@ function DropzoneCard({
               ? "bg-secondary/20"
               : isDragActive
                 ? "bg-secondary/20"
-                : "bg-[#f0f0f0]",
+                : "bg-surface-container",
           )}
         >
           <span
@@ -205,7 +205,7 @@ function DropzoneCard({
                 ? "text-secondary"
                 : isDragActive
                   ? "text-secondary"
-                  : "text-[#aaa]",
+                  : "text-outline",
             )}
             style={{ fontVariationSettings: "'FILL' 1" }}
             aria-hidden
@@ -213,10 +213,10 @@ function DropzoneCard({
             {done ? "check_circle" : icono}
           </span>
         </div>
-        <p className="text-sm font-semibold text-[#1a1c1c]">
+        <p className="text-sm font-semibold text-on-surface">
           {done ? "Subida exitosa" : label}
         </p>
-        {!done && <p className="text-xs text-[#aaa]">JPG o PNG · Máx. 10 MB</p>}
+        {!done && <p className="text-xs text-outline">JPG o PNG · Máx. 10 MB</p>}
       </div>
     </div>
   );
@@ -271,7 +271,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
 
       {/* ── Tipo de identificación ───────────────────────────── */}
       <div className="mb-6">
-        <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-[#aaa]">
+        <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-outline">
           Tipo de identificación oficial{" "}
           <span className="text-error" aria-hidden>
             *
@@ -289,7 +289,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
                 isCleaningUp && "cursor-not-allowed opacity-60",
                 tipoIdentificacion === value
                   ? "border-primary bg-primary text-white shadow-md"
-                  : "border-[#e8e8e8] bg-white text-[#454652] hover:border-primary/40",
+                  : "border-surface-container-high bg-white text-on-surface-variant hover:border-primary/40",
               )}
             >
               {isCleaningUp && tipoIdentificacion === value ? (
@@ -298,7 +298,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
                 <span
                   className={cn(
                     "material-symbols-outlined text-base",
-                    tipoIdentificacion === value ? "text-secondary" : "text-[#aaa]",
+                    tipoIdentificacion === value ? "text-secondary" : "text-outline",
                   )}
                   style={{ fontVariationSettings: "'FILL' 1" }}
                   aria-hidden
@@ -311,14 +311,14 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
           ))}
         </div>
         {isCleaningUp && (
-          <p className="mt-2 text-xs text-[#aaa]">Eliminando documentos anteriores…</p>
+          <p className="mt-2 text-xs text-outline">Eliminando documentos anteriores…</p>
         )}
       </div>
 
       {/* ── Dropzones de identificación ─────────────────────── */}
       {tipoIdentificacion === "ine" && (
         <div className="mb-6">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#aaa]">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-outline">
             Fotografía de tu INE / IFE
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -353,7 +353,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
 
       {tipoIdentificacion === "pasaporte" && (
         <div className="mb-6">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#aaa]">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-outline">
             Fotografía de tu pasaporte
           </p>
           <DropzoneCard
@@ -391,7 +391,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
             "mt-3 flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3 text-left text-sm transition-all",
             sinEstadosCuenta
               ? "border-amber-300 bg-amber-50 text-amber-800"
-              : "border-[#e8e8e8] bg-white text-[#454652] hover:border-[#c8c8c8]",
+              : "border-surface-container-high bg-white text-on-surface-variant hover:border-outline-variant",
           )}
         >
           <span
@@ -399,7 +399,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
               "flex size-5 shrink-0 items-center justify-center rounded border-2 transition-colors",
               sinEstadosCuenta
                 ? "border-amber-500 bg-amber-500"
-                : "border-[#c8c8c8] bg-white",
+                : "border-outline-variant bg-white",
             )}
             aria-hidden
           >
@@ -425,20 +425,20 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
           className={cn(
             "rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200",
             dropzoneComprobante.isDisabled
-              ? "cursor-not-allowed border-[#e8e8e8] bg-[#f5f5f7] opacity-50"
+              ? "cursor-not-allowed border-surface-container-high bg-surface-bright opacity-50"
               : "cursor-pointer",
             !dropzoneComprobante.isDisabled && dropzoneComprobante.isDragActive
               ? "border-secondary bg-secondary/5 scale-[1.01]"
               : !dropzoneComprobante.isDisabled
-                ? "border-[#ddd] bg-[#fafafa] hover:border-primary/40 hover:bg-primary/3"
+                ? "border-outline-variant bg-surface-bright hover:border-primary/40 hover:bg-primary/3"
                 : "",
           )}
         >
           <input {...dropzoneComprobante.getInputProps()} />
           <div className="flex flex-col items-center gap-2">
-            <div className="flex size-12 items-center justify-center rounded-full bg-[#f0f0f0]">
+            <div className="flex size-12 items-center justify-center rounded-full bg-surface-container">
               <span
-                className="material-symbols-outlined text-2xl text-[#aaa]"
+                className="material-symbols-outlined text-2xl text-outline"
                 style={{ fontVariationSettings: "'FILL' 1" }}
                 aria-hidden
               >
@@ -448,12 +448,12 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
               </span>
             </div>
             <div>
-              <p className="text-sm font-semibold text-[#1a1c1c]">
+              <p className="text-sm font-semibold text-on-surface">
                 {dropzoneComprobante.isDragActive
                   ? "Suelta aquí los archivos"
                   : "Arrastra o toca para subir"}
               </p>
-              <p className="mt-0.5 text-xs text-[#aaa]">
+              <p className="mt-0.5 text-xs text-outline">
                 JPG o PNG · Máx. 10 MB c/u
               </p>
             </div>
@@ -500,7 +500,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1.5 rounded-xl border-2 border-[#e8e8e8] bg-white px-6 py-3 text-sm font-semibold text-[#454652] transition-all hover:border-[#c8c8c8] hover:bg-[#fafafa] active:scale-[0.98]"
+          className="flex items-center gap-1.5 rounded-xl border-2 border-surface-container-high bg-white px-6 py-3 text-sm font-semibold text-on-surface-variant transition-all hover:border-outline-variant hover:bg-surface-bright active:scale-[0.98]"
         >
           <span className="material-symbols-outlined text-sm" aria-hidden>
             arrow_back
