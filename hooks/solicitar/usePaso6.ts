@@ -12,16 +12,7 @@ import {
   TIPOS_SIN_BANCO,
   COPY_ALTERNATIVOS,
 } from "@/lib/solicitud/utils/lookup-labels"
-import { apiGet } from "@/lib/api"
-import { generateUUID } from "@/lib/utils"
-
-interface ArchivoStagingRemoto {
-  storagePath: string
-  tipoArchivo: TipoArchivo | null
-  tamanoBytes: number
-  mimeType: string
-  uploadedAt: string | null
-}
+import { hidratarArchivos } from "@/lib/solicitud/application/useCases/hidratarArchivos"
 
 export interface Paso6StoreData {
   tipoIdentificacion: TipoIdentificacion
@@ -42,30 +33,19 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   // Ref para evitar que StrictMode double-invoke dispare dos fetches simultáneos
   const hidratacionDisparada = useRef(false)
 
-  // Pieza 2 — Reconciliación al montar: hidrata archivos ya subidos en staging
+  // Reconciliación al montar: hidrata archivos ya subidos en staging
   useEffect(() => {
     if (!sessionUuid) return
     if (archivosSubidos.length > 0) return
     if (hidratacionDisparada.current) return
     hidratacionDisparada.current = true
 
-    apiGet<{ archivos: ArchivoStagingRemoto[] }>(`/api/archivos/staging/${sessionUuid}`)
+    hidratarArchivos(sessionUuid)
       .then(({ archivos }) => {
-        const nuevos = archivos
-          .filter((a) => a.tipoArchivo !== null)
-          .map((a) => ({
-            clienteId: generateUUID(),
-            archivoId: generateUUID(),
-            tipoArchivo: a.tipoArchivo!,
-            nombreOriginal: a.storagePath.split("/").at(-1) ?? a.storagePath,
-            mimeType: a.mimeType,
-            tamanoBytes: a.tamanoBytes,
-            storagePath: a.storagePath,
-          }))
-        for (const archivo of nuevos) {
+        for (const archivo of archivos) {
           agregarArchivoSubido(archivo)
         }
-        hidratarEntradas(nuevos)
+        hidratarEntradas(archivos)
       })
       .catch(() => {
         // Error de red — no bloquear. El usuario puede continuar y subir archivos nuevos.
