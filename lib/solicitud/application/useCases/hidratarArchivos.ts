@@ -1,4 +1,5 @@
 import { apiGet } from "@/lib/solicitud/infrastructure/http/apiClient"
+import { apiRoutes } from "@/lib/solicitud/infrastructure/config/apiConfig"
 import { generateUUID } from "@/lib/utils"
 import type { ArchivoSubido } from "@/lib/solicitud/domain/solicitud/types"
 import type { ArchivoStagingRemoto } from "@/lib/solicitud/infrastructure/http/types"
@@ -11,7 +12,7 @@ export async function hidratarArchivos(
   sessionUuid: string,
 ): Promise<HidratarArchivosResult> {
   const { archivos } = await apiGet<{ archivos: ArchivoStagingRemoto[] }>(
-    `/api/archivos/staging/${sessionUuid}`,
+    apiRoutes.archivoStaging(sessionUuid),
   )
 
   const mapeados = archivos

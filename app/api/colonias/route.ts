@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { env } from "@/lib/env";
+import { baseUrls } from "@/lib/solicitud/infrastructure/config/apiConfig";
 import type { CopomexResponse } from "@/lib/solicitud/types";
 
 export type { CopomexResponse }
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   const upstream = await fetch(
-    `${env.copomex.baseUrl}/info_cp/${cp}?token=${env.copomex.token}`,
+    `${baseUrls.copomex}/info_cp/${cp}?token=${env.copomex.token}`,
     { next: { revalidate: 86400 } },
   );
 

@@ -1,4 +1,5 @@
 import { ApiError } from "./apiErrors"
+import { baseUrls } from "../config/apiConfig"
 
 const DEFAULT_TIMEOUT_MS = 30_000
 
@@ -12,8 +13,7 @@ async function apiFetch<TReq, TRes>(
   const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS
   const timerId = setTimeout(() => controller.abort(), timeoutMs)
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL
-  if (!baseUrl) throw new Error("NEXT_PUBLIC_API_URL no está configurado")
+  const baseUrl = baseUrls.varolisto
 
   let response: Response
   try {
@@ -72,8 +72,7 @@ export async function apiGet<TRes>(
   const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS
   const timerId = setTimeout(() => controller.abort(), timeoutMs)
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL
-  if (!baseUrl) throw new Error("NEXT_PUBLIC_API_URL no está configurado")
+  const baseUrl = baseUrls.varolisto
 
   let response: Response
   try {

@@ -1,4 +1,5 @@
 import { apiPost } from "@/lib/solicitud/infrastructure/http/apiClient"
+import { apiRoutes } from "@/lib/solicitud/infrastructure/config/apiConfig"
 import {
   ApiError,
   esErrorDeConflicto,
@@ -45,7 +46,7 @@ export async function submitSolicitud(
   const payload = buildPayload(input)
 
   const response = await apiPost<ReturnType<typeof buildPayload>, CrearSolicitudResponse>(
-    "/api/solicitudes",
+    apiRoutes.solicitudes,
     payload,
     { timeoutMs: 30_000 },
   )

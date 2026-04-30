@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { apiPost, apiDelete, ApiError } from "@/lib/api"
+import { apiRoutes } from "@/lib/solicitud/infrastructure/config/apiConfig"
 import { useSolicitudStore } from "@/lib/solicitud/store"
 import type { ArchivoSubido } from "@/lib/solicitud/store"
 import type { TipoArchivo } from "@varolisto/shared-schemas/enums"
@@ -41,7 +42,7 @@ async function intentarEliminarDeStaging(
   const req: EliminarStagingRequest = { sessionUuid, storagePath, motivo }
   try {
     await apiDelete<EliminarStagingRequest, EliminarStagingResponse>(
-      "/api/archivos/staging",
+      apiRoutes.archivoDelete,
       req,
       { timeoutMs: 10_000 },
     )
@@ -49,7 +50,7 @@ async function intentarEliminarDeStaging(
     // backoff y retry único
     await new Promise((r) => setTimeout(r, 500))
     await apiDelete<EliminarStagingRequest, EliminarStagingResponse>(
-      "/api/archivos/staging",
+      apiRoutes.archivoDelete,
       req,
       { timeoutMs: 10_000 },
     )
@@ -93,7 +94,7 @@ export function useUploadArchivo() {
 
       try {
         const urlResponse = await apiPost<UploadUrlRequest, UploadUrlResponse>(
-          "/api/archivos/upload-url",
+          apiRoutes.archivoUpload,
           {
             sessionUuid,
             tipoArchivo,

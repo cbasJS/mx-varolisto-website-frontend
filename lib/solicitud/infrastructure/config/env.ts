@@ -20,8 +20,5 @@ export const env = {
         )
       return value
     },
-    get baseUrl(): string {
-      return process.env.COPOMEX_BASE_URL ?? "https://api.copomex.com/query"
-    },
   },
 } as const
