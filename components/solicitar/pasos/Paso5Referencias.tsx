@@ -12,13 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  FloatingInput,
-  StepTitle,
-  FormActions,
-  FieldError,
-  InfoBanner,
-} from "../FormUI"
+import { FloatingInput } from "../FloatingInput"
+import { StepTitle } from "../StepTitle"
+import { FormActions } from "../FormActions"
+import { FieldError } from "../FieldError"
+import { InfoBanner } from "../InfoBanner"
 import { cn } from "@/lib/utils"
 
 interface Props {

@@ -10,7 +10,9 @@ import {
 import { formatBytes } from "@/lib/solicitud/utils/formatBytes";
 import { TIPO_IDENTIFICACION_LABELS } from "@/lib/solicitud/utils/lookup-labels";
 import type { TipoIdentificacion } from "@varolisto/shared-schemas/enums";
-import { SectionDivider, StepTitle, InfoBanner } from "../FormUI";
+import { SectionDivider } from "../SectionDivider";
+import { StepTitle } from "../StepTitle";
+import { InfoBanner } from "../InfoBanner";
 import { cn } from "@/lib/utils";
 
 export type { Paso6StoreData };

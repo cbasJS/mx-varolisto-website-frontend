@@ -6,13 +6,11 @@ import { DESTINO_PRESTAMO, PLAZO_MESES } from "@varolisto/shared-schemas/enums";
 import { DESTINOS_META } from "@/lib/solicitud/utils/lookup-labels";
 import { Slider } from "@/components/ui/slider";
 import { Controller } from "react-hook-form";
-import {
-  PillOption,
-  SectionDivider,
-  StepTitle,
-  FormActions,
-  FieldError,
-} from "../FormUI";
+import { PillOption } from "../PillOption";
+import { SectionDivider } from "../SectionDivider";
+import { StepTitle } from "../StepTitle";
+import { FormActions } from "../FormActions";
+import { FieldError } from "../FieldError";
 import { cn } from "@/lib/utils";
 
 interface Props {
