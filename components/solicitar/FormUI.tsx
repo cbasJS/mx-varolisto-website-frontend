@@ -111,7 +111,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
                 onBlur?.(e);
               }}
               className={cn(
-                "w-full bg-transparent pb-2 pt-6 text-sm text-[#1a1c1c] outline-none placeholder:text-transparent",
+                "w-full bg-transparent pb-2 pt-6 text-base md:text-sm text-[#1a1c1c] outline-none placeholder:text-transparent",
                 prefix ? "pl-1" : "pl-4",
                 suffix ? "pr-2" : "pr-4",
                 className,
@@ -414,7 +414,7 @@ function DatePickerInner({
             showPopperArrow={false}
             portalId="datepicker-portal"
             placeholderText=" "
-            className="w-full cursor-pointer bg-transparent pb-2 pt-6 pl-4 pr-4 text-sm text-[#1a1c1c] outline-none"
+            className="w-full cursor-pointer bg-transparent pb-2 pt-6 pl-4 pr-4 text-base md:text-sm text-[#1a1c1c] outline-none"
             wrapperClassName="w-full"
             autoComplete="off"
             aria-invalid={error ? "true" : "false"}
