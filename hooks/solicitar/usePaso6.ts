@@ -13,6 +13,7 @@ import {
   COPY_ALTERNATIVOS,
 } from "@/lib/solicitud/utils/lookup-labels"
 import { apiGet } from "@/lib/api"
+import { generateUUID } from "@/lib/utils"
 
 interface ArchivoStagingRemoto {
   storagePath: string
@@ -53,8 +54,8 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
         const nuevos = archivos
           .filter((a) => a.tipoArchivo !== null)
           .map((a) => ({
-            clienteId: crypto.randomUUID(),
-            archivoId: crypto.randomUUID(),
+            clienteId: generateUUID(),
+            archivoId: generateUUID(),
             tipoArchivo: a.tipoArchivo!,
             nombreOriginal: a.storagePath.split("/").at(-1) ?? a.storagePath,
             mimeType: a.mimeType,

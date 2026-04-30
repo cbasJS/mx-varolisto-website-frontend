@@ -5,6 +5,7 @@ import { apiPost, apiDelete, ApiError } from "@/lib/api"
 import { useSolicitudStore } from "@/lib/solicitud/store"
 import type { ArchivoSubido } from "@/lib/solicitud/store"
 import type { TipoArchivo } from "@varolisto/shared-schemas/enums"
+import { generateUUID } from "@/lib/utils"
 
 export type EstadoUpload = "pending" | "uploading" | "uploaded" | "failed" | "deleting"
 
@@ -159,7 +160,7 @@ export function useUploadArchivo() {
   const agregarArchivos = useCallback(
     (files: File[], tipoArchivo: TipoArchivo = "otro") => {
       const nuevasEntradas: EntradaUpload[] = files.map((file) => ({
-        clienteId: crypto.randomUUID(),
+        clienteId: generateUUID(),
         file,
         tipoArchivo,
         estado: "pending" as EstadoUpload,
