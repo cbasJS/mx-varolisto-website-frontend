@@ -1,7 +1,7 @@
 "use client"
 
 import { usePaso5 } from "@/hooks/solicitar/usePaso5"
-import type { Paso5Data } from "@/lib/solicitud-schema"
+import type { Paso5Data } from "@/lib/solicitud/schemas/index"
 import { RELACION_REFERENCIA } from "@varolisto/shared-schemas/enums"
 import { RELACIONES_META } from "@/lib/solicitud/utils/lookup-labels"
 import { Controller, useForm, useWatch } from "react-hook-form"
@@ -30,14 +30,12 @@ function RefCard({
   register,
   control,
   errors,
-  setValue,
 }: {
   numero: 1 | 2
   prefix: "ref1" | "ref2"
   register: ReturnType<typeof useForm<Paso5Data>>["register"]
   control: ReturnType<typeof useForm<Paso5Data>>["control"]
   errors: ReturnType<typeof useForm<Paso5Data>>["formState"]["errors"]
-  setValue: ReturnType<typeof useForm<Paso5Data>>["setValue"]
 }) {
   const nombreKey = `${prefix}Nombre` as keyof Paso5Data
   const telefonoKey = `${prefix}Telefono` as keyof Paso5Data
@@ -147,7 +145,7 @@ function RefCard({
 }
 
 export default function Paso5Referencias({ onNext, onBack }: Props) {
-  const { register, handleSubmit, control, setValue, errors, isValid } = usePaso5(onNext)
+  const { register, handleSubmit, control, errors, isValid } = usePaso5(onNext)
 
   return (
     <form onSubmit={handleSubmit} noValidate>
@@ -170,7 +168,6 @@ export default function Paso5Referencias({ onNext, onBack }: Props) {
           register={register}
           control={control}
           errors={errors}
-          setValue={setValue}
         />
         <RefCard
           numero={2}
@@ -178,7 +175,6 @@ export default function Paso5Referencias({ onNext, onBack }: Props) {
           register={register}
           control={control}
           errors={errors}
-          setValue={setValue}
         />
       </div>
 

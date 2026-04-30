@@ -1,7 +1,7 @@
 "use client";
 
 import { usePaso4 } from "@/hooks/solicitar/usePaso4";
-import type { Paso4Data } from "@/lib/solicitud-schema";
+import type { Paso4Data } from "@/lib/solicitud/schemas/index";
 import {
   TIPO_ACTIVIDAD,
   ANTIGUEDAD,

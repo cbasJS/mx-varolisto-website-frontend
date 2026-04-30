@@ -1,7 +1,7 @@
 "use client";
 
 import { usePaso1 } from "@/hooks/solicitar/usePaso1";
-import type { Paso2Data } from "@/lib/solicitud-schema";
+import type { Paso2Data } from "@/lib/solicitud/schemas/index";
 import { DESTINO_PRESTAMO, PLAZO_MESES } from "@varolisto/shared-schemas/enums";
 import { DESTINOS_META } from "@/lib/solicitud/utils/lookup-labels";
 import { Slider } from "@/components/ui/slider";

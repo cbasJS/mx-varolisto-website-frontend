@@ -1,7 +1,7 @@
 "use client";
 
 import { usePaso3 } from "@/hooks/solicitar/usePaso3";
-import type { Paso3Data } from "@/lib/solicitud-schema";
+import type { Paso3Data } from "@/lib/solicitud/schemas/index";
 import { ANIOS_VIVIENDO, TIPO_VIVIENDA } from "@varolisto/shared-schemas/enums";
 import {
   ANIOS_VIVIENDO_LABELS,

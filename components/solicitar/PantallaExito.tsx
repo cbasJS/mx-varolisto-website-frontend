@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { AiOutlineFileDone } from "react-icons/ai"
-import { useSolicitudStore } from "@/lib/solicitud-store"
+import { useSolicitudStore } from "@/lib/solicitud/store"
 import Link from "next/link"
 
 interface Props {

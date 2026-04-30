@@ -1,7 +1,7 @@
 "use client";
 
 import { usePaso2 } from "@/hooks/solicitar/usePaso2";
-import type { Paso1Data } from "@/lib/solicitud-schema";
+import type { Paso1Data } from "@/lib/solicitud/schemas/index";
 import { SEXO } from "@varolisto/shared-schemas/enums";
 import { SEXO_META } from "@/lib/solicitud/utils/lookup-labels";
 import { FloatingInput } from "../FloatingInput";

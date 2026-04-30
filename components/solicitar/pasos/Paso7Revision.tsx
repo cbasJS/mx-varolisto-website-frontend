@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { usePaso7 } from "@/hooks/solicitar/usePaso7";
 import { useSolicitudStore } from "@/lib/solicitud/store";
-import type { Paso7Data } from "@/lib/solicitud-schema";
+import type { Paso7Data } from "@/lib/solicitud/schemas/index";
 import type { ErrorSubmit } from "@/hooks/solicitar/useSolicitudNavigation";
 import {
   DESTINO_LABELS,
