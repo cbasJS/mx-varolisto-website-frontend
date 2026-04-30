@@ -20,7 +20,6 @@ No hay framework de pruebas configurado.
 - Zustand — store del formulario de solicitud (persistido en sessionStorage)
 - react-hook-form + Zod — validación del formulario de solicitud
 - @tanstack/react-query — fetching de datos (colonias, etc.)
-- sonner — sistema de toasts (`AppToaster` en `components/ui/AppToaster.tsx`)
 - @varolisto/shared-schemas — schemas Zod compartidos, instalado desde GitHub Packages; Zod debe permanecer en el proyecto
 
 ### Clean Architecture
@@ -69,7 +68,7 @@ lib/solicitud/
   - Primitivas de UI: `FloatingInput`, `PillOption`, `DatePickerInput`, `StepTitle`, `FormActions`, `FieldError`, `InfoBanner`, `SectionDivider`, etc. — un archivo por componente
   - `PantallaExito.tsx` — pantalla post-envío con folio generado
   - `pasos/` — un componente por paso (Paso1–Paso7)
-- `components/ui/` — Componentes shadcn/radix (button, input, slider, checkbox, etc.) + `AppToaster.tsx` (configuración global de sonner)
+- `components/ui/` — Componentes shadcn/radix (button, input, slider, checkbox, etc.)
 - `content/` — Capa de datos estáticos de UI (copy, links, configuración de secciones de la landing). Sin lógica ni dependencias externas. Las interfaces de cada archivo se definen junto a sus datos en el mismo archivo. Si la landing requiriera internacionalización o un CMS, esta capa migraría a `lib/landing/domain/`.
 - `hooks/solicitar/` — Hooks del formulario (UI layer):
   - `useSolicitudNavigation.ts` — coordinador delgado: llama casos de uso de `application/`, maneja estado local de React (`folio`, `enviando`, `errorSubmit`)

@@ -11,7 +11,6 @@ Landing page y flujo de solicitud de crédito para **VaroListo**, plataforma de 
 - **react-hook-form + Zod** — validación del formulario de solicitud
 - **Zustand** — estado global del formulario (persistido en sessionStorage)
 - **@tanstack/react-query** — fetching de datos (colonias por CP)
-- **sonner** — sistema de toasts (`AppToaster` en `components/ui/`)
 - **@varolisto/shared-schemas** — schemas Zod compartidos (NPM privado vía GitHub Packages)
 
 ## Rutas
@@ -74,7 +73,7 @@ components/
     FloatingInput.tsx         # Primitivas de UI del formulario (un archivo por componente)
     PillOption.tsx
     ...
-  ui/                         # Componentes shadcn/radix + AppToaster
+  ui/                         # Componentes shadcn/radix
 content/
   home.ts                     # Copy de la landing
   nav.ts                      # Links de navegación y footer
