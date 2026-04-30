@@ -1,4 +1,4 @@
-import type { CopomexResponse } from "@/lib/solicitud/types"
+import type { CopomexResponse } from "@/lib/solicitud/infrastructure/colonias/types"
 
 export async function fetchColonias(cp: string): Promise<CopomexResponse[]> {
   const res = await fetch(`/api/colonias?cp=${cp}`)

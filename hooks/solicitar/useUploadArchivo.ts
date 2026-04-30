@@ -5,6 +5,12 @@ import { apiPost, apiDelete, ApiError } from "@/lib/api"
 import { useSolicitudStore } from "@/lib/solicitud/store"
 import type { ArchivoSubido } from "@/lib/solicitud/store"
 import type { TipoArchivo } from "@varolisto/shared-schemas/enums"
+import type {
+  UploadUrlRequest,
+  UploadUrlResponse,
+  EliminarStagingRequest,
+  EliminarStagingResponse,
+} from "@/lib/solicitud/infrastructure/http/types"
 import { generateUUID } from "@/lib/utils"
 
 export type EstadoUpload = "pending" | "uploading" | "uploaded" | "failed" | "deleting"
@@ -15,31 +21,6 @@ export interface EntradaUpload {
   tipoArchivo: TipoArchivo
   estado: EstadoUpload
   error: string | null
-}
-
-interface UploadUrlResponse {
-  uploadUrl: string
-  storagePath: string
-  archivoId: string
-  expiresIn: number
-}
-
-interface UploadUrlRequest {
-  sessionUuid: string
-  tipoArchivo: TipoArchivo
-  nombreOriginal: string
-  mimeType: string
-  tamanoBytes: number
-}
-
-interface EliminarStagingRequest {
-  sessionUuid: string
-  storagePath: string
-  motivo: "user_action" | "tipo_identificacion_changed"
-}
-
-interface EliminarStagingResponse {
-  deleted: boolean
 }
 
 function archivoSubidoAEntrada(a: ArchivoSubido): EntradaUpload {

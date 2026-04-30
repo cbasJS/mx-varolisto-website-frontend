@@ -1,15 +1,7 @@
 import { apiGet } from "@/lib/solicitud/infrastructure/http/apiClient"
 import { generateUUID } from "@/lib/utils"
-import type { TipoArchivo } from "@varolisto/shared-schemas/enums"
-import type { ArchivoSubido } from "@/lib/solicitud/infrastructure/persistence/solicitudStore"
-
-interface ArchivoStagingRemoto {
-  storagePath: string
-  tipoArchivo: TipoArchivo | null
-  tamanoBytes: number
-  mimeType: string
-  uploadedAt: string | null
-}
+import type { ArchivoSubido } from "@/lib/solicitud/domain/solicitud/types"
+import type { ArchivoStagingRemoto } from "@/lib/solicitud/infrastructure/http/types"
 
 export interface HidratarArchivosResult {
   archivos: ArchivoSubido[]

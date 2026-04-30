@@ -1,3 +1,1 @@
-export interface CopomexResponse {
-  response: { municipio: string; estado: string; ciudad?: string; asentamiento: string }
-}
+export type { CopomexResponse } from "@/lib/solicitud/infrastructure/colonias/types"

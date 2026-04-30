@@ -1,45 +1,10 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import type { SolicitudCompleta } from "@/lib/solicitud/domain/solicitud/schemas"
-import type { CopomexResponse } from "@/lib/solicitud/types"
-import type { TipoArchivo, TipoIdentificacion } from "@varolisto/shared-schemas/enums"
+import type { ArchivoSubido, SolicitudState, SolicitudActions } from "@/lib/solicitud/domain/solicitud/types"
+import type { CopomexResponse } from "@/lib/solicitud/infrastructure/colonias/types"
 import { generateUUID } from "@/lib/utils"
 
-export interface ArchivoSubido {
-  clienteId: string
-  tipoArchivo: TipoArchivo
-  nombreOriginal: string
-  mimeType: string
-  tamanoBytes: number
-  storagePath: string
-  archivoId: string
-}
-
-export interface SolicitudState {
-  pasoActual: number
-  datos: Partial<SolicitudCompleta>
-  timestampInicio: number
-  coloniasCache: Record<string, CopomexResponse[]>
-  sessionUuid: string | null
-  archivosSubidos: ArchivoSubido[]
-  tipoIdentificacion: TipoIdentificacion | null
-  // comprobantes no persiste (File no es serializable)
-  comprobantes: File[]
-  _hasHydrated: boolean
-}
-
-export interface SolicitudActions {
-  setPaso: (paso: number) => void
-  guardarPaso: (paso: number, datos: Partial<SolicitudCompleta>) => void
-  setComprobantes: (archivos: File[]) => void
-  setColoniasCache: (cp: string, data: CopomexResponse[]) => void
-  inicializarSession: () => void
-  agregarArchivoSubido: (archivo: ArchivoSubido) => void
-  removerArchivoSubido: (clienteId: string) => void
-  setTipoIdentificacion: (tipo: TipoIdentificacion) => void
-  resetForm: () => void
-  setHasHydrated: (value: boolean) => void
-}
+export type { ArchivoSubido, SolicitudState, SolicitudActions }
 
 const estadoInicial: SolicitudState = {
   pasoActual: 1,
@@ -61,7 +26,7 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
       guardarPaso: (_, nuevos) =>
         set((state) => ({ datos: { ...state.datos, ...nuevos } })),
       setComprobantes: (archivos) => set({ comprobantes: archivos }),
-      setColoniasCache: (cp, data) =>
+      setColoniasCache: (cp, data: CopomexResponse[]) =>
         set((s) => ({ coloniasCache: { ...s.coloniasCache, [cp]: data } })),
       inicializarSession: () => {
         if (!get().sessionUuid) {
