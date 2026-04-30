@@ -19,7 +19,8 @@ import {
 } from "@/lib/solicitud/utils/lookup-labels";
 import { WHATSAPP_URL } from "@/lib/config";
 import { Checkbox } from "@/components/ui/checkbox";
-import { StepTitle, FieldError } from "../FormUI";
+import { StepTitle } from "../StepTitle";
+import { FieldError } from "../FieldError";
 import { cn } from "@/lib/utils";
 
 interface Props {

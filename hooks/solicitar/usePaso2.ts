@@ -36,6 +36,12 @@ export function usePaso2(onNext: (datos: Paso1Data) => void) {
     return d
   }, [])
 
+  const minDateNacimiento = useMemo(() => {
+    const d = new Date()
+    d.setFullYear(d.getFullYear() - 100)
+    return d
+  }, [])
+
   const sexoActual = useWatch({ control, name: "sexo" })
   const telefonoValue = useWatch({ control, name: "telefono" }) ?? ""
   const curpValue = useWatch({ control, name: "curp" }) ?? ""
@@ -53,5 +59,6 @@ export function usePaso2(onNext: (datos: Paso1Data) => void) {
     telefonoValue,
     curpValue,
     maxDateNacimiento,
+    minDateNacimiento,
   }
 }

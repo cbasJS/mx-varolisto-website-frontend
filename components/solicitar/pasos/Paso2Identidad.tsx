@@ -4,14 +4,12 @@ import { usePaso2 } from "@/hooks/solicitar/usePaso2";
 import type { Paso1Data } from "@/lib/solicitud-schema";
 import { SEXO } from "@varolisto/shared-schemas/enums";
 import { SEXO_META } from "@/lib/solicitud/utils/lookup-labels";
-import {
-  FloatingInput,
-  DatePickerInput,
-  PillOption,
-  StepTitle,
-  FormActions,
-  FieldError,
-} from "../FormUI";
+import { FloatingInput } from "../FloatingInput";
+import { DatePickerInput } from "../DatePickerInput";
+import { PillOption } from "../PillOption";
+import { StepTitle } from "../StepTitle";
+import { FormActions } from "../FormActions";
+import { FieldError } from "../FieldError";
 
 interface Props {
   onNext: (datos: Paso1Data) => void;
@@ -30,6 +28,7 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
     telefonoValue,
     curpValue,
     maxDateNacimiento,
+    minDateNacimiento,
   } = usePaso2(onNext);
 
   return (
@@ -95,6 +94,7 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
           control={control}
           error={errors.fechaNacimiento}
           maxDate={maxDateNacimiento}
+          minDate={minDateNacimiento}
           required
           showYearDropdown
           showMonthDropdown

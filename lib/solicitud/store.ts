@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware"
 import type { SolicitudCompleta } from "./schemas/index"
 import type { CopomexResponse } from "./types"
 import type { TipoArchivo, TipoIdentificacion } from "@varolisto/shared-schemas/enums"
+import { generateUUID } from "@/lib/utils"
 
 export interface ArchivoSubido {
   clienteId: string
@@ -64,7 +65,7 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
         set((s) => ({ coloniasCache: { ...s.coloniasCache, [cp]: data } })),
       inicializarSession: () => {
         if (!get().sessionUuid) {
-          set({ sessionUuid: crypto.randomUUID() })
+          set({ sessionUuid: generateUUID() })
         }
       },
       agregarArchivoSubido: (archivo) =>

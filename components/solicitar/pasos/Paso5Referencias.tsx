@@ -12,13 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  FloatingInput,
-  StepTitle,
-  FormActions,
-  FieldError,
-  InfoBanner,
-} from "../FormUI"
+import { FloatingInput } from "../FloatingInput"
+import { StepTitle } from "../StepTitle"
+import { FormActions } from "../FormActions"
+import { FieldError } from "../FieldError"
+import { InfoBanner } from "../InfoBanner"
 import { cn } from "@/lib/utils"
 
 interface Props {
@@ -116,7 +114,7 @@ function RefCard({
                     value={field.value as string}
                     onValueChange={field.onChange}
                   >
-                    <SelectTrigger data-size="" className={cn("!h-[52px] w-full rounded-xl border-0 bg-transparent pl-4 pr-3 text-sm shadow-none focus:ring-0", hasValue ? "pb-2 pt-6" : "py-0")}>
+                    <SelectTrigger data-size="" className={cn("!h-[52px] w-full rounded-xl border-0 bg-transparent pl-4 pr-3 text-base md:text-sm shadow-none focus:ring-0", hasValue ? "pb-2 pt-6" : "py-0")}>
                       <SelectValue placeholder="" />
                     </SelectTrigger>
                     <SelectContent>
