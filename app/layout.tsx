@@ -4,7 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollRestorationClient from "@/components/layout/ScrollRestorationClient";
-import { Toaster } from "sonner";
+import { AppToaster } from "@/components/ui/AppToaster";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -33,10 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="es"
-      className={`${inter.variable} ${manrope.variable}`}
-    >
+    <html lang="es" className={`${inter.variable} ${manrope.variable}`}>
       <head>
         <link
           rel="stylesheet"
@@ -49,7 +46,7 @@ export default function RootLayout({
         {children}
         <Footer />
         <div id="datepicker-portal" />
-        <Toaster position="top-center" richColors closeButton />
+        <AppToaster />
       </body>
     </html>
   );
