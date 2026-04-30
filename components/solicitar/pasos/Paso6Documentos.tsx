@@ -17,6 +17,11 @@ import { cn } from "@/lib/utils";
 
 export type { Paso6StoreData };
 
+const OPCIONES_ID: { value: TipoIdentificacion; icono: string }[] = [
+  { value: "ine", icono: "badge" },
+  { value: "pasaporte", icono: "travel_luggage_and_bags" },
+];
+
 interface Props {
   onNext: (datos: Paso6StoreData) => void;
   onBack: () => void;
@@ -255,11 +260,6 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
     if (!errorEliminacion) return
     toast.error(errorEliminacion, { onDismiss: () => setErrorEliminacion(null), onAutoClose: () => setErrorEliminacion(null) })
   }, [errorEliminacion, setErrorEliminacion])
-
-  const OPCIONES_ID: { value: TipoIdentificacion; icono: string }[] = [
-    { value: "ine", icono: "badge" },
-    { value: "pasaporte", icono: "travel_luggage_and_bags" },
-  ];
 
   return (
     <form onSubmit={handleSubmit} noValidate>

@@ -31,7 +31,7 @@ lib/solicitud/
 ├── domain/               — Reglas de negocio puras (sin deps de React ni HTTP)
 │   ├── loan/             — calcularCuota.ts (fórmula de amortización)
 │   ├── enums/            — labelMaps.ts (labels y meta de enums)
-│   ├── solicitud/        — schemas.ts, generarFolio.ts, buildPayload.ts
+│   ├── solicitud/        — schemas.ts, generarFolio.ts, buildPayload.ts, documentosConfig.ts
 │   ├── shared/           — dateUtils.ts
 │   └── index.ts          — barrel de toda la capa
 │
@@ -65,11 +65,11 @@ lib/solicitud/
 - `components/solicitar/` — Formulario completo de solicitud:
   - `FormularioSolicitud.tsx` — orquestador, renderiza el paso activo condicionalmente
   - `BarraPasos.tsx` — indicador de progreso (barra mobile / pills desktop)
-  - `FormUI.tsx` — StepTitle, FieldError, FormActions reutilizables
+  - Primitivas de UI: `FloatingInput`, `PillOption`, `DatePickerInput`, `StepTitle`, `FormActions`, `FieldError`, `InfoBanner`, `SectionDivider`, etc. — un archivo por componente
   - `PantallaExito.tsx` — pantalla post-envío con folio generado
   - `pasos/` — un componente por paso (Paso1–Paso7)
 - `components/ui/` — Componentes shadcn/radix (button, input, slider, checkbox, etc.)
-- `content/` — Datos y copy de la UI: `home.ts` (landing), `nav.ts` (navegación y footer)
+- `content/` — Capa de datos estáticos de UI (copy, links, configuración de secciones de la landing). Sin lógica ni dependencias externas. Las interfaces de cada archivo se definen junto a sus datos en el mismo archivo. Si la landing requiriera internacionalización o un CMS, esta capa migraría a `lib/landing/domain/`.
 - `hooks/solicitar/` — Hooks del formulario (UI layer):
   - `useSolicitudNavigation.ts` — coordinador delgado: llama casos de uso de `application/`, maneja estado local de React (`folio`, `enviando`, `errorSubmit`)
   - `usePaso1.ts` … `usePaso7.ts` — form controllers con react-hook-form + Zod
@@ -87,7 +87,7 @@ lib/solicitud/
 - `lib/api/` — re-export barrels → `infrastructure/http/`
 - `lib/animations.ts` — Variantes de Framer Motion (`staggerContainer`, `fadeUpVariant`, `fadeInVariant`, `VIEWPORT_ONCE`, `VIEWPORT_CLOSE`)
 - `lib/utils.ts` — Helper `cn()` para classnames (clsx + tailwind-merge)
-- `types/index.ts` — Interfaces de UI compartidas (BenefitItem, ProcessStep, TestimonialItem, etc.)
+- `hooks/useMobile.ts` — Hook global para detectar viewport mobile (< 768px)
 
 ### Rutas
 - `/` — Landing page; `app/page.tsx` compone las secciones secuencialmente

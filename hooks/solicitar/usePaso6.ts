@@ -13,6 +13,7 @@ import {
   COPY_ALTERNATIVOS,
 } from "@/lib/solicitud/utils/lookup-labels"
 import { hidratarArchivos } from "@/lib/solicitud/application/useCases/hidratarArchivos"
+import { MAX_COMPROBANTES_INGRESO } from "@/lib/solicitud/domain/solicitud/documentosConfig"
 
 export interface Paso6StoreData {
   tipoIdentificacion: TipoIdentificacion
@@ -95,7 +96,6 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     (e) => e.estado === "pending" || e.estado === "uploading"
   ).length
 
-  const MAX_COMPROBANTES = 3
   const comprobantesSubidos = archivosSubidos.filter(
     (a) => a.tipoArchivo === "comprobante_ingreso"
   ).length
@@ -146,7 +146,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
       if (sinDuplicados.length === 0) return
       const cupoGlobal = 7 - totalArchivos
       const cupoTipo =
-        tipo === "comprobante_ingreso" ? MAX_COMPROBANTES - totalComprobantes : cupoGlobal
+        tipo === "comprobante_ingreso" ? MAX_COMPROBANTES_INGRESO - totalComprobantes : cupoGlobal
       const cupo = Math.min(cupoGlobal, cupoTipo)
       if (cupo <= 0) return
       agregarArchivos(sinDuplicados.slice(0, cupo), tipo)
@@ -164,7 +164,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     (e) => e.tipoArchivo === "pasaporte_principal" && (e.estado === "pending" || e.estado === "uploading")
   )
 
-  const disabledComprobante = totalComprobantes >= MAX_COMPROBANTES || comprobantesEnVuelo > 0
+  const disabledComprobante = totalComprobantes >= MAX_COMPROBANTES_INGRESO || comprobantesEnVuelo > 0
   const disabledIneFrente = tiposSubidos.includes("ine_frente") || ineFrenteEnVuelo || totalArchivos >= 7
   const disabledIneReverso = tiposSubidos.includes("ine_reverso") || ineReversoEnVuelo || totalArchivos >= 7
   const disabledPasaporte = tiposSubidos.includes("pasaporte_principal") || pasaporteEnVuelo || totalArchivos >= 7

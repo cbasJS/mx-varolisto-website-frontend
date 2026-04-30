@@ -1,4 +1,7 @@
-import type { NavLink } from "@/types";
+export interface NavLink {
+  label: string;
+  href: string;
+}
 
 export const navLinks: NavLink[] = [
   { label: "Beneficios", href: "beneficios" },
