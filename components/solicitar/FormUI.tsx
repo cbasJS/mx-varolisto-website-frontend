@@ -5,7 +5,7 @@
  * Diseño premium: inputs con floating label, pill selectors, section headers.
  */
 
-import React, { useState, useId, forwardRef } from "react";
+import React, { useState, useId, useEffect, forwardRef } from "react";
 import { cn } from "@/lib/utils";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { es } from "date-fns/locale";
@@ -18,6 +18,22 @@ import {
 } from "react-hook-form";
 
 registerLocale("es", es);
+
+// ─── useMobile ────────────────────────────────────────────────────────────────
+// Devuelve true cuando el viewport es < 768px (md breakpoint de Tailwind).
+// Inicia en false para ser SSR-safe (sin window en servidor).
+
+function useMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return isMobile;
+}
 
 // ─── FloatingInput ────────────────────────────────────────────────────────────
 // Input con label flotante que sube al hacer focus o cuando tiene valor.
@@ -362,7 +378,7 @@ function DatePickerInner({
     <div className="group relative">
       <div
         className={cn(
-          "relative flex items-center overflow-hidden rounded-xl border-2 bg-white transition-all duration-200",
+          "relative rounded-xl border-2 bg-white transition-all duration-200",
           focused
             ? "border-primary shadow-sm shadow-primary/10"
             : error
@@ -370,30 +386,29 @@ function DatePickerInner({
               : "border-[#e8e8e8] hover:border-[#c8c8c8]",
         )}
       >
-        <div className="relative flex-1">
-          <label
-            htmlFor={autoId}
-            className={cn(
-              "pointer-events-none absolute left-4 z-10 transition-all duration-200 select-none",
-              lifted
-                ? "top-2 text-[10px] font-semibold uppercase tracking-widest"
-                : "top-1/2 -translate-y-1/2 text-sm",
-              focused ? "text-primary" : error ? "text-error" : "text-[#aaa]",
-            )}
-          >
-            {label}
-            {required && (
-              <span className="ml-0.5 text-error" aria-hidden>
-                *
-              </span>
-            )}
-            {optional && (
-              <span className="ml-1 normal-case tracking-normal opacity-60">
-                (opcional)
-              </span>
-            )}
-          </label>
-          <DatePicker
+        <label
+          htmlFor={autoId}
+          className={cn(
+            "pointer-events-none absolute left-4 z-10 transition-all duration-200 select-none",
+            lifted
+              ? "top-2 text-[10px] font-semibold uppercase tracking-widest"
+              : "top-1/2 -translate-y-1/2 text-sm",
+            focused ? "text-primary" : error ? "text-error" : "text-[#aaa]",
+          )}
+        >
+          {label}
+          {required && (
+            <span className="ml-0.5 text-error" aria-hidden>
+              *
+            </span>
+          )}
+          {optional && (
+            <span className="ml-1 normal-case tracking-normal opacity-60">
+              (opcional)
+            </span>
+          )}
+        </label>
+        <DatePicker
             id={autoId}
             selected={selectedDate}
             onChange={(date: Date | Date[] | null) =>
@@ -419,8 +434,116 @@ function DatePickerInner({
             autoComplete="off"
             aria-invalid={error ? "true" : "false"}
             aria-describedby={error ? `${autoId}-error` : undefined}
-          />
+        />
+      </div>
+      {error?.message && (
+        <p
+          id={`${autoId}-error`}
+          className="mt-1.5 flex items-center gap-1 text-xs text-error"
+        >
+          <span className="material-symbols-outlined text-sm" aria-hidden>
+            error
+          </span>
+          {error.message}
+        </p>
+      )}
+      {!error && hint && <p className="mt-1.5 text-xs text-[#999]">{hint}</p>}
+    </div>
+  );
+}
+
+// ─── NativeDateInput ──────────────────────────────────────────────────────────
+// Variante móvil: usa <input type="date"> nativo del SO.
+// El valor siempre es YYYY-MM-DD, compatible con el schema Zod.
+
+interface NativeDateInnerProps {
+  label: string;
+  autoId: string;
+  error?: FieldError;
+  optional?: boolean;
+  required?: boolean;
+  hint?: string;
+  maxDate?: Date;
+  minDate?: Date;
+  onChange: (val: string) => void;
+  value: string;
+}
+
+function formatDDMMYYYY(yyyymmdd: string): string {
+  if (!yyyymmdd) return "";
+  const [y, m, d] = yyyymmdd.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function NativeDateInner({
+  label,
+  autoId,
+  error,
+  optional,
+  required,
+  hint,
+  maxDate,
+  minDate,
+  onChange,
+  value,
+}: NativeDateInnerProps) {
+  const [focused, setFocused] = useState(false);
+  const hasValue = !!value;
+  const lifted = focused || hasValue;
+
+  const maxAttr = maxDate ? dateToYYYYMMDD(maxDate) : undefined;
+  const minAttr = minDate ? dateToYYYYMMDD(minDate) : undefined;
+
+  return (
+    <div className="group relative">
+      <div
+        className={cn(
+          "relative rounded-xl border-2 bg-white transition-all duration-200",
+          focused
+            ? "border-primary shadow-sm shadow-primary/10"
+            : error
+              ? "border-error"
+              : "border-[#e8e8e8] hover:border-[#c8c8c8]",
+        )}
+      >
+        <label
+          htmlFor={autoId}
+          className={cn(
+            "pointer-events-none absolute left-4 z-10 transition-all duration-200 select-none",
+            lifted
+              ? "top-2 text-[10px] font-semibold uppercase tracking-widest"
+              : "top-1/2 -translate-y-1/2 text-sm",
+            focused ? "text-primary" : error ? "text-error" : "text-[#aaa]",
+          )}
+        >
+          {label}
+          {required && (
+            <span className="ml-0.5 text-error" aria-hidden>
+              *
+            </span>
+          )}
+          {optional && (
+            <span className="ml-1 normal-case tracking-normal opacity-60">
+              (opcional)
+            </span>
+          )}
+        </label>
+        <div className="w-full pb-2 pt-6 pl-4 pr-4 text-base text-[#1a1c1c]">
+          {hasValue ? formatDDMMYYYY(value) : " "}
         </div>
+        <input
+          id={autoId}
+          type="date"
+          value={value}
+          max={maxAttr}
+          min={minAttr}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          aria-invalid={!!error}
+          aria-describedby={error ? `${autoId}-error` : undefined}
+        />
       </div>
       {error?.message && (
         <p
@@ -452,26 +575,42 @@ export function DatePickerInput<TFieldValues extends FieldValues>({
   showMonthDropdown = false,
 }: DatePickerInputProps<TFieldValues>) {
   const autoId = useId();
+  const isMobile = useMobile();
   return (
     <Controller
       name={name}
       control={control}
-      render={({ field: { onChange, value } }) => (
-        <DatePickerInner
-          label={label}
-          autoId={autoId}
-          error={error}
-          optional={optional}
-          required={required}
-          hint={hint}
-          maxDate={maxDate}
-          minDate={minDate}
-          showYearDropdown={showYearDropdown}
-          showMonthDropdown={showMonthDropdown}
-          onChange={onChange}
-          value={typeof value === "string" ? value : ""}
-        />
-      )}
+      render={({ field: { onChange, value } }) =>
+        isMobile ? (
+          <NativeDateInner
+            label={label}
+            autoId={autoId}
+            error={error}
+            optional={optional}
+            required={required}
+            hint={hint}
+            maxDate={maxDate}
+            minDate={minDate}
+            onChange={onChange}
+            value={typeof value === "string" ? value : ""}
+          />
+        ) : (
+          <DatePickerInner
+            label={label}
+            autoId={autoId}
+            error={error}
+            optional={optional}
+            required={required}
+            hint={hint}
+            maxDate={maxDate}
+            minDate={minDate}
+            showYearDropdown={showYearDropdown}
+            showMonthDropdown={showMonthDropdown}
+            onChange={onChange}
+            value={typeof value === "string" ? value : ""}
+          />
+        )
+      }
     />
   );
 }

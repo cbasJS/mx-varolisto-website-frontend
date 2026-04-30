@@ -30,6 +30,7 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
     telefonoValue,
     curpValue,
     maxDateNacimiento,
+    minDateNacimiento,
   } = usePaso2(onNext);
 
   return (
@@ -95,6 +96,7 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
           control={control}
           error={errors.fechaNacimiento}
           maxDate={maxDateNacimiento}
+          minDate={minDateNacimiento}
           required
           showYearDropdown
           showMonthDropdown
