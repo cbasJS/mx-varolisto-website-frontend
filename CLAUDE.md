@@ -20,6 +20,7 @@ No hay framework de pruebas configurado.
 - Zustand — store del formulario de solicitud (persistido en sessionStorage)
 - react-hook-form + Zod — validación del formulario de solicitud
 - @tanstack/react-query — fetching de datos (colonias, etc.)
+- sonner — sistema de toasts (`AppToaster` en `components/ui/AppToaster.tsx`)
 - @varolisto/shared-schemas — schemas Zod compartidos, instalado desde GitHub Packages; Zod debe permanecer en el proyecto
 
 ### Clean Architecture
@@ -44,10 +45,10 @@ lib/solicitud/
 │
 └── infrastructure/       — HTTP, storage, persistencia (detalles técnicos)
     ├── http/             — apiClient.ts, apiErrors.ts
-    ├── colonias/         — coloniaRepository.ts (fetch a /api/colonias)
+    ├── colonias/         — coloniaRepository.ts (fetch a /api/colonias); exporta ColoniaNotFoundError y ColoniaServiceError
     ├── storage/          — formatBytes.ts
     ├── persistence/      — solicitudStore.ts (Zustand), submittingContext.tsx
-    ├── config/           — appConfig.ts (URLs/marca), env.ts (server-only)
+    ├── config/           — appConfig.ts (URLs/marca/constantes), apiConfig.ts (URLs base + endpoints por ambiente), env.ts (server-only)
     └── index.ts          — barrel de toda la capa
 ```
 
@@ -68,7 +69,7 @@ lib/solicitud/
   - Primitivas de UI: `FloatingInput`, `PillOption`, `DatePickerInput`, `StepTitle`, `FormActions`, `FieldError`, `InfoBanner`, `SectionDivider`, etc. — un archivo por componente
   - `PantallaExito.tsx` — pantalla post-envío con folio generado
   - `pasos/` — un componente por paso (Paso1–Paso7)
-- `components/ui/` — Componentes shadcn/radix (button, input, slider, checkbox, etc.)
+- `components/ui/` — Componentes shadcn/radix (button, input, slider, checkbox, etc.) + `AppToaster.tsx` (configuración global de sonner)
 - `content/` — Capa de datos estáticos de UI (copy, links, configuración de secciones de la landing). Sin lógica ni dependencias externas. Las interfaces de cada archivo se definen junto a sus datos en el mismo archivo. Si la landing requiriera internacionalización o un CMS, esta capa migraría a `lib/landing/domain/`.
 - `hooks/solicitar/` — Hooks del formulario (UI layer):
   - `useSolicitudNavigation.ts` — coordinador delgado: llama casos de uso de `application/`, maneja estado local de React (`folio`, `enviando`, `errorSubmit`)
@@ -107,6 +108,7 @@ El store expone `_hasHydrated` (seteado por `onRehydrateStorage`); úsalo para e
 ### Variables de entorno
 - `COPOMEX_TOKEN` — Token de Copomex (requerido en server-side). En desarrollo: `.env.local`. En producción: Vercel dashboard.
 - `COPOMEX_BASE_URL` — (opcional) URL base de Copomex; default a `https://api.copomex.com/query`.
+- `NEXT_PUBLIC_ENV` — Ambiente activo: `local` | `sandbox` | `production`. Si no se define, se infiere desde `NODE_ENV`. Controla las URLs base de la API en `infrastructure/config/apiConfig.ts`.
 
 ### Estilos
 - Colores de marca: `primary #000666` (azul marino), `secondary #2ECC71` (verde)
