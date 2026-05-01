@@ -34,8 +34,15 @@ export function useUploadArchivo() {
   const agregarArchivoSubido = useSolicitudStore((s) => s.agregarArchivoSubido)
   const removerArchivoSubido = useSolicitudStore((s) => s.removerArchivoSubido)
   const archivosSubidos = useSolicitudStore((s) => s.archivosSubidos)
+  const archivosSubidosIniciales = useSolicitudStore.getState().archivosSubidos
 
-  const [entradas, setEntradas] = useState<Map<string, EntradaUpload>>(() => new Map())
+  const [entradas, setEntradas] = useState<Map<string, EntradaUpload>>(() => {
+    const mapa = new Map<string, EntradaUpload>()
+    for (const a of archivosSubidosIniciales) {
+      mapa.set(a.clienteId, archivoSubidoAEntrada(a))
+    }
+    return mapa
+  })
 
   const [errorEliminacion, setErrorEliminacion] = useState<string | null>(null)
 
