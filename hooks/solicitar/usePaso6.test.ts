@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { renderHook, act, waitFor } from "@testing-library/react"
+import { renderHook, waitFor } from "@testing-library/react"
 import { usePaso6 } from "./usePaso6"
 import { useSolicitudStore } from "@/lib/solicitud/store"
 
@@ -41,7 +41,7 @@ describe("usePaso6 — hidratación desde sessionStorage", () => {
       archivosSubidos: [],
       sessionUuid: "session-06600-abc",
       tipoIdentificacion: "ine",
-      datos: { tipoActividad: "empleado" },
+      datos: { tipoActividad: "empleado_formal" },
     })
   })
 
