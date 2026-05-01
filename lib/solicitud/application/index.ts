@@ -1,3 +1,6 @@
 export * from "./useCases/submitSolicitud"
 export * from "./useCases/guardarPaso"
 export * from "./useCases/hidratarArchivos"
+export * from "./useCases/getColonias"
+export * from "./useCases/uploadFile"
+export * from "./useCases/cleanupStagingFiles"

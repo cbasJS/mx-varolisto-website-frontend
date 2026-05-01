@@ -18,6 +18,8 @@ Lo mismo aplica para E2E: antes de implementar o modificar un flujo de usuario, 
 
 `pnpm test` y `pnpm test:e2e` deben pasar en verde antes de cualquier commit.
 
+Los fixtures y valores de prueba deben reflejar datos reales del negocio: CPs de México que existen (ej. `06600` = Col. Juárez, Cuauhtémoc, CDMX), nombres de estados y municipios en su forma oficial, montos dentro del rango del producto ($2,000–$20,000), plazos válidos (2–6 meses), CURPs con formato real. No usar placeholders genéricos (`"06000"`, `"CDMX"`, `"test-colonia"`). Los tests existentes en `buildPayload.test.ts` son la referencia de estilo y datos.
+
 ## Comandos
 
 - `pnpm dev` — Servidor de desarrollo en http://localhost:3000

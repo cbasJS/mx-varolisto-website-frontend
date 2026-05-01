@@ -1,17 +1,11 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { apiPost, apiDelete, ApiError } from "@/lib/api"
-import { apiRoutes } from "@/lib/solicitud/infrastructure/config/apiConfig"
+import { ApiError } from "@/lib/api"
+import { solicitarUploadUrl, eliminarArchivoStaging } from "@/lib/solicitud/application/useCases/uploadFile"
 import { useSolicitudStore } from "@/lib/solicitud/store"
 import type { ArchivoSubido } from "@/lib/solicitud/store"
 import type { TipoArchivo } from "@varolisto/shared-schemas/enums"
-import type {
-  UploadUrlRequest,
-  UploadUrlResponse,
-  EliminarStagingRequest,
-  EliminarStagingResponse,
-} from "@/lib/solicitud/infrastructure/http/types"
 import { generateUUID } from "@/lib/utils"
 
 export type EstadoUpload = "pending" | "uploading" | "uploaded" | "failed" | "deleting"
@@ -34,43 +28,14 @@ function archivoSubidoAEntrada(a: ArchivoSubido): EntradaUpload {
   }
 }
 
-async function intentarEliminarDeStaging(
-  sessionUuid: string,
-  storagePath: string,
-  motivo: "user_action" | "tipo_identificacion_changed",
-): Promise<void> {
-  const req: EliminarStagingRequest = { sessionUuid, storagePath, motivo }
-  try {
-    await apiDelete<EliminarStagingRequest, EliminarStagingResponse>(
-      apiRoutes.archivoDelete,
-      req,
-      { timeoutMs: 10_000 },
-    )
-  } catch {
-    // backoff y retry único
-    await new Promise((r) => setTimeout(r, 500))
-    await apiDelete<EliminarStagingRequest, EliminarStagingResponse>(
-      apiRoutes.archivoDelete,
-      req,
-      { timeoutMs: 10_000 },
-    )
-  }
-}
 
 export function useUploadArchivo() {
   const sessionUuid = useSolicitudStore((s) => s.sessionUuid)
   const agregarArchivoSubido = useSolicitudStore((s) => s.agregarArchivoSubido)
   const removerArchivoSubido = useSolicitudStore((s) => s.removerArchivoSubido)
   const archivosSubidos = useSolicitudStore((s) => s.archivosSubidos)
-  const archivosSubidosIniciales = useSolicitudStore.getState().archivosSubidos
 
-  const [entradas, setEntradas] = useState<Map<string, EntradaUpload>>(() => {
-    const mapa = new Map<string, EntradaUpload>()
-    for (const a of archivosSubidosIniciales) {
-      mapa.set(a.clienteId, archivoSubidoAEntrada(a))
-    }
-    return mapa
-  })
+  const [entradas, setEntradas] = useState<Map<string, EntradaUpload>>(() => new Map())
 
   const [errorEliminacion, setErrorEliminacion] = useState<string | null>(null)
 
@@ -93,17 +58,13 @@ export function useUploadArchivo() {
       actualizarEntrada(clienteId, { estado: "uploading" })
 
       try {
-        const urlResponse = await apiPost<UploadUrlRequest, UploadUrlResponse>(
-          apiRoutes.archivoUpload,
-          {
-            sessionUuid,
-            tipoArchivo,
-            nombreOriginal: file.name,
-            mimeType: file.type,
-            tamanoBytes: file.size,
-          },
-          { timeoutMs: 30_000 }
-        )
+        const urlResponse = await solicitarUploadUrl({
+          sessionUuid,
+          tipoArchivo,
+          nombreOriginal: file.name,
+          mimeType: file.type,
+          tamanoBytes: file.size,
+        })
 
         const putResponse = await fetch(urlResponse.uploadUrl, {
           method: "PUT",
@@ -172,7 +133,7 @@ export function useUploadArchivo() {
         // Marca como deleting para feedback visual inmediato
         actualizarEntrada(clienteId, { estado: "deleting" })
         try {
-          await intentarEliminarDeStaging(sessionUuid, archivoSubido.storagePath, motivo)
+          await eliminarArchivoStaging(sessionUuid, archivoSubido.storagePath, motivo)
         } catch {
           // Ambos intentos fallaron — NO mutar state, mostrar error
           actualizarEntrada(clienteId, { estado: "uploaded" })
