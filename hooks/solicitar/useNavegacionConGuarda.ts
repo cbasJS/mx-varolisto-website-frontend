@@ -86,8 +86,11 @@ export function useNavegacionConGuarda(
     const destino = destinoPendiente
     setDestinoPendiente(null)
     if (destino) {
-      // Usamos location.href para garantizar navegación completa (limpia el estado de Zustand)
-      window.location.href = destino
+      // setTimeout 0 ensures React flushes state before navigation, preventing
+      // interceptarClick from re-registering and intercepting the programmatic navigation
+      setTimeout(() => {
+        window.location.href = destino
+      }, 0)
     }
   }, [destinoPendiente])
 

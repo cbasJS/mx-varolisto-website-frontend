@@ -920,8 +920,11 @@ test.describe("Formulario de solicitud — Fase 2", () => {
     }, { SESSION, datos: DATOS_BASE })
     await page.reload()
     await page.waitForSelector("text=Tipo de identificación oficial", { timeout: 5_000 })
-    // Esperar a que hidrate archivos del staging
-    await page.waitForTimeout(800)
+    // Esperar a que hidratarArchivos cargue los archivos del staging antes de interactuar
+    await page.waitForFunction(
+      () => document.querySelectorAll('[aria-label^="Eliminar"]').length >= 3,
+      { timeout: 5_000 }
+    )
 
     // Click en link del footer "Privacidad"
     await page.locator('a[href="/aviso-de-privacidad-integral"]').first().click()
