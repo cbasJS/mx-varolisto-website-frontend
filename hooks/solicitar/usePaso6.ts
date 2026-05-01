@@ -66,6 +66,13 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     setErrorEliminacion,
   } = useUploadArchivo()
 
+  // Sincroniza archivos del store al mapa de entradas cuando ya vienen hidratados
+  // desde sessionStorage (archivosSubidos.length > 0 al montar, sin fetch al backend)
+  useEffect(() => {
+    if (archivosSubidos.length === 0) return
+    hidratarEntradas(archivosSubidos)
+  }, [archivosSubidos, hidratarEntradas])
+
   const copyDocumentos =
     COPY_DOCUMENTOS[datos.tipoActividad ?? ""] ??
     "Sube al menos 2 comprobantes de ingresos de los últimos 3 meses."
