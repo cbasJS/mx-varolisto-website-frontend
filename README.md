@@ -28,12 +28,12 @@ Flujo de 7 pasos con navegación entre ellos y scroll al top en cada transición
 
 | Paso | Componente | Datos |
 |---|---|---|
-| 1 | `Paso1DatosPersonales` | Nombre, CURP, correo, teléfono, fecha de nacimiento |
-| 2 | `Paso2Solicitud` | Monto, plazo, destino, primer crédito |
+| 1 | `Paso1Solicitud` | Monto, plazo, destino |
+| 2 | `Paso2Identidad` | Nombre, CURP, correo, teléfono, fecha de nacimiento |
 | 3 | `Paso3Domicilio` | CP, colonia, ciudad, estado, tipo y antigüedad de vivienda |
 | 4 | `Paso4SituacionEconomica` | Actividad, empleador, antigüedad, ingresos, deudas |
 | 5 | `Paso5Referencias` | 2 referencias personales |
-| 6 | `Paso6Documentos` | Comprobantes (drag & drop) + CLABE interbancaria |
+| 6 | `Paso6Documentos` | Identificación oficial + comprobantes (drag & drop) |
 | 7 | `Paso7Revision` | Resumen + consentimientos → envío |
 
 ## Arquitectura
@@ -118,10 +118,26 @@ El paquete `@varolisto/shared-schemas` se instala desde GitHub Packages. Requier
 
 ```bash
 pnpm install
-pnpm dev      # http://localhost:3000
-pnpm build    # Build de producción
-pnpm lint     # ESLint
+pnpm dev          # http://localhost:3000
+pnpm build        # Build de producción
+pnpm lint         # ESLint
+pnpm test         # Pruebas unitarias (Vitest)
+pnpm test:e2e     # Pruebas E2E (Playwright)
 ```
+
+## Pruebas
+
+### Unitarias — Vitest
+
+Los archivos `.test.ts` viven junto al código fuente en `lib/solicitud/`. Cubren las funciones puras del dominio (`calcularCuota`, `buildPayload`, `dateUtils`) y utilidades de infraestructura (`formatBytes`, `apiErrors`/`clasificarError`, `formatCurrency`).
+
+### E2E — Playwright
+
+`e2e/flujo-feliz.spec.ts` — flujo completo Paso 1 → 7 → `PantallaExito`, errores de backend, validación de checkboxes.
+
+`e2e/formulario.spec.ts` — estructura de cada paso, uploads (subida/eliminación/reintentos/hidratación), guardia de navegación con datos o archivos sin guardar, `sendBeacon` al cerrar pestaña.
+
+Los tests inyectan el store en `sessionStorage` directamente para evitar dependencias frágiles del `DatePickerInput` y llamadas reales a APIs externas.
 
 ## Diseño
 

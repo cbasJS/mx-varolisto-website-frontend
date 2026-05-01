@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main, sandbox]
+  pull_request:
+    branches: [main, sandbox]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.VAROLISTO_NPM_TOKEN }}
+
+      - name: Check de tipos
+        run: pnpm tsc --noEmit
+
+      - name: Pruebas unitarias
+        run: pnpm test
+
+      - name: Instalar navegadores Playwright
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Pruebas E2E
+        run: pnpm test:e2e
+        env:
+          COPOMEX_TOKEN: ${{ secrets.COPOMEX_TOKEN }}
+          NEXT_PUBLIC_ENV: local
