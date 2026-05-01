@@ -26,6 +26,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.VAROLISTO_NPM_TOKEN }}
 
+      - name: Check de tipos
+        run: pnpm tsc --noEmit
+
       - name: Pruebas unitarias
         run: pnpm test
 
