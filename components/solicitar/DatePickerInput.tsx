@@ -39,7 +39,7 @@ export function DatePickerInput<TFieldValues extends FieldValues>({
     <Controller
       name={name}
       control={control}
-      render={({ field: { onChange, value } }) =>
+      render={({ field: { onChange, onBlur, value } }) =>
         isMobile ? (
           <NativeDateInner
             label={label}
@@ -51,6 +51,7 @@ export function DatePickerInput<TFieldValues extends FieldValues>({
             maxDate={maxDate}
             minDate={minDate}
             onChange={onChange}
+            onBlur={onBlur}
             value={typeof value === "string" ? value : ""}
           />
         ) : (
