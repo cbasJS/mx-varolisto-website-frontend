@@ -24,7 +24,7 @@ jobs:
       - name: Instalar dependencias
         run: pnpm install --frozen-lockfile
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.VAROLISTO_NPM_TOKEN }}
 
       - name: Pruebas unitarias
         run: pnpm test
