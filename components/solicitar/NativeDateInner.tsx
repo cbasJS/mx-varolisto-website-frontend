@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { type FieldError } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { dateToYYYYMMDD, formatDDMMYYYY } from "@/lib/solicitud/utils/dateUtils";
@@ -15,6 +15,7 @@ interface NativeDateInnerProps {
   maxDate?: Date;
   minDate?: Date;
   onChange: (val: string) => void;
+  onBlur: () => void;
   value: string;
 }
 
@@ -28,8 +29,10 @@ export function NativeDateInner({
   maxDate,
   minDate,
   onChange,
+  onBlur,
   value,
 }: NativeDateInnerProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [focused, setFocused] = useState(false);
   const hasValue = !!value;
   const lifted = focused || hasValue;
@@ -40,8 +43,9 @@ export function NativeDateInner({
   return (
     <div className="group relative">
       <div
+        onClick={() => inputRef.current?.showPicker?.()}
         className={cn(
-          "relative rounded-xl border-2 bg-white transition-all duration-200",
+          "relative min-h-[60px] rounded-xl border-2 bg-white transition-all duration-200",
           focused
             ? "border-primary shadow-sm shadow-primary/10"
             : error
@@ -71,10 +75,11 @@ export function NativeDateInner({
             </span>
           )}
         </label>
-        <div className="w-full pb-2 pt-6 pl-4 pr-4 text-base text-on-surface">
+        <div className="w-full pb-2 pt-6 pl-4 pr-4 text-base leading-normal text-on-surface">
           {hasValue ? formatDDMMYYYY(value) : " "}
         </div>
         <input
+          ref={inputRef}
           id={autoId}
           type="date"
           value={value}
@@ -82,7 +87,7 @@ export function NativeDateInner({
           min={minAttr}
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
+          onBlur={() => { setFocused(false); onBlur(); }}
           className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
           aria-invalid={!!error}
           aria-describedby={error ? `${autoId}-error` : undefined}
