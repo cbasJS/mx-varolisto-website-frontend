@@ -2,13 +2,30 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## TDD — Requisito obligatorio
+
+**Ningún código de producción se escribe sin un test que falle primero.**
+
+Antes de implementar cualquier función, caso de uso, hook o utilidad nueva:
+
+1. Escribe el test. Ejecútalo. Confirma que falla por la razón correcta (feature ausente, no un error de sintaxis).
+2. Escribe el mínimo código necesario para que pase.
+3. Refactoriza si es necesario. Los tests deben seguir en verde.
+
+Para código existente sin tests (bug fix, refactor): escribe primero el test que reproduce el bug o que describe el comportamiento esperado, luego modifica el código.
+
+Lo mismo aplica para E2E: antes de implementar o modificar un flujo de usuario, el test E2E que cubre ese flujo debe existir y fallar primero. Los tests E2E cubren caminos críticos del usuario (flujo completo de solicitud, errores de backend, guardias de navegación) — no reemplazan los unitarios.
+
+`pnpm test` y `pnpm test:e2e` deben pasar en verde antes de cualquier commit.
+
 ## Comandos
 
 - `pnpm dev` — Servidor de desarrollo en http://localhost:3000
 - `pnpm build` — Build de producción
 - `pnpm lint` — ESLint vía Next.js
-
-No hay framework de pruebas configurado.
+- `pnpm test` — Pruebas unitarias (Vitest, una sola corrida)
+- `pnpm test:watch` — Vitest en modo watch
+- `pnpm test:e2e` — Pruebas E2E (Playwright, requiere servidor activo o usa `webServer`)
 
 ## Arquitectura
 
@@ -128,3 +145,31 @@ El store expone `_hasHydrated` (seteado por `onRehydrateStorage`); úsalo para e
   @varolisto:registry=https://npm.pkg.github.com
   //npm.pkg.github.com/:_authToken=TOKEN
   ```
+
+## Pruebas
+
+### Unitarias — Vitest (`lib/`)
+
+Correr con `pnpm test`. Los archivos de prueba viven junto al código fuente (`*.test.ts`).
+
+Archivos cubiertos:
+
+| Archivo | Qué prueba |
+|---|---|
+| `lib/solicitud/domain/loan/calcularCuota.test.ts` | Fórmula de amortización para los plazos del producto (2–6 meses) |
+| `lib/solicitud/domain/shared/dateUtils.test.ts` | Conversión y formateo de fechas |
+| `lib/solicitud/domain/solicitud/buildPayload.test.ts` | Transformación del store a `CrearSolicitudRequest` |
+| `lib/solicitud/infrastructure/storage/formatBytes.test.ts` | Formateo de tamaños de archivo (B / KB / MB) |
+| `lib/solicitud/infrastructure/http/apiErrors.test.ts` | `ApiError`, `esErrorDeValidacion`, `esErrorDeConflicto`, `clasificarError` |
+| `lib/solicitud/utils/formatCurrency.test.ts` | Formateo de moneda en Paso 4 (ingreso, deudas) |
+
+### E2E — Playwright (`e2e/`)
+
+Correr con `pnpm test:e2e`. El `webServer` de `playwright.config.ts` levanta Next.js automáticamente.
+
+| Archivo | Qué cubre |
+|---|---|
+| `e2e/flujo-feliz.spec.ts` | Submit exitoso → `PantallaExito` con folio; estado "Enviando…"; errores 409 y de red; validación de checkboxes |
+| `e2e/formulario.spec.ts` | Estructura de cada paso; uploads (subida, eliminación, reintentos, hidratación de staging); `useNavegacionConGuarda` (AlertDialog con archivos/datos/submit en vuelo); `sendBeacon` al cerrar pestaña |
+
+**Estrategia:** los tests inyectan el store en `sessionStorage` directamente (`inyectarStore`) en lugar de navegar paso a paso por la UI. Esto evita dependencias frágiles del `DatePickerInput` y llamadas reales a APIs externas (COPOMEX, uploads).
