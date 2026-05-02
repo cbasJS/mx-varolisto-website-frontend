@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { usePaso4 } from "@/hooks/solicitar/usePaso4";
-import type { Paso4Data } from "@/lib/solicitud/schemas/index";
+import { usePaso4 } from '@/hooks/solicitar/usePaso4'
+import type { Paso4Data } from '@/lib/solicitud/schemas/index'
 import {
   TIPO_ACTIVIDAD,
   ANTIGUEDAD,
@@ -9,7 +9,7 @@ import {
   MONTO_TOTAL_DEUDAS,
   ESTADO_CIVIL,
   DEPENDIENTES_ECONOMICOS,
-} from "@varolisto/shared-schemas/enums";
+} from '@varolisto/shared-schemas/enums'
 import {
   ACTIVIDADES_META,
   CANTIDAD_DEUDAS_META,
@@ -17,19 +17,19 @@ import {
   MONTO_TOTAL_DEUDAS_META,
   ESTADO_CIVIL_LABELS,
   DEPENDIENTES_LABELS,
-} from "@/lib/solicitud/utils/lookup-labels";
-import { FloatingInput } from "../FloatingInput";
-import { FloatingSelect } from "../FloatingSelect";
-import { PillOption } from "../PillOption";
-import { SectionDivider } from "../SectionDivider";
-import { StepTitle } from "../StepTitle";
-import { FormActions } from "../FormActions";
-import { FieldError } from "../FieldError";
-import { cn } from "@/lib/utils";
+} from '@/lib/solicitud/utils/lookup-labels'
+import { FloatingInput } from '../FloatingInput'
+import { FloatingSelect } from '../FloatingSelect'
+import { PillOption } from '../PillOption'
+import { SectionDivider } from '../SectionDivider'
+import { StepTitle } from '../StepTitle'
+import { FormActions } from '../FormActions'
+import { FieldError } from '../FieldError'
+import { cn } from '@/lib/utils'
 
 interface Props {
-  onNext: (datos: Paso4Data) => void;
-  onBack: () => void;
+  onNext: (datos: Paso4Data) => void
+  onBack: () => void
 }
 
 export default function Paso4Economia({ onNext, onBack }: Props) {
@@ -59,7 +59,7 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
     ingresoHandlers,
     pagoDeudaDisplay,
     pagoDeudaHandlers,
-  } = usePaso4(onNext);
+  } = usePaso4(onNext)
 
   return (
     <form onSubmit={handleSubmit} noValidate>
@@ -72,7 +72,7 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
       {/* Tipo de actividad */}
       <div className="mb-6">
         <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-outline">
-          Tipo de actividad laboral{" "}
+          Tipo de actividad laboral{' '}
           <span className="text-error" aria-hidden>
             *
           </span>
@@ -84,34 +84,30 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
               <button
                 key={value}
                 type="button"
-                onClick={() =>
-                  setValue("tipoActividad", value, { shouldValidate: true })
-                }
+                onClick={() => setValue('tipoActividad', value, { shouldValidate: true })}
                 className={cn(
-                  "flex flex-col items-start gap-1 rounded-xl border-2 p-3 text-left transition-all active:scale-[0.97]",
+                  'flex flex-col items-start gap-1 rounded-xl border-2 p-3 text-left transition-all active:scale-[0.97]',
                   tipoActividad === value
-                    ? "border-primary bg-primary text-white"
-                    : "border-surface-container-high bg-white hover:border-primary/30",
+                    ? 'border-primary bg-primary text-white'
+                    : 'border-surface-container-high bg-white hover:border-primary/30',
                 )}
               >
                 <span
                   className={cn(
-                    "material-symbols-outlined text-lg",
-                    tipoActividad === value ? "text-secondary" : "text-outline",
+                    'material-symbols-outlined text-lg',
+                    tipoActividad === value ? 'text-secondary' : 'text-outline',
                   )}
                   style={{ fontVariationSettings: "'FILL' 1" }}
                   aria-hidden
                 >
                   {icono}
                 </span>
-                <span className="text-sm font-semibold leading-tight">
-                  {label}
-                </span>
+                <span className="text-sm font-semibold leading-tight">{label}</span>
                 {hint && (
                   <span
                     className={cn(
-                      "text-[11px]",
-                      tipoActividad === value ? "text-white/70" : "text-outline",
+                      'text-[11px]',
+                      tipoActividad === value ? 'text-white/70' : 'text-outline',
                     )}
                   >
                     {hint}
@@ -129,7 +125,7 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
           label={labelEmpleador}
           required
           error={errors.nombreEmpleadorNegocio?.message}
-          {...register("nombreEmpleadorNegocio")}
+          {...register('nombreEmpleadorNegocio')}
           placeholder=" "
         />
 
@@ -137,7 +133,9 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
           label="Antigüedad"
           required
           value={antiguedadActual}
-          onValueChange={(val) => setValue("antiguedad", val as typeof ANTIGUEDAD[number], { shouldValidate: true })}
+          onValueChange={(val) =>
+            setValue('antiguedad', val as (typeof ANTIGUEDAD)[number], { shouldValidate: true })
+          }
           onOpenChange={setAntiguedadOpen}
           isOpen={antiguedadOpen}
           options={ANTIGUEDAD.map((v) => ({ value: v, label: ANTIGUEDAD_META[v] }))}
@@ -147,7 +145,9 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
           label="Estado civil"
           required
           value={estadoCivilActual}
-          onValueChange={(val) => setValue("estadoCivil", val as typeof ESTADO_CIVIL[number], { shouldValidate: true })}
+          onValueChange={(val) =>
+            setValue('estadoCivil', val as (typeof ESTADO_CIVIL)[number], { shouldValidate: true })
+          }
           onOpenChange={setEstadoCivilOpen}
           isOpen={estadoCivilOpen}
           options={ESTADO_CIVIL.map((v) => ({ value: v, label: ESTADO_CIVIL_LABELS[v] }))}
@@ -158,10 +158,17 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
             label="Dependientes económicos"
             required
             value={dependientesActual}
-            onValueChange={(val) => setValue("dependientesEconomicos", val as typeof DEPENDIENTES_ECONOMICOS[number], { shouldValidate: true })}
+            onValueChange={(val) =>
+              setValue('dependientesEconomicos', val as (typeof DEPENDIENTES_ECONOMICOS)[number], {
+                shouldValidate: true,
+              })
+            }
             onOpenChange={setDependientesOpen}
             isOpen={dependientesOpen}
-            options={DEPENDIENTES_ECONOMICOS.map((v) => ({ value: v, label: DEPENDIENTES_LABELS[v] }))}
+            options={DEPENDIENTES_ECONOMICOS.map((v) => ({
+              value: v,
+              label: DEPENDIENTES_LABELS[v],
+            }))}
             error={errors.dependientesEconomicos?.message}
           />
           <p className="mt-1.5 text-xs text-outline">Personas que dependen de tu ingreso</p>
@@ -191,7 +198,7 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
       {/* ¿Tiene deudas? */}
       <div className="mb-4">
         <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-outline">
-          ¿Tienes deudas actualmente?{" "}
+          ¿Tienes deudas actualmente?{' '}
           <span className="text-error" aria-hidden>
             *
           </span>
@@ -199,21 +206,21 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
         <div className="flex gap-3">
           {[
             {
-              value: "si",
-              label: "Sí, tengo deudas",
-              icono: "credit_card_off",
+              value: 'si',
+              label: 'Sí, tengo deudas',
+              icono: 'credit_card_off',
             },
-            { value: "no", label: "No tengo deudas", icono: "check_circle" },
+            { value: 'no', label: 'No tengo deudas', icono: 'check_circle' },
           ].map(({ value, label, icono }) => (
             <PillOption
               key={value}
               selected={tieneDeudas === value}
               onClick={() => {
-                setValue("tieneDeudas", value as "si" | "no", { shouldValidate: true })
-                if (value === "no") {
-                  setValue("cantidadDeudas", "sin_deudas", { shouldValidate: true })
+                setValue('tieneDeudas', value as 'si' | 'no', { shouldValidate: true })
+                if (value === 'no') {
+                  setValue('cantidadDeudas', 'sin_deudas', { shouldValidate: true })
                 } else {
-                  setValue("cantidadDeudas", undefined, { shouldValidate: true })
+                  setValue('cantidadDeudas', undefined, { shouldValidate: true })
                 }
               }}
               icon={icono}
@@ -226,29 +233,27 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
         <FieldError message={errors.tieneDeudas?.message} />
       </div>
 
-      {tieneDeudas === "si" && (
+      {tieneDeudas === 'si' && (
         <div className="rounded-2xl border-2 border-surface-container-high bg-surface-bright p-4 space-y-4">
           {/* Cantidad */}
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-outline">
-              ¿Cuántas deudas tienes?{" "}
+              ¿Cuántas deudas tienes?{' '}
               <span className="text-error" aria-hidden>
                 *
               </span>
             </p>
             <div className="flex gap-2">
-              {CANTIDAD_DEUDAS.filter((v) => v !== "sin_deudas").map((value) => (
+              {CANTIDAD_DEUDAS.filter((v) => v !== 'sin_deudas').map((value) => (
                 <button
                   key={value}
                   type="button"
-                  onClick={() =>
-                    setValue("cantidadDeudas", value, { shouldValidate: true })
-                  }
+                  onClick={() => setValue('cantidadDeudas', value, { shouldValidate: true })}
                   className={cn(
-                    "flex-1 rounded-xl border-2 py-2.5 text-sm font-semibold transition-all",
+                    'flex-1 rounded-xl border-2 py-2.5 text-sm font-semibold transition-all',
                     cantidadDeudas === value
-                      ? "border-primary bg-primary text-white"
-                      : "border-surface-container-high bg-white text-on-surface-variant hover:border-primary/40",
+                      ? 'border-primary bg-primary text-white'
+                      : 'border-surface-container-high bg-white text-on-surface-variant hover:border-primary/40',
                   )}
                 >
                   {CANTIDAD_DEUDAS_META[value]}
@@ -262,10 +267,17 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
             label="Monto total de deudas"
             required
             value={montoTotalDeudasActual}
-            onValueChange={(val) => setValue("montoTotalDeudas", val as typeof MONTO_TOTAL_DEUDAS[number], { shouldValidate: true })}
+            onValueChange={(val) =>
+              setValue('montoTotalDeudas', val as (typeof MONTO_TOTAL_DEUDAS)[number], {
+                shouldValidate: true,
+              })
+            }
             onOpenChange={setMontoTotalOpen}
             isOpen={montoTotalOpen}
-            options={MONTO_TOTAL_DEUDAS.map((v) => ({ value: v, label: MONTO_TOTAL_DEUDAS_META[v] }))}
+            options={MONTO_TOTAL_DEUDAS.map((v) => ({
+              value: v,
+              label: MONTO_TOTAL_DEUDAS_META[v],
+            }))}
             error={errors.montoTotalDeudas?.message}
           />
 
@@ -286,11 +298,7 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
         </div>
       )}
 
-      <FormActions
-        onBack={onBack}
-        submitLabel="Continuar"
-        disabled={!isValid}
-      />
+      <FormActions onBack={onBack} submitLabel="Continuar" disabled={!isValid} />
     </form>
-  );
+  )
 }

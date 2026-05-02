@@ -1,4 +1,4 @@
-import type { SolicitudCompleta } from "@/lib/solicitud/domain/solicitud/schemas"
+import type { SolicitudCompleta } from '@/lib/solicitud/domain/solicitud/schemas'
 
 export interface GuardarPasoInput {
   paso: number
@@ -7,12 +7,7 @@ export interface GuardarPasoInput {
   setPasoFn: (paso: number) => void
 }
 
-export function guardarYAvanzar({
-  paso,
-  datos,
-  guardarPasoFn,
-  setPasoFn,
-}: GuardarPasoInput): void {
+export function guardarYAvanzar({ paso, datos, guardarPasoFn, setPasoFn }: GuardarPasoInput): void {
   guardarPasoFn(paso, datos)
   setPasoFn(paso + 1)
 }

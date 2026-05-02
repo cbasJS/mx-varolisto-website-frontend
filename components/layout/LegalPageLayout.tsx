@@ -1,7 +1,7 @@
 interface LegalPageLayoutProps {
-  titulo: string;
-  fechaActualizacion: string;
-  children: React.ReactNode;
+  titulo: string
+  fechaActualizacion: string
+  children: React.ReactNode
 }
 
 export default function LegalPageLayout({
@@ -17,5 +17,5 @@ export default function LegalPageLayout({
         {children}
       </div>
     </main>
-  );
+  )
 }

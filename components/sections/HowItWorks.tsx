@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import { motion } from "framer-motion";
-import { processSteps } from "@/content/home";
-import { VIEWPORT_ONCE, VIEWPORT_CLOSE } from "@/lib/animations";
+import { motion } from 'framer-motion'
+import { processSteps } from '@/content/home'
+import { VIEWPORT_ONCE, VIEWPORT_CLOSE } from '@/lib/animations'
 
 export default function HowItWorks() {
   return (
@@ -17,7 +17,7 @@ export default function HowItWorks() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={VIEWPORT_ONCE}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           ¿Cómo funciona?
         </motion.h2>
@@ -35,19 +35,19 @@ export default function HowItWorks() {
               initial={{ opacity: 0, x: -24 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={VIEWPORT_CLOSE}
-              transition={{ duration: 0.5, delay: i * 0.12, ease: "easeOut" }}
+              transition={{ duration: 0.5, delay: i * 0.12, ease: 'easeOut' }}
             >
               <motion.div
                 className={`w-12 h-12 shrink-0 rounded-full flex items-center justify-center font-extrabold text-xl z-10 shadow-lg ${
                   step.accent
-                    ? "bg-secondary text-primary step-accent-glow"
-                    : "bg-primary text-white"
+                    ? 'bg-secondary text-primary step-accent-glow'
+                    : 'bg-primary text-white'
                 }`}
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 1 }}
                 viewport={{ once: true }}
                 transition={{
-                  type: "spring",
+                  type: 'spring',
                   stiffness: 260,
                   damping: 18,
                   delay: i * 0.12 + 0.1,
@@ -57,17 +57,13 @@ export default function HowItWorks() {
                 {step.number}
               </motion.div>
               <div>
-                <h3 className="font-headline font-bold text-2xl text-primary">
-                  {step.title}
-                </h3>
-                <p className="text-on-surface-variant mt-1">
-                  {step.description}
-                </p>
+                <h3 className="font-headline font-bold text-2xl text-primary">{step.title}</h3>
+                <p className="text-on-surface-variant mt-1">{step.description}</p>
               </div>
             </motion.li>
           ))}
         </ol>
       </div>
     </section>
-  );
+  )
 }

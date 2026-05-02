@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
-import { usePaso7 } from "@/hooks/solicitar/usePaso7";
-import { useSolicitudStore } from "@/lib/solicitud/store";
-import type { Paso7Data } from "@/lib/solicitud/schemas/index";
-import type { ErrorSubmit } from "@/hooks/solicitar/useSolicitudNavigation";
+import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
+import { usePaso7 } from '@/hooks/solicitar/usePaso7'
+import { useSolicitudStore } from '@/lib/solicitud/store'
+import type { Paso7Data } from '@/lib/solicitud/schemas/index'
+import type { ErrorSubmit } from '@/hooks/solicitar/useSolicitudNavigation'
 import {
   DESTINO_LABELS,
   ACTIVIDAD_LABELS,
@@ -16,21 +16,21 @@ import {
   ESTADO_CIVIL_LABELS,
   DEPENDIENTES_LABELS,
   TIPO_IDENTIFICACION_LABELS,
-} from "@/lib/solicitud/utils/lookup-labels";
-import { WHATSAPP_URL } from "@/lib/config";
-import { Checkbox } from "@/components/ui/checkbox";
-import { StepTitle } from "../StepTitle";
-import { FieldError } from "../FieldError";
-import { cn } from "@/lib/utils";
+} from '@/lib/solicitud/utils/lookup-labels'
+import { WHATSAPP_URL } from '@/lib/config'
+import { Checkbox } from '@/components/ui/checkbox'
+import { StepTitle } from '../StepTitle'
+import { FieldError } from '../FieldError'
+import { cn } from '@/lib/utils'
 
 interface Props {
-  onSubmit: (datos: Paso7Data) => void;
-  onBack: () => void;
-  onEditarPaso: (paso: number) => void;
-  enviando: boolean;
-  errorSubmit: ErrorSubmit | null;
-  onLimpiarError: () => void;
-  onConflictoConfirmado: () => void;
+  onSubmit: (datos: Paso7Data) => void
+  onBack: () => void
+  onEditarPaso: (paso: number) => void
+  enviando: boolean
+  errorSubmit: ErrorSubmit | null
+  onLimpiarError: () => void
+  onConflictoConfirmado: () => void
 }
 
 function SeccionCard({
@@ -40,13 +40,13 @@ function SeccionCard({
   children,
   icono,
 }: {
-  titulo: string;
-  paso: number;
-  onEditar: (paso: number) => void;
-  children: React.ReactNode;
-  icono: string;
+  titulo: string
+  paso: number
+  onEditar: (paso: number) => void
+  children: React.ReactNode
+  icono: string
 }) {
-  const [abierto, setAbierto] = useState(true);
+  const [abierto, setAbierto] = useState(true)
 
   return (
     <div className="overflow-hidden rounded-2xl border-2 border-surface-container-high bg-white">
@@ -65,9 +65,7 @@ function SeccionCard({
               {icono}
             </span>
           </div>
-          <span className="flex-1 text-sm font-semibold text-on-surface">
-            {titulo}
-          </span>
+          <span className="flex-1 text-sm font-semibold text-on-surface">{titulo}</span>
         </button>
         <button
           type="button"
@@ -80,12 +78,12 @@ function SeccionCard({
           type="button"
           onClick={() => setAbierto((p) => !p)}
           className="transition-colors hover:opacity-70"
-          aria-label={abierto ? "Colapsar sección" : "Expandir sección"}
+          aria-label={abierto ? 'Colapsar sección' : 'Expandir sección'}
         >
           <span
             className={cn(
-              "material-symbols-outlined text-base text-outline transition-transform duration-200",
-              abierto && "rotate-180",
+              'material-symbols-outlined text-base text-outline transition-transform duration-200',
+              abierto && 'rotate-180',
             )}
             aria-hidden
           >
@@ -93,21 +91,19 @@ function SeccionCard({
           </span>
         </button>
       </div>
-      {abierto && (
-        <div className="border-t border-surface-container px-5 py-4">{children}</div>
-      )}
+      {abierto && <div className="border-t border-surface-container px-5 py-4">{children}</div>}
     </div>
-  );
+  )
 }
 
 function Fila({ label, value }: { label: string; value?: string | number }) {
-  if (!value && value !== 0) return null;
+  if (!value && value !== 0) return null
   return (
     <div className="flex items-start justify-between gap-4 py-1.5 text-sm">
       <span className="shrink-0 text-outline">{label}</span>
       <span className="text-right font-medium text-on-surface">{value}</span>
     </div>
-  );
+  )
 }
 
 function SubLabel({ children }: { children: React.ReactNode }) {
@@ -115,7 +111,7 @@ function SubLabel({ children }: { children: React.ReactNode }) {
     <p className="mb-1.5 mt-3 text-[10px] font-bold uppercase tracking-widest text-outline first:mt-0">
       {children}
     </p>
-  );
+  )
 }
 
 function ModalConflicto({ onConfirmado }: { onConfirmado: () => void }) {
@@ -131,12 +127,9 @@ function ModalConflicto({ onConfirmado }: { onConfirmado: () => void }) {
             warning
           </span>
         </div>
-        <h2 className="mb-2 text-lg font-bold text-on-surface">
-          Solicitud activa existente
-        </h2>
+        <h2 className="mb-2 text-lg font-bold text-on-surface">Solicitud activa existente</h2>
         <p className="mb-6 text-sm text-on-surface-variant leading-relaxed">
-          Ya existe una solicitud activa con estos datos. Si necesitas ayuda,
-          escríbenos por{" "}
+          Ya existe una solicitud activa con estos datos. Si necesitas ayuda, escríbenos por{' '}
           <a
             href={WHATSAPP_URL}
             target="_blank"
@@ -144,7 +137,7 @@ function ModalConflicto({ onConfirmado }: { onConfirmado: () => void }) {
             className="font-semibold text-primary underline underline-offset-2"
           >
             WhatsApp
-          </a>{" "}
+          </a>{' '}
           con tu teléfono o CURP.
         </p>
         <button
@@ -156,7 +149,7 @@ function ModalConflicto({ onConfirmado }: { onConfirmado: () => void }) {
         </button>
       </div>
     </div>
-  );
+  )
 }
 
 export default function Paso7Revision({
@@ -168,38 +161,30 @@ export default function Paso7Revision({
   onLimpiarError,
   onConflictoConfirmado,
 }: Props) {
-  const datos = useSolicitudStore((s) => s.datos);
-  const archivosSubidos = useSolicitudStore((s) => s.archivosSubidos);
-  const tipoIdentificacion = useSolicitudStore((s) => s.tipoIdentificacion);
+  const datos = useSolicitudStore((s) => s.datos)
+  const archivosSubidos = useSolicitudStore((s) => s.archivosSubidos)
+  const tipoIdentificacion = useSolicitudStore((s) => s.tipoIdentificacion)
 
-  const {
-    handleSubmit,
-    setValue,
-    errors,
-    privacidad,
-    terminos,
-    ambosAceptados,
-  } = usePaso7(onSubmit);
+  const { handleSubmit, setValue, errors, privacidad, terminos, ambosAceptados } =
+    usePaso7(onSubmit)
 
   useEffect(() => {
-    if (errorSubmit?.tipo === "red") {
-      toast.error("Algo salió mal al enviar. Revisa tu conexión e inténtalo de nuevo.", {
+    if (errorSubmit?.tipo === 'red') {
+      toast.error('Algo salió mal al enviar. Revisa tu conexión e inténtalo de nuevo.', {
         onDismiss: onLimpiarError,
         onAutoClose: onLimpiarError,
       })
-    } else if (errorSubmit?.tipo === "desconocido") {
-      toast.error(
-        errorSubmit.mensaje ?? "Ocurrió un error inesperado. Inténtalo de nuevo.",
-        { onDismiss: onLimpiarError, onAutoClose: onLimpiarError }
-      )
+    } else if (errorSubmit?.tipo === 'desconocido') {
+      toast.error(errorSubmit.mensaje ?? 'Ocurrió un error inesperado. Inténtalo de nuevo.', {
+        onDismiss: onLimpiarError,
+        onAutoClose: onLimpiarError,
+      })
     }
   }, [errorSubmit]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
-      {errorSubmit?.tipo === "conflicto" && (
-        <ModalConflicto onConfirmado={onConflictoConfirmado} />
-      )}
+      {errorSubmit?.tipo === 'conflicto' && <ModalConflicto onConfirmado={onConflictoConfirmado} />}
 
       <form onSubmit={handleSubmit} noValidate>
         <StepTitle
@@ -213,9 +198,16 @@ export default function Paso7Revision({
           <SeccionCard titulo="Préstamo deseado" paso={1} onEditar={onEditarPaso} icono="payments">
             <Fila
               label="Monto"
-              value={datos.montoSolicitado ? `$${datos.montoSolicitado.toLocaleString("es-MX")}` : undefined}
+              value={
+                datos.montoSolicitado
+                  ? `$${datos.montoSolicitado.toLocaleString('es-MX')}`
+                  : undefined
+              }
             />
-            <Fila label="Plazo" value={datos.plazoMeses ? `${datos.plazoMeses} meses` : undefined} />
+            <Fila
+              label="Plazo"
+              value={datos.plazoMeses ? `${datos.plazoMeses} meses` : undefined}
+            />
             <Fila
               label="Destino"
               value={datos.destinoPrestamo ? DESTINO_LABELS[datos.destinoPrestamo] : undefined}
@@ -226,7 +218,7 @@ export default function Paso7Revision({
           <SeccionCard titulo="Identidad" paso={2} onEditar={onEditarPaso} icono="person">
             <Fila
               label="Nombre"
-              value={`${datos.nombre ?? ""} ${datos.apellidoPaterno ?? ""} ${datos.apellidoMaterno ?? ""}`.trim()}
+              value={`${datos.nombre ?? ''} ${datos.apellidoPaterno ?? ''} ${datos.apellidoMaterno ?? ''}`.trim()}
             />
             <Fila label="CURP" value={datos.curp} />
             <Fila label="Correo" value={datos.email} />
@@ -239,7 +231,7 @@ export default function Paso7Revision({
               label="Dirección"
               value={
                 datos.calle
-                  ? `${datos.calle} ${datos.numeroExterior ?? ""}${datos.numeroInterior ? " Int. " + datos.numeroInterior : ""}, ${datos.colonia ?? ""}, ${datos.municipio ?? ""} CP ${datos.codigoPostal ?? ""}`
+                  ? `${datos.calle} ${datos.numeroExterior ?? ''}${datos.numeroInterior ? ' Int. ' + datos.numeroInterior : ''}, ${datos.colonia ?? ''}, ${datos.municipio ?? ''} CP ${datos.codigoPostal ?? ''}`
                   : undefined
               }
             />
@@ -254,20 +246,42 @@ export default function Paso7Revision({
           </SeccionCard>
 
           {/* Paso 4 — Economía */}
-          <SeccionCard titulo="Situación económica" paso={4} onEditar={onEditarPaso} icono="account_balance_wallet">
-            <Fila label="Actividad" value={datos.tipoActividad ? ACTIVIDAD_LABELS[datos.tipoActividad] : undefined} />
+          <SeccionCard
+            titulo="Situación económica"
+            paso={4}
+            onEditar={onEditarPaso}
+            icono="account_balance_wallet"
+          >
+            <Fila
+              label="Actividad"
+              value={datos.tipoActividad ? ACTIVIDAD_LABELS[datos.tipoActividad] : undefined}
+            />
             <Fila label="Empleador / Negocio" value={datos.nombreEmpleadorNegocio} />
-            <Fila label="Antigüedad" value={datos.antiguedad ? ANTIGUEDAD_LABELS[datos.antiguedad] : undefined} />
-            <Fila label="Estado civil" value={datos.estadoCivil ? ESTADO_CIVIL_LABELS[datos.estadoCivil] : undefined} />
+            <Fila
+              label="Antigüedad"
+              value={datos.antiguedad ? ANTIGUEDAD_LABELS[datos.antiguedad] : undefined}
+            />
+            <Fila
+              label="Estado civil"
+              value={datos.estadoCivil ? ESTADO_CIVIL_LABELS[datos.estadoCivil] : undefined}
+            />
             <Fila
               label="Dependientes"
-              value={datos.dependientesEconomicos ? DEPENDIENTES_LABELS[datos.dependientesEconomicos] : undefined}
+              value={
+                datos.dependientesEconomicos
+                  ? DEPENDIENTES_LABELS[datos.dependientesEconomicos]
+                  : undefined
+              }
             />
             <Fila
               label="Ingreso mensual"
-              value={datos.ingresoMensual ? `$${datos.ingresoMensual.toLocaleString("es-MX")}` : undefined}
+              value={
+                datos.ingresoMensual
+                  ? `$${datos.ingresoMensual.toLocaleString('es-MX')}`
+                  : undefined
+              }
             />
-            <Fila label="Tiene deudas" value={datos.tieneDeudas === "si" ? "Sí" : "No"} />
+            <Fila label="Tiene deudas" value={datos.tieneDeudas === 'si' ? 'Sí' : 'No'} />
           </SeccionCard>
 
           {/* Paso 5 — Referencias */}
@@ -275,12 +289,18 @@ export default function Paso7Revision({
             <SubLabel>Referencia 1</SubLabel>
             <Fila label="Nombre" value={datos.ref1Nombre} />
             <Fila label="Teléfono" value={datos.ref1Telefono} />
-            <Fila label="Relación" value={datos.ref1Relacion ? RELACION_LABELS[datos.ref1Relacion] : undefined} />
+            <Fila
+              label="Relación"
+              value={datos.ref1Relacion ? RELACION_LABELS[datos.ref1Relacion] : undefined}
+            />
             {datos.ref1Email && <Fila label="Correo" value={datos.ref1Email} />}
             <SubLabel>Referencia 2</SubLabel>
             <Fila label="Nombre" value={datos.ref2Nombre} />
             <Fila label="Teléfono" value={datos.ref2Telefono} />
-            <Fila label="Relación" value={datos.ref2Relacion ? RELACION_LABELS[datos.ref2Relacion] : undefined} />
+            <Fila
+              label="Relación"
+              value={datos.ref2Relacion ? RELACION_LABELS[datos.ref2Relacion] : undefined}
+            />
             {datos.ref2Email && <Fila label="Correo" value={datos.ref2Email} />}
           </SeccionCard>
 
@@ -288,11 +308,13 @@ export default function Paso7Revision({
           <SeccionCard titulo="Documentos" paso={6} onEditar={onEditarPaso} icono="folder_open">
             <Fila
               label="Identificación"
-              value={tipoIdentificacion ? TIPO_IDENTIFICACION_LABELS[tipoIdentificacion] : undefined}
+              value={
+                tipoIdentificacion ? TIPO_IDENTIFICACION_LABELS[tipoIdentificacion] : undefined
+              }
             />
             <Fila
               label="Archivos subidos"
-              value={`${archivosSubidos.length} archivo${archivosSubidos.length !== 1 ? "s" : ""}`}
+              value={`${archivosSubidos.length} archivo${archivosSubidos.length !== 1 ? 's' : ''}`}
             />
           </SeccionCard>
         </div>
@@ -309,7 +331,7 @@ export default function Paso7Revision({
               checked={privacidad === true}
               onCheckedChange={(checked) =>
                 setValue(
-                  "aceptaPrivacidad",
+                  'aceptaPrivacidad',
                   checked === true ? true : (undefined as unknown as true),
                   { shouldValidate: true },
                 )
@@ -317,7 +339,7 @@ export default function Paso7Revision({
               className="mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
             />
             <span className="text-sm text-on-surface-variant leading-relaxed">
-              He leído y acepto el{" "}
+              He leído y acepto el{' '}
               <a
                 href="/aviso-de-privacidad-integral"
                 target="_blank"
@@ -336,7 +358,7 @@ export default function Paso7Revision({
               checked={terminos === true}
               onCheckedChange={(checked) =>
                 setValue(
-                  "aceptaTerminos",
+                  'aceptaTerminos',
                   checked === true ? true : (undefined as unknown as true),
                   { shouldValidate: true },
                 )
@@ -344,7 +366,7 @@ export default function Paso7Revision({
               className="mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
             />
             <span className="text-sm text-on-surface-variant leading-relaxed">
-              He leído y acepto los{" "}
+              He leído y acepto los{' '}
               <a
                 href="/terminos-condiciones"
                 target="_blank"
@@ -366,7 +388,9 @@ export default function Paso7Revision({
             disabled={enviando}
             className="flex items-center gap-1.5 rounded-xl border-2 border-surface-container-high bg-white px-6 py-3 text-sm font-semibold text-on-surface-variant transition-all hover:border-outline-variant hover:bg-surface-bright active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span className="material-symbols-outlined text-sm" aria-hidden>arrow_back</span>
+            <span className="material-symbols-outlined text-sm" aria-hidden>
+              arrow_back
+            </span>
             Atrás
           </button>
           <button
@@ -395,5 +419,5 @@ export default function Paso7Revision({
         </div>
       </form>
     </>
-  );
+  )
 }

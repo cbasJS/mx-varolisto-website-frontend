@@ -1,19 +1,19 @@
-"use client";
+'use client'
 
-import { usePaso2 } from "@/hooks/solicitar/usePaso2";
-import type { Paso1Data } from "@/lib/solicitud/schemas/index";
-import { SEXO } from "@varolisto/shared-schemas/enums";
-import { SEXO_META } from "@/lib/solicitud/utils/lookup-labels";
-import { FloatingInput } from "../FloatingInput";
-import { DatePickerInput } from "../DatePickerInput";
-import { PillOption } from "../PillOption";
-import { StepTitle } from "../StepTitle";
-import { FormActions } from "../FormActions";
-import { FieldError } from "../FieldError";
+import { usePaso2 } from '@/hooks/solicitar/usePaso2'
+import type { Paso1Data } from '@/lib/solicitud/schemas/index'
+import { SEXO } from '@varolisto/shared-schemas/enums'
+import { SEXO_META } from '@/lib/solicitud/utils/lookup-labels'
+import { FloatingInput } from '../FloatingInput'
+import { DatePickerInput } from '../DatePickerInput'
+import { PillOption } from '../PillOption'
+import { StepTitle } from '../StepTitle'
+import { FormActions } from '../FormActions'
+import { FieldError } from '../FieldError'
 
 interface Props {
-  onNext: (datos: Paso1Data) => void;
-  onBack: () => void;
+  onNext: (datos: Paso1Data) => void
+  onBack: () => void
 }
 
 export default function Paso2Identidad({ onNext, onBack }: Props) {
@@ -29,7 +29,7 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
     curpValue,
     maxDateNacimiento,
     minDateNacimiento,
-  } = usePaso2(onNext);
+  } = usePaso2(onNext)
 
   return (
     <form onSubmit={handleSubmit} noValidate>
@@ -45,21 +45,21 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
           label="Nombre(s)"
           required
           error={errors.nombre?.message}
-          {...register("nombre")}
+          {...register('nombre')}
           placeholder=" "
         />
         <FloatingInput
           label="Apellido paterno"
           required
           error={errors.apellidoPaterno?.message}
-          {...register("apellidoPaterno")}
+          {...register('apellidoPaterno')}
           placeholder=" "
         />
         <FloatingInput
           label="Apellido materno"
           required
           error={errors.apellidoMaterno?.message}
-          {...register("apellidoMaterno")}
+          {...register('apellidoMaterno')}
           placeholder=" "
         />
       </div>
@@ -67,7 +67,7 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
       {/* Sexo */}
       <div className="mb-4 mt-4">
         <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-outline">
-          Sexo{" "}
+          Sexo{' '}
           <span className="text-error" aria-hidden>
             *
           </span>
@@ -77,7 +77,7 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
             <PillOption
               key={value}
               selected={sexoActual === value}
-              onClick={() => setValue("sexo", value, { shouldValidate: true })}
+              onClick={() => setValue('sexo', value, { shouldValidate: true })}
               icon={SEXO_META[value].icono}
             >
               {SEXO_META[value].label}
@@ -103,15 +103,11 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
           label="CURP"
           required
           error={errors.curp?.message}
-          {...register("curp", { setValueAs: (v: string) => v.toUpperCase() })}
+          {...register('curp', { setValueAs: (v: string) => v.toUpperCase() })}
           placeholder=" "
           maxLength={18}
           className="uppercase"
-          suffix={
-            <span className="tabular-nums text-xs text-outline">
-              {curpValue.length}/18
-            </span>
-          }
+          suffix={<span className="tabular-nums text-xs text-outline">{curpValue.length}/18</span>}
         />
         <FloatingInput
           label="Correo electrónico"
@@ -119,7 +115,7 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
           inputMode="email"
           required
           error={errors.email?.message}
-          {...register("email")}
+          {...register('email')}
           placeholder=" "
         />
         <FloatingInput
@@ -128,21 +124,19 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
           inputMode="numeric"
           required
           error={errors.telefono?.message}
-          {...register("telefono")}
+          {...register('telefono')}
           placeholder=" "
           maxLength={10}
           suffix={
-            <span className="tabular-nums text-xs text-outline">
-              {telefonoValue.length}/10
-            </span>
+            <span className="tabular-nums text-xs text-outline">{telefonoValue.length}/10</span>
           }
         />
       </div>
 
       {/* RFC — hidden from UI, not removed from schema */}
-      <input type="hidden" {...register("rfc")} />
+      <input type="hidden" {...register('rfc')} />
 
       <FormActions onBack={onBack} submitLabel="Continuar" disabled={!isValid} />
     </form>
-  );
+  )
 }

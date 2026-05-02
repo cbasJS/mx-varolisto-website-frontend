@@ -1,6 +1,6 @@
-import type { SolicitudCompleta } from "@/lib/solicitud/domain/solicitud/schemas"
-import type { CopomexResponse } from "@/lib/solicitud/infrastructure/colonias/types"
-import type { TipoArchivo, TipoIdentificacion } from "@varolisto/shared-schemas/enums"
+import type { SolicitudCompleta } from '@/lib/solicitud/domain/solicitud/schemas'
+import type { CopomexResponse } from '@/lib/solicitud/infrastructure/colonias/types'
+import type { TipoArchivo, TipoIdentificacion } from '@varolisto/shared-schemas/enums'
 
 export interface ArchivoSubido {
   clienteId: string

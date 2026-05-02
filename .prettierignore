@@ -1,0 +1,12 @@
+.next/
+node_modules/
+out/
+build/
+test-results/
+playwright-report/
+pnpm-lock.yaml
+*.tsbuildinfo
+next-env.d.ts
+
+# Mockups HTML generados por Stitch (no son código mantenido a mano)
+stitch/

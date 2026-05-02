@@ -1,49 +1,50 @@
-"use client";
+'use client'
 
-import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
-import { CTA_URL, DARK_HEADER_ROUTES, NAVBAR_HEIGHT } from "@/lib/config";
-import { useScrolled } from "@/hooks/useScrolled";
-import { navLinks } from "@/content/nav";
-import BrandName from "@/components/layout/BrandName";
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { CTA_URL, DARK_HEADER_ROUTES, NAVBAR_HEIGHT } from '@/lib/config'
+import { useScrolled } from '@/hooks/useScrolled'
+import { navLinks } from '@/content/nav'
+import BrandName from '@/components/layout/BrandName'
 
 function scrollToSection(id: string) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const top = el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT;
-  window.scrollTo({ top, behavior: "smooth" });
+  const el = document.getElementById(id)
+  if (!el) return
+  const top = el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT
+  window.scrollTo({ top, behavior: 'smooth' })
 }
 
 export default function Navbar() {
-  const pathname = usePathname();
-  const isHome = pathname === "/";
-  const scrolled = useScrolled();
+  const pathname = usePathname()
+  const isHome = pathname === '/'
+  const scrolled = useScrolled()
 
-  const hasDarkHeader = DARK_HEADER_ROUTES.includes(pathname);
-  const logoColor = !scrolled && hasDarkHeader ? "text-white" : "text-primary";
+  const hasDarkHeader = DARK_HEADER_ROUTES.includes(pathname)
+  const logoColor = !scrolled && hasDarkHeader ? 'text-white' : 'text-primary'
 
   return (
     <motion.header
       className={`fixed top-0 w-full z-50 transition-shadow duration-300 ${
         scrolled
-          ? "bg-white/90 backdrop-blur-xl shadow-sm border-b border-surface-container"
-          : "bg-transparent"
+          ? 'bg-white/90 backdrop-blur-xl shadow-sm border-b border-surface-container'
+          : 'bg-transparent'
       }`}
       initial={{ y: -64, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
     >
       <nav
         className="flex justify-between items-center px-6 py-4 max-w-5xl mx-auto"
         aria-label="Navegación principal"
       >
-        <a
+        <Link
           href="/"
           className={`text-xl md:text-2xl font-extrabold ${logoColor} font-headline tracking-tight`}
           aria-label="VaroListo.mx - Inicio"
         >
           <BrandName />
-        </a>
+        </Link>
 
         {isHome && (
           <div className="hidden md:flex gap-8 items-center">
@@ -70,5 +71,5 @@ export default function Navbar() {
         )}
       </nav>
     </motion.header>
-  );
+  )
 }

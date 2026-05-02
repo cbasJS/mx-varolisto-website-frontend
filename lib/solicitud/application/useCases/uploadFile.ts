@@ -1,12 +1,12 @@
-import { apiPost, apiDelete } from "@/lib/solicitud/infrastructure/http/apiClient"
-import { apiRoutes } from "@/lib/solicitud/infrastructure/config/apiConfig"
-import type { TipoArchivo } from "@varolisto/shared-schemas/enums"
+import { apiPost, apiDelete } from '@/lib/solicitud/infrastructure/http/apiClient'
+import { apiRoutes } from '@/lib/solicitud/infrastructure/config/apiConfig'
+import type { TipoArchivo } from '@varolisto/shared-schemas/enums'
 import type {
   UploadUrlRequest,
   UploadUrlResponse,
   EliminarStagingRequest,
   EliminarStagingResponse,
-} from "@/lib/solicitud/infrastructure/http/types"
+} from '@/lib/solicitud/infrastructure/http/types'
 
 export interface SolicitarUploadUrlInput {
   sessionUuid: string
@@ -40,21 +40,17 @@ export async function solicitarUploadUrl(
 export async function eliminarArchivoStaging(
   sessionUuid: string,
   storagePath: string,
-  motivo: "user_action" | "tipo_identificacion_changed",
+  motivo: 'user_action' | 'tipo_identificacion_changed',
 ): Promise<void> {
   const req: EliminarStagingRequest = { sessionUuid, storagePath, motivo }
   try {
-    await apiDelete<EliminarStagingRequest, EliminarStagingResponse>(
-      apiRoutes.archivoDelete,
-      req,
-      { timeoutMs: 10_000 },
-    )
+    await apiDelete<EliminarStagingRequest, EliminarStagingResponse>(apiRoutes.archivoDelete, req, {
+      timeoutMs: 10_000,
+    })
   } catch {
     await new Promise((r) => setTimeout(r, 500))
-    await apiDelete<EliminarStagingRequest, EliminarStagingResponse>(
-      apiRoutes.archivoDelete,
-      req,
-      { timeoutMs: 10_000 },
-    )
+    await apiDelete<EliminarStagingRequest, EliminarStagingResponse>(apiRoutes.archivoDelete, req, {
+      timeoutMs: 10_000,
+    })
   }
 }

@@ -1,11 +1,14 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { useSolicitudStore } from "@/lib/solicitud/store"
-import { useSetSubmitting } from "@/lib/solicitud/submitting-context"
-import { submitSolicitud, clasificarError } from "@/lib/solicitud/application/useCases/submitSolicitud"
-import { guardarYAvanzar } from "@/lib/solicitud/application/useCases/guardarPaso"
-import type { ErrorSubmit } from "@/lib/solicitud/application/useCases/submitSolicitud"
+import { useState, useEffect } from 'react'
+import { useSolicitudStore } from '@/lib/solicitud/store'
+import { useSetSubmitting } from '@/lib/solicitud/submitting-context'
+import {
+  submitSolicitud,
+  clasificarError,
+} from '@/lib/solicitud/application/useCases/submitSolicitud'
+import { guardarYAvanzar } from '@/lib/solicitud/application/useCases/guardarPaso'
+import type { ErrorSubmit } from '@/lib/solicitud/application/useCases/submitSolicitud'
 import type {
   Paso1Data,
   Paso2Data,
@@ -13,8 +16,8 @@ import type {
   Paso4Data,
   Paso5Data,
   Paso7Data,
-} from "@/lib/solicitud/schemas/index"
-import type { Paso6StoreData } from "@/hooks/solicitar/usePaso6"
+} from '@/lib/solicitud/schemas/index'
+import type { Paso6StoreData } from '@/hooks/solicitar/usePaso6'
 
 export type { ErrorSubmit }
 

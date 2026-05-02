@@ -7,38 +7,39 @@ Tarea: Construir el formulario de solicitud de crédito en /app/solicitar/page.t
 Es un formulario multi-paso de 6 pasos. Sin login. Sin backend todavía — el submit por ahora solo hace console.log del payload completo.
 
 ────────────────────────────────────────
+
 1. ESTRUCTURA DE ARCHIVOS A CREAR
-────────────────────────────────────────
+   ────────────────────────────────────────
 
 app/solicitar/
-  page.tsx                          ← página principal, renderiza <FormularioSolicitud />
+page.tsx ← página principal, renderiza <FormularioSolicitud />
 
 components/solicitar/
-  FormularioSolicitud.tsx           ← orquestador: maneja paso actual, barra de progreso, navegación
-  BarraPasos.tsx                    ← indicador visual de progreso (6 pasos)
-  pasos/
-    Paso1DatosPersonales.tsx
-    Paso2Solicitud.tsx
-    Paso3SituacionEconomica.tsx
-    Paso4Referencias.tsx
-    Paso5Documentos.tsx
-    Paso6Revision.tsx
-  PantallaExito.tsx                 ← se muestra tras el submit, muestra el folio generado
+FormularioSolicitud.tsx ← orquestador: maneja paso actual, barra de progreso, navegación
+BarraPasos.tsx ← indicador visual de progreso (6 pasos)
+pasos/
+Paso1DatosPersonales.tsx
+Paso2Solicitud.tsx
+Paso3SituacionEconomica.tsx
+Paso4Referencias.tsx
+Paso5Documentos.tsx
+Paso6Revision.tsx
+PantallaExito.tsx ← se muestra tras el submit, muestra el folio generado
 
 lib/
-  solicitud-schema.ts               ← schemas Zod por paso + schema completo
-  solicitud-store.ts                ← store Zustand con persist en sessionStorage
-  clabe-validator.ts                ← función pura de validación de CLABE
-  generar-folio.ts                  ← genera folio formato VL-AAAAMM-XXXX
+solicitud-schema.ts ← schemas Zod por paso + schema completo
+solicitud-store.ts ← store Zustand con persist en sessionStorage
+clabe-validator.ts ← función pura de validación de CLABE
+generar-folio.ts ← genera folio formato VL-AAAAMM-XXXX
 
-────────────────────────────────────────
-2. TIPOS Y SCHEMA ZOD (lib/solicitud-schema.ts)
+──────────────────────────────────────── 2. TIPOS Y SCHEMA ZOD (lib/solicitud-schema.ts)
 ────────────────────────────────────────
 
 Define un schema Zod separado por paso. Luego combínalos en solicitudSchema completo.
 Infiere el tipo TypeScript de cada schema con z.infer<>.
 
 paso1Schema campos:
+
 - nombre: string, min 2
 - apellidoPaterno: string, min 2
 - apellidoMaterno: string, min 2
@@ -54,28 +55,30 @@ paso1Schema campos:
 - numeroInterior: string opcional
 
 paso2Schema campos:
+
 - montoSolicitado: number, min 2000, max 20000
 - plazoMeses: enum ["2","3","4","5","6"]
 - primerCredito: enum ["si","no"]
 - destinoPrestamo: enum con valores:
-    "liquidar_deuda" (score V8: 5)
-    "capital_trabajo" (score V8: 5)
-    "gasto_medico" (score V8: 5)
-    "equipo_trabajo" (score V8: 5)
-    "mejora_hogar" (score V8: 5)
-    "educacion" (score V8: 2)
-    "gasto_familiar" (score V8: 2)
-    "viaje_evento" (score V8: 2)
-    "otro" (score V8: 0)
+  "liquidar_deuda" (score V8: 5)
+  "capital_trabajo" (score V8: 5)
+  "gasto_medico" (score V8: 5)
+  "equipo_trabajo" (score V8: 5)
+  "mejora_hogar" (score V8: 5)
+  "educacion" (score V8: 2)
+  "gasto_familiar" (score V8: 2)
+  "viaje_evento" (score V8: 2)
+  "otro" (score V8: 0)
 - destinoOtro: string opcional, requerido solo cuando destinoPrestamo === "otro"
 
 paso3Schema campos:
+
 - tipoActividad: enum [
-    "empleado_formal",      ← CFDI nómina
-    "empleado_informal",    ← sin contrato
-    "negocio_propio",       ← dueño de negocio
-    "independiente",        ← freelance / honorarios
-    "otro"
+  "empleado_formal", ← CFDI nómina
+  "empleado_informal", ← sin contrato
+  "negocio_propio", ← dueño de negocio
+  "independiente", ← freelance / honorarios
+  "otro"
   ]
 - nombreEmpleadorNegocio: string, min 2
 - antiguedad: enum ["menos_1", "uno_a_dos", "mas_2"] → mapea a V6: 2/6/10 pts
@@ -83,11 +86,12 @@ paso3Schema campos:
 - tieneDeudas: enum ["si","no"]
 - cantidadDeudas: enum ["1","2","3_o_mas"] opcional, requerido si tieneDeudas === "si"
 - montoTotalDeudas: enum [
-    "menos_5k","5k_15k","15k_30k","mas_30k"
+  "menos_5k","5k_15k","15k_30k","mas_30k"
   ] opcional, requerido si tieneDeudas === "si"
 - pagoMensualDeudas: number opcional, requerido si tieneDeudas === "si"
 
 paso4Schema campos:
+
 - ref1Nombre: string, min 2
 - ref1Telefono: string, 10 dígitos
 - ref1Relacion: enum ["familiar","trabajo","amigo","otro"]
@@ -96,20 +100,22 @@ paso4Schema campos:
 - ref2Relacion: enum ["familiar","trabajo","amigo","otro"]
 
 paso5Schema campos:
+
 - comprobantes: array de File, min 1 archivo, max 5 archivos, cada uno max 10MB, tipos: image/jpeg, image/png, application/pdf
 - clabe: string — validar con función validateClabe() de lib/clabe-validator.ts
 
 paso6Schema:
+
 - aceptaPrivacidad: literal(true)
 - aceptaTerminos: literal(true)
 
-────────────────────────────────────────
-3. VALIDADOR DE CLABE (lib/clabe-validator.ts)
+──────────────────────────────────────── 3. VALIDADOR DE CLABE (lib/clabe-validator.ts)
 ────────────────────────────────────────
 
 Implementa la función validateClabe(clabe: string): boolean
 
 Algoritmo oficial CLABE:
+
 - Debe tener exactamente 18 dígitos
 - Pesos: [3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7]
 - Multiplicar cada uno de los primeros 17 dígitos por su peso
@@ -119,6 +125,7 @@ Algoritmo oficial CLABE:
 - Comparar con el dígito 18 (índice 17)
 
 También exporta la función getBancoFromClabe(clabe: string): string
+
 - Los primeros 3 dígitos son el código de banco
 - Retorna el nombre del banco para los códigos más comunes en México:
   "002" → "BBVA", "006" → "Bancomext", "009" → "Banobras",
@@ -163,8 +170,7 @@ También exporta la función getBancoFromClabe(clabe: string): string
   "706" → "Arcus", "900" → "CoDi"
   Si no se encuentra: retorna "Banco desconocido"
 
-────────────────────────────────────────
-4. GENERADOR DE FOLIO (lib/generar-folio.ts)
+──────────────────────────────────────── 4. GENERADOR DE FOLIO (lib/generar-folio.ts)
 ────────────────────────────────────────
 
 Función generateFolio(): string
@@ -172,30 +178,31 @@ Formato: VL-AAAAMM-XXXX donde XXXX es un número aleatorio de 4 dígitos con cer
 Ejemplo: VL-202604-0031
 (El número secuencial real vendrá del backend; por ahora usar random 4 dígitos)
 
-────────────────────────────────────────
-5. ZUSTAND STORE (lib/solicitud-store.ts)
+──────────────────────────────────────── 5. ZUSTAND STORE (lib/solicitud-store.ts)
 ────────────────────────────────────────
 
 Store con persist middleware usando sessionStorage.
 Nombre del store en sessionStorage: "vl-solicitud"
 
 Estado:
+
 - pasoActual: number (1-6), default 1
 - datos: Partial<SolicitudCompleta> (tipo inferido del schema completo), default {}
 - comprobantes: nunca persiste en sessionStorage (los File no son serializables)
 - timestampInicio: number (Date.now() al iniciar), para metadata de V7
 
 Acciones:
+
 - setPaso(paso: number): void
 - guardarPaso(paso: number, datos: Partial<SolicitudCompleta>): void
   → hace merge del objeto existente con los nuevos datos
 - resetForm(): void → limpia todo y vuelve a paso 1
 
-────────────────────────────────────────
-6. CP LOOKUP con TanStack Query
+──────────────────────────────────────── 6. CP LOOKUP con TanStack Query
 ────────────────────────────────────────
 
 En Paso1DatosPersonales.tsx, cuando el usuario termina de escribir el CP (5 dígitos):
+
 - Llamar a https://api.copomex.com/query/info_cp/{cp}?type=simplified&token=demo
   (token "demo" funciona para desarrollo, límite 50 requests/día)
 - La respuesta tiene: response[].response.municipio, response[].response.estado, response[].response.asentamiento (nombre de colonia)
@@ -206,8 +213,7 @@ En Paso1DatosPersonales.tsx, cuando el usuario termina de escribir el CP (5 díg
 - Usar useQuery de TanStack Query con queryKey: ['cp', codigoPostal]
 - Solo ejecutar la query cuando codigoPostal.length === 5
 
-────────────────────────────────────────
-7. COMPONENTE ORQUESTADOR (FormularioSolicitud.tsx)
+──────────────────────────────────────── 7. COMPONENTE ORQUESTADOR (FormularioSolicitud.tsx)
 ────────────────────────────────────────
 
 - Lee pasoActual del store de Zustand
@@ -218,8 +224,7 @@ En Paso1DatosPersonales.tsx, cuando el usuario termina de escribir el CP (5 díg
 - onBack(): retrocede paso
 - En paso 6, al submit: llama generateFolio(), construye payload completo, console.log(payload), muestra PantallaExito con el folio
 
-────────────────────────────────────────
-8. BARRA DE PASOS (BarraPasos.tsx)
+──────────────────────────────────────── 8. BARRA DE PASOS (BarraPasos.tsx)
 ────────────────────────────────────────
 
 Muestra 6 pasos en línea horizontal.
@@ -228,28 +233,29 @@ Estados: completado (check + color verde VaroListo #2ECC71), actual (relleno nav
 Etiquetas: "Datos", "Solicitud", "Economía", "Referencias", "Documentos", "Revisión"
 En móvil: mostrar solo el número del paso actual y el total ("Paso 2 de 6") con una barra de progreso lineal debajo.
 
-────────────────────────────────────────
-9. LÓGICA DE CADA PASO
+──────────────────────────────────────── 9. LÓGICA DE CADA PASO
 ────────────────────────────────────────
 
 Cada paso sigue este patrón:
 
 const PasoX = ({ onNext, onBack }) => {
-  const datos = useSolicitudStore(s => s.datos)
-  const { register, handleSubmit, control, formState } = useForm({
-    resolver: zodResolver(pasoXSchema),
-    defaultValues: datos  // hidrata con lo guardado en el store
-  })
-  const onSubmit = (data) => onNext(data)
-  return <form onSubmit={handleSubmit(onSubmit)}>...</form>
+const datos = useSolicitudStore(s => s.datos)
+const { register, handleSubmit, control, formState } = useForm({
+resolver: zodResolver(pasoXSchema),
+defaultValues: datos // hidrata con lo guardado en el store
+})
+const onSubmit = (data) => onNext(data)
+return <form onSubmit={handleSubmit(onSubmit)}>...</form>
 }
 
 PASO 1 — Datos personales:
+
 - Sección "Nombre": 3 inputs en fila (nombre, ap. paterno, ap. materno)
 - Sección "Datos": sexo (RadioGroup: Hombre / Mujer / Prefiero no decir), fecha nacimiento, CURP (uppercase automático al escribir), teléfono
 - Sección "Dirección": CP (dispara query), colonia (Select poblado por query, disabled hasta tener CP válido), municipio (Input read-only), calle, número exterior, número interior (opcional)
 
 PASO 2 — Solicitud:
+
 - Slider para monto ($2,000–$20,000, step $500). Mostrar monto seleccionado en grande arriba del slider.
 - Select para plazo (2/3/4/5/6 meses)
 - RadioGroup "¿Es tu primer crédito con VaroListo?" (Sí / No)
@@ -261,6 +267,7 @@ PASO 2 — Solicitud:
 - Mostrar estimación de cuota: (monto × tasa_efectiva_B) con sistema francés como referencia. Tasa efectiva Perfil B primer crédito = 8.12% mensual. Aclarar: "Estimación referencial. La cuota final depende de tu evaluación."
 
 PASO 3 — Situación económica:
+
 - Select tipoActividad con las 5 opciones
 - Input nombreEmpleadorNegocio (label cambia según tipoActividad: "Empresa" si empleado, "Nombre de tu negocio" si negocio_propio)
 - Select antigüedad: "Menos de 1 año", "Entre 1 y 2 años", "Más de 2 años"
@@ -273,12 +280,14 @@ PASO 3 — Situación económica:
   Input pagoMensualDeudas con prefijo "$"
 
 PASO 4 — Referencias:
+
 - Aviso informativo arriba: "Contactaremos a estas personas para confirmar tu solicitud. Asegúrate de avisarles."
 - Sección Referencia 1: nombre, teléfono, Select relación
 - Sección Referencia 2: nombre, teléfono, Select relación
 - Validación cross-field: ref2Telefono !== ref1Telefono
 
 PASO 5 — Documentos:
+
 - Zona de dropzone para comprobantes. Copy condicional según tipoActividad guardado en store:
   Si empleado_formal: "Sube tu CFDI de nómina más reciente, o al menos 2 recibos de nómina o estados de cuenta de los últimos 3 meses."
   Si negocio_propio o empleado_informal: "Sube al menos 2 estados de cuenta con depósitos de los últimos 3 meses. También puedes incluir recibos de proveedores o fotos de tu negocio o inventario."
@@ -291,26 +300,27 @@ PASO 5 — Documentos:
   Si inválida: mostrar error "CLABE inválida. Verifica que no sea el número de tu tarjeta."
 
 PASO 6 — Revisión:
+
 - Mostrar resumen de todos los datos en secciones colapsables (acordeón) o en cards de solo lectura
 - Cada sección tiene un botón "Editar" que lleva de regreso al paso correspondiente
 - Dos checkboxes requeridos: Aviso de Privacidad (con link) y Términos y Condiciones (con link)
 - Botón submit: "Enviar solicitud"
 
-────────────────────────────────────────
-10. PANTALLA DE ÉXITO (PantallaExito.tsx)
+──────────────────────────────────────── 10. PANTALLA DE ÉXITO (PantallaExito.tsx)
 ────────────────────────────────────────
 
 Mostrar tras el submit exitoso:
+
 - Folio generado en grande: VL-202604-XXXX
 - Mensaje: "Recibimos tu solicitud. Te contactaremos por WhatsApp al [teléfono] en un máximo de 24 horas hábiles."
 - Instrucción: "Guarda tu folio — lo necesitarás para cualquier consulta."
 - Limpiar el store de Zustand al montar este componente
 
-────────────────────────────────────────
-11. COLORES Y ESTILOS
+──────────────────────────────────────── 11. COLORES Y ESTILOS
 ────────────────────────────────────────
 
 Paleta VaroListo:
+
 - Navy principal: #000666
 - Verde acento: #2ECC71
 - Usar estas variables como clases Tailwind custom o inline donde sea necesario.
@@ -318,8 +328,7 @@ Paleta VaroListo:
 El formulario debe funcionar correctamente en móvil (la mayoría de usuarios accederá desde un teléfono).
 Usar Tailwind responsive prefixes donde sea necesario.
 
-────────────────────────────────────────
-12. LO QUE NO DEBES IMPLEMENTAR TODAVÍA
+──────────────────────────────────────── 12. LO QUE NO DEBES IMPLEMENTAR TODAVÍA
 ────────────────────────────────────────
 
 - Integración con Supabase (backend pendiente)
@@ -329,8 +338,7 @@ Usar Tailwind responsive prefixes donde sea necesario.
 - Envío de WhatsApp
 - El folio final secuencial (usar random por ahora)
 
-────────────────────────────────────────
-13. ORDEN DE IMPLEMENTACIÓN SUGERIDO
+──────────────────────────────────────── 13. ORDEN DE IMPLEMENTACIÓN SUGERIDO
 ────────────────────────────────────────
 
 1. lib/clabe-validator.ts

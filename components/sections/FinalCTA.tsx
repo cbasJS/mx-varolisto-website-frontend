@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import { motion } from "framer-motion";
-import { MdOutlineWhatsapp } from "react-icons/md";
-import { CTA_URL, WHATSAPP_URL } from "@/lib/config";
-import { VIEWPORT_ONCE } from "@/lib/animations";
+import { motion } from 'framer-motion'
+import { MdOutlineWhatsapp } from 'react-icons/md'
+import { CTA_URL, WHATSAPP_URL } from '@/lib/config'
+import { VIEWPORT_ONCE } from '@/lib/animations'
 
 export default function FinalCTA() {
   return (
@@ -14,7 +14,7 @@ export default function FinalCTA() {
       <motion.div
         className="absolute top-0 right-0 w-96 h-96 bg-secondary/10 rounded-full blur-3xl pointer-events-none"
         animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
         aria-hidden="true"
       />
 
@@ -23,7 +23,7 @@ export default function FinalCTA() {
         initial={{ opacity: 0, y: 32 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={VIEWPORT_ONCE}
-        transition={{ duration: 0.55, ease: "easeOut" }}
+        transition={{ duration: 0.55, ease: 'easeOut' }}
       >
         <h2 className="font-headline font-extrabold text-4xl md:text-5xl mb-12 tracking-tight">
           Solicita hoy mismo
@@ -36,14 +36,12 @@ export default function FinalCTA() {
               className="cta-shimmer w-full bg-secondary text-primary px-8 py-5 rounded-2xl font-headline font-extrabold text-xl shadow-xl shadow-secondary/20 flex items-center justify-center"
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.97 }}
-              transition={{ type: "spring", stiffness: 300, damping: 18 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 18 }}
               aria-label="Solicitar financiamiento ahora"
             >
               Solicitar ahora
             </motion.a>
-            <p className="text-sm opacity-80">
-              Empieza tu registro sin compromiso
-            </p>
+            <p className="text-sm opacity-80">Empieza tu registro sin compromiso</p>
           </div>
 
           <div className="flex-1 w-full">
@@ -52,7 +50,7 @@ export default function FinalCTA() {
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-5 rounded-2xl font-headline font-extrabold text-xl flex items-center justify-center gap-3"
-              whileHover={{ backgroundColor: "rgba(255,255,255,0.18)" }}
+              whileHover={{ backgroundColor: 'rgba(255,255,255,0.18)' }}
               whileTap={{ scale: 0.97 }}
               transition={{ duration: 0.15 }}
               aria-label="Hablar con un asesor por WhatsApp"
@@ -64,5 +62,5 @@ export default function FinalCTA() {
         </div>
       </motion.div>
     </section>
-  );
+  )
 }

@@ -1,23 +1,23 @@
-"use client"
+'use client'
 
-import { useEffect } from "react"
-import { useSolicitudNavigation } from "@/hooks/solicitar/useSolicitudNavigation"
-import { useBeforeUnloadCleanup } from "@/hooks/solicitar/useBeforeUnloadCleanup"
-import { useSolicitudStore } from "@/lib/solicitud/store"
-import BarraPasos from "./BarraPasos"
-import PantallaExito from "./PantallaExito"
-import Paso1Prestamo from "./pasos/Paso1Prestamo"
-import Paso2Identidad from "./pasos/Paso2Identidad"
-import Paso3Domicilio from "./pasos/Paso3Domicilio"
-import Paso4Economia from "./pasos/Paso4Economia"
-import Paso5Referencias from "./pasos/Paso5Referencias"
-import Paso6Documentos from "./pasos/Paso6Documentos"
-import Paso7Revision from "./pasos/Paso7Revision"
+import { useEffect } from 'react'
+import { useSolicitudNavigation } from '@/hooks/solicitar/useSolicitudNavigation'
+import { useBeforeUnloadCleanup } from '@/hooks/solicitar/useBeforeUnloadCleanup'
+import { useSolicitudStore } from '@/lib/solicitud/store'
+import BarraPasos from './BarraPasos'
+import PantallaExito from './PantallaExito'
+import Paso1Prestamo from './pasos/Paso1Prestamo'
+import Paso2Identidad from './pasos/Paso2Identidad'
+import Paso3Domicilio from './pasos/Paso3Domicilio'
+import Paso4Economia from './pasos/Paso4Economia'
+import Paso5Referencias from './pasos/Paso5Referencias'
+import Paso6Documentos from './pasos/Paso6Documentos'
+import Paso7Revision from './pasos/Paso7Revision'
 
 const TRUST_BADGES = [
-  { icono: "lock", texto: "Datos encriptados" },
-  { icono: "verified_user", texto: "100% seguro" },
-  { icono: "support_agent", texto: "Soporte en 24h" },
+  { icono: 'lock', texto: 'Datos encriptados' },
+  { icono: 'verified_user', texto: '100% seguro' },
+  { icono: 'support_agent', texto: 'Soporte en 24h' },
 ]
 
 function FormSkeleton() {
@@ -90,9 +90,7 @@ export default function FormularioSolicitud() {
 
       <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 border-t-4 border-t-secondary">
         <div className="p-6 md:p-10">
-          {pasoActual === 1 && (
-            <Paso1Prestamo onNext={(d) => handleNext(1, d)} />
-          )}
+          {pasoActual === 1 && <Paso1Prestamo onNext={(d) => handleNext(1, d)} />}
           {pasoActual === 2 && (
             <Paso2Identidad onNext={(d) => handleNext(2, d)} onBack={handleBack} />
           )}
@@ -125,10 +123,7 @@ export default function FormularioSolicitud() {
       <div className="mt-6 flex items-center justify-center gap-6 text-center">
         {TRUST_BADGES.map(({ icono, texto }) => (
           <div key={texto} className="flex items-center gap-1.5">
-            <span
-              className="material-symbols-outlined text-sm text-primary/30"
-              aria-hidden
-            >
+            <span className="material-symbols-outlined text-sm text-primary/30" aria-hidden>
               {icono}
             </span>
             <span className="text-xs text-primary/40">{texto}</span>

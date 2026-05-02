@@ -1,30 +1,26 @@
-"use client";
+'use client'
 
-import { useEffect } from "react";
-import { toast } from "sonner";
-import {
-  usePaso6,
-  type Paso6StoreData,
-  type EstadoUpload,
-} from "@/hooks/solicitar/usePaso6";
-import { formatBytes } from "@/lib/solicitud/utils/formatBytes";
-import { TIPO_IDENTIFICACION_LABELS } from "@/lib/solicitud/utils/lookup-labels";
-import type { TipoIdentificacion } from "@varolisto/shared-schemas/enums";
-import { SectionDivider } from "../SectionDivider";
-import { StepTitle } from "../StepTitle";
-import { InfoBanner } from "../InfoBanner";
-import { cn } from "@/lib/utils";
+import { useEffect } from 'react'
+import { toast } from 'sonner'
+import { usePaso6, type Paso6StoreData, type EstadoUpload } from '@/hooks/solicitar/usePaso6'
+import { formatBytes } from '@/lib/solicitud/utils/formatBytes'
+import { TIPO_IDENTIFICACION_LABELS } from '@/lib/solicitud/utils/lookup-labels'
+import type { TipoIdentificacion } from '@varolisto/shared-schemas/enums'
+import { SectionDivider } from '../SectionDivider'
+import { StepTitle } from '../StepTitle'
+import { InfoBanner } from '../InfoBanner'
+import { cn } from '@/lib/utils'
 
-export type { Paso6StoreData };
+export type { Paso6StoreData }
 
 const OPCIONES_ID: { value: TipoIdentificacion; icono: string }[] = [
-  { value: "ine", icono: "badge" },
-  { value: "pasaporte", icono: "travel_luggage_and_bags" },
-];
+  { value: 'ine', icono: 'badge' },
+  { value: 'pasaporte', icono: 'travel_luggage_and_bags' },
+]
 
 interface Props {
-  onNext: (datos: Paso6StoreData) => void;
-  onBack: () => void;
+  onNext: (datos: Paso6StoreData) => void
+  onBack: () => void
 }
 
 function IconoArchivo(_: { mimeType: string }) {
@@ -38,27 +34,27 @@ function IconoArchivo(_: { mimeType: string }) {
         image
       </span>
     </div>
-  );
+  )
 }
 
 function BadgeEstado({ estado }: { estado: EstadoUpload }) {
-  if (estado === "uploading" || estado === "pending") {
+  if (estado === 'uploading' || estado === 'pending') {
     return (
       <div className="flex items-center gap-1.5">
         <span className="inline-block size-4 animate-spin rounded-full border-2 border-surface-container-high border-t-primary" />
         <span className="text-xs text-outline">Subiendo…</span>
       </div>
-    );
+    )
   }
-  if (estado === "deleting") {
+  if (estado === 'deleting') {
     return (
       <div className="flex items-center gap-1.5">
         <span className="inline-block size-4 animate-spin rounded-full border-2 border-surface-container-high border-t-error" />
         <span className="text-xs text-outline">Eliminando…</span>
       </div>
-    );
+    )
   }
-  if (estado === "uploaded") {
+  if (estado === 'uploaded') {
     return (
       <span
         className="material-symbols-outlined text-lg text-secondary"
@@ -67,54 +63,44 @@ function BadgeEstado({ estado }: { estado: EstadoUpload }) {
       >
         check_circle
       </span>
-    );
+    )
   }
-  return null;
+  return null
 }
 
 interface ListaEntradasProps {
-  entradas: import("@/hooks/solicitar/useUploadArchivo").EntradaUpload[];
-  eliminarEntrada: (id: string) => void;
-  reintentarUpload: (id: string) => void;
+  entradas: import('@/hooks/solicitar/useUploadArchivo').EntradaUpload[]
+  eliminarEntrada: (id: string) => void
+  reintentarUpload: (id: string) => void
 }
 
-function ListaEntradas({
-  entradas,
-  eliminarEntrada,
-  reintentarUpload,
-}: ListaEntradasProps) {
-  if (entradas.length === 0) return null;
+function ListaEntradas({ entradas, eliminarEntrada, reintentarUpload }: ListaEntradasProps) {
+  if (entradas.length === 0) return null
   return (
     <ul className="mt-3 space-y-2">
       {entradas.map((entrada) => (
         <li
           key={entrada.clienteId}
           className={cn(
-            "flex items-center gap-3 rounded-xl border-2 bg-white px-4 py-2.5",
-            entrada.estado === "failed"
-              ? "border-red-200 bg-red-50"
-              : entrada.estado === "uploaded"
-                ? "border-secondary/30"
-                : "border-surface-container-high",
+            'flex items-center gap-3 rounded-xl border-2 bg-white px-4 py-2.5',
+            entrada.estado === 'failed'
+              ? 'border-red-200 bg-red-50'
+              : entrada.estado === 'uploaded'
+                ? 'border-secondary/30'
+                : 'border-surface-container-high',
           )}
         >
           <IconoArchivo mimeType={entrada.file.type} />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-on-surface">
-              {entrada.file.name}
-            </p>
-            <p className="text-xs text-outline">
-              {formatBytes(entrada.file.size)}
-            </p>
-            {entrada.estado === "failed" && entrada.error && (
-              <p className="mt-0.5 text-xs font-medium text-error">
-                {entrada.error}
-              </p>
+            <p className="truncate text-sm font-medium text-on-surface">{entrada.file.name}</p>
+            <p className="text-xs text-outline">{formatBytes(entrada.file.size)}</p>
+            {entrada.estado === 'failed' && entrada.error && (
+              <p className="mt-0.5 text-xs font-medium text-error">{entrada.error}</p>
             )}
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <BadgeEstado estado={entrada.estado} />
-            {entrada.estado === "failed" && (
+            {entrada.estado === 'failed' && (
               <button
                 type="button"
                 onClick={() => reintentarUpload(entrada.clienteId)}
@@ -123,37 +109,36 @@ function ListaEntradas({
                 Reintentar
               </button>
             )}
-            {entrada.estado !== "uploading" && entrada.estado !== "pending" && entrada.estado !== "deleting" && (
-              <button
-                type="button"
-                onClick={() => eliminarEntrada(entrada.clienteId)}
-                className="rounded-lg p-1 text-outline-variant transition-colors hover:bg-red-50 hover:text-error"
-                aria-label={`Eliminar ${entrada.file.name}`}
-              >
-                <span
-                  className="material-symbols-outlined text-base"
-                  aria-hidden
+            {entrada.estado !== 'uploading' &&
+              entrada.estado !== 'pending' &&
+              entrada.estado !== 'deleting' && (
+                <button
+                  type="button"
+                  onClick={() => eliminarEntrada(entrada.clienteId)}
+                  className="rounded-lg p-1 text-outline-variant transition-colors hover:bg-red-50 hover:text-error"
+                  aria-label={`Eliminar ${entrada.file.name}`}
                 >
-                  close
-                </span>
-              </button>
-            )}
+                  <span className="material-symbols-outlined text-base" aria-hidden>
+                    close
+                  </span>
+                </button>
+              )}
           </div>
         </li>
       ))}
     </ul>
-  );
+  )
 }
 
 interface DropzoneCardProps {
-  label: string;
-  icono: string;
-  getRootProps: () => object;
-  getInputProps: () => object;
-  isDragActive: boolean;
-  disabled: boolean;
-  done: boolean;
-  capture?: boolean;
+  label: string
+  icono: string
+  getRootProps: () => object
+  getInputProps: () => object
+  isDragActive: boolean
+  disabled: boolean
+  done: boolean
+  capture?: boolean
 }
 
 function DropzoneCard({
@@ -166,60 +151,46 @@ function DropzoneCard({
   done,
   capture,
 }: DropzoneCardProps) {
-  const inputProps =
-    getInputProps() as React.InputHTMLAttributes<HTMLInputElement>;
+  const inputProps = getInputProps() as React.InputHTMLAttributes<HTMLInputElement>
 
   return (
     <div
       {...getRootProps()}
       className={cn(
-        "relative rounded-2xl border-2 border-dashed p-6 text-center transition-all duration-200 cursor-pointer",
-        disabled && "cursor-not-allowed opacity-50",
-        done && "border-secondary/50 bg-secondary/5",
-        !disabled &&
-          !done &&
-          isDragActive &&
-          "border-secondary bg-secondary/5 scale-[1.01]",
+        'relative rounded-2xl border-2 border-dashed p-6 text-center transition-all duration-200 cursor-pointer',
+        disabled && 'cursor-not-allowed opacity-50',
+        done && 'border-secondary/50 bg-secondary/5',
+        !disabled && !done && isDragActive && 'border-secondary bg-secondary/5 scale-[1.01]',
         !disabled &&
           !done &&
           !isDragActive &&
-          "border-outline-variant bg-surface-bright hover:border-primary/40 hover:bg-primary/3",
+          'border-outline-variant bg-surface-bright hover:border-primary/40 hover:bg-primary/3',
       )}
     >
-      <input {...inputProps} {...(capture ? { capture: "environment" } : {})} />
+      <input {...inputProps} {...(capture ? { capture: 'environment' } : {})} />
       <div className="flex flex-col items-center gap-2">
         <div
           className={cn(
-            "flex size-10 items-center justify-center rounded-full transition-colors",
-            done
-              ? "bg-secondary/20"
-              : isDragActive
-                ? "bg-secondary/20"
-                : "bg-surface-container",
+            'flex size-10 items-center justify-center rounded-full transition-colors',
+            done ? 'bg-secondary/20' : isDragActive ? 'bg-secondary/20' : 'bg-surface-container',
           )}
         >
           <span
             className={cn(
-              "material-symbols-outlined text-xl",
-              done
-                ? "text-secondary"
-                : isDragActive
-                  ? "text-secondary"
-                  : "text-outline",
+              'material-symbols-outlined text-xl',
+              done ? 'text-secondary' : isDragActive ? 'text-secondary' : 'text-outline',
             )}
             style={{ fontVariationSettings: "'FILL' 1" }}
             aria-hidden
           >
-            {done ? "check_circle" : icono}
+            {done ? 'check_circle' : icono}
           </span>
         </div>
-        <p className="text-sm font-semibold text-on-surface">
-          {done ? "Subida exitosa" : label}
-        </p>
+        <p className="text-sm font-semibold text-on-surface">{done ? 'Subida exitosa' : label}</p>
         {!done && <p className="text-xs text-outline">JPG o PNG · Máx. 10 MB</p>}
       </div>
     </div>
-  );
+  )
 }
 
 export default function Paso6Documentos({ onNext, onBack }: Props) {
@@ -254,11 +225,14 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
     errorEliminacion,
     setErrorEliminacion,
     handleSubmit,
-  } = usePaso6(onNext);
+  } = usePaso6(onNext)
 
   useEffect(() => {
     if (!errorEliminacion) return
-    toast.error(errorEliminacion, { onDismiss: () => setErrorEliminacion(null), onAutoClose: () => setErrorEliminacion(null) })
+    toast.error(errorEliminacion, {
+      onDismiss: () => setErrorEliminacion(null),
+      onAutoClose: () => setErrorEliminacion(null),
+    })
   }, [errorEliminacion, setErrorEliminacion])
 
   return (
@@ -272,7 +246,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
       {/* ── Tipo de identificación ───────────────────────────── */}
       <div className="mb-6">
         <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-outline">
-          Tipo de identificación oficial{" "}
+          Tipo de identificación oficial{' '}
           <span className="text-error" aria-hidden>
             *
           </span>
@@ -285,11 +259,11 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
               disabled={isCleaningUp}
               onClick={() => handleChangeTipoIdentificacion(value)}
               className={cn(
-                "flex flex-1 items-center gap-3 rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all active:scale-[0.98]",
-                isCleaningUp && "cursor-not-allowed opacity-60",
+                'flex flex-1 items-center gap-3 rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all active:scale-[0.98]',
+                isCleaningUp && 'cursor-not-allowed opacity-60',
                 tipoIdentificacion === value
-                  ? "border-primary bg-primary text-white shadow-md"
-                  : "border-surface-container-high bg-white text-on-surface-variant hover:border-primary/40",
+                  ? 'border-primary bg-primary text-white shadow-md'
+                  : 'border-surface-container-high bg-white text-on-surface-variant hover:border-primary/40',
               )}
             >
               {isCleaningUp && tipoIdentificacion === value ? (
@@ -297,8 +271,8 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
               ) : (
                 <span
                   className={cn(
-                    "material-symbols-outlined text-base",
-                    tipoIdentificacion === value ? "text-secondary" : "text-outline",
+                    'material-symbols-outlined text-base',
+                    tipoIdentificacion === value ? 'text-secondary' : 'text-outline',
                   )}
                   style={{ fontVariationSettings: "'FILL' 1" }}
                   aria-hidden
@@ -316,7 +290,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
       </div>
 
       {/* ── Dropzones de identificación ─────────────────────── */}
-      {tipoIdentificacion === "ine" && (
+      {tipoIdentificacion === 'ine' && (
         <div className="mb-6">
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-outline">
             Fotografía de tu INE / IFE
@@ -329,7 +303,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
               getInputProps={dropzoneIneFrente.getInputProps}
               isDragActive={dropzoneIneFrente.isDragActive}
               disabled={dropzoneIneFrente.isDisabled}
-              done={tiposSubidos.includes("ine_frente")}
+              done={tiposSubidos.includes('ine_frente')}
               capture
             />
             <DropzoneCard
@@ -339,7 +313,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
               getInputProps={dropzoneIneReverso.getInputProps}
               isDragActive={dropzoneIneReverso.isDragActive}
               disabled={dropzoneIneReverso.isDisabled ?? false}
-              done={tiposSubidos.includes("ine_reverso")}
+              done={tiposSubidos.includes('ine_reverso')}
               capture
             />
           </div>
@@ -351,7 +325,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
         </div>
       )}
 
-      {tipoIdentificacion === "pasaporte" && (
+      {tipoIdentificacion === 'pasaporte' && (
         <div className="mb-6">
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-outline">
             Fotografía de tu pasaporte
@@ -363,7 +337,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
             getInputProps={dropzonePasaporte.getInputProps}
             isDragActive={dropzonePasaporte.isDragActive}
             disabled={dropzonePasaporte.isDisabled ?? false}
-            done={tiposSubidos.includes("pasaporte_principal")}
+            done={tiposSubidos.includes('pasaporte_principal')}
             capture
           />
           <ListaEntradas
@@ -388,18 +362,18 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
           type="button"
           onClick={() => setSinEstadosCuenta((prev) => !prev)}
           className={cn(
-            "mt-3 flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3 text-left text-sm transition-all",
+            'mt-3 flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3 text-left text-sm transition-all',
             sinEstadosCuenta
-              ? "border-amber-300 bg-amber-50 text-amber-800"
-              : "border-surface-container-high bg-white text-on-surface-variant hover:border-outline-variant",
+              ? 'border-amber-300 bg-amber-50 text-amber-800'
+              : 'border-surface-container-high bg-white text-on-surface-variant hover:border-outline-variant',
           )}
         >
           <span
             className={cn(
-              "flex size-5 shrink-0 items-center justify-center rounded border-2 transition-colors",
+              'flex size-5 shrink-0 items-center justify-center rounded border-2 transition-colors',
               sinEstadosCuenta
-                ? "border-amber-500 bg-amber-500"
-                : "border-outline-variant bg-white",
+                ? 'border-amber-500 bg-amber-500'
+                : 'border-outline-variant bg-white',
             )}
             aria-hidden
           >
@@ -423,15 +397,15 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
         <div
           {...dropzoneComprobante.getRootProps()}
           className={cn(
-            "rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200",
+            'rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200',
             dropzoneComprobante.isDisabled
-              ? "cursor-not-allowed border-surface-container-high bg-surface-bright opacity-50"
-              : "cursor-pointer",
+              ? 'cursor-not-allowed border-surface-container-high bg-surface-bright opacity-50'
+              : 'cursor-pointer',
             !dropzoneComprobante.isDisabled && dropzoneComprobante.isDragActive
-              ? "border-secondary bg-secondary/5 scale-[1.01]"
+              ? 'border-secondary bg-secondary/5 scale-[1.01]'
               : !dropzoneComprobante.isDisabled
-                ? "border-outline-variant bg-surface-bright hover:border-primary/40 hover:bg-primary/3"
-                : "",
+                ? 'border-outline-variant bg-surface-bright hover:border-primary/40 hover:bg-primary/3'
+                : '',
           )}
         >
           <input {...dropzoneComprobante.getInputProps()} />
@@ -442,20 +416,16 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
                 style={{ fontVariationSettings: "'FILL' 1" }}
                 aria-hidden
               >
-                {dropzoneComprobante.isDragActive
-                  ? "file_download"
-                  : "upload_file"}
+                {dropzoneComprobante.isDragActive ? 'file_download' : 'upload_file'}
               </span>
             </div>
             <div>
               <p className="text-sm font-semibold text-on-surface">
                 {dropzoneComprobante.isDragActive
-                  ? "Suelta aquí los archivos"
-                  : "Arrastra o toca para subir"}
+                  ? 'Suelta aquí los archivos'
+                  : 'Arrastra o toca para subir'}
               </p>
-              <p className="mt-0.5 text-xs text-outline">
-                JPG o PNG · Máx. 10 MB c/u
-              </p>
+              <p className="mt-0.5 text-xs text-outline">JPG o PNG · Máx. 10 MB c/u</p>
             </div>
           </div>
         </div>
@@ -479,7 +449,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
           </span>
           <p className="flex-1 text-sm text-amber-800">
             {duplicadosOmitidos === 1
-              ? "Un archivo ya estaba en la lista y fue omitido."
+              ? 'Un archivo ya estaba en la lista y fue omitido.'
               : `${duplicadosOmitidos} archivos ya estaban en la lista y fueron omitidos.`}
           </p>
           <button
@@ -512,13 +482,13 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
           disabled={!puedeAvanzar}
           title={
             hayEnVuelo
-              ? "Espera a que terminen de subir los archivos"
+              ? 'Espera a que terminen de subir los archivos'
               : !tipoIdentificacion
-                ? "Selecciona un tipo de identificación"
+                ? 'Selecciona un tipo de identificación'
                 : !idCompleta
-                  ? "Sube tu identificación completa"
+                  ? 'Sube tu identificación completa'
                   : !tieneComprobante
-                    ? `Sube al menos ${minComprobantes} comprobante${minComprobantes > 1 ? "s" : ""} de ingresos (${comprobantesSubidosYa}/${minComprobantes})`
+                    ? `Sube al menos ${minComprobantes} comprobante${minComprobantes > 1 ? 's' : ''} de ingresos (${comprobantesSubidosYa}/${minComprobantes})`
                     : undefined
           }
           className="flex items-center gap-2 rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
@@ -530,5 +500,5 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
         </button>
       </div>
     </form>
-  );
+  )
 }

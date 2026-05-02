@@ -14,9 +14,9 @@ export const env = {
       const value = process.env.COPOMEX_TOKEN
       if (!value)
         throw new Error(
-          "Missing env var: COPOMEX_TOKEN. " +
-            "Agrega COPOMEX_TOKEN=pruebas en .env.local para desarrollo, " +
-            "o configura la variable en Vercel para producción.",
+          'Missing env var: COPOMEX_TOKEN. ' +
+            'Agrega COPOMEX_TOKEN=pruebas en .env.local para desarrollo, ' +
+            'o configura la variable en Vercel para producción.',
         )
       return value
     },

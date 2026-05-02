@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import { useEffect, useCallback, useState } from "react"
+import { useEffect, useCallback, useState } from 'react'
 
-export type VarianteDialogo = "submitting" | "archivos" | "datos"
+export type VarianteDialogo = 'submitting' | 'archivos' | 'datos'
 
 interface UseNavegacionConGuardaReturn {
   dialogoAbierto: boolean
@@ -20,31 +20,32 @@ export function useNavegacionConGuarda(
 
   const [dialogoAbierto, setDialogoAbierto] = useState(false)
   const [destinoPendiente, setDestinoPendiente] = useState<string | null>(null)
-  const [variante, setVariante] = useState<VarianteDialogo>("datos")
+  const [variante, setVariante] = useState<VarianteDialogo>('datos')
 
   const resolverVariante = useCallback((): VarianteDialogo => {
-    if (isSubmitting) return "submitting"
-    if (hayArchivosSubidos) return "archivos"
-    return "datos"
+    if (isSubmitting) return 'submitting'
+    if (hayArchivosSubidos) return 'archivos'
+    return 'datos'
   }, [isSubmitting, hayArchivosSubidos])
 
   const interceptarClick = useCallback(
     (e: MouseEvent) => {
       if (!debeInterceptar) return
 
-      const anchor = (e.target as Element).closest("a[href]") as HTMLAnchorElement | null
+      const anchor = (e.target as Element).closest('a[href]') as HTMLAnchorElement | null
       if (!anchor) return
 
-      const href = anchor.getAttribute("href") ?? ""
+      const href = anchor.getAttribute('href') ?? ''
 
       // Ignorar: anclas internas, javascript:, mailto:, tel:, rutas de API, y destinos externos
       if (
-        href.startsWith("#") ||
-        href.startsWith("javascript:") ||
-        href.startsWith("mailto:") ||
-        href.startsWith("tel:") ||
-        href.startsWith("/api/")
-      ) return
+        href.startsWith('#') ||
+        href.startsWith('javascript:') ||
+        href.startsWith('mailto:') ||
+        href.startsWith('tel:') ||
+        href.startsWith('/api/')
+      )
+        return
 
       // Solo interceptar navegaciones a la misma origin (o relativas)
       let url: URL
@@ -77,8 +78,8 @@ export function useNavegacionConGuarda(
   }, [isSubmitting, hayArchivosSubidos, dialogoAbierto, resolverVariante])
 
   useEffect(() => {
-    document.addEventListener("click", interceptarClick, true)
-    return () => document.removeEventListener("click", interceptarClick, true)
+    document.addEventListener('click', interceptarClick, true)
+    return () => document.removeEventListener('click', interceptarClick, true)
   }, [interceptarClick])
 
   const confirmarSalida = useCallback(() => {

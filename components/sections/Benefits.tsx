@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import { motion } from "framer-motion";
-import { benefitItems } from "@/content/home";
-import { VIEWPORT_ONCE, VIEWPORT_CLOSE } from "@/lib/animations";
+import { motion } from 'framer-motion'
+import { benefitItems } from '@/content/home'
+import { VIEWPORT_ONCE, VIEWPORT_CLOSE } from '@/lib/animations'
 
 export default function Benefits() {
   return (
@@ -17,7 +17,7 @@ export default function Benefits() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={VIEWPORT_ONCE}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           ¿Por qué Varo<span className="text-secondary">Listo.mx</span>?
         </motion.h2>
@@ -30,12 +30,12 @@ export default function Benefits() {
               initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={VIEWPORT_CLOSE}
-              transition={{ duration: 0.5, delay: i * 0.08, ease: "easeOut" }}
+              transition={{ duration: 0.5, delay: i * 0.08, ease: 'easeOut' }}
             >
               <motion.div
                 className="w-12 h-12 shrink-0 bg-secondary/10 rounded-2xl flex items-center justify-center"
                 whileHover={{ scale: 1.12, rotate: 6 }}
-                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 15 }}
                 aria-hidden="true"
               >
                 <span className="material-symbols-outlined text-3xl text-secondary">
@@ -46,14 +46,12 @@ export default function Benefits() {
                 <h3 className="font-headline font-bold text-xl text-primary mb-2">
                   {benefit.title}
                 </h3>
-                <p className="text-on-surface-variant leading-relaxed">
-                  {benefit.description}
-                </p>
+                <p className="text-on-surface-variant leading-relaxed">{benefit.description}</p>
               </div>
             </motion.div>
           ))}
         </div>
       </div>
     </section>
-  );
+  )
 }

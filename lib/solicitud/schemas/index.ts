@@ -1,1 +1,1 @@
-export * from "@/lib/solicitud/domain/solicitud/schemas"
+export * from '@/lib/solicitud/domain/solicitud/schemas'

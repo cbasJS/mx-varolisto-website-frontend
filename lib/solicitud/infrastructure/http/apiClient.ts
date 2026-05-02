@@ -1,5 +1,5 @@
-import { ApiError } from "./apiErrors"
-import { baseUrls } from "../config/apiConfig"
+import { ApiError } from './apiErrors'
+import { baseUrls } from '../config/apiConfig'
 
 const DEFAULT_TIMEOUT_MS = 30_000
 
@@ -19,12 +19,16 @@ async function apiFetch<TReq, TRes>(
   try {
     response = await fetch(`${baseUrl}${path}`, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
       signal: controller.signal,
     })
   } catch {
-    throw new ApiError({ status: 0, code: "network", mensaje: "Error de red o tiempo de espera agotado" })
+    throw new ApiError({
+      status: 0,
+      code: 'network',
+      mensaje: 'Error de red o tiempo de espera agotado',
+    })
   } finally {
     clearTimeout(timerId)
   }
@@ -53,7 +57,7 @@ export async function apiPost<TReq, TRes>(
   body: TReq,
   options?: { timeoutMs?: number },
 ): Promise<TRes> {
-  return apiFetch("POST", path, body, options)
+  return apiFetch('POST', path, body, options)
 }
 
 export async function apiDelete<TReq, TRes>(
@@ -61,13 +65,10 @@ export async function apiDelete<TReq, TRes>(
   body: TReq,
   options?: { timeoutMs?: number },
 ): Promise<TRes> {
-  return apiFetch("DELETE", path, body, options)
+  return apiFetch('DELETE', path, body, options)
 }
 
-export async function apiGet<TRes>(
-  path: string,
-  options?: { timeoutMs?: number },
-): Promise<TRes> {
+export async function apiGet<TRes>(path: string, options?: { timeoutMs?: number }): Promise<TRes> {
   const controller = new AbortController()
   const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS
   const timerId = setTimeout(() => controller.abort(), timeoutMs)
@@ -77,12 +78,16 @@ export async function apiGet<TRes>(
   let response: Response
   try {
     response = await fetch(`${baseUrl}${path}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
       signal: controller.signal,
     })
   } catch {
-    throw new ApiError({ status: 0, code: "network", mensaje: "Error de red o tiempo de espera agotado" })
+    throw new ApiError({
+      status: 0,
+      code: 'network',
+      mensaje: 'Error de red o tiempo de espera agotado',
+    })
   } finally {
     clearTimeout(timerId)
   }

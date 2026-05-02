@@ -1,11 +1,10 @@
-import SolicitudProviders from "./providers";
-import FormularioSolicitud from "@/components/solicitar/FormularioSolicitud";
+import SolicitudProviders from './providers'
+import FormularioSolicitud from '@/components/solicitar/FormularioSolicitud'
 
 export const metadata = {
-  title: "Solicitar crédito | VaroListo.mx",
-  description:
-    "Completa tu solicitud de microcrédito personal. Sin trámites complicados.",
-};
+  title: 'Solicitar crédito | VaroListo.mx',
+  description: 'Completa tu solicitud de microcrédito personal. Sin trámites complicados.',
+}
 
 export default function SolicitarPage() {
   return (
@@ -26,5 +25,5 @@ export default function SolicitarPage() {
         </div>
       </div>
     </SolicitudProviders>
-  );
+  )
 }

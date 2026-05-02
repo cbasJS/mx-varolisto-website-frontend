@@ -1,16 +1,13 @@
-"use client";
+'use client'
 
-import { motion } from "framer-motion";
-import { MdOutlineWhatsapp, MdOutlineVerified } from "react-icons/md";
-import { CTA_URL, WHATSAPP_URL } from "@/lib/config";
-import { staggerContainer, fadeUpVariant, fadeInVariant } from "@/lib/animations";
+import { motion } from 'framer-motion'
+import { MdOutlineWhatsapp, MdOutlineVerified } from 'react-icons/md'
+import { CTA_URL, WHATSAPP_URL } from '@/lib/config'
+import { staggerContainer, fadeUpVariant, fadeInVariant } from '@/lib/animations'
 
 export default function Hero() {
   return (
-    <section
-      className="hero-gradient pt-16 pb-20 px-6"
-      aria-label="Sección principal"
-    >
+    <section className="hero-gradient pt-16 pb-20 px-6" aria-label="Sección principal">
       <motion.div
         className="max-w-3xl mx-auto text-center"
         variants={staggerContainer}
@@ -45,7 +42,7 @@ export default function Hero() {
           className="font-headline font-extrabold text-4xl md:text-6xl text-primary leading-tight mb-6 tracking-tight"
           variants={fadeUpVariant}
         >
-          Cuando necesitas dinero,{" "}
+          Cuando necesitas dinero,{' '}
           <span className="text-primary md:text-secondary">aquí empiezas</span>
         </motion.h1>
 
@@ -81,10 +78,7 @@ export default function Hero() {
               className="w-full bg-surface-container-highest md:bg-surface-container-lowest md:border-2 md:border-surface-container text-primary md:text-on-surface px-8 py-4 rounded-full md:rounded-2xl font-headline font-bold text-lg hover:bg-surface-variant md:hover:bg-surface-bright transition-all active:scale-95 flex items-center justify-center gap-3"
               aria-label="Hablar con un asesor por WhatsApp"
             >
-              <MdOutlineWhatsapp
-                className="text-2xl text-secondary"
-                aria-hidden="true"
-              />
+              <MdOutlineWhatsapp className="text-2xl text-secondary" aria-hidden="true" />
               WhatsApp
             </a>
             <p className="text-xs font-semibold text-on-surface-variant/70">
@@ -97,13 +91,10 @@ export default function Hero() {
           className="mt-10 text-sm font-medium text-on-surface-variant/60 flex items-center justify-center gap-1.5"
           variants={fadeInVariant}
         >
-          <MdOutlineVerified
-            className="text-secondary text-lg"
-            aria-hidden="true"
-          />
+          <MdOutlineVerified className="text-secondary text-lg" aria-hidden="true" />
           Atención personalizada en todo México
         </motion.p>
       </motion.div>
     </section>
-  );
+  )
 }

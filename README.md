@@ -15,26 +15,26 @@ Landing page y flujo de solicitud de crédito para **VaroListo**, plataforma de 
 
 ## Rutas
 
-| Ruta | Descripción |
-|---|---|
-| `/` | Landing page |
-| `/solicitar` | Formulario de solicitud (7 pasos) |
-| `/terminos-condiciones` | Términos y condiciones |
-| `/aviso-de-privacidad-integral` | Aviso de privacidad integral |
+| Ruta                            | Descripción                       |
+| ------------------------------- | --------------------------------- |
+| `/`                             | Landing page                      |
+| `/solicitar`                    | Formulario de solicitud (7 pasos) |
+| `/terminos-condiciones`         | Términos y condiciones            |
+| `/aviso-de-privacidad-integral` | Aviso de privacidad integral      |
 
 ## Formulario de solicitud (`/solicitar`)
 
 Flujo de 7 pasos con navegación entre ellos y scroll al top en cada transición:
 
-| Paso | Componente | Datos |
-|---|---|---|
-| 1 | `Paso1Solicitud` | Monto, plazo, destino |
-| 2 | `Paso2Identidad` | Nombre, CURP, correo, teléfono, fecha de nacimiento |
-| 3 | `Paso3Domicilio` | CP, colonia, ciudad, estado, tipo y antigüedad de vivienda |
-| 4 | `Paso4SituacionEconomica` | Actividad, empleador, antigüedad, ingresos, deudas |
-| 5 | `Paso5Referencias` | 2 referencias personales |
-| 6 | `Paso6Documentos` | Identificación oficial + comprobantes (drag & drop) |
-| 7 | `Paso7Revision` | Resumen + consentimientos → envío |
+| Paso | Componente                | Datos                                                      |
+| ---- | ------------------------- | ---------------------------------------------------------- |
+| 1    | `Paso1Solicitud`          | Monto, plazo, destino                                      |
+| 2    | `Paso2Identidad`          | Nombre, CURP, correo, teléfono, fecha de nacimiento        |
+| 3    | `Paso3Domicilio`          | CP, colonia, ciudad, estado, tipo y antigüedad de vivienda |
+| 4    | `Paso4SituacionEconomica` | Actividad, empleador, antigüedad, ingresos, deudas         |
+| 5    | `Paso5Referencias`        | 2 referencias personales                                   |
+| 6    | `Paso6Documentos`         | Identificación oficial + comprobantes (drag & drop)        |
+| 7    | `Paso7Revision`           | Resumen + consentimientos → envío                          |
 
 ## Arquitectura
 
@@ -99,11 +99,11 @@ lib/
 
 ### Variables de entorno
 
-| Variable | Descripción |
-|---|---|
-| `COPOMEX_TOKEN` | Token de Copomex (server-side). En dev: `.env.local`. En prod: Vercel dashboard. |
-| `COPOMEX_BASE_URL` | (Opcional) URL base de Copomex. Default: `https://api.copomex.com/query`. |
-| `NEXT_PUBLIC_ENV` | Ambiente: `local` \| `sandbox` \| `production`. Controla las URLs del backend en `apiConfig.ts`. |
+| Variable           | Descripción                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------ |
+| `COPOMEX_TOKEN`    | Token de Copomex (server-side). En dev: `.env.local`. En prod: Vercel dashboard.                 |
+| `COPOMEX_BASE_URL` | (Opcional) URL base de Copomex. Default: `https://api.copomex.com/query`.                        |
+| `NEXT_PUBLIC_ENV`  | Ambiente: `local` \| `sandbox` \| `production`. Controla las URLs del backend en `apiConfig.ts`. |
 
 ### GitHub Packages
 
@@ -141,11 +141,11 @@ Los tests inyectan el store en `sessionStorage` directamente para evitar depende
 
 ## Diseño
 
-| Token | Valor |
-|---|---|
-| `primary` | `#000666` — Azul marino |
-| `secondary` | `#2ECC71` — Verde vibrante |
-| Fuente titular | Manrope |
-| Fuente cuerpo | Inter |
+| Token          | Valor                      |
+| -------------- | -------------------------- |
+| `primary`      | `#000666` — Azul marino    |
+| `secondary`    | `#2ECC71` — Verde vibrante |
+| Fuente titular | Manrope                    |
+| Fuente cuerpo  | Inter                      |
 
 Los tokens siguen el sistema Material Design 3 definidos en `tailwind.config.ts`.

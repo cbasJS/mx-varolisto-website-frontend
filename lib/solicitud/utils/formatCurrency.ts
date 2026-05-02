@@ -1,23 +1,21 @@
 /** Inicializa el display a partir de un número guardado en el store. */
 export function initCurrencyDisplay(num: number | undefined): string {
-  if (num === undefined || num === null) return ""
-  return num.toLocaleString("es-MX", {
+  if (num === undefined || num === null) return ''
+  return num.toLocaleString('es-MX', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
 }
 
 /** Maneja el onChange de un input de moneda. Devuelve el texto a mostrar y el número parseado. */
-export function formatCurrencyOnChange(
-  raw: string
-): { display: string; num: number | undefined } {
-  const cleaned = raw.replace(/[^0-9.]/g, "")
-  const endsWithDot = cleaned.endsWith(".")
+export function formatCurrencyOnChange(raw: string): { display: string; num: number | undefined } {
+  const cleaned = raw.replace(/[^0-9.]/g, '')
+  const endsWithDot = cleaned.endsWith('.')
   const num = parseFloat(cleaned)
 
   if (!isNaN(num)) {
-    const [intPart, decPart] = cleaned.split(".")
-    const formattedInt = parseInt(intPart || "0", 10).toLocaleString("es-MX")
+    const [intPart, decPart] = cleaned.split('.')
+    const formattedInt = parseInt(intPart || '0', 10).toLocaleString('es-MX')
     let display: string
     if (endsWithDot) {
       display = `${formattedInt}.`
@@ -29,7 +27,7 @@ export function formatCurrencyOnChange(
     return { display, num }
   }
 
-  if (cleaned === "" || cleaned === ".") {
+  if (cleaned === '' || cleaned === '.') {
     return { display: cleaned, num: undefined }
   }
 
@@ -38,9 +36,9 @@ export function formatCurrencyOnChange(
 
 /** Maneja el onBlur: formatea con 2 decimales fijos. */
 export function formatCurrencyOnBlur(display: string): string {
-  const num = parseFloat(display.replace(/,/g, ""))
+  const num = parseFloat(display.replace(/,/g, ''))
   if (!isNaN(num)) {
-    return num.toLocaleString("es-MX", {
+    return num.toLocaleString('es-MX', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })
@@ -50,9 +48,9 @@ export function formatCurrencyOnBlur(display: string): string {
 
 /** Maneja el onFocus: quita el .00 del blur para edición más cómoda. */
 export function formatCurrencyOnFocus(display: string): string {
-  const num = parseFloat(display.replace(/,/g, ""))
+  const num = parseFloat(display.replace(/,/g, ''))
   if (!isNaN(num)) {
-    return num.toLocaleString("es-MX")
+    return num.toLocaleString('es-MX')
   }
   return display
 }

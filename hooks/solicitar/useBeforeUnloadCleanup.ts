@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import { useEffect } from "react"
-import { useSolicitudStore } from "@/lib/solicitud/store"
-import { enviarBeaconCleanup } from "@/lib/solicitud/application/useCases/cleanupStagingFiles"
+import { useEffect } from 'react'
+import { useSolicitudStore } from '@/lib/solicitud/store'
+import { enviarBeaconCleanup } from '@/lib/solicitud/application/useCases/cleanupStagingFiles'
 
 export function useBeforeUnloadCleanup(isSubmitting: boolean) {
   const archivosSubidos = useSolicitudStore((s) => s.archivosSubidos)
@@ -23,7 +23,7 @@ export function useBeforeUnloadCleanup(isSubmitting: boolean) {
       })
     }
 
-    window.addEventListener("beforeunload", handleBeforeUnload)
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [archivosSubidos, sessionUuid, isSubmitting])
 }

@@ -1,10 +1,10 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { useSolicitudStore } from "@/lib/solicitud/store"
-import { useNavegacionConGuarda } from "@/hooks/solicitar/useNavegacionConGuarda"
-import ConfirmacionSalidaDialog from "./ConfirmacionSalidaDialog"
-import { useSubmittingContext } from "@/lib/solicitud/submitting-context"
+import { useEffect, useState } from 'react'
+import { useSolicitudStore } from '@/lib/solicitud/store'
+import { useNavegacionConGuarda } from '@/hooks/solicitar/useNavegacionConGuarda'
+import ConfirmacionSalidaDialog from './ConfirmacionSalidaDialog'
+import { useSubmittingContext } from '@/lib/solicitud/submitting-context'
 
 function hayDatosSelector(datos: Record<string, unknown>): boolean {
   return Object.keys(datos).length > 0
