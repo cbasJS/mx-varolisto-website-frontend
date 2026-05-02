@@ -2,6 +2,25 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Puertos reservados — no tocar
+
+Los puertos **3000** y **4000** están reservados para los servicios principales del stack VaroListo:
+
+- **3000** — Frontend Next.js (`pnpm dev` de este repo)
+- **4000** — Backend Fastify (`mx-varolisto-api-backend`)
+
+**Regla obligatoria para cualquier proceso auxiliar que arranques** (Playwright UI, Storybook, dev server temporal, MCP server, script de prueba, lo que sea): **usa un puerto ≥ 5000**. Sugeridos: `5173` (Vite default), `5555`, `6006`, `8080`, `9222` (Chrome DevTools).
+
+**Por qué importa:** Cuando un proceso auxiliar toma 3000 o 4000, el frontend o el backend dejan de responder y el usuario tiene que matar el puerto manualmente para volver a levantarlos. Esto rompe el flujo de desarrollo.
+
+**Cómo aplicarlo en comandos comunes:**
+- `playwright test --ui --ui-port=5174`
+- `next dev -p 5000` (si necesitas un segundo Next)
+- `vitest --ui --api.port=5175`
+- `python -m http.server 8000` (en vez de default 8000 ya está fuera, ok)
+
+Si una herramienta no permite cambiar el puerto, **no la arranques** sin avisar al usuario primero.
+
 ## TDD — Requisito obligatorio
 
 **Ningún código de producción se escribe sin un test que falle primero.**
