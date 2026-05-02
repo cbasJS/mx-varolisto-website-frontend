@@ -1,0 +1,23 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": ".claude/hooks/check-ports.sh" },
+          { "type": "command", "command": ".claude/hooks/pre-commit-gate.sh" }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Repo: mx-varolisto-website-frontend (Next.js 15 App Router). Puerto reservado: 3000. Reglas duras: (1) TDD: test (Vitest) o E2E (Playwright) que falla primero. (2) `pnpm test` y `pnpm test:e2e` deben pasar antes del PR (no en pre-commit). (3) `playwright test --ui` requiere --ui-port=5174 (o >= 5000). (4) Schemas Zod compartidos viven en @varolisto/shared-schemas, no duplicar.\"}}\\n'"
+          }
+        ]
+      }
+    ]
+  }
+}

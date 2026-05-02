@@ -32,7 +32,7 @@ export const ambiente: Ambiente = resolverAmbiente()
 
 const BASE_URLS = {
   varolisto: {
-    local:      "http://localhost:3001",
+    local:      "http://localhost:4000",
     sandbox:    "https://api-sandbox.varolisto.mx",
     production: "https://api.varolisto.mx",
   },
