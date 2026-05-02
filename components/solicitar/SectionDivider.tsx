@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 export function SectionDivider({ label }: { label: string }) {
   return (
@@ -9,5 +9,5 @@ export function SectionDivider({ label }: { label: string }) {
       </span>
       <div className="h-px flex-1 bg-surface-container-high" />
     </div>
-  );
+  )
 }

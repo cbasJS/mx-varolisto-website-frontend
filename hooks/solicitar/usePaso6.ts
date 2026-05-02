@@ -1,19 +1,19 @@
-"use client"
+'use client'
 
-import { useState, useCallback, useEffect, useRef } from "react"
-import { useDropzone } from "react-dropzone"
-import { useSolicitudStore } from "@/lib/solicitud/store"
-import { useUploadArchivo } from "./useUploadArchivo"
-export type { EstadoUpload } from "./useUploadArchivo"
-import type { TipoArchivo, TipoIdentificacion } from "@varolisto/shared-schemas/enums"
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { useDropzone } from 'react-dropzone'
+import { useSolicitudStore } from '@/lib/solicitud/store'
+import { useUploadArchivo } from './useUploadArchivo'
+export type { EstadoUpload } from './useUploadArchivo'
+import type { TipoArchivo, TipoIdentificacion } from '@varolisto/shared-schemas/enums'
 import {
   COPY_DOCUMENTOS,
   MIN_COMPROBANTES,
   TIPOS_SIN_BANCO,
   COPY_ALTERNATIVOS,
-} from "@/lib/solicitud/utils/lookup-labels"
-import { hidratarArchivos } from "@/lib/solicitud/application/useCases/hidratarArchivos"
-import { MAX_COMPROBANTES_INGRESO } from "@/lib/solicitud/domain/solicitud/documentosConfig"
+} from '@/lib/solicitud/utils/lookup-labels'
+import { hidratarArchivos } from '@/lib/solicitud/application/useCases/hidratarArchivos'
+import { MAX_COMPROBANTES_INGRESO } from '@/lib/solicitud/domain/solicitud/documentosConfig'
 
 export interface Paso6StoreData {
   tipoIdentificacion: TipoIdentificacion
@@ -52,7 +52,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
         // Error de red — no bloquear. El usuario puede continuar y subir archivos nuevos.
         hidratacionDisparada.current = false
       })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionUuid])
 
   const {
@@ -74,42 +74,42 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   }, [archivosSubidos, hidratarEntradas])
 
   const copyDocumentos =
-    COPY_DOCUMENTOS[datos.tipoActividad ?? ""] ??
-    "Sube al menos 2 comprobantes de ingresos de los últimos 3 meses."
+    COPY_DOCUMENTOS[datos.tipoActividad ?? ''] ??
+    'Sube al menos 2 comprobantes de ingresos de los últimos 3 meses.'
 
   const puedeOmitirBanco = (TIPOS_SIN_BANCO as readonly string[]).includes(
-    datos.tipoActividad ?? ""
+    datos.tipoActividad ?? '',
   )
-  const copyAlternativo = COPY_ALTERNATIVOS[datos.tipoActividad ?? ""] ?? ""
+  const copyAlternativo = COPY_ALTERNATIVOS[datos.tipoActividad ?? ''] ?? ''
 
   const tiposIdRequeridos: TipoArchivo[] =
-    tipoIdentificacion === "ine"
-      ? ["ine_frente", "ine_reverso"]
-      : tipoIdentificacion === "pasaporte"
-        ? ["pasaporte_principal"]
+    tipoIdentificacion === 'ine'
+      ? ['ine_frente', 'ine_reverso']
+      : tipoIdentificacion === 'pasaporte'
+        ? ['pasaporte_principal']
         : []
 
-  const minComprobantes = MIN_COMPROBANTES[datos.tipoActividad ?? ""] ?? 2
+  const minComprobantes = MIN_COMPROBANTES[datos.tipoActividad ?? ''] ?? 2
 
   const tiposSubidos = archivosSubidos.map((a) => a.tipoArchivo)
   const idCompleta = tiposIdRequeridos.every((t) => tiposSubidos.includes(t))
-  const comprobantesSubidosYa = tiposSubidos.filter((t) => t === "comprobante_ingreso").length
+  const comprobantesSubidosYa = tiposSubidos.filter((t) => t === 'comprobante_ingreso').length
   const tieneComprobante = comprobantesSubidosYa >= minComprobantes
 
   const puedeAvanzar =
     !!tipoIdentificacion && idCompleta && tieneComprobante && !hayEnVuelo && !isCleaningUp
 
-  const totalArchivos = archivosSubidos.length + entradas.filter(
-    (e) => e.estado === "pending" || e.estado === "uploading"
-  ).length
+  const totalArchivos =
+    archivosSubidos.length +
+    entradas.filter((e) => e.estado === 'pending' || e.estado === 'uploading').length
 
   const comprobantesSubidos = archivosSubidos.filter(
-    (a) => a.tipoArchivo === "comprobante_ingreso"
+    (a) => a.tipoArchivo === 'comprobante_ingreso',
   ).length
   const comprobantesEnVuelo = entradas.filter(
     (e) =>
-      e.tipoArchivo === "comprobante_ingreso" &&
-      (e.estado === "pending" || e.estado === "uploading")
+      e.tipoArchivo === 'comprobante_ingreso' &&
+      (e.estado === 'pending' || e.estado === 'uploading'),
   ).length
   const totalComprobantes = comprobantesSubidos + comprobantesEnVuelo
 
@@ -119,17 +119,17 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
       if (tipo === tipoIdentificacion || isCleaningUp) return
 
       const tiposAEliminar =
-        tipo === "pasaporte"
+        tipo === 'pasaporte'
           ? archivosSubidos.filter(
-              (a) => a.tipoArchivo === "ine_frente" || a.tipoArchivo === "ine_reverso"
+              (a) => a.tipoArchivo === 'ine_frente' || a.tipoArchivo === 'ine_reverso',
             )
-          : archivosSubidos.filter((a) => a.tipoArchivo === "pasaporte_principal")
+          : archivosSubidos.filter((a) => a.tipoArchivo === 'pasaporte_principal')
 
       if (tiposAEliminar.length > 0) {
         setIsCleaningUp(true)
         try {
           for (const archivo of tiposAEliminar) {
-            await eliminarEntrada(archivo.clienteId, "tipo_identificacion_changed")
+            await eliminarEntrada(archivo.clienteId, 'tipo_identificacion_changed')
           }
         } finally {
           setIsCleaningUp(false)
@@ -138,7 +138,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
 
       setTipoIdentificacion(tipo)
     },
-    [tipoIdentificacion, isCleaningUp, archivosSubidos, eliminarEntrada, setTipoIdentificacion]
+    [tipoIdentificacion, isCleaningUp, archivosSubidos, eliminarEntrada, setTipoIdentificacion],
   )
 
   const agregarConTipo = useCallback(
@@ -153,72 +153,78 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
       if (sinDuplicados.length === 0) return
       const cupoGlobal = 7 - totalArchivos
       const cupoTipo =
-        tipo === "comprobante_ingreso" ? MAX_COMPROBANTES_INGRESO - totalComprobantes : cupoGlobal
+        tipo === 'comprobante_ingreso' ? MAX_COMPROBANTES_INGRESO - totalComprobantes : cupoGlobal
       const cupo = Math.min(cupoGlobal, cupoTipo)
       if (cupo <= 0) return
       agregarArchivos(sinDuplicados.slice(0, cupo), tipo)
     },
-    [archivosSubidos, entradas, totalArchivos, totalComprobantes, agregarArchivos]
+    [archivosSubidos, entradas, totalArchivos, totalComprobantes, agregarArchivos],
   )
 
   const ineFrenteEnVuelo = entradas.some(
-    (e) => e.tipoArchivo === "ine_frente" && (e.estado === "pending" || e.estado === "uploading")
+    (e) => e.tipoArchivo === 'ine_frente' && (e.estado === 'pending' || e.estado === 'uploading'),
   )
   const ineReversoEnVuelo = entradas.some(
-    (e) => e.tipoArchivo === "ine_reverso" && (e.estado === "pending" || e.estado === "uploading")
+    (e) => e.tipoArchivo === 'ine_reverso' && (e.estado === 'pending' || e.estado === 'uploading'),
   )
   const pasaporteEnVuelo = entradas.some(
-    (e) => e.tipoArchivo === "pasaporte_principal" && (e.estado === "pending" || e.estado === "uploading")
+    (e) =>
+      e.tipoArchivo === 'pasaporte_principal' &&
+      (e.estado === 'pending' || e.estado === 'uploading'),
   )
 
-  const disabledComprobante = totalComprobantes >= MAX_COMPROBANTES_INGRESO || comprobantesEnVuelo > 0
-  const disabledIneFrente = tiposSubidos.includes("ine_frente") || ineFrenteEnVuelo || totalArchivos >= 7
-  const disabledIneReverso = tiposSubidos.includes("ine_reverso") || ineReversoEnVuelo || totalArchivos >= 7
-  const disabledPasaporte = tiposSubidos.includes("pasaporte_principal") || pasaporteEnVuelo || totalArchivos >= 7
+  const disabledComprobante =
+    totalComprobantes >= MAX_COMPROBANTES_INGRESO || comprobantesEnVuelo > 0
+  const disabledIneFrente =
+    tiposSubidos.includes('ine_frente') || ineFrenteEnVuelo || totalArchivos >= 7
+  const disabledIneReverso =
+    tiposSubidos.includes('ine_reverso') || ineReversoEnVuelo || totalArchivos >= 7
+  const disabledPasaporte =
+    tiposSubidos.includes('pasaporte_principal') || pasaporteEnVuelo || totalArchivos >= 7
 
   const onDropComprobante = useCallback(
-    (accepted: File[]) => agregarConTipo(accepted, "comprobante_ingreso"),
-    [agregarConTipo]
+    (accepted: File[]) => agregarConTipo(accepted, 'comprobante_ingreso'),
+    [agregarConTipo],
   )
   const dropzoneComprobante = useDropzone({
     onDrop: onDropComprobante,
-    accept: { "image/jpeg": [], "image/png": [] },
+    accept: { 'image/jpeg': [], 'image/png': [] },
     maxSize: 10 * 1024 * 1024,
     maxFiles: 4,
     disabled: disabledComprobante,
   })
 
   const onDropIneFrente = useCallback(
-    (accepted: File[]) => agregarConTipo(accepted, "ine_frente"),
-    [agregarConTipo]
+    (accepted: File[]) => agregarConTipo(accepted, 'ine_frente'),
+    [agregarConTipo],
   )
   const dropzoneIneFrente = useDropzone({
     onDrop: onDropIneFrente,
-    accept: { "image/jpeg": [], "image/png": [] },
+    accept: { 'image/jpeg': [], 'image/png': [] },
     maxSize: 10 * 1024 * 1024,
     maxFiles: 1,
     disabled: disabledIneFrente,
   })
 
   const onDropIneReverso = useCallback(
-    (accepted: File[]) => agregarConTipo(accepted, "ine_reverso"),
-    [agregarConTipo]
+    (accepted: File[]) => agregarConTipo(accepted, 'ine_reverso'),
+    [agregarConTipo],
   )
   const dropzoneIneReverso = useDropzone({
     onDrop: onDropIneReverso,
-    accept: { "image/jpeg": [], "image/png": [] },
+    accept: { 'image/jpeg': [], 'image/png': [] },
     maxSize: 10 * 1024 * 1024,
     maxFiles: 1,
     disabled: disabledIneReverso,
   })
 
   const onDropPasaporte = useCallback(
-    (accepted: File[]) => agregarConTipo(accepted, "pasaporte_principal"),
-    [agregarConTipo]
+    (accepted: File[]) => agregarConTipo(accepted, 'pasaporte_principal'),
+    [agregarConTipo],
   )
   const dropzonePasaporte = useDropzone({
     onDrop: onDropPasaporte,
-    accept: { "image/jpeg": [], "image/png": [] },
+    accept: { 'image/jpeg': [], 'image/png': [] },
     maxSize: 10 * 1024 * 1024,
     maxFiles: 1,
     disabled: disabledPasaporte,
@@ -230,11 +236,11 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     onNext({ tipoIdentificacion })
   }
 
-  const entradasComprobante = entradas.filter((e) => e.tipoArchivo === "comprobante_ingreso")
+  const entradasComprobante = entradas.filter((e) => e.tipoArchivo === 'comprobante_ingreso')
   const entradasIne = entradas.filter(
-    (e) => e.tipoArchivo === "ine_frente" || e.tipoArchivo === "ine_reverso"
+    (e) => e.tipoArchivo === 'ine_frente' || e.tipoArchivo === 'ine_reverso',
   )
-  const entradasPasaporte = entradas.filter((e) => e.tipoArchivo === "pasaporte_principal")
+  const entradasPasaporte = entradas.filter((e) => e.tipoArchivo === 'pasaporte_principal')
 
   return {
     tipoIdentificacion,

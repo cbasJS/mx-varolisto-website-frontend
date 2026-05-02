@@ -14,6 +14,7 @@ Los puertos **3000** y **4000** están reservados para los servicios principales
 **Por qué importa:** Cuando un proceso auxiliar toma 3000 o 4000, el frontend o el backend dejan de responder y el usuario tiene que matar el puerto manualmente para volver a levantarlos. Esto rompe el flujo de desarrollo.
 
 **Cómo aplicarlo en comandos comunes:**
+
 - `playwright test --ui --ui-port=5174`
 - `next dev -p 5000` (si necesitas un segundo Next)
 - `vitest --ui --api.port=5175`
@@ -51,6 +52,7 @@ Los fixtures y valores de prueba deben reflejar datos reales del negocio: CPs de
 ## Arquitectura
 
 ### Stack
+
 - Next.js 15 App Router (TypeScript estricto)
 - Tailwind CSS con sistema de tokens extendido (Material Design 3)
 - Framer Motion para animaciones
@@ -128,12 +130,14 @@ lib/solicitud/
 - `hooks/useMobile.ts` — Hook global para detectar viewport mobile (< 768px)
 
 ### Rutas
+
 - `/` — Landing page; `app/page.tsx` compone las secciones secuencialmente
 - `/solicitar` — Formulario de solicitud de crédito (7 pasos)
 - `/terminos-condiciones` — Términos y condiciones
 - `/aviso-de-privacidad-integral` — Aviso de privacidad
 
 ### Flujo del formulario de solicitud
+
 El estado vive en Zustand (`infrastructure/persistence/solicitudStore.ts`) persistido en sessionStorage. `useSolicitudNavigation` coordina navegación y llama al caso de uso `submitSolicitud` para el envío. Cada paso usa su propio hook (`usePasoN`) que envuelve react-hook-form con el schema Zod correspondiente.
 
 Todos los cambios de paso (next, back, editar, submit) llaman `scrollTop()` para llevar la vista al inicio del formulario.
@@ -143,11 +147,13 @@ El store expone `_hasHydrated` (seteado por `onRehydrateStorage`); úsalo para e
 `buildPayload` en `domain/solicitud/buildPayload.ts` transforma el estado del store en el `CrearSolicitudRequest` del backend. Es una función pura — testeable sin React.
 
 ### Variables de entorno
+
 - `COPOMEX_TOKEN` — Token de Copomex (requerido en server-side). En desarrollo: `.env.local`. En producción: Vercel dashboard.
 - `COPOMEX_BASE_URL` — (opcional) URL base de Copomex; default a `https://api.copomex.com/query`.
 - `NEXT_PUBLIC_ENV` — Ambiente activo: `local` | `sandbox` | `production`. Si no se define, se infiere desde `NODE_ENV`. Controla las URLs base de la API en `infrastructure/config/apiConfig.ts`.
 
 ### Estilos
+
 - Colores de marca: `primary #000666` (azul marino), `secondary #2ECC71` (verde)
 - Variables CSS de fuentes: `--font-manrope` (titulares), `--font-inter` (cuerpo)
 - Tokens extendidos en `tailwind.config.ts` (sistema Material Design 3: primary-fixed, on-primary, surface variants, etc.)
@@ -155,11 +161,13 @@ El store expone `_hasHydrated` (seteado por `onRehydrateStorage`); úsalo para e
 - Dark mode por clase (`dark:`), no hay toggle activo
 
 ### Patrones de componentes
+
 - Los componentes interactivos usan la directiva `"use client"`
 - Animaciones con Framer Motion: patrón container/stagger con `whileInView` para scroll-trigger
 - Alias de path `@/*` apunta a la raíz del repo (ej. `import { config } from "@/lib/config"`); no hay alias `@/ui` en tsconfig — usar `@/components/ui/`
 
 ### Integraciones externas
+
 - URLs externas viven en `lib/config.ts`
 - `@varolisto/shared-schemas` se instala desde GitHub Packages; requiere `.npmrc` con token de autenticación:
   ```
@@ -175,22 +183,22 @@ Correr con `pnpm test`. Los archivos de prueba viven junto al código fuente (`*
 
 Archivos cubiertos:
 
-| Archivo | Qué prueba |
-|---|---|
-| `lib/solicitud/domain/loan/calcularCuota.test.ts` | Fórmula de amortización para los plazos del producto (2–6 meses) |
-| `lib/solicitud/domain/shared/dateUtils.test.ts` | Conversión y formateo de fechas |
-| `lib/solicitud/domain/solicitud/buildPayload.test.ts` | Transformación del store a `CrearSolicitudRequest` |
-| `lib/solicitud/infrastructure/storage/formatBytes.test.ts` | Formateo de tamaños de archivo (B / KB / MB) |
-| `lib/solicitud/infrastructure/http/apiErrors.test.ts` | `ApiError`, `esErrorDeValidacion`, `esErrorDeConflicto`, `clasificarError` |
-| `lib/solicitud/utils/formatCurrency.test.ts` | Formateo de moneda en Paso 4 (ingreso, deudas) |
+| Archivo                                                    | Qué prueba                                                                 |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `lib/solicitud/domain/loan/calcularCuota.test.ts`          | Fórmula de amortización para los plazos del producto (2–6 meses)           |
+| `lib/solicitud/domain/shared/dateUtils.test.ts`            | Conversión y formateo de fechas                                            |
+| `lib/solicitud/domain/solicitud/buildPayload.test.ts`      | Transformación del store a `CrearSolicitudRequest`                         |
+| `lib/solicitud/infrastructure/storage/formatBytes.test.ts` | Formateo de tamaños de archivo (B / KB / MB)                               |
+| `lib/solicitud/infrastructure/http/apiErrors.test.ts`      | `ApiError`, `esErrorDeValidacion`, `esErrorDeConflicto`, `clasificarError` |
+| `lib/solicitud/utils/formatCurrency.test.ts`               | Formateo de moneda en Paso 4 (ingreso, deudas)                             |
 
 ### E2E — Playwright (`e2e/`)
 
 Correr con `pnpm test:e2e`. El `webServer` de `playwright.config.ts` levanta Next.js automáticamente.
 
-| Archivo | Qué cubre |
-|---|---|
-| `e2e/flujo-feliz.spec.ts` | Submit exitoso → `PantallaExito` con folio; estado "Enviando…"; errores 409 y de red; validación de checkboxes |
-| `e2e/formulario.spec.ts` | Estructura de cada paso; uploads (subida, eliminación, reintentos, hidratación de staging); `useNavegacionConGuarda` (AlertDialog con archivos/datos/submit en vuelo); `sendBeacon` al cerrar pestaña |
+| Archivo                   | Qué cubre                                                                                                                                                                                             |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `e2e/flujo-feliz.spec.ts` | Submit exitoso → `PantallaExito` con folio; estado "Enviando…"; errores 409 y de red; validación de checkboxes                                                                                        |
+| `e2e/formulario.spec.ts`  | Estructura de cada paso; uploads (subida, eliminación, reintentos, hidratación de staging); `useNavegacionConGuarda` (AlertDialog con archivos/datos/submit en vuelo); `sendBeacon` al cerrar pestaña |
 
 **Estrategia:** los tests inyectan el store en `sessionStorage` directamente (`inyectarStore`) en lugar de navegar paso a paso por la UI. Esto evita dependencias frágiles del `DatePickerInput` y llamadas reales a APIs externas (COPOMEX, uploads).

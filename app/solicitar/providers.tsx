@@ -1,14 +1,10 @@
-"use client"
+'use client'
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { useState } from "react"
-import { QUERY_STALE_TIME_MS } from "@/lib/config"
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useState } from 'react'
+import { QUERY_STALE_TIME_MS } from '@/lib/config'
 
-export default function SolicitudProviders({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function SolicitudProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -16,7 +12,5 @@ export default function SolicitudProviders({
       }),
   )
 
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 }

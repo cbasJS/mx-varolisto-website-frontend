@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import { motion } from "framer-motion";
-import { testimonialItems } from "@/content/home";
-import { VIEWPORT_ONCE, VIEWPORT_CLOSE } from "@/lib/animations";
+import { motion } from 'framer-motion'
+import { testimonialItems } from '@/content/home'
+import { VIEWPORT_ONCE, VIEWPORT_CLOSE } from '@/lib/animations'
 
 export default function Testimonials() {
   return (
@@ -18,7 +18,7 @@ export default function Testimonials() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={VIEWPORT_ONCE}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
           >
             Historias de alivio financiero
           </motion.h2>
@@ -31,10 +31,10 @@ export default function Testimonials() {
                 initial={{ opacity: 0, y: 28 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={VIEWPORT_CLOSE}
-                transition={{ duration: 0.45, delay: i * 0.1, ease: "easeOut" }}
+                transition={{ duration: 0.45, delay: i * 0.1, ease: 'easeOut' }}
                 whileHover={{
                   y: -4,
-                  boxShadow: "0 12px 32px -8px rgba(0,6,102,0.10)",
+                  boxShadow: '0 12px 32px -8px rgba(0,6,102,0.10)',
                 }}
               >
                 <blockquote className="italic text-primary font-medium leading-relaxed">
@@ -61,7 +61,7 @@ export default function Testimonials() {
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={VIEWPORT_CLOSE}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           <span
             className="material-symbols-outlined text-secondary-fixed text-6xl opacity-50"
@@ -72,20 +72,18 @@ export default function Testimonials() {
 
           <h2 className="font-headline font-extrabold text-3xl leading-tight mt-4">
             &ldquo;Buscaba lana para arreglar mi casa y en Varo
-            <span className="text-secondary">Listo.mx</span> todo fue rápido y
-            sin complicaciones.&rdquo;
+            <span className="text-secondary">Listo.mx</span> todo fue rápido y sin
+            complicaciones.&rdquo;
           </h2>
 
           <div className="mt-8 flex items-center gap-4">
             <div>
               <p className="font-headline font-bold">Francisco García</p>
-              <p className="text-primary-fixed-dim text-sm italic">
-                Programador móvil - CDMX
-              </p>
+              <p className="text-primary-fixed-dim text-sm italic">Programador móvil - CDMX</p>
             </div>
           </div>
         </motion.div>
       </section>
     </>
-  );
+  )
 }

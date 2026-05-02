@@ -1,37 +1,33 @@
-import type { Metadata } from "next";
-import { Inter, Manrope } from "next/font/google";
-import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import ScrollRestorationClient from "@/components/layout/ScrollRestorationClient";
-import { AppToaster } from "@/components/ui/AppToaster";
+import type { Metadata } from 'next'
+import { Inter, Manrope } from 'next/font/google'
+import './globals.css'
+import Navbar from '@/components/layout/Navbar'
+import Footer from '@/components/layout/Footer'
+import ScrollRestorationClient from '@/components/layout/ScrollRestorationClient'
+import { AppToaster } from '@/components/ui/AppToaster'
 
 const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
 
 const manrope = Manrope({
-  subsets: ["latin"],
-  variable: "--font-manrope",
-  display: "swap",
-});
+  subsets: ['latin'],
+  variable: '--font-manrope',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: "VaroListo.mx | Cuando necesitas dinero, aquí empiezas",
+  title: 'VaroListo.mx | Cuando necesitas dinero, aquí empiezas',
   description:
-    "Sin trámites complicados. Te contactamos en minutos. Atención personalizada en todo México.",
+    'Sin trámites complicados. Te contactamos en minutos. Atención personalizada en todo México.',
   icons: {
-    icon: "/favicon.ico",
+    icon: '/favicon.ico',
   },
-};
+}
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${inter.variable} ${manrope.variable}`}>
       <head>
@@ -49,5 +45,5 @@ export default function RootLayout({
         <AppToaster />
       </body>
     </html>
-  );
+  )
 }

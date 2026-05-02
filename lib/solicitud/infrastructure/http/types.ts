@@ -1,4 +1,4 @@
-import type { TipoArchivo } from "@varolisto/shared-schemas/enums"
+import type { TipoArchivo } from '@varolisto/shared-schemas/enums'
 
 export interface UploadUrlRequest {
   sessionUuid: string
@@ -18,7 +18,7 @@ export interface UploadUrlResponse {
 export interface EliminarStagingRequest {
   sessionUuid: string
   storagePath: string
-  motivo: "user_action" | "tipo_identificacion_changed"
+  motivo: 'user_action' | 'tipo_identificacion_changed'
 }
 
 export interface EliminarStagingResponse {

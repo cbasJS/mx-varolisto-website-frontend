@@ -19,7 +19,7 @@ export {
   solicitudSchema,
   ACCEPTED_MIME_TYPES,
   MAX_FILE_SIZE_BYTES,
-} from "@varolisto/shared-schemas/form"
+} from '@varolisto/shared-schemas/form'
 
 export type {
   Paso1Data,
@@ -30,6 +30,6 @@ export type {
   Paso6Data,
   Paso7Data,
   SolicitudCompleta,
-} from "@varolisto/shared-schemas/form"
+} from '@varolisto/shared-schemas/form'
 
-export { zStr } from "@varolisto/shared-schemas"
+export { zStr } from '@varolisto/shared-schemas'

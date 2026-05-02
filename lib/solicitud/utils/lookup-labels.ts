@@ -1,1 +1,1 @@
-export * from "@/lib/solicitud/domain/enums/labelMaps"
+export * from '@/lib/solicitud/domain/enums/labelMaps'

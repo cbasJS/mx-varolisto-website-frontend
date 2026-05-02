@@ -1,10 +1,10 @@
-"use client"
+'use client'
 
-import { useEffect } from "react"
-import { AiOutlineFileDone } from "react-icons/ai"
-import { useSolicitudStore } from "@/lib/solicitud/store"
-import Link from "next/link"
-import { exitoCopy as copy } from "@/content/solicitar"
+import { useEffect } from 'react'
+import { AiOutlineFileDone } from 'react-icons/ai'
+import { useSolicitudStore } from '@/lib/solicitud/store'
+import Link from 'next/link'
+import { exitoCopy as copy } from '@/content/solicitar'
 
 interface Props {
   folio: string
@@ -36,18 +36,14 @@ export default function PantallaExito({ folio, telefono }: Props) {
       <h1 className="mb-2 font-headline text-4xl font-bold text-on-surface tracking-tight">
         {copy.titulo}
       </h1>
-      <p className="mb-8 text-base text-outline">
-        {copy.subtitulo}
-      </p>
+      <p className="mb-8 text-base text-outline">{copy.subtitulo}</p>
 
       {/* Tarjeta de folio */}
       <div className="mb-6 w-full max-w-sm rounded-2xl border-2 border-primary/20 bg-primary/5 p-5">
         <p className="mb-1 text-xs font-bold uppercase tracking-widest text-primary/50">
           {copy.labelFolio}
         </p>
-        <p className="font-headline text-3xl font-bold tracking-widest text-primary">
-          {folio}
-        </p>
+        <p className="font-headline text-3xl font-bold tracking-widest text-primary">{folio}</p>
         <div className="mt-3 flex items-start gap-2 rounded-xl bg-white border border-surface-container-high p-3 text-left">
           <span
             className="material-symbols-outlined mt-0.5 shrink-0 text-base text-secondary"
@@ -56,9 +52,7 @@ export default function PantallaExito({ folio, telefono }: Props) {
           >
             bookmark
           </span>
-          <p className="text-xs text-on-surface-variant leading-relaxed">
-            {copy.avisoFolio}
-          </p>
+          <p className="text-xs text-on-surface-variant leading-relaxed">{copy.avisoFolio}</p>
         </div>
       </div>
 

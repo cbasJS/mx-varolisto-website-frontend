@@ -1,10 +1,10 @@
-import Hero from "@/components/sections/Hero";
-import TrustCards from "@/components/sections/TrustCards";
-import Benefits from "@/components/sections/Benefits";
-import HowItWorks from "@/components/sections/HowItWorks";
-import Testimonials from "@/components/sections/Testimonials";
-import FinalCTA from "@/components/sections/FinalCTA";
-import BottomNav from "@/components/layout/BottomNav";
+import Hero from '@/components/sections/Hero'
+import TrustCards from '@/components/sections/TrustCards'
+import Benefits from '@/components/sections/Benefits'
+import HowItWorks from '@/components/sections/HowItWorks'
+import Testimonials from '@/components/sections/Testimonials'
+import FinalCTA from '@/components/sections/FinalCTA'
+import BottomNav from '@/components/layout/BottomNav'
 
 export default function Home() {
   return (
@@ -19,5 +19,5 @@ export default function Home() {
       </main>
       <BottomNav />
     </>
-  );
+  )
 }

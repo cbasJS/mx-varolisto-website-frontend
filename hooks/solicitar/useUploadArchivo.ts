@@ -1,14 +1,17 @@
-"use client"
+'use client'
 
-import { useState, useCallback } from "react"
-import { ApiError } from "@/lib/api"
-import { solicitarUploadUrl, eliminarArchivoStaging } from "@/lib/solicitud/application/useCases/uploadFile"
-import { useSolicitudStore } from "@/lib/solicitud/store"
-import type { ArchivoSubido } from "@/lib/solicitud/store"
-import type { TipoArchivo } from "@varolisto/shared-schemas/enums"
-import { generateUUID } from "@/lib/utils"
+import { useState, useCallback } from 'react'
+import { ApiError } from '@/lib/api'
+import {
+  solicitarUploadUrl,
+  eliminarArchivoStaging,
+} from '@/lib/solicitud/application/useCases/uploadFile'
+import { useSolicitudStore } from '@/lib/solicitud/store'
+import type { ArchivoSubido } from '@/lib/solicitud/store'
+import type { TipoArchivo } from '@varolisto/shared-schemas/enums'
+import { generateUUID } from '@/lib/utils'
 
-export type EstadoUpload = "pending" | "uploading" | "uploaded" | "failed" | "deleting"
+export type EstadoUpload = 'pending' | 'uploading' | 'uploaded' | 'failed' | 'deleting'
 
 export interface EntradaUpload {
   clienteId: string
@@ -23,11 +26,10 @@ function archivoSubidoAEntrada(a: ArchivoSubido): EntradaUpload {
     clienteId: a.clienteId,
     file: new File([], a.nombreOriginal, { type: a.mimeType }),
     tipoArchivo: a.tipoArchivo,
-    estado: "uploaded",
+    estado: 'uploaded',
     error: null,
   }
 }
-
 
 export function useUploadArchivo() {
   const sessionUuid = useSolicitudStore((s) => s.sessionUuid)
@@ -39,23 +41,20 @@ export function useUploadArchivo() {
 
   const [errorEliminacion, setErrorEliminacion] = useState<string | null>(null)
 
-  const actualizarEntrada = useCallback(
-    (clienteId: string, patch: Partial<EntradaUpload>) => {
-      setEntradas((prev) => {
-        const next = new Map(prev)
-        const actual = next.get(clienteId)
-        if (actual) next.set(clienteId, { ...actual, ...patch })
-        return next
-      })
-    },
-    []
-  )
+  const actualizarEntrada = useCallback((clienteId: string, patch: Partial<EntradaUpload>) => {
+    setEntradas((prev) => {
+      const next = new Map(prev)
+      const actual = next.get(clienteId)
+      if (actual) next.set(clienteId, { ...actual, ...patch })
+      return next
+    })
+  }, [])
 
   const subirArchivo = useCallback(
-    async (file: File, clienteId: string, tipoArchivo: TipoArchivo = "otro") => {
+    async (file: File, clienteId: string, tipoArchivo: TipoArchivo = 'otro') => {
       if (!sessionUuid) return
 
-      actualizarEntrada(clienteId, { estado: "uploading" })
+      actualizarEntrada(clienteId, { estado: 'uploading' })
 
       try {
         const urlResponse = await solicitarUploadUrl({
@@ -67,8 +66,8 @@ export function useUploadArchivo() {
         })
 
         const putResponse = await fetch(urlResponse.uploadUrl, {
-          method: "PUT",
-          headers: { "Content-Type": file.type },
+          method: 'PUT',
+          headers: { 'Content-Type': file.type },
           body: file,
         })
 
@@ -86,27 +85,27 @@ export function useUploadArchivo() {
           archivoId: urlResponse.archivoId,
         })
 
-        actualizarEntrada(clienteId, { estado: "uploaded", error: null })
+        actualizarEntrada(clienteId, { estado: 'uploaded', error: null })
       } catch (err) {
         const mensaje =
           err instanceof ApiError && err.status === 422
-            ? "No pudimos procesar este archivo. Verifica que sea JPG o PNG y vuelve a intentar."
+            ? 'No pudimos procesar este archivo. Verifica que sea JPG o PNG y vuelve a intentar.'
             : err instanceof Error
-            ? err.message
-            : "Error desconocido al subir"
-        actualizarEntrada(clienteId, { estado: "failed", error: mensaje })
+              ? err.message
+              : 'Error desconocido al subir'
+        actualizarEntrada(clienteId, { estado: 'failed', error: mensaje })
       }
     },
-    [sessionUuid, actualizarEntrada, agregarArchivoSubido]
+    [sessionUuid, actualizarEntrada, agregarArchivoSubido],
   )
 
   const agregarArchivos = useCallback(
-    (files: File[], tipoArchivo: TipoArchivo = "otro") => {
+    (files: File[], tipoArchivo: TipoArchivo = 'otro') => {
       const nuevasEntradas: EntradaUpload[] = files.map((file) => ({
         clienteId: generateUUID(),
         file,
         tipoArchivo,
-        estado: "pending" as EstadoUpload,
+        estado: 'pending' as EstadoUpload,
         error: null,
       }))
 
@@ -120,24 +119,27 @@ export function useUploadArchivo() {
         subirArchivo(entrada.file, entrada.clienteId, tipoArchivo)
       }
     },
-    [subirArchivo]
+    [subirArchivo],
   )
 
   const eliminarEntrada = useCallback(
-    async (clienteId: string, motivo: "user_action" | "tipo_identificacion_changed" = "user_action") => {
+    async (
+      clienteId: string,
+      motivo: 'user_action' | 'tipo_identificacion_changed' = 'user_action',
+    ) => {
       if (!sessionUuid) return
 
       const archivoSubido = archivosSubidos.find((a) => a.clienteId === clienteId)
 
       if (archivoSubido) {
         // Marca como deleting para feedback visual inmediato
-        actualizarEntrada(clienteId, { estado: "deleting" })
+        actualizarEntrada(clienteId, { estado: 'deleting' })
         try {
           await eliminarArchivoStaging(sessionUuid, archivoSubido.storagePath, motivo)
         } catch {
           // Ambos intentos fallaron — NO mutar state, mostrar error
-          actualizarEntrada(clienteId, { estado: "uploaded" })
-          setErrorEliminacion("No pudimos eliminar el archivo. Intenta de nuevo.")
+          actualizarEntrada(clienteId, { estado: 'uploaded' })
+          setErrorEliminacion('No pudimos eliminar el archivo. Intenta de nuevo.')
           return
         }
       }
@@ -150,37 +152,34 @@ export function useUploadArchivo() {
         return next
       })
     },
-    [sessionUuid, archivosSubidos, actualizarEntrada, removerArchivoSubido]
+    [sessionUuid, archivosSubidos, actualizarEntrada, removerArchivoSubido],
   )
 
   const reintentarUpload = useCallback(
-    (clienteId: string, tipoArchivo: TipoArchivo = "otro") => {
+    (clienteId: string, tipoArchivo: TipoArchivo = 'otro') => {
       const entrada = entradas.get(clienteId)
-      if (!entrada || entrada.estado !== "failed") return
+      if (!entrada || entrada.estado !== 'failed') return
       subirArchivo(entrada.file, clienteId, tipoArchivo)
     },
-    [entradas, subirArchivo]
+    [entradas, subirArchivo],
   )
 
-  const hidratarEntradas = useCallback(
-    (archivos: ArchivoSubido[]) => {
-      setEntradas((prev) => {
-        const next = new Map(prev)
-        for (const a of archivos) {
-          if (!next.has(a.clienteId)) {
-            next.set(a.clienteId, archivoSubidoAEntrada(a))
-          }
+  const hidratarEntradas = useCallback((archivos: ArchivoSubido[]) => {
+    setEntradas((prev) => {
+      const next = new Map(prev)
+      for (const a of archivos) {
+        if (!next.has(a.clienteId)) {
+          next.set(a.clienteId, archivoSubidoAEntrada(a))
         }
-        return next
-      })
-    },
-    []
-  )
+      }
+      return next
+    })
+  }, [])
 
   const listaEntradas = Array.from(entradas.values())
 
   const hayEnVuelo = listaEntradas.some(
-    (e) => e.estado === "pending" || e.estado === "uploading" || e.estado === "deleting"
+    (e) => e.estado === 'pending' || e.estado === 'uploading' || e.estado === 'deleting',
   )
 
   return {

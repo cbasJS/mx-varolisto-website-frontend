@@ -1,13 +1,13 @@
-"use client";
+'use client'
 
 export function StepTitle({
   numero,
   titulo,
   subtitulo,
 }: {
-  numero: number;
-  titulo: string;
-  subtitulo?: string;
+  numero: number
+  titulo: string
+  subtitulo?: string
 }) {
   return (
     <div className="mb-7">
@@ -19,10 +19,8 @@ export function StepTitle({
           Paso {numero} de 6
         </span>
       </div>
-      <h2 className="font-headline text-2xl font-bold text-on-surface">
-        {titulo}
-      </h2>
+      <h2 className="font-headline text-2xl font-bold text-on-surface">{titulo}</h2>
       {subtitulo && <p className="mt-1 text-sm text-outline">{subtitulo}</p>}
     </div>
-  );
+  )
 }

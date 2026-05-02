@@ -1,1 +1,1 @@
-export { env } from "@/lib/solicitud/infrastructure/config/env"
+export { env } from '@/lib/solicitud/infrastructure/config/env'

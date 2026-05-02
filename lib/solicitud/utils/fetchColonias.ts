@@ -1,1 +1,1 @@
-export { fetchColonias } from "@/lib/solicitud/infrastructure/colonias/coloniaRepository"
+export { fetchColonias } from '@/lib/solicitud/infrastructure/colonias/coloniaRepository'

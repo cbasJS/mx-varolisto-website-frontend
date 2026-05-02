@@ -1,4 +1,4 @@
-@import "react-datepicker/dist/react-datepicker.css";
+@import 'react-datepicker/dist/react-datepicker.css';
 
 @tailwind base;
 @tailwind components;
@@ -17,7 +17,11 @@ html body[data-scroll-locked] {
 }
 
 .material-symbols-outlined {
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
   user-select: none;
 }
 
@@ -29,9 +33,15 @@ html body[data-scroll-locked] {
 
 /* CTA spotlight — haz de luz que cruza de izq a der en loop */
 @keyframes cta-spotlight {
-  0%   { transform: translateX(-180%) skewX(-20deg); }
-  35%  { transform: translateX(220%)  skewX(-20deg); }
-  100% { transform: translateX(220%)  skewX(-20deg); }
+  0% {
+    transform: translateX(-180%) skewX(-20deg);
+  }
+  35% {
+    transform: translateX(220%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(220%) skewX(-20deg);
+  }
 }
 
 .cta-shimmer {
@@ -40,17 +50,17 @@ html body[data-scroll-locked] {
 }
 
 .cta-shimmer::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   width: 55%;
   background: linear-gradient(
     105deg,
-    transparent        20%,
-    rgba(255,255,255,0.07) 38%,
-    rgba(255,255,255,0.28) 50%,
-    rgba(255,255,255,0.07) 62%,
-    transparent        80%
+    transparent 20%,
+    rgba(255, 255, 255, 0.07) 38%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0.07) 62%,
+    transparent 80%
   );
   animation: cta-spotlight 3.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   pointer-events: none;
@@ -58,8 +68,13 @@ html body[data-scroll-locked] {
 
 /* Step number glow pulse */
 @keyframes step-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4); }
-  50%       { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(46, 204, 113, 0);
+  }
 }
 
 .step-accent-glow {
@@ -68,8 +83,13 @@ html body[data-scroll-locked] {
 
 /* Floating badge bob */
 @keyframes badge-bob {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-3px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
 }
 
 .badge-bob {
@@ -78,9 +98,15 @@ html body[data-scroll-locked] {
 
 /* ── react-datepicker: diseño premium VaroListo ─────────────────────────── */
 
-.react-datepicker-popper  { z-index: 9999 !important; }
-.react-datepicker-wrapper { width: 100% !important; }
-.react-datepicker__triangle { display: none !important; }
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}
+.react-datepicker-wrapper {
+  width: 100% !important;
+}
+.react-datepicker__triangle {
+  display: none !important;
+}
 
 /* Contenedor principal */
 .react-datepicker {
@@ -164,7 +190,7 @@ html body[data-scroll-locked] {
 }
 
 .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
-  border-color: #2ECC71 !important;
+  border-color: #2ecc71 !important;
 }
 
 /* Grid de días */
@@ -189,10 +215,15 @@ html body[data-scroll-locked] {
   height: 2rem !important;
   line-height: 2rem !important;
   margin: 0.125rem !important;
-  transition: background-color 120ms, color 120ms, transform 80ms !important;
+  transition:
+    background-color 120ms,
+    color 120ms,
+    transform 80ms !important;
 }
 
-.react-datepicker__day:hover:not(.react-datepicker__day--disabled):not(.react-datepicker__day--selected) {
+.react-datepicker__day:hover:not(.react-datepicker__day--disabled):not(
+    .react-datepicker__day--selected
+  ) {
   background-color: rgba(0, 6, 102, 0.08) !important;
   color: #000666 !important;
   transform: scale(1.05) !important;
@@ -201,7 +232,7 @@ html body[data-scroll-locked] {
 /* Día seleccionado — verde marca */
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected {
-  background-color: #2ECC71 !important;
+  background-color: #2ecc71 !important;
   color: #ffffff !important;
   font-weight: 700 !important;
   border-radius: 0.5rem !important;
@@ -262,5 +293,5 @@ html body[data-scroll-locked] {
 
 .react-datepicker__month-option--selected,
 .react-datepicker__year-option--selected {
-  color: #2ECC71 !important;
+  color: #2ecc71 !important;
 }

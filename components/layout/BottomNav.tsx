@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import { motion } from "framer-motion";
-import { MdOutlineWhatsapp } from "react-icons/md";
-import { CTA_URL, WHATSAPP_URL } from "@/lib/config";
+import { motion } from 'framer-motion'
+import { MdOutlineWhatsapp } from 'react-icons/md'
+import { CTA_URL, WHATSAPP_URL } from '@/lib/config'
 
 export default function BottomNav() {
   return (
@@ -12,7 +12,7 @@ export default function BottomNav() {
       aria-label="Acciones rápidas"
       initial={{ y: 80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 0.6, duration: 0.45, ease: "easeOut" }}
+      transition={{ delay: 0.6, duration: 0.45, ease: 'easeOut' }}
     >
       <motion.a
         href={CTA_URL}
@@ -36,14 +36,12 @@ export default function BottomNav() {
         rel="noopener noreferrer"
         className="flex flex-col items-center justify-center text-on-surface-variant p-2 rounded-mobile-xl md:rounded-xl transition-colors"
         whileTap={{ scale: 0.9 }}
-        whileHover={{ color: "#000666" }}
+        whileHover={{ color: '#000666' }}
         aria-label="WhatsApp"
       >
         <MdOutlineWhatsapp className="text-2xl" aria-hidden="true" />
-        <span className="font-body text-[10px] font-semibold mt-0.5">
-          WhatsApp
-        </span>
+        <span className="font-body text-[10px] font-semibold mt-0.5">WhatsApp</span>
       </motion.a>
     </motion.div>
-  );
+  )
 }

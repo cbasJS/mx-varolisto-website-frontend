@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import { createContext, useContext, useState, useCallback } from "react"
+import { createContext, useContext, useState, useCallback } from 'react'
 
 const SubmittingContext = createContext(false)
 const SetSubmittingContext = createContext<(v: boolean) => void>(() => {})
@@ -11,9 +11,7 @@ export function SubmittingProvider({ children }: { children: React.ReactNode }) 
 
   return (
     <SubmittingContext.Provider value={submitting}>
-      <SetSubmittingContext.Provider value={set}>
-        {children}
-      </SetSubmittingContext.Provider>
+      <SetSubmittingContext.Provider value={set}>{children}</SetSubmittingContext.Provider>
     </SubmittingContext.Provider>
   )
 }

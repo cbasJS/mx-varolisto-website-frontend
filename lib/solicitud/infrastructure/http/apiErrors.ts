@@ -13,7 +13,7 @@ export class ApiError extends Error {
 
   constructor(payload: ApiErrorPayload) {
     super(payload.mensaje ?? `Error HTTP ${payload.status}`)
-    this.name = "ApiError"
+    this.name = 'ApiError'
     this.status = payload.status
     this.code = payload.code
     this.mensaje = payload.mensaje
