@@ -113,7 +113,15 @@ test.describe("Formulario de solicitud — Fase 2", () => {
 
   // ── 4. Paso 3: CP cambia → preserva calle/nums, resetea COPOMEX ──────────
   test("Paso 3: cambiar CP preserva calle/números y resetea colonia/municipio", async ({ page }) => {
-    // Start with colonia empty so the hint text can appear after COPOMEX loads
+    // Mock /api/colonias para ambos CPs — evita dependencia de COPOMEX real
+    await page.route("**/api/colonias**", (route) => {
+      const cp = new URL(route.request().url()).searchParams.get("cp")
+      const payload = cp === "11800"
+        ? [{ response: { municipio: "Miguel Hidalgo", estado: "Ciudad de México", ciudad: "Ciudad de México", asentamiento: "Tacubaya" } }]
+        : [{ response: { municipio: "Cuauhtémoc", estado: "Ciudad de México", ciudad: "Ciudad de México", asentamiento: "Juárez" } }]
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) })
+    })
+
     await setStep(page, 3, { colonia: "", municipio: "", codigoPostal: "" })
     await page.waitForSelector("text=Tu domicilio", { timeout: 5_000 })
 
@@ -124,12 +132,12 @@ test.describe("Formulario de solicitud — Fase 2", () => {
     // Enter first CP; colonia selector and hint appear once COPOMEX responds
     const cpInput = page.locator("input[name=codigoPostal]")
     await cpInput.fill("06600")
-    await page.waitForSelector("text=Selecciona tu colonia", { timeout: 10_000 })
+    await page.waitForSelector("text=Selecciona tu colonia", { timeout: 5_000 })
 
     // Change CP — the component resets colonia, hint text reappears
     await cpInput.fill("")
     await cpInput.fill("11800")
-    await page.waitForSelector("text=Selecciona tu colonia", { timeout: 10_000 })
+    await page.waitForSelector("text=Selecciona tu colonia", { timeout: 5_000 })
 
     // Calle and número must be preserved
     await expect(page.locator("input[name=calle]")).toHaveValue("Insurgentes Sur")
