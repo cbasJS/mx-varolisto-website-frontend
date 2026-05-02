@@ -241,7 +241,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     await checks.nth(1).click()
     await page.click("button:has-text('Enviar solicitud')")
 
-    await expect(page.getByText(/conexión|red|intenta de nuevo|reintentar/i)).toBeVisible({
+    await expect(page.locator('[data-sonner-toast][data-type="error"]')).toBeVisible({
       timeout: 5_000,
     })
     await expect(page.getByText('¡Todo listo!')).not.toBeVisible()
