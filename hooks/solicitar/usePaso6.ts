@@ -89,7 +89,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
         ? ['pasaporte_principal']
         : []
 
-  const minComprobantes = MIN_COMPROBANTES[datos.tipoActividad ?? ''] ?? 2
+  const minComprobantes = MIN_COMPROBANTES
 
   const tiposSubidos = archivosSubidos.map((a) => a.tipoArchivo)
   const idCompleta = tiposIdRequeridos.every((t) => tiposSubidos.includes(t))
