@@ -119,9 +119,9 @@ describe('apiGet', () => {
       }),
     )
 
-    const err = await apiGet('/api/test').catch((e) => e)
+    const err = await apiGet('/api/test').catch((e: unknown) => e)
     expect(err).toBeInstanceOf(ApiError)
-    expect(err.status).toBe(500)
+    expect((err as ApiError).status).toBe(500)
   })
 })
 
