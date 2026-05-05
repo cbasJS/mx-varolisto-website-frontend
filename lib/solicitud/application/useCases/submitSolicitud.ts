@@ -1,4 +1,4 @@
-import { apiPost } from '@/lib/solicitud/infrastructure/http/apiClient'
+import { apiPost, DEFAULT_TIMEOUT_MS } from '@/lib/solicitud/infrastructure/http/apiClient'
 import { apiRoutes } from '@/lib/solicitud/infrastructure/config/apiConfig'
 import {
   ApiError,
@@ -44,7 +44,7 @@ export async function submitSolicitud(input: SubmitSolicitudInput): Promise<Subm
   const response = await apiPost<ReturnType<typeof buildPayload>, CrearSolicitudResponse>(
     apiRoutes.solicitudes,
     payload,
-    { timeoutMs: 30_000 },
+    { timeoutMs: DEFAULT_TIMEOUT_MS },
   )
 
   return { folio: response.folio }

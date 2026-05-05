@@ -1,4 +1,9 @@
-import { apiPost, apiDelete } from '@/lib/solicitud/infrastructure/http/apiClient'
+import {
+  apiPost,
+  apiDelete,
+  DEFAULT_TIMEOUT_MS,
+  SHORT_TIMEOUT_MS,
+} from '@/lib/solicitud/infrastructure/http/apiClient'
 import { apiRoutes } from '@/lib/solicitud/infrastructure/config/apiConfig'
 import type { TipoArchivo } from '@varolisto/shared-schemas/enums'
 import type {
@@ -28,7 +33,7 @@ export async function solicitarUploadUrl(
   const response = await apiPost<UploadUrlRequest, UploadUrlResponse>(
     apiRoutes.archivoUpload,
     input,
-    { timeoutMs: 30_000 },
+    { timeoutMs: DEFAULT_TIMEOUT_MS },
   )
   return {
     uploadUrl: response.uploadUrl,
@@ -45,12 +50,12 @@ export async function eliminarArchivoStaging(
   const req: EliminarStagingRequest = { sessionUuid, storagePath, motivo }
   try {
     await apiDelete<EliminarStagingRequest, EliminarStagingResponse>(apiRoutes.archivoDelete, req, {
-      timeoutMs: 10_000,
+      timeoutMs: SHORT_TIMEOUT_MS,
     })
   } catch {
     await new Promise((r) => setTimeout(r, 500))
     await apiDelete<EliminarStagingRequest, EliminarStagingResponse>(apiRoutes.archivoDelete, req, {
-      timeoutMs: 10_000,
+      timeoutMs: SHORT_TIMEOUT_MS,
     })
   }
 }
