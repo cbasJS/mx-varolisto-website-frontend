@@ -160,6 +160,45 @@ El store expone `_hasHydrated` (seteado por `onRehydrateStorage`); úsalo para e
 - Animaciones CSS en `app/globals.css`: `cta-spotlight`, `step-glow`, `badge-bob`
 - Dark mode por clase (`dark:`), no hay toggle activo
 
+### Centralización de constantes
+
+Cualquier literal numérico o expresión regular que aparezca más de una vez en el repo debe extraerse a una constante nombrada. La ubicación depende de la capa Clean Architecture:
+
+| Ubicación                                          | Tipo de constante                                                            |
+| -------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `lib/solicitud/domain/constants.ts`                | Reglas de negocio puras: edades límite, rangos del producto, conteos mínimos |
+| `lib/solicitud/infrastructure/http/apiClient.ts`   | Timeouts HTTP (`DEFAULT_TIMEOUT_MS`, `SHORT_TIMEOUT_MS`)                     |
+| `lib/solicitud/infrastructure/config/appConfig.ts` | Configuración de app: `COLONIAS_STALE_TIME_MS`, etc.                         |
+
+**Regla**: si un número o regex aparece más de una vez, va en la constante de su capa. Si cambia una regla de negocio (ej. la edad mínima baja a 17), se edita en un solo lugar.
+
+```typescript
+// ❌ MAL — magic number repetido en el hook
+const maxDate = new Date()
+maxDate.setFullYear(maxDate.getFullYear() - 18)
+
+// ✅ BIEN — constante nombrada importada de la capa de dominio
+import { EDAD_MINIMA_ANIOS } from '@/lib/solicitud/domain/constants'
+const maxDate = new Date()
+maxDate.setFullYear(maxDate.getFullYear() - EDAD_MINIMA_ANIOS)
+
+// ❌ MAL — timeout hardcodeado en casos de uso
+await apiPost(route, payload, { timeoutMs: 30_000 })
+
+// ✅ BIEN — constante exportada del cliente HTTP
+import { DEFAULT_TIMEOUT_MS } from '@/lib/solicitud/infrastructure/http/apiClient'
+await apiPost(route, payload, { timeoutMs: DEFAULT_TIMEOUT_MS })
+
+// ❌ MAL — label duplicado en mapa plano y meta object
+export const DESTINO_LABELS = { liquidar_deuda: 'Liquidar una deuda', ... }
+export const DESTINOS_META  = { liquidar_deuda: { label: 'Liquidar una deuda', icono: '...' }, ... }
+
+// ✅ BIEN — label derivado del meta object (fuente única de verdad)
+export const DESTINO_LABELS = Object.fromEntries(
+  Object.entries(DESTINOS_META).map(([k, v]) => [k, v.label])
+) as Record<DestinoPrestamo, string>
+```
+
 ### Patrones de componentes
 
 - Los componentes interactivos usan la directiva `"use client"`

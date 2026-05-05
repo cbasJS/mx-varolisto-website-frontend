@@ -1,12 +1,13 @@
 import { ApiError } from './apiErrors'
 import { baseUrls } from '../config/apiConfig'
 
-const DEFAULT_TIMEOUT_MS = 30_000
+export const DEFAULT_TIMEOUT_MS = 30_000
+export const SHORT_TIMEOUT_MS = 10_000
 
 async function apiFetch<TReq, TRes>(
   method: string,
   path: string,
-  body: TReq,
+  body: TReq | undefined,
   options?: { timeoutMs?: number },
 ): Promise<TRes> {
   const controller = new AbortController()
@@ -20,7 +21,7 @@ async function apiFetch<TReq, TRes>(
     response = await fetch(`${baseUrl}${path}`, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      ...(body !== undefined && { body: JSON.stringify(body) }),
       signal: controller.signal,
     })
   } catch {
@@ -69,44 +70,5 @@ export async function apiDelete<TReq, TRes>(
 }
 
 export async function apiGet<TRes>(path: string, options?: { timeoutMs?: number }): Promise<TRes> {
-  const controller = new AbortController()
-  const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS
-  const timerId = setTimeout(() => controller.abort(), timeoutMs)
-
-  const baseUrl = baseUrls.varolisto
-
-  let response: Response
-  try {
-    response = await fetch(`${baseUrl}${path}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      signal: controller.signal,
-    })
-  } catch {
-    throw new ApiError({
-      status: 0,
-      code: 'network',
-      mensaje: 'Error de red o tiempo de espera agotado',
-    })
-  } finally {
-    clearTimeout(timerId)
-  }
-
-  if (response.ok) {
-    return response.json() as Promise<TRes>
-  }
-
-  let errorBody: { error?: string; mensaje?: string; detalles?: Record<string, string[]> } = {}
-  try {
-    errorBody = await response.json()
-  } catch {
-    // body no es JSON válido
-  }
-
-  throw new ApiError({
-    status: response.status,
-    code: errorBody.error,
-    mensaje: errorBody.mensaje,
-    detalles: errorBody.detalles,
-  })
+  return apiFetch('GET', path, undefined, options)
 }

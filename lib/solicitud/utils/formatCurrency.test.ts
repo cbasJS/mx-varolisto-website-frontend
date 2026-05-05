@@ -108,3 +108,17 @@ describe('formatCurrencyOnFocus — al entrar al campo', () => {
     expect(formatCurrencyOnFocus('')).toBe('')
   })
 })
+
+describe('round-trip blur → focus', () => {
+  it('blur luego focus conserva el valor numérico original ($8,500)', () => {
+    const blurred = formatCurrencyOnBlur('8,500') // '8,500.00'
+    const focused = formatCurrencyOnFocus(blurred) // '8,500'
+    expect(focused).toBe('8,500')
+  })
+
+  it('blur luego focus conserva el valor con centavos ($1,250.50)', () => {
+    const blurred = formatCurrencyOnBlur('1,250.5') // '1,250.50'
+    const focused = formatCurrencyOnFocus(blurred) // '1,250.5'
+    expect(focused).toBe('1,250.5')
+  })
+})

@@ -13,76 +13,7 @@ import type {
   TipoIdentificacion,
 } from '@varolisto/shared-schemas/enums'
 
-// ── Labels planos (usados en Paso7Revision) ──────────────────────────────────
-
-export const ANTIGUEDAD_LABELS: Record<Antiguedad, string> = {
-  menos_1: 'Menos de 1 año',
-  uno_a_dos: '1–2 años',
-  mas_2: 'Más de 2 años',
-}
-
-export const DESTINO_LABELS: Record<DestinoPrestamo, string> = {
-  liquidar_deuda: 'Liquidar una deuda',
-  capital_trabajo: 'Capital de trabajo',
-  gasto_medico: 'Gasto médico',
-  equipo_trabajo: 'Equipo de trabajo',
-  mejora_hogar: 'Mejora del hogar',
-  educacion: 'Educación',
-  gasto_familiar: 'Gasto familiar',
-  viaje_evento: 'Viaje o evento',
-  otro: 'Otro',
-}
-
-export const ACTIVIDAD_LABELS: Record<TipoActividad, string> = {
-  empleado_formal: 'Empleado formal',
-  empleado_informal: 'Empleado informal',
-  negocio_propio: 'Negocio propio',
-  independiente: 'Por cuenta propia',
-  otro: 'Otro',
-}
-
-export const RELACION_LABELS: Record<RelacionReferencia, string> = {
-  familiar: 'Familiar',
-  trabajo: 'Trabajo',
-  amigo: 'Amigo',
-  otro: 'Otro',
-}
-
-export const ANIOS_VIVIENDO_LABELS: Record<AniosViviendo, string> = {
-  menos_de_1: 'Menos de 1 año',
-  entre_1_y_2: '1 – 2 años',
-  entre_3_y_5: '3 – 5 años',
-  mas_de_5: 'Más de 5 años',
-}
-
-export const TIPO_VIVIENDA_LABELS: Record<TipoVivienda, string> = {
-  propia: 'Propia',
-  rentada: 'Rentada',
-  de_familiar: 'De un familiar',
-}
-
-export const ESTADO_CIVIL_LABELS: Record<EstadoCivil, string> = {
-  soltero: 'Soltero/a',
-  casado: 'Casado/a',
-  union_libre: 'Unión libre',
-  divorciado: 'Divorciado/a',
-  viudo: 'Viudo/a',
-}
-
-export const DEPENDIENTES_LABELS: Record<DependientesEconomicos, string> = {
-  ninguno: 'Ninguno',
-  uno: '1',
-  dos: '2',
-  tres: '3',
-  cuatro_o_mas: '4 o más',
-}
-
-export const TIPO_IDENTIFICACION_LABELS: Record<TipoIdentificacion, string> = {
-  ine: 'INE / IFE',
-  pasaporte: 'Pasaporte mexicano',
-}
-
-// ── Meta objects con icono (usados en los componentes de pasos) ───────────────
+// ── Meta objects con icono (fuente de verdad para label + icono) ──────────────
 
 export const SEXO_META: Record<Sexo, { label: string; icono: string }> = {
   M: { label: 'Hombre', icono: 'man' },
@@ -133,6 +64,65 @@ export const MONTO_TOTAL_DEUDAS_META: Record<MontoTotalDeudas, string> = {
   mas_30k: 'Más de $30,000',
 }
 
+// ── Labels planos (usados en Paso7Revision) ──────────────────────────────────
+// DESTINO_LABELS y ACTIVIDAD_LABELS se derivan de sus meta objects para evitar
+// duplicar los strings de texto.
+
+export const ANTIGUEDAD_LABELS: Record<Antiguedad, string> = {
+  menos_1: 'Menos de 1 año',
+  uno_a_dos: '1–2 años',
+  mas_2: 'Más de 2 años',
+}
+
+export const DESTINO_LABELS = Object.fromEntries(
+  Object.entries(DESTINOS_META).map(([k, v]) => [k, v.label]),
+) as Record<DestinoPrestamo, string>
+
+export const ACTIVIDAD_LABELS = Object.fromEntries(
+  Object.entries(ACTIVIDADES_META).map(([k, v]) => [k, v.label]),
+) as Record<TipoActividad, string>
+
+export const RELACION_LABELS: Record<RelacionReferencia, string> = {
+  familiar: 'Familiar',
+  trabajo: 'Trabajo',
+  amigo: 'Amigo',
+  otro: 'Otro',
+}
+
+export const ANIOS_VIVIENDO_LABELS: Record<AniosViviendo, string> = {
+  menos_de_1: 'Menos de 1 año',
+  entre_1_y_2: '1 – 2 años',
+  entre_3_y_5: '3 – 5 años',
+  mas_de_5: 'Más de 5 años',
+}
+
+export const TIPO_VIVIENDA_LABELS: Record<TipoVivienda, string> = {
+  propia: 'Propia',
+  rentada: 'Rentada',
+  de_familiar: 'De un familiar',
+}
+
+export const ESTADO_CIVIL_LABELS: Record<EstadoCivil, string> = {
+  soltero: 'Soltero/a',
+  casado: 'Casado/a',
+  union_libre: 'Unión libre',
+  divorciado: 'Divorciado/a',
+  viudo: 'Viudo/a',
+}
+
+export const DEPENDIENTES_LABELS: Record<DependientesEconomicos, string> = {
+  ninguno: 'Ninguno',
+  uno: '1',
+  dos: '2',
+  tres: '3',
+  cuatro_o_mas: '4 o más',
+}
+
+export const TIPO_IDENTIFICACION_LABELS: Record<TipoIdentificacion, string> = {
+  ine: 'INE / IFE',
+  pasaporte: 'Pasaporte mexicano',
+}
+
 export const RELACIONES_META: Record<RelacionReferencia, string> = RELACION_LABELS
 
 // ── Constantes de documentos (usadas en usePaso6) ────────────────────────────
@@ -146,12 +136,7 @@ export const COPY_DOCUMENTOS: Record<string, string> = {
     'Estados de cuenta de los últimos 3 meses o comprobantes de depósitos por honorarios.',
 }
 
-export const MIN_COMPROBANTES: Record<string, number> = {
-  empleado_formal: 2,
-  negocio_propio: 2,
-  empleado_informal: 2,
-  independiente: 2,
-}
+export const MIN_COMPROBANTES = 2
 
 export const TIPOS_SIN_BANCO = ['negocio_propio', 'empleado_informal', 'otro'] as const
 

@@ -34,10 +34,15 @@ export function formatCurrencyOnChange(raw: string): { display: string; num: num
   return { display: raw, num: undefined }
 }
 
+function parseDisplay(display: string): number | undefined {
+  const n = parseFloat(display.replace(/,/g, ''))
+  return isNaN(n) ? undefined : n
+}
+
 /** Maneja el onBlur: formatea con 2 decimales fijos. */
 export function formatCurrencyOnBlur(display: string): string {
-  const num = parseFloat(display.replace(/,/g, ''))
-  if (!isNaN(num)) {
+  const num = parseDisplay(display)
+  if (num !== undefined) {
     return num.toLocaleString('es-MX', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -48,8 +53,8 @@ export function formatCurrencyOnBlur(display: string): string {
 
 /** Maneja el onFocus: quita el .00 del blur para edición más cómoda. */
 export function formatCurrencyOnFocus(display: string): string {
-  const num = parseFloat(display.replace(/,/g, ''))
-  if (!isNaN(num)) {
+  const num = parseDisplay(display)
+  if (num !== undefined) {
     return num.toLocaleString('es-MX')
   }
   return display

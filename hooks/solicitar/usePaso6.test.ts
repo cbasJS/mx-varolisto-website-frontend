@@ -35,6 +35,71 @@ vi.mock('@/lib/solicitud/application/useCases/uploadFile', () => ({
   eliminarArchivoStaging: vi.fn().mockResolvedValue(undefined),
 }))
 
+const ARCHIVO_INE_REVERSO = {
+  clienteId: 'cliente-uuid-ine-reverso-001',
+  tipoArchivo: 'ine_reverso' as const,
+  nombreOriginal: 'ine_reverso.jpg',
+  mimeType: 'image/jpeg',
+  tamanoBytes: 231_200,
+  storagePath: 'staging/session-06600/ine_reverso.jpg',
+  archivoId: 'arch-uuid-ine-002',
+}
+
+const ARCHIVO_COMPROBANTE_2 = {
+  clienteId: 'cliente-uuid-comp-002',
+  tipoArchivo: 'comprobante_ingreso' as const,
+  nombreOriginal: 'recibo_nomina_febrero.jpg',
+  mimeType: 'image/jpeg',
+  tamanoBytes: 175_000,
+  storagePath: 'staging/session-06600/recibo_nomina_febrero.jpg',
+  archivoId: 'arch-uuid-comp-002',
+}
+
+describe('usePaso6 — minComprobantes y puedeAvanzar', () => {
+  beforeEach(() => {
+    useSolicitudStore.setState({
+      archivosSubidos: [],
+      sessionUuid: 'session-06600-abc',
+      tipoIdentificacion: 'ine',
+      datos: { tipoActividad: 'empleado_formal' },
+    })
+  })
+
+  it('minComprobantes es 2 para empleado_formal', async () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(result.current.minComprobantes).toBe(2)
+  })
+
+  it('minComprobantes es 2 para negocio_propio', async () => {
+    useSolicitudStore.setState({ datos: { tipoActividad: 'negocio_propio' } })
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(result.current.minComprobantes).toBe(2)
+  })
+
+  it('puedeAvanzar es false con 1 comprobante aunque INE esté completa', async () => {
+    useSolicitudStore.setState({
+      archivosSubidos: [ARCHIVO_INE_FRENTE, ARCHIVO_INE_REVERSO, ARCHIVO_COMPROBANTE],
+    })
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    await waitFor(() => expect(result.current.entradas.length).toBeGreaterThan(0))
+    expect(result.current.puedeAvanzar).toBe(false)
+  })
+
+  it('puedeAvanzar es true con INE completa y 2 comprobantes', async () => {
+    useSolicitudStore.setState({
+      archivosSubidos: [
+        ARCHIVO_INE_FRENTE,
+        ARCHIVO_INE_REVERSO,
+        ARCHIVO_COMPROBANTE,
+        ARCHIVO_COMPROBANTE_2,
+      ],
+    })
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    await waitFor(() => expect(result.current.entradas.length).toBeGreaterThan(0))
+    expect(result.current.puedeAvanzar).toBe(true)
+  })
+})
+
 describe('usePaso6 — hidratación desde sessionStorage', () => {
   beforeEach(() => {
     useSolicitudStore.setState({
