@@ -1059,7 +1059,10 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await page.locator('a[href="/aviso-de-privacidad-integral"]').first().click()
     await expect(page.getByText('¿Seguro que quieres salir?')).toBeVisible({ timeout: 3_000 })
     await page.getByRole('button', { name: 'Salir de todas formas' }).click()
-    await page.waitForURL('**/aviso-de-privacidad-integral', { timeout: 5_000 })
+    await page.waitForURL('**/aviso-de-privacidad-integral', {
+      timeout: 5_000,
+      waitUntil: 'domcontentloaded',
+    })
   })
 
   // ── E10. Sin datos ni archivos — sin interceptación ─────────────────────
@@ -1073,7 +1076,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await page.locator('a[href="/"]').first().click()
 
     // Dialog NO debe aparecer y la navegación ocurre
-    await page.waitForURL('**/', { timeout: 5_000 })
+    await page.waitForURL('**/', { timeout: 5_000, waitUntil: 'domcontentloaded' })
     await expect(page.getByText('¿Seguro que quieres salir?')).not.toBeVisible()
   })
 
@@ -1101,6 +1104,6 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await page.locator('a[href="/"]').first().click()
     await expect(page.getByText('¿Seguro que quieres salir?')).toBeVisible({ timeout: 3_000 })
     await page.getByRole('button', { name: 'Salir de todas formas' }).click()
-    await page.waitForURL('/', { timeout: 5_000 })
+    await page.waitForURL('/', { timeout: 5_000, waitUntil: 'domcontentloaded' })
   })
 })
