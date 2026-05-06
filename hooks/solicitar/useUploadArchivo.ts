@@ -89,7 +89,7 @@ export function useUploadArchivo() {
       } catch (err) {
         const mensaje =
           err instanceof ApiError && err.status === 422
-            ? 'No pudimos procesar este archivo. Verifica que sea JPG o PNG y vuelve a intentar.'
+            ? 'No pudimos procesar este archivo. Verifica que sea JPG, PNG o PDF y vuelve a intentar.'
             : err instanceof Error
               ? err.message
               : 'Error desconocido al subir'

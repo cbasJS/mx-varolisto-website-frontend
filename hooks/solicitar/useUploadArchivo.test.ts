@@ -1,8 +1,15 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { renderHook, act, waitFor } from '@testing-library/react'
 import { useUploadArchivo } from './useUploadArchivo'
 import { useSolicitudStore } from '@/lib/solicitud/store'
+import { ApiError } from '@/lib/api'
+import { solicitarUploadUrl } from '@/lib/solicitud/application/useCases/uploadFile'
+
+vi.mock('@/lib/solicitud/application/useCases/uploadFile', () => ({
+  solicitarUploadUrl: vi.fn(),
+  eliminarArchivoStaging: vi.fn().mockResolvedValue(undefined),
+}))
 
 // Archivo de INE representativo ya subido a staging en una sesión anterior
 // (simulación del escenario de hidratación: el solicitante regresa a la pestaña
@@ -59,5 +66,39 @@ describe('useUploadArchivo — inicialización de entradas', () => {
     })
 
     expect(result.current.entradas).toHaveLength(1)
+  })
+})
+
+describe('useUploadArchivo — mensaje de error 422 (MIME no permitido)', () => {
+  beforeEach(() => {
+    useSolicitudStore.setState({
+      archivosSubidos: [],
+      sessionUuid: 'session-06600-abc',
+    })
+    vi.restoreAllMocks()
+  })
+
+  it('cuando el backend rechaza con 422, el mensaje al usuario menciona JPG, PNG y PDF', async () => {
+    vi.mocked(solicitarUploadUrl).mockRejectedValueOnce(
+      new ApiError({ status: 422, mensaje: 'Tipo de archivo no permitido' }),
+    )
+
+    const { result } = renderHook(() => useUploadArchivo())
+
+    const archivoInvalido = new File(['contenido'], 'archivo.gif', { type: 'image/gif' })
+
+    act(() => {
+      result.current.agregarArchivos([archivoInvalido], 'comprobante_ingreso')
+    })
+
+    await waitFor(() => {
+      const entrada = result.current.entradas[0]
+      expect(entrada?.estado).toBe('failed')
+    })
+
+    const mensaje = result.current.entradas[0].error ?? ''
+    expect(mensaje).toContain('JPG')
+    expect(mensaje).toContain('PNG')
+    expect(mensaje).toContain('PDF')
   })
 })

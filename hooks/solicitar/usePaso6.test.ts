@@ -100,6 +100,39 @@ describe('usePaso6 — minComprobantes y puedeAvanzar', () => {
   })
 })
 
+describe('usePaso6 — MIME types aceptados por dropzones', () => {
+  beforeEach(() => {
+    useSolicitudStore.setState({
+      archivosSubidos: [],
+      sessionUuid: 'session-06600-abc',
+      tipoIdentificacion: 'ine',
+      datos: { tipoActividad: 'empleado_formal' },
+    })
+  })
+
+  // Los 4 dropzones (comprobante, INE frente, INE reverso, pasaporte) deben aceptar
+  // los tres MIME types declarados como permitidos en shared-schemas: JPG, PNG y PDF.
+  // El listado es la fuente de verdad — react-dropzone serializa el accept como string
+  // separado por comas en el atributo HTML del input.
+  const dropzonesEsperados = [
+    'dropzoneComprobante',
+    'dropzoneIneFrente',
+    'dropzoneIneReverso',
+    'dropzonePasaporte',
+  ] as const
+
+  for (const nombre of dropzonesEsperados) {
+    it(`${nombre} acepta image/jpeg, image/png y application/pdf`, () => {
+      const { result } = renderHook(() => usePaso6(vi.fn()))
+      const inputProps = result.current[nombre].getInputProps() as { accept?: string }
+      const accept = inputProps.accept ?? ''
+      expect(accept).toContain('image/jpeg')
+      expect(accept).toContain('image/png')
+      expect(accept).toContain('application/pdf')
+    })
+  }
+})
+
 describe('usePaso6 — hidratación desde sessionStorage', () => {
   beforeEach(() => {
     useSolicitudStore.setState({
