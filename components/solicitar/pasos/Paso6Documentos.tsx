@@ -138,7 +138,6 @@ interface DropzoneCardProps {
   isDragActive: boolean
   disabled: boolean
   done: boolean
-  capture?: boolean
 }
 
 function DropzoneCard({
@@ -149,7 +148,6 @@ function DropzoneCard({
   isDragActive,
   disabled,
   done,
-  capture,
 }: DropzoneCardProps) {
   const inputProps = getInputProps() as React.InputHTMLAttributes<HTMLInputElement>
 
@@ -167,7 +165,7 @@ function DropzoneCard({
           'border-outline-variant bg-surface-bright hover:border-primary/40 hover:bg-primary/3',
       )}
     >
-      <input {...inputProps} {...(capture ? { capture: 'environment' } : {})} />
+      <input {...inputProps} />
       <div className="flex flex-col items-center gap-2">
         <div
           className={cn(
@@ -187,7 +185,7 @@ function DropzoneCard({
           </span>
         </div>
         <p className="text-sm font-semibold text-on-surface">{done ? 'Subida exitosa' : label}</p>
-        {!done && <p className="text-xs text-outline">JPG o PNG · Máx. 10 MB</p>}
+        {!done && <p className="text-xs text-outline">JPG, PNG o PDF · Máx. 10 MB</p>}
       </div>
     </div>
   )
@@ -304,7 +302,6 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
               isDragActive={dropzoneIneFrente.isDragActive}
               disabled={dropzoneIneFrente.isDisabled}
               done={tiposSubidos.includes('ine_frente')}
-              capture
             />
             <DropzoneCard
               label="Reverso de tu INE"
@@ -314,7 +311,6 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
               isDragActive={dropzoneIneReverso.isDragActive}
               disabled={dropzoneIneReverso.isDisabled ?? false}
               done={tiposSubidos.includes('ine_reverso')}
-              capture
             />
           </div>
           <ListaEntradas
@@ -338,7 +334,6 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
             isDragActive={dropzonePasaporte.isDragActive}
             disabled={dropzonePasaporte.isDisabled ?? false}
             done={tiposSubidos.includes('pasaporte_principal')}
-            capture
           />
           <ListaEntradas
             entradas={entradasPasaporte}
@@ -425,7 +420,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
                   ? 'Suelta aquí los archivos'
                   : 'Arrastra o toca para subir'}
               </p>
-              <p className="mt-0.5 text-xs text-outline">JPG o PNG · Máx. 10 MB c/u</p>
+              <p className="mt-0.5 text-xs text-outline">JPG, PNG o PDF · Máx. 10 MB c/u</p>
             </div>
           </div>
         </div>

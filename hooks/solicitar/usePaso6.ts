@@ -6,6 +6,7 @@ import { useSolicitudStore } from '@/lib/solicitud/store'
 import { useUploadArchivo } from './useUploadArchivo'
 export type { EstadoUpload } from './useUploadArchivo'
 import type { TipoArchivo, TipoIdentificacion } from '@varolisto/shared-schemas/enums'
+import { ACCEPTED_MIME_TYPES } from '@varolisto/shared-schemas/form'
 import {
   COPY_DOCUMENTOS,
   MIN_COMPROBANTES,
@@ -14,6 +15,8 @@ import {
 } from '@/lib/solicitud/utils/lookup-labels'
 import { hidratarArchivos } from '@/lib/solicitud/application/useCases/hidratarArchivos'
 import { MAX_COMPROBANTES_INGRESO } from '@/lib/solicitud/domain/solicitud/documentosConfig'
+
+const dropzoneAccept = Object.fromEntries(ACCEPTED_MIME_TYPES.map((mime) => [mime, [] as string[]]))
 
 export interface Paso6StoreData {
   tipoIdentificacion: TipoIdentificacion
@@ -188,7 +191,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   )
   const dropzoneComprobante = useDropzone({
     onDrop: onDropComprobante,
-    accept: { 'image/jpeg': [], 'image/png': [] },
+    accept: dropzoneAccept,
     maxSize: 10 * 1024 * 1024,
     maxFiles: 4,
     disabled: disabledComprobante,
@@ -200,7 +203,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   )
   const dropzoneIneFrente = useDropzone({
     onDrop: onDropIneFrente,
-    accept: { 'image/jpeg': [], 'image/png': [] },
+    accept: dropzoneAccept,
     maxSize: 10 * 1024 * 1024,
     maxFiles: 1,
     disabled: disabledIneFrente,
@@ -212,7 +215,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   )
   const dropzoneIneReverso = useDropzone({
     onDrop: onDropIneReverso,
-    accept: { 'image/jpeg': [], 'image/png': [] },
+    accept: dropzoneAccept,
     maxSize: 10 * 1024 * 1024,
     maxFiles: 1,
     disabled: disabledIneReverso,
@@ -224,7 +227,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   )
   const dropzonePasaporte = useDropzone({
     onDrop: onDropPasaporte,
-    accept: { 'image/jpeg': [], 'image/png': [] },
+    accept: dropzoneAccept,
     maxSize: 10 * 1024 * 1024,
     maxFiles: 1,
     disabled: disabledPasaporte,
