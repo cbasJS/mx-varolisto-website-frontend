@@ -27,6 +27,22 @@ export interface SolicitarUploadUrlResult {
   archivoId: string
 }
 
+// Hosts permitidos como destino del PUT directo a Storage. Si el backend
+// devuelve cualquier otro hostname (por compromiso o MITM), abortamos
+// antes de subir el archivo.
+const HOSTS_STORAGE_PERMITIDOS = ['.supabase.co', '.supabase.in']
+
+function esUploadUrlConfiable(rawUrl: string): boolean {
+  let url: URL
+  try {
+    url = new URL(rawUrl)
+  } catch {
+    return false
+  }
+  if (url.protocol !== 'https:') return false
+  return HOSTS_STORAGE_PERMITIDOS.some((suffix) => url.hostname.endsWith(suffix))
+}
+
 export async function solicitarUploadUrl(
   input: SolicitarUploadUrlInput,
 ): Promise<SolicitarUploadUrlResult> {
@@ -35,6 +51,11 @@ export async function solicitarUploadUrl(
     input,
     { timeoutMs: DEFAULT_TIMEOUT_MS },
   )
+  if (!esUploadUrlConfiable(response.uploadUrl)) {
+    throw new Error(
+      'Destino de subida inválido. La URL no apunta a un host de almacenamiento confiable.',
+    )
+  }
   return {
     uploadUrl: response.uploadUrl,
     storagePath: response.storagePath,

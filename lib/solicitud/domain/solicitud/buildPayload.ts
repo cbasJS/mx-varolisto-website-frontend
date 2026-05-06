@@ -1,6 +1,22 @@
+import { ACCEPTED_MIME_TYPES } from '@varolisto/shared-schemas/form'
 import type { CrearSolicitudRequest } from '@varolisto/shared-schemas/api'
 import type { TipoIdentificacion } from '@varolisto/shared-schemas/enums'
 import type { ArchivoSubido } from '@/lib/solicitud/store'
+
+type MimeTypePermitido = (typeof ACCEPTED_MIME_TYPES)[number]
+
+function aMimePermitido(mime: string): MimeTypePermitido {
+  // Garantía de tipo en el límite con shared-schemas. La whitelist real
+  // se aplica en el input del file picker (accept="image/jpeg,...") y se
+  // re-valida en el schema de Zod al enviar — este cast es de tipos, no
+  // de seguridad.
+  if ((ACCEPTED_MIME_TYPES as readonly string[]).includes(mime)) {
+    return mime as MimeTypePermitido
+  }
+  // Fallback: si llegó algo inesperado, dejamos image/jpeg para que el
+  // schema lance un error claro abajo (en lugar de un cast oculto).
+  return 'image/jpeg'
+}
 import type {
   Paso1Data,
   Paso2Data,
@@ -79,7 +95,7 @@ export function buildPayload({
     archivosDeclarados: archivosSubidos.map((a) => ({
       tipoArchivo: a.tipoArchivo,
       nombreOriginal: a.nombreOriginal,
-      mimeType: a.mimeType,
+      mimeType: aMimePermitido(a.mimeType),
       tamanoBytes: a.tamanoBytes,
     })),
     // Paso 7 (UI) — consentimientos (schema paso7)

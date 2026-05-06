@@ -30,7 +30,7 @@ describe('solicitarUploadUrl', () => {
         ok: true,
         status: 200,
         json: async () => ({
-          uploadUrl: 'https://storage.varolisto.mx/presigned/abc123',
+          uploadUrl: 'https://abc123.supabase.co/storage/v1/upload/sign?token=xyz',
           storagePath: STORAGE_PATH_INE,
           archivoId: 'arch-uuid-001',
           expiresIn: 300,
@@ -40,7 +40,7 @@ describe('solicitarUploadUrl', () => {
 
     const resultado = await solicitarUploadUrl(ARCHIVO_INE)
 
-    expect(resultado.uploadUrl).toBe('https://storage.varolisto.mx/presigned/abc123')
+    expect(resultado.uploadUrl).toBe('https://abc123.supabase.co/storage/v1/upload/sign?token=xyz')
     expect(resultado.storagePath).toBe(STORAGE_PATH_INE)
     expect(resultado.archivoId).toBe('arch-uuid-001')
   })
@@ -50,7 +50,7 @@ describe('solicitarUploadUrl', () => {
       ok: true,
       status: 200,
       json: async () => ({
-        uploadUrl: 'https://storage.varolisto.mx/presigned/abc123',
+        uploadUrl: 'https://abc123.supabase.co/storage/v1/upload/sign?token=xyz',
         storagePath: STORAGE_PATH_INE,
         archivoId: 'arch-uuid-001',
         expiresIn: 300,
@@ -84,6 +84,61 @@ describe('solicitarUploadUrl', () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
 
     await expect(solicitarUploadUrl(ARCHIVO_INE)).rejects.toMatchObject({ status: 0 })
+  })
+
+  it('rechaza uploadUrl con hostname fuera de Supabase (ataque MITM/backend comprometido)', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          uploadUrl: 'https://attacker.example.com/upload',
+          storagePath: STORAGE_PATH_INE,
+          archivoId: 'arch-uuid-001',
+          expiresIn: 300,
+        }),
+      }),
+    )
+
+    await expect(solicitarUploadUrl(ARCHIVO_INE)).rejects.toThrow(/destino/i)
+  })
+
+  it('rechaza uploadUrl con protocolo HTTP en lugar de HTTPS', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          uploadUrl: 'http://abc123.supabase.co/storage/v1/upload',
+          storagePath: STORAGE_PATH_INE,
+          archivoId: 'arch-uuid-001',
+          expiresIn: 300,
+        }),
+      }),
+    )
+
+    await expect(solicitarUploadUrl(ARCHIVO_INE)).rejects.toThrow(/destino/i)
+  })
+
+  it('acepta uploadUrl con hostname de subdominio Supabase', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          uploadUrl: 'https://abc123.supabase.co/storage/v1/upload/sign?token=foo',
+          storagePath: STORAGE_PATH_INE,
+          archivoId: 'arch-uuid-001',
+          expiresIn: 300,
+        }),
+      }),
+    )
+
+    const r = await solicitarUploadUrl(ARCHIVO_INE)
+    expect(r.uploadUrl).toMatch(/\.supabase\.co/)
   })
 })
 

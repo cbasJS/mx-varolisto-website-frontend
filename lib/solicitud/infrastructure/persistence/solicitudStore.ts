@@ -10,6 +10,11 @@ import { generateUUID } from '@/lib/utils'
 
 export type { ArchivoSubido, SolicitudState, SolicitudActions }
 
+// PII en sessionStorage tiene un horizonte limitado: si la sesión queda
+// inactiva más de 24h, descartamos los datos al rehidratar. Reduce la
+// ventana en la que un eventual XSS podría exfiltrar datos personales.
+const PII_TTL_MS = 24 * 60 * 60 * 1000
+
 const estadoInicial: SolicitudState = {
   pasoActual: 1,
   datos: {},
@@ -70,17 +75,28 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
           }
         },
       },
+      // coloniasCache NO se persiste: es un caché de optimización que se
+      // rehidrata barato desde /api/colonias (con revalidate 24h del lado del
+      // server). Persistirlo aumenta la superficie de PII en sessionStorage
+      // sin beneficio claro de UX.
       partialize: (state) =>
         ({
           pasoActual: state.pasoActual,
           datos: state.datos,
           timestampInicio: state.timestampInicio,
-          coloniasCache: state.coloniasCache,
           sessionUuid: state.sessionUuid,
           tipoIdentificacion: state.tipoIdentificacion,
         }) as unknown as SolicitudState & SolicitudActions,
       onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true)
+        if (!state) return
+        // TTL: si la sesión hidratada tiene PII de hace >24h, la descartamos.
+        // Evita que datos personales queden indefinidamente en sessionStorage
+        // si el usuario nunca cierra la pestaña o usa "Continue where you left off".
+        const edadMs = Date.now() - (state.timestampInicio ?? 0)
+        if (edadMs > PII_TTL_MS) {
+          state.resetForm()
+        }
+        state.setHasHydrated(true)
       },
     },
   ),
