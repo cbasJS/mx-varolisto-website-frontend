@@ -1,18 +1,22 @@
 'use client'
 
 import { AlertDialog, AlertDialogOverlay, AlertDialogPortal } from '@/components/ui/alert-dialog'
-import { salidaCopy } from '@/content/solicitar'
+
+export interface ConfirmacionSalidaCopy {
+  titulo: string
+  descripcion: string
+  botonQuedarme: string
+  botonSalir: string
+}
 
 interface Props {
   open: boolean
-  variante: 'submitting' | 'archivos' | 'datos'
+  copy: ConfirmacionSalidaCopy
   onQuedarme: () => void
   onSalir: () => void
 }
 
-export default function ConfirmacionSalidaDialog({ open, variante, onQuedarme, onSalir }: Props) {
-  const { titulo, descripcion } = salidaCopy[variante]
-
+export default function ConfirmacionSalidaDialog({ open, copy, onQuedarme, onSalir }: Props) {
   return (
     <AlertDialog open={open}>
       <AlertDialogPortal>
@@ -29,11 +33,13 @@ export default function ConfirmacionSalidaDialog({ open, variante, onQuedarme, o
             <div className="relative px-6 pb-6 pt-6">
               {/* Título */}
               <h2 className="font-headline text-[22px] font-extrabold leading-tight tracking-tight text-white mb-2">
-                {titulo}
+                {copy.titulo}
               </h2>
 
               {/* Descripción */}
-              <p className="font-body text-sm leading-relaxed text-white/65 mb-6">{descripcion}</p>
+              <p className="font-body text-sm leading-relaxed text-white/65 mb-6">
+                {copy.descripcion}
+              </p>
 
               {/* Separador */}
               <div className="mb-5 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
@@ -47,7 +53,7 @@ export default function ConfirmacionSalidaDialog({ open, variante, onQuedarme, o
                 >
                   {/* Shimmer */}
                   <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-20deg] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
-                  <span className="relative">{salidaCopy.botonQuedarme}</span>
+                  <span className="relative">{copy.botonQuedarme}</span>
                 </button>
 
                 {/* Acción secundaria — ghost */}
@@ -55,7 +61,7 @@ export default function ConfirmacionSalidaDialog({ open, variante, onQuedarme, o
                   onClick={onSalir}
                   className="w-full rounded-2xl border border-white/15 bg-white/5 px-5 py-3 font-headline text-[14px] font-medium text-white/55 transition-all duration-200 hover:border-white/30 hover:bg-white/10 hover:text-white/80 active:scale-[0.98]"
                 >
-                  {salidaCopy.botonSalir}
+                  {copy.botonSalir}
                 </button>
               </div>
             </div>

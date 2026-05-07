@@ -6,13 +6,14 @@ import { usePaso6, type Paso6StoreData } from '@/hooks/solicitar/usePaso6'
 import { TIPO_IDENTIFICACION_LABELS } from '@/lib/solicitud/utils/lookup-labels'
 import type { TipoIdentificacion } from '@varolisto/shared-schemas/enums'
 import { SectionDivider } from '@/components/forms/SectionDivider'
-import { StepTitle } from '../../StepTitle'
+import { StepTitle } from '@/components/wizard/StepTitle'
 import { InfoBanner } from '@/components/forms/InfoBanner'
 import { cn } from '@/lib/utils'
 import { ListaEntradas } from './ListaEntradas'
 import { DropzoneCard } from './DropzoneCard'
 import { ToggleSinEstadosCuenta } from './ToggleSinEstadosCuenta'
 import { AvisoDuplicados } from './AvisoDuplicados'
+import { pasos } from '@/content/solicitar'
 
 export type { Paso6StoreData }
 
@@ -71,6 +72,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
     <form onSubmit={handleSubmit} noValidate>
       <StepTitle
         numero={6}
+        total={pasos.length}
         titulo="Documentos"
         subtitulo="Sube tu identificación y comprobante de ingresos."
       />
