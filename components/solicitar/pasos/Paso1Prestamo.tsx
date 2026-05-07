@@ -8,10 +8,11 @@ import { Slider } from '@/components/ui/slider'
 import { Controller } from 'react-hook-form'
 import { PillOption } from '@/components/forms/PillOption'
 import { SectionDivider } from '@/components/forms/SectionDivider'
-import { StepTitle } from '../StepTitle'
-import { FormActions } from '../FormActions'
+import { StepTitle } from '@/components/wizard/StepTitle'
+import { FormActions } from '@/components/wizard/FormActions'
 import { FieldError } from '@/components/forms/FieldError'
 import { cn } from '@/lib/utils'
+import { pasos } from '@/content/solicitar'
 
 interface Props {
   onNext: (datos: Paso2Data) => void
@@ -35,6 +36,7 @@ export default function Paso1Prestamo({ onNext }: Props) {
     <form onSubmit={handleSubmit} noValidate>
       <StepTitle
         numero={1}
+        total={pasos.length}
         titulo="¿Cuánto necesitas?"
         subtitulo="Mueve el control para elegir el monto y plazo que mejor te funcione."
       />
