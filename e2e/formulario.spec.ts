@@ -548,7 +548,9 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await page.setViewportSize({ width: 375, height: 812 })
     await page.reload()
     await page.waitForSelector('text=¿Cuánto necesitas?')
-    await expect(page.getByText('Paso 1 de 7')).toBeVisible()
+    // "Paso 1 de 7" aparece en BarraPasos (mobile) y en StepTitle dentro del form;
+    // .first() apunta al BarraPasos que renderiza antes en el DOM.
+    await expect(page.getByText('Paso 1 de 7').first()).toBeVisible()
     await expect(page.getByText('Préstamo').first()).toBeVisible()
   })
 
