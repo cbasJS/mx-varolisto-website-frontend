@@ -2,6 +2,7 @@
 
 import React, { useState, useId, forwardRef } from 'react'
 import { cn } from '@/lib/utils'
+import { FieldError } from './FieldError'
 
 interface FloatingInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'prefix'> {
   label: string
@@ -104,14 +105,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
             </span>
           )}
         </div>
-        {error && (
-          <p id={`${inputId}-error`} className="mt-1.5 flex items-center gap-1 text-xs text-error">
-            <span className="material-symbols-outlined text-sm" aria-hidden>
-              error
-            </span>
-            {error}
-          </p>
-        )}
+        <FieldError message={error} id={error ? `${inputId}-error` : undefined} />
         {!error && hint && <p className="mt-1.5 text-xs text-outline">{hint}</p>}
       </div>
     )
