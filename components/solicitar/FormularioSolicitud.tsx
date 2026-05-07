@@ -5,7 +5,7 @@ import { useSolicitudNavigation } from '@/hooks/solicitar/useSolicitudNavigation
 import { useBeforeUnloadCleanup } from '@/hooks/solicitar/useBeforeUnloadCleanup'
 import { useSolicitudStore } from '@/lib/solicitud/store'
 import { trustBadges } from '@/content/solicitar'
-import BarraPasos from './BarraPasos'
+import BarraPasos from './barraPasos/BarraPasos'
 import PantallaExito from './PantallaExito'
 import { FormSkeleton } from './FormSkeleton'
 import Paso1Prestamo from './pasos/Paso1Prestamo'

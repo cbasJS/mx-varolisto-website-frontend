@@ -4,8 +4,12 @@ import { motion } from 'framer-motion'
 import { MdOutlineWhatsapp, MdOutlineVerified } from 'react-icons/md'
 import { CTA_URL, WHATSAPP_URL } from '@/lib/config'
 import { staggerContainer, fadeUpVariant, fadeInVariant } from '@/lib/animations'
+import { heroCopy } from '@/content/home'
+import { SocialProofBadge } from './hero/SocialProofBadge'
 
 export default function Hero() {
+  const { headline, subtitle, ctaPrimary, ctaWhatsapp, footer } = heroCopy
+
   return (
     <section className="hero-gradient pt-16 pb-20 px-6" aria-label="Sección principal">
       <motion.div
@@ -14,43 +18,21 @@ export default function Hero() {
         initial="hidden"
         animate="show"
       >
-        {/* Social proof badge */}
-        <motion.div variants={fadeUpVariant}>
-          <div
-            className="badge-bob inline-flex items-center gap-2 bg-secondary-container md:bg-primary/5 text-on-secondary-container md:text-primary px-4 py-1.5 rounded-full mb-6 md:mb-8"
-            aria-label="Estamos de tu lado"
-          >
-            {/* Mobile only */}
-            <span className="flex items-center gap-2 md:hidden">
-              <span
-                className="material-symbols-outlined text-lg"
-                aria-hidden="true"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                thumb_up
-              </span>
-              <span className="text-sm font-semibold">Estamos de tu lado</span>
-            </span>
-            {/* Desktop only */}
-            <span className="hidden md:inline text-sm font-bold tracking-tight">
-              Sin trámites complicados
-            </span>
-          </div>
-        </motion.div>
+        <SocialProofBadge />
 
         <motion.h1
           className="font-headline font-extrabold text-4xl md:text-6xl text-primary leading-tight mb-6 tracking-tight"
           variants={fadeUpVariant}
         >
-          Cuando necesitas dinero,{' '}
-          <span className="text-primary md:text-secondary">aquí empiezas</span>
+          {headline.before}{' '}
+          <span className="text-primary md:text-secondary">{headline.highlight}</span>
         </motion.h1>
 
         <motion.p
           className="text-lg md:text-xl text-on-surface-variant font-medium mb-12 leading-relaxed"
           variants={fadeUpVariant}
         >
-          Sin trámites complicados. Te contactamos en minutos.
+          {subtitle}
         </motion.p>
 
         <motion.div
@@ -61,12 +43,12 @@ export default function Hero() {
             <a
               href={CTA_URL}
               className="cta-shimmer w-full bg-gradient-to-br from-primary to-primary-container md:[background-image:none] md:bg-secondary text-on-primary md:text-primary px-8 py-4 md:py-5 rounded-full md:rounded-2xl font-headline font-bold md:font-extrabold text-lg md:text-xl shadow-lg shadow-secondary/20 md:hover:shadow-xl md:hover:shadow-secondary/20 transition-shadow active:scale-95 flex items-center justify-center"
-              aria-label="Solicitar financiamiento ahora"
+              aria-label={ctaPrimary.ariaLabel}
             >
-              Solicitar ahora
+              {ctaPrimary.label}
             </a>
             <p className="text-xs font-semibold text-on-surface-variant/70">
-              Te toma menos de 2 minutos
+              {ctaPrimary.microcopy}
             </p>
           </div>
 
@@ -76,13 +58,13 @@ export default function Hero() {
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-surface-container-highest md:bg-surface-container-lowest md:border-2 md:border-surface-container text-primary md:text-on-surface px-8 py-4 rounded-full md:rounded-2xl font-headline font-bold text-lg hover:bg-surface-variant md:hover:bg-surface-bright transition-all active:scale-95 flex items-center justify-center gap-3"
-              aria-label="Hablar con un asesor por WhatsApp"
+              aria-label={ctaWhatsapp.ariaLabel}
             >
               <MdOutlineWhatsapp className="text-2xl text-secondary" aria-hidden="true" />
-              WhatsApp
+              {ctaWhatsapp.label}
             </a>
             <p className="text-xs font-semibold text-on-surface-variant/70">
-              Te respondemos lo antes posible
+              {ctaWhatsapp.microcopy}
             </p>
           </div>
         </motion.div>
@@ -92,7 +74,7 @@ export default function Hero() {
           variants={fadeInVariant}
         >
           <MdOutlineVerified className="text-secondary text-lg" aria-hidden="true" />
-          Atención personalizada en todo México
+          {footer}
         </motion.p>
       </motion.div>
     </section>
