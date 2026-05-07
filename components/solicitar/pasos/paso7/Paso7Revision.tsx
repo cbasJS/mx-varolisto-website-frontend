@@ -17,11 +17,12 @@ import {
   DEPENDIENTES_LABELS,
   TIPO_IDENTIFICACION_LABELS,
 } from '@/lib/solicitud/utils/lookup-labels'
-import { StepTitle } from '../../StepTitle'
+import { StepTitle } from '@/components/wizard/StepTitle'
 import { SeccionCard } from './SeccionCard'
 import { Fila, SubLabel } from './FilaDatos'
 import { ModalConflicto } from './ModalConflicto'
 import { ConsentimientosSection } from './ConsentimientosSection'
+import { pasos } from '@/content/solicitar'
 
 interface Props {
   onSubmit: (datos: Paso7Data) => void
@@ -70,6 +71,7 @@ export default function Paso7Revision({
       <form onSubmit={handleSubmit} noValidate>
         <StepTitle
           numero={7}
+          total={pasos.length}
           titulo="Revisa tu solicitud"
           subtitulo="Confirma que todo esté correcto antes de enviar."
         />

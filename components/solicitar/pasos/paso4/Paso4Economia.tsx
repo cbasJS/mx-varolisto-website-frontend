@@ -13,10 +13,11 @@ import { FloatingSelect } from '@/components/forms/FloatingSelect'
 import { PillOption } from '@/components/forms/PillOption'
 import { PillGroup } from '@/components/forms/PillGroup'
 import { SectionDivider } from '@/components/forms/SectionDivider'
-import { StepTitle } from '../../StepTitle'
-import { FormActions } from '../../FormActions'
+import { StepTitle } from '@/components/wizard/StepTitle'
+import { FormActions } from '@/components/wizard/FormActions'
 import { SelectorActividadLaboral } from './SelectorActividadLaboral'
 import { SeccionDeudas } from './SeccionDeudas'
+import { pasos } from '@/content/solicitar'
 
 interface Props {
   onNext: (datos: Paso4Data) => void
@@ -56,6 +57,7 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
     <form onSubmit={handleSubmit} noValidate>
       <StepTitle
         numero={4}
+        total={pasos.length}
         titulo="Tu situación económica"
         subtitulo="Esta información nos ayuda a diseñar la mejor oferta para ti."
       />

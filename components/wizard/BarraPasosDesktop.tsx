@@ -1,17 +1,18 @@
 'use client'
 
-import { pasos as PASOS } from '@/content/solicitar'
+import type { Paso } from './BarraPasos'
 import { StepNode } from './StepNode'
 
 interface BarraPasosDesktopProps {
   pasoActual: number
+  pasos: readonly Paso[]
 }
 
-export function BarraPasosDesktop({ pasoActual }: BarraPasosDesktopProps) {
+export function BarraPasosDesktop({ pasoActual, pasos }: BarraPasosDesktopProps) {
   return (
     <div className="mb-8 hidden md:block px-4">
       <div className="flex items-center">
-        {PASOS.map((paso, i) => {
+        {pasos.map((paso, i) => {
           const estado: 'completado' | 'actual' | 'pendiente' =
             paso.numero < pasoActual
               ? 'completado'
@@ -27,7 +28,7 @@ export function BarraPasosDesktop({ pasoActual }: BarraPasosDesktopProps) {
                 icono={paso.icono}
                 estado={estado}
               />
-              {i < PASOS.length - 1 && (
+              {i < pasos.length - 1 && (
                 <div className="relative mx-1 h-px flex-1 overflow-hidden rounded-full bg-white/10">
                   <div
                     className="absolute inset-y-0 left-0 rounded-full bg-secondary transition-all duration-500 ease-out"

@@ -2,10 +2,11 @@
 
 import { usePaso5 } from '@/hooks/solicitar/usePaso5'
 import type { Paso5Data } from '@/lib/solicitud/schemas/index'
-import { StepTitle } from '../../StepTitle'
-import { FormActions } from '../../FormActions'
+import { StepTitle } from '@/components/wizard/StepTitle'
+import { FormActions } from '@/components/wizard/FormActions'
 import { InfoBanner } from '@/components/forms/InfoBanner'
 import { RefCard } from './RefCard'
+import { pasos } from '@/content/solicitar'
 
 interface Props {
   onNext: (datos: Paso5Data) => void
@@ -19,6 +20,7 @@ export default function Paso5Referencias({ onNext, onBack }: Props) {
     <form onSubmit={handleSubmit} noValidate>
       <StepTitle
         numero={5}
+        total={pasos.length}
         titulo="Referencias personales"
         subtitulo="Necesitamos dos personas que puedan confirmar tu solicitud."
       />

@@ -9,9 +9,10 @@ import { ANIOS_VIVIENDO_LABELS, TIPO_VIVIENDA_LABELS } from '@/lib/solicitud/uti
 import { FloatingInput } from '@/components/forms/FloatingInput'
 import { FloatingSelect } from '@/components/forms/FloatingSelect'
 import { SectionDivider } from '@/components/forms/SectionDivider'
-import { StepTitle } from '../../StepTitle'
-import { FormActions } from '../../FormActions'
+import { StepTitle } from '@/components/wizard/StepTitle'
+import { FormActions } from '@/components/wizard/FormActions'
 import { CamposCP } from './CamposCP'
+import { pasos } from '@/content/solicitar'
 
 interface Props {
   onNext: (datos: Paso3Data) => void
@@ -50,6 +51,7 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
     <form onSubmit={handleSubmit} noValidate>
       <StepTitle
         numero={3}
+        total={pasos.length}
         titulo="Tu domicilio"
         subtitulo="Usamos tu código postal para encontrar tu colonia automáticamente."
       />
