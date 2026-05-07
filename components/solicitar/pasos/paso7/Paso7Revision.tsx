@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { usePaso7 } from '@/hooks/solicitar/usePaso7'
 import { useSolicitudStore } from '@/lib/solicitud/store'
@@ -17,11 +17,11 @@ import {
   DEPENDIENTES_LABELS,
   TIPO_IDENTIFICACION_LABELS,
 } from '@/lib/solicitud/utils/lookup-labels'
-import { WHATSAPP_URL } from '@/lib/config'
-import { Checkbox } from '@/components/ui/checkbox'
-import { StepTitle } from '../StepTitle'
-import { FieldError } from '../FieldError'
-import { cn } from '@/lib/utils'
+import { StepTitle } from '../../StepTitle'
+import { SeccionCard } from './SeccionCard'
+import { Fila, SubLabel } from './FilaDatos'
+import { ModalConflicto } from './ModalConflicto'
+import { ConsentimientosSection } from './ConsentimientosSection'
 
 interface Props {
   onSubmit: (datos: Paso7Data) => void
@@ -31,125 +31,6 @@ interface Props {
   errorSubmit: ErrorSubmit | null
   onLimpiarError: () => void
   onConflictoConfirmado: () => void
-}
-
-function SeccionCard({
-  titulo,
-  paso,
-  onEditar,
-  children,
-  icono,
-}: {
-  titulo: string
-  paso: number
-  onEditar: (paso: number) => void
-  children: React.ReactNode
-  icono: string
-}) {
-  const [abierto, setAbierto] = useState(true)
-
-  return (
-    <div className="overflow-hidden rounded-2xl border-2 border-surface-container-high bg-white">
-      <div className="flex w-full items-center gap-3 px-5 py-4">
-        <button
-          type="button"
-          onClick={() => setAbierto((p) => !p)}
-          className="flex flex-1 items-center gap-3 text-left transition-colors hover:opacity-70"
-        >
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/8">
-            <span
-              className="material-symbols-outlined text-sm text-primary"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-              aria-hidden
-            >
-              {icono}
-            </span>
-          </div>
-          <span className="flex-1 text-sm font-semibold text-on-surface">{titulo}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => onEditar(paso)}
-          className="rounded-lg border border-surface-container-high px-2.5 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
-        >
-          Editar
-        </button>
-        <button
-          type="button"
-          onClick={() => setAbierto((p) => !p)}
-          className="transition-colors hover:opacity-70"
-          aria-label={abierto ? 'Colapsar sección' : 'Expandir sección'}
-        >
-          <span
-            className={cn(
-              'material-symbols-outlined text-base text-outline transition-transform duration-200',
-              abierto && 'rotate-180',
-            )}
-            aria-hidden
-          >
-            expand_more
-          </span>
-        </button>
-      </div>
-      {abierto && <div className="border-t border-surface-container px-5 py-4">{children}</div>}
-    </div>
-  )
-}
-
-function Fila({ label, value }: { label: string; value?: string | number }) {
-  if (!value && value !== 0) return null
-  return (
-    <div className="flex items-start justify-between gap-4 py-1.5 text-sm">
-      <span className="shrink-0 text-outline">{label}</span>
-      <span className="text-right font-medium text-on-surface">{value}</span>
-    </div>
-  )
-}
-
-function SubLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mb-1.5 mt-3 text-[10px] font-bold uppercase tracking-widest text-outline first:mt-0">
-      {children}
-    </p>
-  )
-}
-
-function ModalConflicto({ onConfirmado }: { onConfirmado: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
-        <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-amber-100">
-          <span
-            className="material-symbols-outlined text-2xl text-amber-600"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-            aria-hidden
-          >
-            warning
-          </span>
-        </div>
-        <h2 className="mb-2 text-lg font-bold text-on-surface">Solicitud activa existente</h2>
-        <p className="mb-6 text-sm text-on-surface-variant leading-relaxed">
-          Ya existe una solicitud activa con estos datos. Si necesitas ayuda, escríbenos por{' '}
-          <a
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-primary underline underline-offset-2"
-          >
-            WhatsApp
-          </a>{' '}
-          con tu teléfono o CURP.
-        </p>
-        <button
-          type="button"
-          onClick={onConfirmado}
-          className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-white transition-colors hover:bg-primary/90"
-        >
-          Entendido
-        </button>
-      </div>
-    </div>
-  )
 }
 
 export default function Paso7Revision({
@@ -319,66 +200,22 @@ export default function Paso7Revision({
           </SeccionCard>
         </div>
 
-        {/* Consentimientos */}
-        <div className="mb-8 space-y-3 rounded-2xl border-2 border-surface-container-high bg-surface-bright p-5">
-          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-outline">
-            Acepto los términos
-          </p>
-
-          <label className="flex cursor-pointer items-start gap-3">
-            <Checkbox
-              id="aceptaPrivacidad"
-              checked={privacidad === true}
-              onCheckedChange={(checked) =>
-                setValue(
-                  'aceptaPrivacidad',
-                  checked === true ? true : (undefined as unknown as true),
-                  { shouldValidate: true },
-                )
-              }
-              className="mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-            />
-            <span className="text-sm text-on-surface-variant leading-relaxed">
-              He leído y acepto el{' '}
-              <a
-                href="/aviso-de-privacidad-integral"
-                target="_blank"
-                className="font-semibold text-primary underline underline-offset-2"
-              >
-                Aviso de Privacidad
-              </a>
-              .
-            </span>
-          </label>
-          <FieldError message={errors.aceptaPrivacidad?.message} />
-
-          <label className="flex cursor-pointer items-start gap-3">
-            <Checkbox
-              id="aceptaTerminos"
-              checked={terminos === true}
-              onCheckedChange={(checked) =>
-                setValue(
-                  'aceptaTerminos',
-                  checked === true ? true : (undefined as unknown as true),
-                  { shouldValidate: true },
-                )
-              }
-              className="mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-            />
-            <span className="text-sm text-on-surface-variant leading-relaxed">
-              He leído y acepto los{' '}
-              <a
-                href="/terminos-condiciones"
-                target="_blank"
-                className="font-semibold text-primary underline underline-offset-2"
-              >
-                Términos y Condiciones
-              </a>
-              .
-            </span>
-          </label>
-          <FieldError message={errors.aceptaTerminos?.message} />
-        </div>
+        <ConsentimientosSection
+          privacidad={privacidad}
+          terminos={terminos}
+          onPrivacidadChange={(checked) =>
+            setValue('aceptaPrivacidad', checked === true ? true : (undefined as unknown as true), {
+              shouldValidate: true,
+            })
+          }
+          onTerminosChange={(checked) =>
+            setValue('aceptaTerminos', checked === true ? true : (undefined as unknown as true), {
+              shouldValidate: true,
+            })
+          }
+          errorPrivacidad={errors.aceptaPrivacidad?.message}
+          errorTerminos={errors.aceptaTerminos?.message}
+        />
 
         {/* Botones */}
         <div className="flex justify-between gap-3">
