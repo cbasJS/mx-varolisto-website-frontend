@@ -1,3 +1,53 @@
+export interface HeroCopy {
+  badge: {
+    mobileLabel: string
+    mobileIcon: string
+    desktopLabel: string
+    ariaLabel: string
+  }
+  headline: {
+    before: string
+    highlight: string
+  }
+  subtitle: string
+  ctaPrimary: {
+    label: string
+    microcopy: string
+    ariaLabel: string
+  }
+  ctaWhatsapp: {
+    label: string
+    microcopy: string
+    ariaLabel: string
+  }
+  footer: string
+}
+
+export const heroCopy: HeroCopy = {
+  badge: {
+    mobileLabel: 'Estamos de tu lado',
+    mobileIcon: 'thumb_up',
+    desktopLabel: 'Sin trámites complicados',
+    ariaLabel: 'Estamos de tu lado',
+  },
+  headline: {
+    before: 'Cuando necesitas dinero,',
+    highlight: 'aquí empiezas',
+  },
+  subtitle: 'Sin trámites complicados. Te contactamos en minutos.',
+  ctaPrimary: {
+    label: 'Solicitar ahora',
+    microcopy: 'Te toma menos de 2 minutos',
+    ariaLabel: 'Solicitar financiamiento ahora',
+  },
+  ctaWhatsapp: {
+    label: 'WhatsApp',
+    microcopy: 'Te respondemos lo antes posible',
+    ariaLabel: 'Hablar con un asesor por WhatsApp',
+  },
+  footer: 'Atención personalizada en todo México',
+}
+
 export interface BenefitItem {
   icon: string
   title: string
@@ -78,6 +128,22 @@ export const testimonialItems: TestimonialItem[] = [
   { quote: 'Sin estrés y con un proceso sencillo' },
   { quote: 'Fácil de solicitar y con información transparente' },
 ]
+
+export interface FeaturedTestimonial {
+  quoteBefore: string
+  brandHighlight: string
+  quoteAfter: string
+  name: string
+  role: string
+}
+
+export const featuredTestimonial: FeaturedTestimonial = {
+  quoteBefore: 'Buscaba lana para arreglar mi casa y en Varo',
+  brandHighlight: 'Listo.mx',
+  quoteAfter: ' todo fue rápido y sin complicaciones.',
+  name: 'Francisco García',
+  role: 'Programador móvil - CDMX',
+}
 
 export const trustCardItems: TrustCardItem[] = [
   {

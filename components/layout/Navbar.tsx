@@ -3,17 +3,11 @@
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { CTA_URL, DARK_HEADER_ROUTES, NAVBAR_HEIGHT } from '@/lib/config'
+import { CTA_URL, DARK_HEADER_ROUTES } from '@/lib/config'
 import { useScrolled } from '@/hooks/useScrolled'
+import { scrollToSection } from '@/lib/scroll'
 import { navLinks } from '@/content/nav'
 import BrandName from '@/components/layout/BrandName'
-
-function scrollToSection(id: string) {
-  const el = document.getElementById(id)
-  if (!el) return
-  const top = el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT
-  window.scrollTo({ top, behavior: 'smooth' })
-}
 
 export default function Navbar() {
   const pathname = usePathname()

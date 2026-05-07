@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { testimonialItems } from '@/content/home'
+import { testimonialItems, featuredTestimonial } from '@/content/home'
 import { VIEWPORT_ONCE, VIEWPORT_CLOSE } from '@/lib/animations'
 
 export default function Testimonials() {
@@ -71,15 +71,15 @@ export default function Testimonials() {
           </span>
 
           <h2 className="font-headline font-extrabold text-3xl leading-tight mt-4">
-            &ldquo;Buscaba lana para arreglar mi casa y en Varo
-            <span className="text-secondary">Listo.mx</span> todo fue rápido y sin
-            complicaciones.&rdquo;
+            &ldquo;{featuredTestimonial.quoteBefore}
+            <span className="text-secondary">{featuredTestimonial.brandHighlight}</span>
+            {featuredTestimonial.quoteAfter}&rdquo;
           </h2>
 
           <div className="mt-8 flex items-center gap-4">
             <div>
-              <p className="font-headline font-bold">Francisco García</p>
-              <p className="text-primary-fixed-dim text-sm italic">Programador móvil - CDMX</p>
+              <p className="font-headline font-bold">{featuredTestimonial.name}</p>
+              <p className="text-primary-fixed-dim text-sm italic">{featuredTestimonial.role}</p>
             </div>
           </div>
         </motion.div>

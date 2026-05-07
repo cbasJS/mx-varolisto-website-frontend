@@ -75,10 +75,7 @@ function SelectContent({
         <SelectScrollUpButton />
         <SelectPrimitive.Viewport
           data-position={position}
-          className={cn(
-            'p-1 data-[position=popper]:h-[var(--radix-select-trigger-height)] data-[position=popper]:w-full data-[position=popper]:min-w-[var(--radix-select-trigger-width)]',
-            position === 'popper' && '',
-          )}
+          className="p-1 data-[position=popper]:h-[var(--radix-select-trigger-height)] data-[position=popper]:w-full data-[position=popper]:min-w-[var(--radix-select-trigger-width)]"
         >
           {children}
         </SelectPrimitive.Viewport>
