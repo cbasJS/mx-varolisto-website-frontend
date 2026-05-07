@@ -11,7 +11,7 @@ import Paso2Identidad from './pasos/Paso2Identidad'
 import Paso3Domicilio from './pasos/Paso3Domicilio'
 import Paso4Economia from './pasos/Paso4Economia'
 import Paso5Referencias from './pasos/Paso5Referencias'
-import Paso6Documentos from './pasos/Paso6Documentos'
+import Paso6Documentos from './pasos/paso6/Paso6Documentos'
 import Paso7Revision from './pasos/Paso7Revision'
 
 const TRUST_BADGES = [
