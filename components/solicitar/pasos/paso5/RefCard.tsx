@@ -1,10 +1,10 @@
 'use client'
 
-import { usePaso5 } from '@/hooks/solicitar/usePaso5'
+import { Controller, useWatch } from 'react-hook-form'
+import type { Control, FieldErrors, UseFormRegister } from 'react-hook-form'
 import type { Paso5Data } from '@/lib/solicitud/schemas/index'
 import { RELACION_REFERENCIA } from '@varolisto/shared-schemas/enums'
 import { RELACIONES_META } from '@/lib/solicitud/utils/lookup-labels'
-import { Controller, useForm, useWatch } from 'react-hook-form'
 import {
   Select,
   SelectContent,
@@ -12,31 +12,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { FloatingInput } from '../FloatingInput'
-import { StepTitle } from '../StepTitle'
-import { FormActions } from '../FormActions'
-import { FieldError } from '../FieldError'
-import { InfoBanner } from '../InfoBanner'
+import { FloatingInput } from '../../FloatingInput'
+import { FieldError } from '../../FieldError'
 import { cn } from '@/lib/utils'
 
-interface Props {
-  onNext: (datos: Paso5Data) => void
-  onBack: () => void
-}
-
-function RefCard({
-  numero,
-  prefix,
-  register,
-  control,
-  errors,
-}: {
+interface RefCardProps {
   numero: 1 | 2
   prefix: 'ref1' | 'ref2'
-  register: ReturnType<typeof useForm<Paso5Data>>['register']
-  control: ReturnType<typeof useForm<Paso5Data>>['control']
-  errors: ReturnType<typeof useForm<Paso5Data>>['formState']['errors']
-}) {
+  register: UseFormRegister<Paso5Data>
+  control: Control<Paso5Data>
+  errors: FieldErrors<Paso5Data>
+}
+
+export function RefCard({ numero, prefix, register, control, errors }: RefCardProps) {
   const nombreKey = `${prefix}Nombre` as keyof Paso5Data
   const telefonoKey = `${prefix}Telefono` as keyof Paso5Data
   const relacionKey = `${prefix}Relacion` as keyof Paso5Data
@@ -146,31 +134,5 @@ function RefCard({
         />
       </div>
     </div>
-  )
-}
-
-export default function Paso5Referencias({ onNext, onBack }: Props) {
-  const { register, handleSubmit, control, errors, isValid } = usePaso5(onNext)
-
-  return (
-    <form onSubmit={handleSubmit} noValidate>
-      <StepTitle
-        numero={5}
-        titulo="Referencias personales"
-        subtitulo="Necesitamos dos personas que puedan confirmar tu solicitud."
-      />
-
-      <InfoBanner variant="info">
-        <strong>Avísales antes de enviar.</strong> Contactaremos a estas personas para confirmar tu
-        información. Asegúrate de que estén disponibles.
-      </InfoBanner>
-
-      <div className="mt-5 space-y-4">
-        <RefCard numero={1} prefix="ref1" register={register} control={control} errors={errors} />
-        <RefCard numero={2} prefix="ref2" register={register} control={control} errors={errors} />
-      </div>
-
-      <FormActions onBack={onBack} submitLabel="Continuar" disabled={!isValid} />
-    </form>
   )
 }
