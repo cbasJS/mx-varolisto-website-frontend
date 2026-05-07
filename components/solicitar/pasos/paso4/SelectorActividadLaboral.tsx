@@ -2,7 +2,7 @@
 
 import { TIPO_ACTIVIDAD } from '@varolisto/shared-schemas/enums'
 import { ACTIVIDADES_META } from '@/lib/solicitud/utils/lookup-labels'
-import { FieldError } from '../../FieldError'
+import { FieldError } from '@/components/forms/FieldError'
 import { cn } from '@/lib/utils'
 
 type TipoActividad = (typeof TIPO_ACTIVIDAD)[number]

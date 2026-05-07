@@ -1,7 +1,7 @@
 'use client'
 
 import { Checkbox } from '@/components/ui/checkbox'
-import { FieldError } from '../../FieldError'
+import { FieldError } from '@/components/forms/FieldError'
 
 interface ConsentimientosSectionProps {
   privacidad: boolean | undefined
