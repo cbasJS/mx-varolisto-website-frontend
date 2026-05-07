@@ -1,14 +1,15 @@
 'use client'
 
 import React, { useRef, useState } from 'react'
-import { type FieldError } from 'react-hook-form'
+import { type FieldError as RHFFieldError } from 'react-hook-form'
 import { cn } from '@/lib/utils'
 import { dateToYYYYMMDD, formatDDMMYYYY } from '@/lib/solicitud/utils/dateUtils'
+import { FieldError } from './FieldError'
 
 interface NativeDateInnerProps {
   label: string
   autoId: string
-  error?: FieldError
+  error?: RHFFieldError
   optional?: boolean
   required?: boolean
   hint?: string
@@ -94,14 +95,7 @@ export function NativeDateInner({
           aria-describedby={error ? `${autoId}-error` : undefined}
         />
       </div>
-      {error?.message && (
-        <p id={`${autoId}-error`} className="mt-1.5 flex items-center gap-1 text-xs text-error">
-          <span className="material-symbols-outlined text-sm" aria-hidden>
-            error
-          </span>
-          {error.message}
-        </p>
-      )}
+      <FieldError message={error?.message} id={error?.message ? `${autoId}-error` : undefined} />
       {!error && hint && <p className="mt-1.5 text-xs text-outline">{hint}</p>}
     </div>
   )

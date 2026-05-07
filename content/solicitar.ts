@@ -8,6 +8,12 @@ export const pasos = [
   { numero: 7, etiqueta: 'Revisión', icono: 'fact_check' },
 ] as const
 
+export const trustBadges = [
+  { icono: 'lock', texto: 'Datos encriptados' },
+  { icono: 'verified_user', texto: '100% seguro' },
+  { icono: 'support_agent', texto: 'Soporte en 24h' },
+] as const
+
 export const exitoCopy = {
   etiquetaRecibida: 'Solicitud recibida',
   titulo: '¡Todo listo!',

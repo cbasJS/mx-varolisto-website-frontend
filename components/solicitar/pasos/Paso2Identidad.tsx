@@ -7,9 +7,9 @@ import { SEXO_META } from '@/lib/solicitud/utils/lookup-labels'
 import { FloatingInput } from '../FloatingInput'
 import { DatePickerInput } from '../DatePickerInput'
 import { PillOption } from '../PillOption'
+import { PillGroup } from '../PillGroup'
 import { StepTitle } from '../StepTitle'
 import { FormActions } from '../FormActions'
-import { FieldError } from '../FieldError'
 
 interface Props {
   onNext: (datos: Paso1Data) => void
@@ -65,27 +65,18 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
       </div>
 
       {/* Sexo */}
-      <div className="mb-4 mt-4">
-        <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-outline">
-          Sexo{' '}
-          <span className="text-error" aria-hidden>
-            *
-          </span>
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {SEXO.map((value) => (
-            <PillOption
-              key={value}
-              selected={sexoActual === value}
-              onClick={() => setValue('sexo', value, { shouldValidate: true })}
-              icon={SEXO_META[value].icono}
-            >
-              {SEXO_META[value].label}
-            </PillOption>
-          ))}
-        </div>
-        <FieldError message={errors.sexo?.message} />
-      </div>
+      <PillGroup label="Sexo" required error={errors.sexo?.message} className="mb-4 mt-4">
+        {SEXO.map((value) => (
+          <PillOption
+            key={value}
+            selected={sexoActual === value}
+            onClick={() => setValue('sexo', value, { shouldValidate: true })}
+            icon={SEXO_META[value].icono}
+          >
+            {SEXO_META[value].label}
+          </PillOption>
+        ))}
+      </PillGroup>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <DatePickerInput<Paso1Data>

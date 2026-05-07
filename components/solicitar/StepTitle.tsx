@@ -1,5 +1,7 @@
 'use client'
 
+import { pasos } from '@/content/solicitar'
+
 export function StepTitle({
   numero,
   titulo,
@@ -16,7 +18,7 @@ export function StepTitle({
           {numero}
         </span>
         <span className="text-xs font-semibold uppercase tracking-widest text-outline">
-          Paso {numero} de 6
+          Paso {numero} de {pasos.length}
         </span>
       </div>
       <h2 className="font-headline text-2xl font-bold text-on-surface">{titulo}</h2>

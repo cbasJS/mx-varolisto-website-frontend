@@ -11,10 +11,10 @@ import {
 import { FloatingInput } from '../../FloatingInput'
 import { FloatingSelect } from '../../FloatingSelect'
 import { PillOption } from '../../PillOption'
+import { PillGroup } from '../../PillGroup'
 import { SectionDivider } from '../../SectionDivider'
 import { StepTitle } from '../../StepTitle'
 import { FormActions } from '../../FormActions'
-import { FieldError } from '../../FieldError'
 import { SelectorActividadLaboral } from './SelectorActividadLaboral'
 import { SeccionDeudas } from './SeccionDeudas'
 
@@ -142,42 +142,39 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
       <SectionDivider label="Deudas actuales" />
 
       {/* ¿Tiene deudas? */}
-      <div className="mb-4">
-        <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-outline">
-          ¿Tienes deudas actualmente?{' '}
-          <span className="text-error" aria-hidden>
-            *
-          </span>
-        </p>
-        <div className="flex gap-3">
-          {[
-            {
-              value: 'si',
-              label: 'Sí, tengo deudas',
-              icono: 'credit_card_off',
-            },
-            { value: 'no', label: 'No tengo deudas', icono: 'check_circle' },
-          ].map(({ value, label, icono }) => (
-            <PillOption
-              key={value}
-              selected={tieneDeudas === value}
-              onClick={() => {
-                setValue('tieneDeudas', value as 'si' | 'no', { shouldValidate: true })
-                if (value === 'no') {
-                  setValue('cantidadDeudas', 'sin_deudas', { shouldValidate: true })
-                } else {
-                  setValue('cantidadDeudas', undefined, { shouldValidate: true })
-                }
-              }}
-              icon={icono}
-              fullWidth
-            >
-              {label}
-            </PillOption>
-          ))}
-        </div>
-        <FieldError message={errors.tieneDeudas?.message} />
-      </div>
+      <PillGroup
+        label="¿Tienes deudas actualmente?"
+        required
+        error={errors.tieneDeudas?.message}
+        className="mb-4"
+        pillsClassName="flex gap-3"
+      >
+        {[
+          {
+            value: 'si',
+            label: 'Sí, tengo deudas',
+            icono: 'credit_card_off',
+          },
+          { value: 'no', label: 'No tengo deudas', icono: 'check_circle' },
+        ].map(({ value, label, icono }) => (
+          <PillOption
+            key={value}
+            selected={tieneDeudas === value}
+            onClick={() => {
+              setValue('tieneDeudas', value as 'si' | 'no', { shouldValidate: true })
+              if (value === 'no') {
+                setValue('cantidadDeudas', 'sin_deudas', { shouldValidate: true })
+              } else {
+                setValue('cantidadDeudas', undefined, { shouldValidate: true })
+              }
+            }}
+            icon={icono}
+            fullWidth
+          >
+            {label}
+          </PillOption>
+        ))}
+      </PillGroup>
 
       {tieneDeudas === 'si' && (
         <SeccionDeudas
