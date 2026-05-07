@@ -8,8 +8,9 @@ import { FloatingInput } from '@/components/forms/FloatingInput'
 import { DatePickerInput } from '@/components/forms/DatePickerInput'
 import { PillOption } from '@/components/forms/PillOption'
 import { PillGroup } from '@/components/forms/PillGroup'
-import { StepTitle } from '../StepTitle'
-import { FormActions } from '../FormActions'
+import { StepTitle } from '@/components/wizard/StepTitle'
+import { FormActions } from '@/components/wizard/FormActions'
+import { pasos } from '@/content/solicitar'
 
 interface Props {
   onNext: (datos: Paso1Data) => void
@@ -35,6 +36,7 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
     <form onSubmit={handleSubmit} noValidate>
       <StepTitle
         numero={2}
+        total={pasos.length}
         titulo="Cuéntanos sobre ti"
         subtitulo="Necesitamos algunos datos para personalizar tu oferta."
       />

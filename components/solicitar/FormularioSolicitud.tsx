@@ -4,8 +4,8 @@ import { useEffect } from 'react'
 import { useSolicitudNavigation } from '@/hooks/solicitar/useSolicitudNavigation'
 import { useBeforeUnloadCleanup } from '@/hooks/solicitar/useBeforeUnloadCleanup'
 import { useSolicitudStore } from '@/lib/solicitud/store'
-import { trustBadges } from '@/content/solicitar'
-import BarraPasos from './barraPasos/BarraPasos'
+import { pasos, trustBadges } from '@/content/solicitar'
+import BarraPasos from '@/components/wizard/BarraPasos'
 import PantallaExito from './PantallaExito'
 import { FormSkeleton } from '@/components/forms/FormSkeleton'
 import Paso1Prestamo from './pasos/Paso1Prestamo'
@@ -47,7 +47,7 @@ export default function FormularioSolicitud() {
   if (!hasHydrated) {
     return (
       <div>
-        <BarraPasos pasoActual={1} />
+        <BarraPasos pasoActual={1} pasos={pasos} />
         <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 border-t-4 border-t-secondary">
           <div className="p-6 md:p-10">
             <FormSkeleton />
@@ -59,7 +59,7 @@ export default function FormularioSolicitud() {
 
   return (
     <div>
-      <BarraPasos pasoActual={pasoActual} />
+      <BarraPasos pasoActual={pasoActual} pasos={pasos} />
 
       <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 border-t-4 border-t-secondary">
         <div className="p-6 md:p-10">
