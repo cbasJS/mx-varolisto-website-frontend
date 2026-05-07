@@ -540,18 +540,20 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   }) => {
     await irAlFormulario(page)
 
-    // Desktop: step node with icon (paso 1 = active)
-    // The step label "Préstamo" is visible in desktop bar
-    await expect(page.getByText('Préstamo').first()).toBeVisible()
+    // Desktop: step node with icon (paso 1 = active).
+    // Locator scoped al BarraPasosDesktop (`hidden md:block`) para no depender
+    // del orden DOM ni de otros nodos con texto "Préstamo" fuera del stepper.
+    const desktopStepper = page.locator('div.hidden.md\\:block').filter({ hasText: 'Préstamo' })
+    await expect(desktopStepper.getByText('Préstamo')).toBeVisible()
 
     // Switch to mobile viewport to check mobile bar
     await page.setViewportSize({ width: 375, height: 812 })
     await page.reload()
     await page.waitForSelector('text=¿Cuánto necesitas?')
-    // "Paso 1 de 7" aparece en BarraPasos (mobile) y en StepTitle dentro del form;
-    // .first() apunta al BarraPasos que renderiza antes en el DOM.
-    await expect(page.getByText('Paso 1 de 7').first()).toBeVisible()
-    await expect(page.getByText('Préstamo').first()).toBeVisible()
+    // BarraPasosMobile renderiza un span único con la etiqueta del paso actual.
+    const mobileStepper = page.locator('div.md\\:hidden').filter({ hasText: 'Paso 1 de 7' })
+    await expect(mobileStepper.getByText('Paso 1 de 7')).toBeVisible()
+    await expect(mobileStepper.getByText('Préstamo')).toBeVisible()
   })
 
   // ── E5. Hidratación al cargar Paso 6 con archivos en staging ────────────

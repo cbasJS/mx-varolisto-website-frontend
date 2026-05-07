@@ -48,7 +48,7 @@ export default function FormularioSolicitud() {
     return (
       <div>
         <BarraPasos pasoActual={1} pasos={pasos} />
-        <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 border-t-4 border-t-secondary">
+        <div className="overflow-hidden rounded-2xl border border-outline-variant bg-white shadow-sm">
           <div className="p-6 md:p-10">
             <FormSkeleton />
           </div>
@@ -61,7 +61,7 @@ export default function FormularioSolicitud() {
     <div>
       <BarraPasos pasoActual={pasoActual} pasos={pasos} />
 
-      <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 border-t-4 border-t-secondary">
+      <div className="overflow-hidden rounded-2xl border border-outline-variant bg-white shadow-sm">
         <div className="p-6 md:p-10">
           {pasoActual === 1 && <Paso1Prestamo onNext={(d) => handleNext(1, d)} />}
           {pasoActual === 2 && (
