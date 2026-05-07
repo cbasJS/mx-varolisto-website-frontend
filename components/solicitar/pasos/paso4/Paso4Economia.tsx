@@ -8,11 +8,11 @@ import {
   ESTADO_CIVIL_LABELS,
   DEPENDIENTES_LABELS,
 } from '@/lib/solicitud/utils/lookup-labels'
-import { FloatingInput } from '../../FloatingInput'
-import { FloatingSelect } from '../../FloatingSelect'
-import { PillOption } from '../../PillOption'
-import { PillGroup } from '../../PillGroup'
-import { SectionDivider } from '../../SectionDivider'
+import { FloatingInput } from '@/components/forms/FloatingInput'
+import { FloatingSelect } from '@/components/forms/FloatingSelect'
+import { PillOption } from '@/components/forms/PillOption'
+import { PillGroup } from '@/components/forms/PillGroup'
+import { SectionDivider } from '@/components/forms/SectionDivider'
 import { StepTitle } from '../../StepTitle'
 import { FormActions } from '../../FormActions'
 import { SelectorActividadLaboral } from './SelectorActividadLaboral'

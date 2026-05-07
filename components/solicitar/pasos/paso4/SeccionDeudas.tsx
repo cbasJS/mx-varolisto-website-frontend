@@ -2,9 +2,9 @@
 
 import { CANTIDAD_DEUDAS, MONTO_TOTAL_DEUDAS } from '@varolisto/shared-schemas/enums'
 import { CANTIDAD_DEUDAS_META, MONTO_TOTAL_DEUDAS_META } from '@/lib/solicitud/utils/lookup-labels'
-import { FloatingSelect } from '../../FloatingSelect'
-import { FloatingInput } from '../../FloatingInput'
-import { FieldError } from '../../FieldError'
+import { FloatingSelect } from '@/components/forms/FloatingSelect'
+import { FloatingInput } from '@/components/forms/FloatingInput'
+import { FieldError } from '@/components/forms/FieldError'
 import { cn } from '@/lib/utils'
 
 type CantidadDeudas = (typeof CANTIDAD_DEUDAS)[number]

@@ -12,8 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { FloatingInput } from '../../FloatingInput'
-import { FieldError } from '../../FieldError'
+import { FloatingInput } from '@/components/forms/FloatingInput'
+import { FieldError } from '@/components/forms/FieldError'
 import { cn } from '@/lib/utils'
 
 interface RefCardProps {

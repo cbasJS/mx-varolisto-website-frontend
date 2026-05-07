@@ -4,7 +4,7 @@ import { usePaso5 } from '@/hooks/solicitar/usePaso5'
 import type { Paso5Data } from '@/lib/solicitud/schemas/index'
 import { StepTitle } from '../../StepTitle'
 import { FormActions } from '../../FormActions'
-import { InfoBanner } from '../../InfoBanner'
+import { InfoBanner } from '@/components/forms/InfoBanner'
 import { RefCard } from './RefCard'
 
 interface Props {
