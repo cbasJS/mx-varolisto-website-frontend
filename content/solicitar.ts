@@ -1,11 +1,20 @@
-export const pasos = [
-  { numero: 1, etiqueta: 'Préstamo', icono: 'payments' },
-  { numero: 2, etiqueta: 'Identidad', icono: 'person' },
-  { numero: 3, etiqueta: 'Domicilio', icono: 'home' },
-  { numero: 4, etiqueta: 'Economía', icono: 'account_balance_wallet' },
-  { numero: 5, etiqueta: 'Referencias', icono: 'group' },
-  { numero: 6, etiqueta: 'Documentos', icono: 'folder_open' },
-  { numero: 7, etiqueta: 'Revisión', icono: 'fact_check' },
+import { Wallet, User, Home, Briefcase, Users, FileText, ClipboardCheck } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+
+export interface Paso {
+  numero: number
+  etiqueta: string
+  icono: LucideIcon
+}
+
+export const pasos: readonly Paso[] = [
+  { numero: 1, etiqueta: 'Préstamo', icono: Wallet },
+  { numero: 2, etiqueta: 'Identidad', icono: User },
+  { numero: 3, etiqueta: 'Domicilio', icono: Home },
+  { numero: 4, etiqueta: 'Economía', icono: Briefcase },
+  { numero: 5, etiqueta: 'Referencias', icono: Users },
+  { numero: 6, etiqueta: 'Documentos', icono: FileText },
+  { numero: 7, etiqueta: 'Revisión', icono: ClipboardCheck },
 ] as const
 
 export const trustBadges = [

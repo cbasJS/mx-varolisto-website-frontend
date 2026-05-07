@@ -10,9 +10,7 @@ export default function SolicitarPage() {
   return (
     <SolicitudProviders>
       <div className="min-h-screen bg-surface-bright">
-        <div className="mx-auto max-w-2xl px-4 py-6 md:py-10">
-          <FormularioSolicitud />
-        </div>
+        <FormularioSolicitud />
       </div>
     </SolicitudProviders>
   )

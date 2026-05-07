@@ -1,10 +1,10 @@
 // Internal lead capture form route
 export const CTA_URL = '/solicitar'
 
-// Routes that use the dark (navy) header variant.
-// Vacío tras el rediseño visual del formulario: /solicitar usa fondo claro y el logo
-// debe permanecer en `text-primary`.
-export const DARK_HEADER_ROUTES: string[] = []
+// Routes que requieren el navbar opaco (bg-white + border-b) desde el load,
+// sin esperar al scroll. /solicitar lo necesita para que la franja del stepper
+// quede visualmente continua con el navbar.
+export const OPAQUE_HEADER_ROUTES = [CTA_URL] as const
 
 // React Query stale time for generic reference data (ms)
 export const QUERY_STALE_TIME_MS = 60_000

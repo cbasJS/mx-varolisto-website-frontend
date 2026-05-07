@@ -1,13 +1,10 @@
 'use client'
 
+import type { Paso } from '@/content/solicitar'
 import { BarraPasosMobile } from './BarraPasosMobile'
 import { BarraPasosDesktop } from './BarraPasosDesktop'
 
-export interface Paso {
-  numero: number
-  etiqueta: string
-  icono: string
-}
+export type { Paso }
 
 interface BarraPasosProps {
   pasoActual: number
