@@ -590,6 +590,13 @@ test.describe('Formulario de solicitud — Fase 2', () => {
         mimeType: 'image/jpeg',
         uploadedAt: '2026-04-28T20:00:03.000Z',
       },
+      {
+        storagePath: `staging/${SESSION}/comprobante_domicilio_1714000000004_recibo_luz.pdf`,
+        tipoArchivo: 'comprobante_domicilio',
+        tamanoBytes: 98000,
+        mimeType: 'application/pdf',
+        uploadedAt: '2026-04-28T20:00:04.000Z',
+      },
     ]
 
     await page.route(`**/api/archivos/staging/${SESSION}`, (route) => {
