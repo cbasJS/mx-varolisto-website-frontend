@@ -1,4 +1,4 @@
-import { Wallet, User, Home, Briefcase, Users, FileText, ClipboardCheck } from 'lucide-react'
+import { User, Home, Briefcase, Users, FileText } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 export interface Paso {
@@ -7,14 +7,20 @@ export interface Paso {
   icono: LucideIcon
 }
 
+/**
+ * Pasos del stepper (form steps).
+ * El stepper sólo cubre los pasos de captura del formulario. Los extremos
+ * (paso 1 = calculadora/landing, paso 7 = revisión/landing pre-submit) no
+ * se renderizan en el stepper. Mapeo app pasoActual → stepper position:
+ *   app paso 2 → stepper paso 1 (Tu identidad)
+ *   app paso 6 → stepper paso 5 (Documentos)
+ */
 export const pasos: readonly Paso[] = [
-  { numero: 1, etiqueta: 'Préstamo', icono: Wallet },
-  { numero: 2, etiqueta: 'Identidad', icono: User },
-  { numero: 3, etiqueta: 'Domicilio', icono: Home },
-  { numero: 4, etiqueta: 'Economía', icono: Briefcase },
-  { numero: 5, etiqueta: 'Referencias', icono: Users },
-  { numero: 6, etiqueta: 'Documentos', icono: FileText },
-  { numero: 7, etiqueta: 'Revisión', icono: ClipboardCheck },
+  { numero: 1, etiqueta: 'Tu identidad', icono: User },
+  { numero: 2, etiqueta: 'Tu domicilio', icono: Home },
+  { numero: 3, etiqueta: 'Economía', icono: Briefcase },
+  { numero: 4, etiqueta: 'Referencias', icono: Users },
+  { numero: 5, etiqueta: 'Documentos', icono: FileText },
 ] as const
 
 export const trustBadges = [

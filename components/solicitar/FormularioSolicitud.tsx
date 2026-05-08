@@ -25,13 +25,18 @@ interface StepperStripProps {
 function StepperStrip({ pasoActual }: StepperStripProps) {
   // Franja blanca que cubre desde el top de la página (debajo del Navbar fijo)
   // hasta el final del stepper. El pt-[72px] = NAVBAR_HEIGHT.
+  // Paso 1 (calculadora) y paso 7 (revisión) son landings → no renderizan
+  // stepper. El strip queda como pad blanco detrás del Navbar transparente.
+  const showStepper = pasoActual > 1 && pasoActual < 7
   return (
     <div data-testid="stepper-strip" className="bg-white pt-[72px]">
-      <div className="border-b border-gray-200">
-        <div className="mx-auto max-w-4xl px-4 py-3 md:py-6">
-          <BarraPasos pasoActual={pasoActual} pasos={pasos} />
+      {showStepper && (
+        <div className="border-b border-gray-200">
+          <div className="mx-auto max-w-4xl px-4 py-3 md:py-6">
+            <BarraPasos pasoActual={pasoActual} pasos={pasos} />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

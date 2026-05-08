@@ -148,7 +148,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     })
 
     await setStep(page, 3, { colonia: '', municipio: '', codigoPostal: '' })
-    await page.waitForSelector('text=Tu domicilio', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Tu domicilio")', { timeout: 5_000 })
 
     // Fill calle and número first (independent of CP)
     await page.fill('input[name=calle]', 'Insurgentes Sur')
@@ -172,7 +172,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 5. Paso 3 tiene aniosViviendo y tipoVivienda ─────────────────────────
   test('Paso 3 tiene selects de aniosViviendo y tipoVivienda', async ({ page }) => {
     await setStep(page, 3)
-    await page.waitForSelector('text=Tu domicilio', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Tu domicilio")', { timeout: 5_000 })
     await expect(page.getByText('Tiempo viviendo aquí')).toBeVisible()
     await expect(page.getByText('Tipo de vivienda')).toBeVisible()
   })
@@ -180,7 +180,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 6. Paso 4 tiene estadoCivil y dependientesEconomicos ─────────────────
   test('Paso 4 tiene campos estadoCivil y dependientesEconomicos', async ({ page }) => {
     await setStep(page, 4)
-    await page.waitForSelector('text=Tu situación económica', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Tu situación económica")', { timeout: 5_000 })
     await expect(page.getByText('Estado civil')).toBeVisible()
     await expect(page.getByText('Dependientes económicos')).toBeVisible()
   })
@@ -188,7 +188,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 7. Paso 4 label "Por cuenta propia" no "Freelance" ───────────────────
   test("Paso 4 muestra 'Por cuenta propia' y NO 'Freelance'", async ({ page }) => {
     await setStep(page, 4)
-    await page.waitForSelector('text=Tu situación económica', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Tu situación económica")', { timeout: 5_000 })
     await expect(page.getByText('Por cuenta propia')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Freelance' })).not.toBeVisible()
   })
@@ -245,7 +245,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     )
 
     await setStep(page, 3, { colonia: '', municipio: '', codigoPostal: '', ciudad: undefined })
-    await page.waitForSelector('text=Tu domicilio', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Tu domicilio")', { timeout: 5_000 })
 
     const cpInput = page.locator('input[name=codigoPostal]')
     await cpInput.fill('29950')
@@ -534,26 +534,25 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await expect(page.getByText('comprobante_error.jpg')).toBeVisible()
   })
 
-  // ── 11. BarraPasos: 7 pasos, primero = Préstamo ──────────────────────────
-  test('BarraPasos muestra 7 pasos, el primero es Préstamo (mobile y desktop)', async ({
+  // ── 11. BarraPasos: 5 form-steps, primero = Tu identidad (visible en pasos 2-6) ──
+  test('BarraPasos muestra 5 form-steps, primero = Tu identidad (mobile y desktop, en paso 2)', async ({
     page,
   }) => {
-    await irAlFormulario(page)
+    // Stepper se oculta en paso 1 (calculadora) y paso 7 (revisión).
+    await setStep(page, 2)
+    await page.waitForSelector('text=Cuéntanos sobre ti', { timeout: 5_000 })
 
-    // Desktop: step node with icon (paso 1 = active).
-    // Locator scoped al BarraPasosDesktop (`hidden md:block`) para no depender
-    // del orden DOM ni de otros nodos con texto "Préstamo" fuera del stepper.
-    const desktopStepper = page.locator('div.hidden.md\\:block').filter({ hasText: 'Préstamo' })
-    await expect(desktopStepper.getByText('Préstamo')).toBeVisible()
+    // Desktop: BarraPasosDesktop muestra los 5 form-steps; Tu identidad activa.
+    const desktopStepper = page.locator('div.hidden.md\\:block').filter({ hasText: 'Tu identidad' })
+    await expect(desktopStepper.getByText('Tu identidad')).toBeVisible()
 
-    // Switch to mobile viewport to check mobile bar
+    // Switch to mobile viewport to check mobile bar (Paso 1 de 5).
     await page.setViewportSize({ width: 375, height: 812 })
     await page.reload()
-    await page.waitForSelector('text=¿Cuánto necesitas?')
-    // BarraPasosMobile renderiza un span único con la etiqueta del paso actual.
-    const mobileStepper = page.locator('div.md\\:hidden').filter({ hasText: 'Paso 1 de 7' })
-    await expect(mobileStepper.getByText('Paso 1 de 7')).toBeVisible()
-    await expect(mobileStepper.getByText('Préstamo')).toBeVisible()
+    await page.waitForSelector('text=Cuéntanos sobre ti')
+    const mobileStepper = page.locator('div.md\\:hidden').filter({ hasText: 'Paso 1 de 5' })
+    await expect(mobileStepper.getByText('Paso 1 de 5')).toBeVisible()
+    await expect(mobileStepper.getByText('Tu identidad')).toBeVisible()
   })
 
   // ── E5. Hidratación al cargar Paso 6 con archivos en staging ────────────

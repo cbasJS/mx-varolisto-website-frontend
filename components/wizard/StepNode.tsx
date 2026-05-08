@@ -23,7 +23,7 @@ export function StepNode({ numero, etiqueta, icono: Icono, estado }: StepNodePro
           'relative z-10 flex size-10 items-center justify-center rounded-full border-2 transition-all duration-300',
           completado && 'border-primary bg-primary text-white',
           actual && 'border-primary bg-white text-primary shadow-md',
-          !completado && !actual && 'border-outline-variant bg-white text-outline',
+          !completado && !actual && 'border-gray-200 bg-white text-gray-400',
         )}
       >
         {completado ? <Check className="size-5" /> : <Icono className="size-4" />}
@@ -33,7 +33,7 @@ export function StepNode({ numero, etiqueta, icono: Icono, estado }: StepNodePro
           'mt-2 text-xs font-medium transition-colors',
           actual && 'text-primary',
           completado && 'text-on-surface',
-          !completado && !actual && 'text-outline',
+          !completado && !actual && 'text-gray-400',
         )}
       >
         {etiqueta}

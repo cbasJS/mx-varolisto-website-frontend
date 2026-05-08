@@ -32,7 +32,7 @@ export async function llenarPaso2(page: Page) {
   await page.fill('input[name=email]', 'maria@example.com')
   await page.fill('input[name=telefono]', '5512345678')
   await page.click('button[type=submit]')
-  await page.waitForSelector('text=Tu domicilio')
+  await page.waitForSelector('h2:has-text("Tu domicilio")')
 }
 
 /** Fill Paso 3 — Domicilio. Validates CP logic. */
@@ -53,7 +53,7 @@ export async function llenarPaso3(page: Page, opts?: { cambiarCp?: boolean }) {
   await page.locator('select, [role=combobox]').filter({ hasText: 'Tipo de vivienda' }).click()
   await page.getByRole('option', { name: 'Rentada' }).click()
   await page.click('button[type=submit]')
-  await page.waitForSelector('text=Tu situación económica')
+  await page.waitForSelector('h2:has-text("Tu situación económica")')
 }
 
 /** Fill Paso 4 — Economía. */
@@ -80,7 +80,7 @@ export async function llenarPaso4(page: Page) {
   // Sin deudas
   await page.click("button:has-text('No tengo deudas')")
   await page.click('button[type=submit]')
-  await page.waitForSelector('text=Referencias personales')
+  await page.waitForSelector('h2:has-text("Referencias personales")')
 }
 
 /** Fill Paso 5 — Referencias. */
@@ -94,5 +94,5 @@ export async function llenarPaso5(page: Page) {
   await page.locator('[role=combobox]').filter({ hasText: 'Relación' }).last().click()
   await page.getByRole('option', { name: 'Amigo' }).click()
   await page.click('button[type=submit]')
-  await page.waitForSelector('text=Documentos')
+  await page.waitForSelector('h2:has-text("Documentos")')
 }
