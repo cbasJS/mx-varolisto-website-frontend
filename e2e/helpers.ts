@@ -32,7 +32,7 @@ export async function llenarPaso2(page: Page) {
   await page.fill('input[name=email]', 'maria@example.com')
   await page.fill('input[name=telefono]', '5512345678')
   await page.click('button[type=submit]')
-  await page.waitForSelector('h2:has-text("Tu domicilio")')
+  await page.waitForSelector('h2:has-text("¿Dónde vives?")')
 }
 
 /** Fill Paso 3 — Domicilio. Validates CP logic. */
@@ -47,10 +47,13 @@ export async function llenarPaso3(page: Page, opts?: { cambiarCp?: boolean }) {
   await page.fill('input[name=calle]', 'Insurgentes Sur')
   await page.fill('input[name=numeroExterior]', '123')
   // aniosViviendo
-  await page.locator('select, [role=combobox]').filter({ hasText: 'Tiempo viviendo' }).click()
+  await page
+    .locator('select, [role=combobox]')
+    .filter({ hasText: '¿Cuánto llevas viviendo' })
+    .click()
   await page.getByRole('option', { name: '1 – 2 años' }).click()
   // tipoVivienda
-  await page.locator('select, [role=combobox]').filter({ hasText: 'Tipo de vivienda' }).click()
+  await page.locator('select, [role=combobox]').filter({ hasText: '¿La casa es' }).click()
   await page.getByRole('option', { name: 'Rentada' }).click()
   await page.click('button[type=submit]')
   await page.waitForSelector('h2:has-text("Tu situación económica")')

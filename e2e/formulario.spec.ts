@@ -148,7 +148,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     })
 
     await setStep(page, 3, { colonia: '', municipio: '', codigoPostal: '' })
-    await page.waitForSelector('h2:has-text("Tu domicilio")', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("¿Dónde vives?")', { timeout: 5_000 })
 
     // Fill calle and número first (independent of CP)
     await page.fill('input[name=calle]', 'Insurgentes Sur')
@@ -172,9 +172,9 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 5. Paso 3 tiene aniosViviendo y tipoVivienda ─────────────────────────
   test('Paso 3 tiene selects de aniosViviendo y tipoVivienda', async ({ page }) => {
     await setStep(page, 3)
-    await page.waitForSelector('h2:has-text("Tu domicilio")', { timeout: 5_000 })
-    await expect(page.getByText('Tiempo viviendo aquí')).toBeVisible()
-    await expect(page.getByText('Tipo de vivienda')).toBeVisible()
+    await page.waitForSelector('h2:has-text("¿Dónde vives?")', { timeout: 5_000 })
+    await expect(page.getByText('¿Cuánto llevas viviendo ahí?')).toBeVisible()
+    await expect(page.getByText('¿La casa es…?')).toBeVisible()
   })
 
   // ── 6. Paso 4 tiene estadoCivil y dependientesEconomicos ─────────────────
@@ -245,7 +245,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     )
 
     await setStep(page, 3, { colonia: '', municipio: '', codigoPostal: '', ciudad: undefined })
-    await page.waitForSelector('h2:has-text("Tu domicilio")', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("¿Dónde vives?")', { timeout: 5_000 })
 
     const cpInput = page.locator('input[name=codigoPostal]')
     await cpInput.fill('29950')
