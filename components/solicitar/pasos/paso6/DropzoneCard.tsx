@@ -46,7 +46,6 @@ export function DropzoneCard(props: DropzoneCardProps) {
           <div className="flex flex-col items-center text-center">
             <CheckCircle2 className="mb-3 size-8 text-green-600" aria-hidden />
             <p className="text-sm font-bold text-green-900">Subida exitosa</p>
-            <p className="mt-1 text-xs text-green-700">Toca para cambiar</p>
           </div>
         ) : (
           <div className="flex flex-col items-center text-center">
