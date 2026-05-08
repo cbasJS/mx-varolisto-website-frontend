@@ -642,8 +642,8 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       await expect(page.getByRole('button', { name: `Eliminar ${nombre}` }).first()).toBeVisible()
     }
 
-    // Botón Siguiente habilitado (puedeAvanzar=true)
-    await expect(page.getByRole('button', { name: /Siguiente/i })).toBeEnabled()
+    // Botón Continuar habilitado (puedeAvanzar=true)
+    await expect(page.getByRole('button', { name: /Continuar/i })).toBeEnabled()
   })
 
   // ── E5b. Click en X tras hidratación dispara DELETE al bucket ─────────────
