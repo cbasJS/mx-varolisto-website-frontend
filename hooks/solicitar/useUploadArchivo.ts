@@ -89,10 +89,10 @@ export function useUploadArchivo() {
       } catch (err) {
         const mensaje =
           err instanceof ApiError && err.status === 422
-            ? 'No pudimos procesar este archivo. Verifica que sea JPG, PNG o PDF y vuelve a intentar.'
+            ? 'No pudimos abrir el archivo. Asegúrate que sea JPG, PNG o PDF.'
             : err instanceof Error
               ? err.message
-              : 'Error desconocido al subir'
+              : 'Algo salió mal al subir el archivo. Inténtalo de nuevo.'
         actualizarEntrada(clienteId, { estado: 'failed', error: mensaje })
       }
     },
@@ -139,7 +139,7 @@ export function useUploadArchivo() {
         } catch {
           // Ambos intentos fallaron — NO mutar state, mostrar error
           actualizarEntrada(clienteId, { estado: 'uploaded' })
-          setErrorEliminacion('No pudimos eliminar el archivo. Intenta de nuevo.')
+          setErrorEliminacion('No pudimos quitar el archivo. Inténtalo de nuevo.')
           return
         }
       }

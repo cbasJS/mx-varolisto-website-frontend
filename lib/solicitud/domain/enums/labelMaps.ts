@@ -164,8 +164,8 @@ export const DEPENDIENTES_LABELS: Record<DependientesEconomicos, string> = {
 }
 
 export const TIPO_IDENTIFICACION_LABELS: Record<TipoIdentificacion, string> = {
-  ine: 'INE / IFE',
-  pasaporte: 'Pasaporte mexicano',
+  ine: 'INE',
+  pasaporte: 'Pasaporte',
 }
 
 export const RELACIONES_META: Record<RelacionReferencia, string> = RELACION_LABELS
@@ -173,12 +173,13 @@ export const RELACIONES_META: Record<RelacionReferencia, string> = RELACION_LABE
 // ── Constantes de documentos (usadas en usePaso6) ────────────────────────────
 
 export const COPY_DOCUMENTOS: Record<string, string> = {
-  empleado_formal: 'Al menos 2 comprobantes de nómina / estados de cuenta de los últimos 3 meses.',
+  empleado_formal: 'Sube al menos 2 recibos de nómina o estados de cuenta de los últimos 3 meses.',
   negocio_propio:
-    'Al menos 2 estados de cuenta con depósitos de los últimos 3 meses. También puedes incluir recibos de proveedores o fotos de tu negocio.',
-  empleado_informal: 'Al menos 2 estados de cuenta con depósitos de los últimos 3 meses.',
+    'Sube al menos 2 estados de cuenta donde se vean tus depósitos (últimos 3 meses). También puedes incluir recibos de proveedores o fotos de tu negocio.',
+  empleado_informal:
+    'Sube al menos 2 estados de cuenta donde se vean tus depósitos (últimos 3 meses).',
   independiente:
-    'Estados de cuenta de los últimos 3 meses o comprobantes de depósitos por honorarios.',
+    'Sube tus estados de cuenta de los últimos 3 meses o comprobantes de depósitos por honorarios.',
 }
 
 export const MIN_COMPROBANTES = 2
@@ -187,8 +188,8 @@ export const TIPOS_SIN_BANCO = ['negocio_propio', 'empleado_informal', 'otro'] a
 
 export const COPY_ALTERNATIVOS: Record<string, string> = {
   negocio_propio:
-    'Puedes subir fotos de tu negocio o mercancía, notas de venta, facturas a proveedores, comprobantes de pago a distribuidores, o cualquier documento que muestre la actividad de tu negocio.',
+    'Cualquiera de estos sirve: fotos de tu negocio o mercancía, notas de venta, facturas a proveedores, o cualquier prueba de la actividad de tu negocio.',
   empleado_informal:
-    'Puedes subir una carta de tu empleador, fotos de recibos de pago en efectivo, notas de venta en las que aparezca tu nombre, o cualquier otro comprobante de tus ingresos.',
-  otro: 'Puedes subir cualquier documento que muestre tus ingresos: recibos de pago, transferencias, capturas de depósitos, notas de venta, o fotos de tu actividad económica.',
+    'Cualquiera de estos sirve: carta de tu empleador, fotos de recibos en efectivo, notas de venta con tu nombre, o cualquier otra prueba de tus ingresos.',
+  otro: 'Cualquier prueba de tus ingresos sirve: recibos, transferencias, capturas de depósitos, notas de venta o fotos de tu actividad.',
 }
