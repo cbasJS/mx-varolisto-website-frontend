@@ -6,6 +6,7 @@ import { StepTitle } from '@/components/wizard/StepTitle'
 import { FormActions } from '@/components/wizard/FormActions'
 import { FormCard } from '@/components/wizard/FormCard'
 import { InfoBanner } from '@/components/forms/InfoBanner'
+import { SectionDivider } from '@/components/forms/SectionDivider'
 import { RefCard } from './RefCard'
 import { pasos } from '@/content/solicitar'
 
@@ -32,9 +33,13 @@ export default function Paso5Referencias({ onNext, onBack }: Props) {
           tu información. Asegúrate de que estén disponibles.
         </InfoBanner>
 
-        <div className="mt-5 space-y-4">
-          <RefCard numero={1} prefix="ref1" register={register} control={control} errors={errors} />
-          <RefCard numero={2} prefix="ref2" register={register} control={control} errors={errors} />
+        <div>
+          <SectionDivider label="Primer contacto" />
+          <RefCard prefix="ref1" register={register} control={control} errors={errors} />
+        </div>
+        <div>
+          <SectionDivider label="Segundo contacto" />
+          <RefCard prefix="ref2" register={register} control={control} errors={errors} />
         </div>
       </FormCard>
 
