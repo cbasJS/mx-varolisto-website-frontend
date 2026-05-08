@@ -13,7 +13,7 @@ export function FormCard({ children }: { children: ReactNode }) {
       data-testid="form-card"
       className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
     >
-      <div className="p-6 md:p-10">{children}</div>
+      <div className="p-6">{children}</div>
     </div>
   )
 }

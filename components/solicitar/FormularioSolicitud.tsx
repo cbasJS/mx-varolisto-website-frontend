@@ -74,7 +74,12 @@ export default function FormularioSolicitud() {
   const [actionsSlot, setActionsSlot] = useState<HTMLDivElement | null>(null)
 
   if (folio) {
-    return <PantallaExito folio={folio} telefono={datos.telefono} />
+    return (
+      <>
+        <StepperStrip pasoActual={1} />
+        <PantallaExito folio={folio} telefono={datos.telefono} />
+      </>
+    )
   }
 
   if (!hasHydrated) {
@@ -90,7 +95,8 @@ export default function FormularioSolicitud() {
     )
   }
 
-  const showResumen = pasoActual !== 1 && datos.montoSolicitado != null && datos.plazoMeses != null
+  const showResumen =
+    pasoActual >= 2 && pasoActual <= 6 && datos.montoSolicitado != null && datos.plazoMeses != null
   const showChrome = pasoActual >= 2 && pasoActual <= 6
 
   // Sólo el motion.div anima — el chrome (FormCard) y el slot de FormActions

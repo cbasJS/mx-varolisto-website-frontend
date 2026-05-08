@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { Pencil, Sparkles } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface SeccionCardProps {
@@ -8,56 +9,59 @@ interface SeccionCardProps {
   paso: number
   onEditar: (paso: number) => void
   children: React.ReactNode
-  icono: string
+  icono: LucideIcon
+  /** Variante "prestamo" pinta el card con gradient navy + texto blanco. */
+  variant?: 'default' | 'prestamo'
 }
 
-export function SeccionCard({ titulo, paso, onEditar, children, icono }: SeccionCardProps) {
-  const [abierto, setAbierto] = useState(true)
+export function SeccionCard({
+  titulo,
+  paso,
+  onEditar,
+  children,
+  icono: Icono,
+  variant = 'default',
+}: SeccionCardProps) {
+  const isPrestamo = variant === 'prestamo'
+  const IconActual = isPrestamo ? Sparkles : Icono
 
   return (
-    <div className="overflow-hidden rounded-2xl border-2 border-surface-container-high bg-white">
-      <div className="flex w-full items-center gap-3 px-5 py-4">
-        <button
-          type="button"
-          onClick={() => setAbierto((p) => !p)}
-          className="flex flex-1 items-center gap-3 text-left transition-colors hover:opacity-70"
-        >
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/8">
-            <span
-              className="material-symbols-outlined text-sm text-primary"
-              style={{ fontVariationSettings: "'FILL' 1" }}
+    <div
+      className={cn(
+        'rounded-3xl p-5 shadow-sm',
+        isPrestamo
+          ? 'border border-primary/80 bg-gradient-to-br from-primary to-primary/90 text-white shadow-lg'
+          : 'border border-gray-200 bg-white',
+      )}
+    >
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div
+            className={cn(
+              'flex size-8 items-center justify-center rounded-full',
+              isPrestamo ? 'bg-white/20' : 'bg-blue-50',
+            )}
+          >
+            <IconActual
+              className={cn('size-4', isPrestamo ? 'text-white' : 'text-primary')}
               aria-hidden
-            >
-              {icono}
-            </span>
+            />
           </div>
-          <span className="flex-1 text-sm font-semibold text-on-surface">{titulo}</span>
-        </button>
+          <h3 className={cn('font-bold', isPrestamo ? 'text-white' : 'text-gray-900')}>{titulo}</h3>
+        </div>
         <button
           type="button"
           onClick={() => onEditar(paso)}
-          className="rounded-lg border border-surface-container-high px-2.5 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
+          aria-label={`Editar ${titulo}`}
+          className={cn(
+            'rounded-full p-2 transition-colors',
+            isPrestamo ? 'text-white hover:bg-white/20' : 'text-primary hover:bg-blue-50',
+          )}
         >
-          Editar
-        </button>
-        <button
-          type="button"
-          onClick={() => setAbierto((p) => !p)}
-          className="transition-colors hover:opacity-70"
-          aria-label={abierto ? 'Colapsar sección' : 'Expandir sección'}
-        >
-          <span
-            className={cn(
-              'material-symbols-outlined text-base text-outline transition-transform duration-200',
-              abierto && 'rotate-180',
-            )}
-            aria-hidden
-          >
-            expand_more
-          </span>
+          <Pencil className="size-4" aria-hidden />
         </button>
       </div>
-      {abierto && <div className="border-t border-surface-container px-5 py-4">{children}</div>}
+      {children}
     </div>
   )
 }

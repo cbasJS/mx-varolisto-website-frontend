@@ -30,14 +30,15 @@ export const trustBadges = [
 ] as const
 
 export const exitoCopy = {
-  etiquetaRecibida: 'Solicitud recibida',
-  titulo: '¡Todo listo!',
-  subtitulo: 'Tu solicitud fue enviada exitosamente.',
-  labelFolio: 'Número de folio',
-  avisoFolio: 'Guarda este folio — lo necesitarás para cualquier consulta sobre tu solicitud.',
-  labelProximosPasos: 'Próximos pasos',
-  mensajeContacto: (telefono?: string) =>
-    `Te contactaremos por WhatsApp${telefono ? ` al número ${telefono}` : ''} en un máximo de 24 horas hábiles para informarte el resultado.`,
+  titulo: '¡Solicitud enviada!',
+  subtituloPrefijo:
+    'Hemos recibido tu solicitud y nuestros analistas ya la están revisando. Todo el seguimiento y la respuesta final te la daremos ',
+  subtituloEnfasis: 'directamente por WhatsApp',
+  subtituloSufijo: '.',
+  labelProximosPasos: 'Te escribiremos al:',
+  mensajeContacto:
+    'Guarda nuestro número para que sepas que somos nosotros y asegúrate de tener conexión.',
+  labelFolio: 'Folio de seguimiento',
   botonInicio: 'Volver al inicio',
 } as const
 
