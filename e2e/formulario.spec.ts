@@ -994,16 +994,16 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     })
 
     await setStep(page, 7)
-    await page.waitForSelector('text=Revisa tu solicitud', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
 
     // Aceptar términos y enviar
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar mi solicitud')")
+    await page.click("button:has-text('Enviar solicitud')")
 
-    // Esperar a que el botón cambie a "Enviando…" — isSubmitting = true
-    await page.waitForSelector('text=Enviando…', { timeout: 3_000 })
+    // Esperar a que el botón cambie a "Enviando tu solicitud…" — isSubmitting = true
+    await page.waitForSelector('text=Enviando tu solicitud…', { timeout: 3_000 })
 
     // En vuelo — click logo
     await page.locator('a[href="/"]').first().click()

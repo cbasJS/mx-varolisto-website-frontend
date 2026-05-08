@@ -122,15 +122,18 @@ export default function Paso7Revision({
 
   useEffect(() => {
     if (errorSubmit?.tipo === 'red') {
-      toast.error('Algo salió mal al enviar. Revisa tu conexión e inténtalo de nuevo.', {
+      toast.error('No pudimos enviar tu solicitud. Revisa tu conexión y vuelve a intentar.', {
         onDismiss: onLimpiarError,
         onAutoClose: onLimpiarError,
       })
     } else if (errorSubmit?.tipo === 'desconocido') {
-      toast.error(errorSubmit.mensaje ?? 'Ocurrió un error inesperado. Inténtalo de nuevo.', {
-        onDismiss: onLimpiarError,
-        onAutoClose: onLimpiarError,
-      })
+      toast.error(
+        errorSubmit.mensaje ?? 'Algo no salió como esperábamos. Vuelve a intentar en un momento.',
+        {
+          onDismiss: onLimpiarError,
+          onAutoClose: onLimpiarError,
+        },
+      )
     }
   }, [errorSubmit]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -155,14 +158,14 @@ export default function Paso7Revision({
           <StepTitle
             numero={7}
             total={pasos.length}
-            titulo="Revisa tu solicitud"
-            subtitulo="Asegúrate de que toda tu información sea correcta antes de enviar."
+            titulo="Casi listo. Revisa todo"
+            subtitulo="Antes de enviar, dale una última checada. Puedes editar cualquier sección."
           />
 
           <div className="mb-8 space-y-4">
             {/* Detalles del préstamo (gradient navy) */}
             <SeccionCard
-              titulo="Detalles del préstamo"
+              titulo="Tu préstamo"
               paso={1}
               onEditar={onEditarPaso}
               icono={Sparkles}
@@ -184,12 +187,12 @@ export default function Paso7Revision({
                   value={datos.plazoMeses ? `${datos.plazoMeses} meses` : undefined}
                 />
                 <Fila
-                  label="Pago mensual est."
+                  label="Pago mensual aproximado"
                   destacado
                   value={cuotaMensual ? `$${cuotaMensual.toLocaleString('es-MX')}` : undefined}
                 />
                 <Fila
-                  label="Propósito"
+                  label="Para qué"
                   invertido
                   value={datos.destinoPrestamo ? DESTINO_LABELS[datos.destinoPrestamo] : undefined}
                 />
@@ -197,7 +200,7 @@ export default function Paso7Revision({
             </SeccionCard>
 
             {/* Datos personales */}
-            <SeccionCard titulo="Datos personales" paso={2} onEditar={onEditarPaso} icono={User}>
+            <SeccionCard titulo="Tus datos" paso={2} onEditar={onEditarPaso} icono={User}>
               <div className="grid grid-cols-1 gap-x-2 gap-y-4 text-sm sm:grid-cols-2">
                 <Fila
                   label="Nombre"
@@ -213,7 +216,7 @@ export default function Paso7Revision({
             </SeccionCard>
 
             {/* Domicilio */}
-            <SeccionCard titulo="Domicilio" paso={3} onEditar={onEditarPaso} icono={Home}>
+            <SeccionCard titulo="Dónde vives" paso={3} onEditar={onEditarPaso} icono={Home}>
               <Fila
                 label="Dirección"
                 value={
@@ -225,7 +228,12 @@ export default function Paso7Revision({
             </SeccionCard>
 
             {/* Economía */}
-            <SeccionCard titulo="Tu economía" paso={4} onEditar={onEditarPaso} icono={Wallet}>
+            <SeccionCard
+              titulo="Trabajo y finanzas"
+              paso={4}
+              onEditar={onEditarPaso}
+              icono={Wallet}
+            >
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <Fila
                   label="Ingreso mensual"
@@ -240,7 +248,7 @@ export default function Paso7Revision({
             </SeccionCard>
 
             {/* Referencias */}
-            <SeccionCard titulo="Referencias" paso={5} onEditar={onEditarPaso} icono={Users}>
+            <SeccionCard titulo="Tus contactos" paso={5} onEditar={onEditarPaso} icono={Users}>
               <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                 <div className="min-w-0">
                   <span className="mb-1 block text-xs text-gray-500">Contacto 1</span>
@@ -264,15 +272,15 @@ export default function Paso7Revision({
             </SeccionCard>
 
             {/* Documentos */}
-            <SeccionCard titulo="Documentos" paso={6} onEditar={onEditarPaso} icono={FileText}>
+            <SeccionCard titulo="Tus documentos" paso={6} onEditar={onEditarPaso} icono={FileText}>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <DocStatus
-                  label="Identificación oficial"
+                  label="Tu identificación"
                   cargado={ineCargado}
                   detalle={
                     ineCargado && tipoIdentificacion
-                      ? `Cargado ✓ (${TIPO_IDENTIFICACION_LABELS[tipoIdentificacion]})`
-                      : 'Pendiente'
+                      ? `Listo ✓ (${TIPO_IDENTIFICACION_LABELS[tipoIdentificacion]})`
+                      : 'Falta subir'
                   }
                   icono={Camera}
                 />
@@ -281,15 +289,15 @@ export default function Paso7Revision({
                   cargado={comprobantesIngreso >= 2}
                   detalle={
                     comprobantesIngreso >= 2
-                      ? `${comprobantesIngreso} archivos cargados ✓`
-                      : `${comprobantesIngreso}/2 cargados`
+                      ? `${comprobantesIngreso} archivos listos ✓`
+                      : `${comprobantesIngreso} de 2 listos`
                   }
                   icono={FileText}
                 />
                 <DocStatus
                   label="Comprobante de domicilio"
                   cargado={domicilioCargado}
-                  detalle={domicilioCargado ? 'Archivo cargado ✓' : 'Pendiente'}
+                  detalle={domicilioCargado ? 'Archivo listo ✓' : 'Falta subir'}
                   icono={Home}
                   fullWidth
                 />
@@ -319,7 +327,7 @@ export default function Paso7Revision({
           />
         </FormCard>
 
-        {/* Botones — match Figma: rounded-[12px], copy "Enviar mi solicitud" */}
+        {/* Botones — match Figma: rounded-[12px], copy "Enviar solicitud" */}
         <div className="mt-8 flex items-stretch gap-3">
           <button
             type="button"
@@ -337,11 +345,11 @@ export default function Paso7Revision({
             {enviando ? (
               <>
                 <span className="inline-block size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Enviando…
+                Enviando tu solicitud…
               </>
             ) : (
               <>
-                Enviar mi solicitud
+                Enviar solicitud
                 <Check className="size-5 shrink-0" aria-hidden />
               </>
             )}

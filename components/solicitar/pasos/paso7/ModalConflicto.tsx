@@ -19,9 +19,9 @@ export function ModalConflicto({ onConfirmado }: ModalConflictoProps) {
             warning
           </span>
         </div>
-        <h2 className="mb-2 text-lg font-bold text-on-surface">Solicitud activa existente</h2>
+        <h2 className="mb-2 text-lg font-bold text-on-surface">Ya tienes una solicitud en curso</h2>
         <p className="mb-6 text-sm text-on-surface-variant leading-relaxed">
-          Ya existe una solicitud activa con estos datos. Si necesitas ayuda, escríbenos por{' '}
+          Encontramos una solicitud abierta con tus datos. Escríbenos por{' '}
           <a
             href={WHATSAPP_URL}
             target="_blank"
@@ -30,7 +30,7 @@ export function ModalConflicto({ onConfirmado }: ModalConflictoProps) {
           >
             WhatsApp
           </a>{' '}
-          con tu teléfono o CURP.
+          con tu teléfono o CURP y te ayudamos a continuarla.
         </p>
         <button
           type="button"
