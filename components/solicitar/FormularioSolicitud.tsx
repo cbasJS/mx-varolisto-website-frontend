@@ -15,6 +15,8 @@ import Paso4Economia from './pasos/paso4/Paso4Economia'
 import Paso5Referencias from './pasos/paso5/Paso5Referencias'
 import Paso6Documentos from './pasos/paso6/Paso6Documentos'
 import Paso7Revision from './pasos/paso7/Paso7Revision'
+import { ResumenSolicitud } from './ResumenSolicitud'
+import { calcularCuota } from '@/lib/solicitud/utils/calcularCuota'
 
 interface StepperStripProps {
   pasoActual: number
@@ -86,6 +88,14 @@ export default function FormularioSolicitud() {
           <Paso1Prestamo onNext={(d) => handleNext(1, d)} />
         ) : (
           <>
+            {datos.montoSolicitado != null && datos.plazoMeses != null && (
+              <ResumenSolicitud
+                monto={datos.montoSolicitado}
+                plazoMeses={datos.plazoMeses}
+                cuota={calcularCuota(datos.montoSolicitado, parseInt(datos.plazoMeses, 10))}
+                onCambiar={() => handleEditarPaso(1)}
+              />
+            )}
             <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
               <div className="p-6 md:p-10">
                 {pasoActual === 2 && (

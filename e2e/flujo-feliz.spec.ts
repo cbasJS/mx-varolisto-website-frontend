@@ -198,9 +198,12 @@ test.describe('Flujo feliz — solicitud completa', () => {
     await expect(page.getByText('García')).toBeVisible()
     await expect(page.getByText('maria.garcia@example.com')).toBeVisible()
     await expect(page.getByText('5512345678')).toBeVisible()
-    // Datos del préstamo — monto y plazo dentro del rango del producto
-    await expect(page.getByText('$5,000')).toBeVisible()
-    await expect(page.getByText('4 meses')).toBeVisible()
+    // Datos del préstamo — monto y plazo dentro del rango del producto.
+    // Scoped al <form> porque el ResumenSolicitud (header) también muestra
+    // el monto y plazo en pasos 2-7.
+    const form = page.locator('form')
+    await expect(form.getByText('$5,000')).toBeVisible()
+    await expect(form.getByText('4 meses')).toBeVisible()
     await expect(page.getByText('Gasto médico')).toBeVisible()
   })
 
