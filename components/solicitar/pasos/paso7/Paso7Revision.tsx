@@ -19,6 +19,11 @@ import { ModalConflicto } from './ModalConflicto'
 import { ConsentimientosSection } from './ConsentimientosSection'
 import { pasos } from '@/content/solicitar'
 import { cn } from '@/lib/utils'
+import { ACTIVE_PASO_FORM_ID } from '@/components/wizard/PasoFormShell'
+import {
+  useInlineRevealed,
+  useRegisterWizardActions,
+} from '@/components/wizard/WizardActionsContext'
 
 interface Props {
   onSubmit: (datos: Paso7Data) => void
@@ -138,6 +143,28 @@ export default function Paso7Revision({
   }, [errorSubmit]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const ambosAceptados = privacidad === true && terminos === true
+  const { inlineRevealed } = useInlineRevealed()
+
+  // Registra el CTA en el WizardActionsContext para que el StickyMobileCTA
+  // funcione idéntico al botón inline: deshabilitado sin checkboxes, loading
+  // mientras el POST está en vuelo, copy "Enviar solicitud" con icono Check.
+  // `submitVariant: 'success'` → verde varolisto (#2ECC71). `submitShimmer`
+  // → animación premium tipo BottomNav. `alwaysVisible: true` → el sticky
+  // aparece desde el inicio sin esperar scroll, pero igual hace crossfade
+  // hacia el inline al llegar al fondo.
+  useRegisterWizardActions({
+    formId: ACTIVE_PASO_FORM_ID,
+    submitLabel: 'Enviar solicitud',
+    disabled: !ambosAceptados,
+    loading: enviando,
+    loadingLabel: 'Enviando tu solicitud…',
+    onBack,
+    submitIcon: Check,
+    submitVariant: 'success',
+    submitShimmer: true,
+    alwaysVisible: true,
+  })
+
   const cuotaMensual =
     datos.montoSolicitado && datos.plazoMeses
       ? calcularCuota(datos.montoSolicitado, Number(datos.plazoMeses))
@@ -153,7 +180,7 @@ export default function Paso7Revision({
     <>
       {errorSubmit?.tipo === 'conflicto' && <ModalConflicto onConfirmado={onConflictoConfirmado} />}
 
-      <form onSubmit={handleSubmit} noValidate>
+      <form id={ACTIVE_PASO_FORM_ID} onSubmit={handleSubmit} noValidate>
         <FormCard>
           <StepTitle
             numero={7}
@@ -327,30 +354,46 @@ export default function Paso7Revision({
           />
         </FormCard>
 
-        {/* Botones — match Figma: rounded-[12px], copy "Enviar solicitud" */}
-        <div className="mt-8 flex items-stretch gap-3">
+        {/* Botones inline — pill shape (rounded-full) match BottomNav. En
+            mobile aparecen cuando el usuario llega al fondo (`inlineRevealed`)
+            haciendo crossfade con el sticky verde + shimmer. En desktop son
+            visibles siempre. Reservan espacio siempre (opacity) para evitar
+            layout shifts que causarían loops del IntersectionObserver. */}
+        <div
+          className={cn(
+            'mt-8 flex items-stretch gap-3 transition-opacity duration-200',
+            inlineRevealed && !enviando
+              ? 'opacity-100'
+              : 'pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100',
+          )}
+        >
           <button
             type="button"
             onClick={onBack}
             disabled={enviando}
-            className="flex-1 rounded-[12px] border-2 border-gray-300 bg-white py-3 font-medium text-gray-700 transition-all hover:bg-gray-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-gray-300 bg-white px-5 py-3 text-base font-medium text-gray-700 transition-all hover:bg-gray-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Atrás
           </button>
           <button
             type="submit"
             disabled={!ambosAceptados || enviando}
-            className="flex flex-[2] items-center justify-center gap-2 rounded-[12px] bg-primary px-6 py-3 font-medium text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+            className={cn(
+              'inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-secondary px-5 py-3 text-base font-medium text-white shadow-md shadow-secondary/30 transition-all',
+              !ambosAceptados || enviando
+                ? 'cursor-not-allowed opacity-60'
+                : 'cta-shimmer hover:bg-secondary/95 active:scale-[0.98]',
+            )}
           >
             {enviando ? (
               <>
                 <span className="inline-block size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Enviando tu solicitud…
+                <span>Enviando tu solicitud…</span>
               </>
             ) : (
               <>
-                Enviar solicitud
-                <Check className="size-5 shrink-0" aria-hidden />
+                <span>Enviar solicitud</span>
+                <Check className="size-4 shrink-0" aria-hidden />
               </>
             )}
           </button>
