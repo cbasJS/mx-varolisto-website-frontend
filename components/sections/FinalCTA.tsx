@@ -9,7 +9,7 @@ export default function FinalCTA() {
   return (
     <section
       className="hidden md:block py-24 px-6 bg-primary text-white overflow-hidden relative"
-      aria-label="Solicita ahora"
+      aria-label="Solicita tu préstamo"
     >
       <motion.div
         className="absolute top-0 right-0 w-96 h-96 bg-secondary/10 rounded-full blur-3xl pointer-events-none"
@@ -37,11 +37,11 @@ export default function FinalCTA() {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: 'spring', stiffness: 300, damping: 18 }}
-              aria-label="Solicitar financiamiento ahora"
+              aria-label="Solicitar préstamo"
             >
-              Solicitar ahora
+              Solicitar préstamo
             </motion.a>
-            <p className="text-sm opacity-80">Empieza tu registro sin compromiso</p>
+            <p className="text-sm opacity-80">Sin compromiso. Te toma 5 minutos.</p>
           </div>
 
           <div className="flex-1 w-full">

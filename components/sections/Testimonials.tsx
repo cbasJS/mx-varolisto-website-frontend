@@ -20,7 +20,7 @@ export default function Testimonials() {
             viewport={VIEWPORT_ONCE}
             transition={{ duration: 0.5, ease: 'easeOut' }}
           >
-            Historias de alivio financiero
+            Historias reales
           </motion.h2>
 
           <div className="grid grid-cols-3 gap-6">
