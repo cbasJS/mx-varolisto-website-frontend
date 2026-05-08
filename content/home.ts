@@ -79,46 +79,43 @@ export const benefitItems: BenefitItem[] = [
   {
     icon: 'bolt',
     title: 'Proceso sencillo',
-    description:
-      'Olvídate de las filas y el papeleo excesivo. Todo es digital y diseñado para tu comodidad.',
+    description: 'Olvídate de filas y papeleo. Todo lo haces desde tu celular.',
   },
   {
     icon: 'speed',
-    title: 'Evaluación rápida',
+    title: 'Respuesta rápida',
     description:
-      'Nuestra tecnología evalúa tu perfil en segundos para ofrecerte las mejores alternativas.',
+      'Analizamos tu solicitud al detalle y te respondemos en menos de 24 h por WhatsApp.',
   },
   {
     icon: 'dashboard_customize',
-    title: 'Opciones personalizadas',
-    description:
-      'Encontramos diferentes esquemas de financiamiento que se adaptan a tu perfil y necesidades.',
+    title: 'Opciones a tu medida',
+    description: 'Te ofrecemos cuotas y plazos que se ajustan a lo que puedes pagar.',
   },
   {
     icon: 'support_agent',
     title: 'Atención directa',
-    description:
-      'Te contactamos personalmente para guiarte en cada paso del camino con total transparencia.',
+    description: 'Te contactamos por WhatsApp para guiarte y resolver tus dudas.',
   },
 ]
 
 export const processSteps: ProcessStep[] = [
   {
     number: '1',
-    title: 'Deja tus datos',
-    description: 'Completa el formulario en menos de 2 min.',
+    title: 'Llena tu solicitud',
+    description: 'Te toma menos de 5 minutos. Sin papeleo.',
     accent: false,
   },
   {
     number: '2',
-    title: 'Evaluamos tu perfil',
-    description: 'Análisis inmediato para encontrar tu mejor opción.',
+    title: 'Te respondemos',
+    description: 'En menos de 24 h te escribimos al WhatsApp con la respuesta.',
     accent: false,
   },
   {
     number: '3',
-    title: 'Te contactamos',
-    description: '¡Listo! Nos ponemos en contacto contigo para darte los detalles.',
+    title: 'Recibe el dinero',
+    description: 'Si todo está bien, lo depositamos directo a tu cuenta.',
     accent: true,
   },
 ]
@@ -149,14 +146,14 @@ export const trustCardItems: TrustCardItem[] = [
   {
     icon: 'mood',
     title: 'Trato directo',
-    description: 'Hablamos tu idioma, sin términos complicados ni letras chiquitas.',
+    description: 'Hablamos como tú: sin términos complicados ni letra chiquita.',
     iconBg: 'bg-primary-fixed',
     iconColor: 'text-primary',
   },
   {
     icon: 'verified',
-    title: '100% Confiable',
-    description: 'Tus datos están seguros y los usamos solo para ayudarte.',
+    title: 'Datos seguros',
+    description: 'Tus datos viajan cifrados y los usamos sólo para procesar tu solicitud.',
     iconBg: 'bg-secondary-fixed',
     iconColor: 'text-on-secondary-fixed',
   },
