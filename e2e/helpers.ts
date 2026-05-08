@@ -83,18 +83,18 @@ export async function llenarPaso4(page: Page) {
   // Sin deudas
   await page.click("button:has-text('No, ninguno')")
   await page.click('button[type=submit]')
-  await page.waitForSelector('h2:has-text("Referencias personales")')
+  await page.waitForSelector('h2:has-text("Dos contactos de confianza")')
 }
 
 /** Fill Paso 5 — Referencias. */
 export async function llenarPaso5(page: Page) {
   await page.fill('input[name=ref1Nombre]', 'Juan Pérez')
   await page.fill('input[name=ref1Telefono]', '5598765432')
-  await page.locator('[role=combobox]').filter({ hasText: 'Relación' }).first().click()
+  await page.locator('[role=combobox]').filter({ hasText: '¿Qué relación' }).first().click()
   await page.getByRole('option', { name: 'Familiar' }).click()
   await page.fill('input[name=ref2Nombre]', 'Ana Torres')
   await page.fill('input[name=ref2Telefono]', '5511112222')
-  await page.locator('[role=combobox]').filter({ hasText: 'Relación' }).last().click()
+  await page.locator('[role=combobox]').filter({ hasText: '¿Qué relación' }).last().click()
   await page.getByRole('option', { name: 'Amigo' }).click()
   await page.click('button[type=submit]')
   await page.waitForSelector('h2:has-text("Documentos")')

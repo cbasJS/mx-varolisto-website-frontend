@@ -28,21 +28,21 @@ export default function Paso5Referencias({ onNext, onBack, actionsSlot }: Props)
       <StepTitle
         numero={5}
         total={pasos.length}
-        titulo="Referencias personales"
-        subtitulo="Necesitamos dos personas que puedan confirmar tu solicitud."
+        titulo="Dos contactos de confianza"
+        subtitulo="Personas que puedan confirmar quién eres si las llamamos."
       />
 
       <InfoBanner variant="info">
-        <strong>Avísales antes de enviar.</strong> Contactaremos a estas personas para confirmar tu
-        información. Asegúrate de que estén disponibles.
+        <strong>Coméntales que pueden recibir nuestra llamada o WhatsApp.</strong> Sólo es para
+        validar quién eres — no se les pide nada más.
       </InfoBanner>
 
       <div>
-        <SectionDivider label="Primer contacto" />
+        <SectionDivider label="Contacto 1" />
         <RefCard prefix="ref1" register={register} control={control} errors={errors} />
       </div>
       <div>
-        <SectionDivider label="Segundo contacto" />
+        <SectionDivider label="Contacto 2" />
         <RefCard prefix="ref2" register={register} control={control} errors={errors} />
       </div>
     </PasoFormShell>

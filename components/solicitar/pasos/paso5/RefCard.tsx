@@ -65,7 +65,7 @@ export function RefCard({ prefix, register, control, errors }: RefCardProps) {
         name={relacionKey}
         render={({ field }) => (
           <FloatingSelect
-            label="Relación"
+            label="¿Qué relación tienen?"
             required
             value={field.value as string}
             onValueChange={field.onChange}
