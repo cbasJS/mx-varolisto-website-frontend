@@ -8,6 +8,11 @@ interface FormActionsProps {
   submitLabel?: string
   isFirst?: boolean
   disabled?: boolean
+  /**
+   * Vincula el botón submit al `<form id="…">` correspondiente. Útil cuando
+   * FormActions vive en un slot estático fuera del DOM del form (vía Portal).
+   */
+  formId?: string
 }
 
 /**
@@ -23,6 +28,7 @@ export function FormActions({
   submitLabel = 'Siguiente',
   isFirst,
   disabled,
+  formId,
 }: FormActionsProps) {
   return (
     <div className={cn('mt-8 flex gap-3', isFirst ? 'justify-end' : 'items-stretch')}>
@@ -37,6 +43,7 @@ export function FormActions({
       )}
       <button
         type="submit"
+        form={formId}
         disabled={disabled}
         className={cn(
           'flex items-center justify-center gap-2 rounded-[12px] bg-primary px-6 py-3 font-medium text-white shadow-lg shadow-primary/30 transition-all',

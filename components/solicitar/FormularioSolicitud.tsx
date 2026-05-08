@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useSolicitudNavigation } from '@/hooks/solicitar/useSolicitudNavigation'
 import { useBeforeUnloadCleanup } from '@/hooks/solicitar/useBeforeUnloadCleanup'
 import { useSolicitudStore } from '@/lib/solicitud/store'
+import { pasoSlideVariants, pasoTransition } from '@/lib/animations'
 import { pasos } from '@/content/solicitar'
 import BarraPasos from '@/components/wizard/BarraPasos'
 import PantallaExito from './PantallaExito'
@@ -51,6 +53,7 @@ export default function FormularioSolicitud() {
 
   const {
     pasoActual,
+    direction,
     folio,
     hasHydrated,
     datos,
@@ -65,6 +68,10 @@ export default function FormularioSolicitud() {
   } = useSolicitudNavigation()
 
   useBeforeUnloadCleanup(enviando)
+
+  // Slot estático donde los pasos 2-6 portalizan sus FormActions: vive afuera
+  // del card animado, así los botones no transicionan junto al inner content.
+  const [actionsSlot, setActionsSlot] = useState<HTMLDivElement | null>(null)
 
   if (folio) {
     return <PantallaExito folio={folio} telefono={datos.telefono} />
@@ -83,51 +90,111 @@ export default function FormularioSolicitud() {
     )
   }
 
+  const showResumen = pasoActual !== 1 && datos.montoSolicitado != null && datos.plazoMeses != null
+  const showChrome = pasoActual >= 2 && pasoActual <= 6
+
+  // Sólo el motion.div anima — el chrome (FormCard) y el slot de FormActions
+  // viven afuera del AnimatePresence en el orquestador, así sólo los hijos del
+  // chrome (el inner content del paso) transicionan.
+  const animatedSlot = (
+    <AnimatePresence mode="wait" initial={false} custom={direction}>
+      <motion.div
+        key={pasoActual}
+        data-testid="paso-motion-wrapper"
+        data-paso={pasoActual}
+        custom={direction}
+        variants={pasoSlideVariants}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        transition={pasoTransition}
+      >
+        {pasoActual === 1 && <Paso1Prestamo onNext={(d) => handleNext(1, d)} />}
+        {pasoActual === 2 && (
+          <Paso2Identidad
+            onNext={(d) => handleNext(2, d)}
+            onBack={handleBack}
+            actionsSlot={actionsSlot}
+          />
+        )}
+        {pasoActual === 3 && (
+          <Paso3Domicilio
+            onNext={(d) => handleNext(3, d)}
+            onBack={handleBack}
+            actionsSlot={actionsSlot}
+          />
+        )}
+        {pasoActual === 4 && (
+          <Paso4Economia
+            onNext={(d) => handleNext(4, d)}
+            onBack={handleBack}
+            actionsSlot={actionsSlot}
+          />
+        )}
+        {pasoActual === 5 && (
+          <Paso5Referencias
+            onNext={(d) => handleNext(5, d)}
+            onBack={handleBack}
+            actionsSlot={actionsSlot}
+          />
+        )}
+        {pasoActual === 6 && (
+          <Paso6Documentos
+            onNext={(d) => handleNext(6, d)}
+            onBack={handleBack}
+            actionsSlot={actionsSlot}
+          />
+        )}
+        {pasoActual === 7 && (
+          <Paso7Revision
+            onSubmit={handleSubmit}
+            onBack={handleBack}
+            onEditarPaso={handleEditarPaso}
+            enviando={enviando}
+            errorSubmit={errorSubmit}
+            onLimpiarError={limpiarErrorSubmit}
+            onConflictoConfirmado={handleConflictoConfirmado}
+          />
+        )}
+      </motion.div>
+    </AnimatePresence>
+  )
+
   return (
     <>
       <StepperStrip pasoActual={pasoActual} />
 
       <div className="mx-auto max-w-2xl px-4 py-6 md:py-10">
-        {pasoActual === 1 ? (
-          <Paso1Prestamo onNext={(d) => handleNext(1, d)} />
-        ) : (
-          <>
-            {datos.montoSolicitado != null && datos.plazoMeses != null && (
-              <ResumenSolicitud
-                monto={datos.montoSolicitado}
-                plazoMeses={datos.plazoMeses}
-                cuota={calcularCuota(datos.montoSolicitado, parseInt(datos.plazoMeses, 10))}
-                onCambiar={() => handleEditarPaso(1)}
-              />
-            )}
-            {pasoActual === 2 && (
-              <Paso2Identidad onNext={(d) => handleNext(2, d)} onBack={handleBack} />
-            )}
-            {pasoActual === 3 && (
-              <Paso3Domicilio onNext={(d) => handleNext(3, d)} onBack={handleBack} />
-            )}
-            {pasoActual === 4 && (
-              <Paso4Economia onNext={(d) => handleNext(4, d)} onBack={handleBack} />
-            )}
-            {pasoActual === 5 && (
-              <Paso5Referencias onNext={(d) => handleNext(5, d)} onBack={handleBack} />
-            )}
-            {pasoActual === 6 && (
-              <Paso6Documentos onNext={(d) => handleNext(6, d)} onBack={handleBack} />
-            )}
-            {pasoActual === 7 && (
-              <Paso7Revision
-                onSubmit={handleSubmit}
-                onBack={handleBack}
-                onEditarPaso={handleEditarPaso}
-                enviando={enviando}
-                errorSubmit={errorSubmit}
-                onLimpiarError={limpiarErrorSubmit}
-                onConflictoConfirmado={handleConflictoConfirmado}
-              />
-            )}
-          </>
+        {/* Resumen — estático, fuera del AnimatePresence */}
+        {showResumen && (
+          <ResumenSolicitud
+            monto={datos.montoSolicitado!}
+            plazoMeses={datos.plazoMeses!}
+            cuota={calcularCuota(datos.montoSolicitado!, parseInt(datos.plazoMeses!, 10))}
+            onCambiar={() => handleEditarPaso(1)}
+          />
         )}
+
+        {/* Chrome wrapper — siempre presente para que el AnimatePresence
+            mantenga una posición estable en el árbol y el exit/enter
+            funcionen al cruzar la frontera paso 1↔2 y 6↔7. Las clases de
+            chrome (rounded, border, bg) sólo aplican en pasos 2-6. */}
+        <div
+          data-testid={showChrome ? 'form-card' : undefined}
+          className={
+            showChrome
+              ? 'overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm'
+              : 'overflow-hidden'
+          }
+        >
+          <div className={showChrome ? 'overflow-hidden p-6 md:p-10' : 'overflow-hidden'}>
+            {animatedSlot}
+          </div>
+        </div>
+
+        {/* Slot estático para FormActions de los pasos 2-6 (portal). Vive
+            afuera del chrome para que los botones no transicionen. */}
+        <div ref={setActionsSlot} />
       </div>
     </>
   )
