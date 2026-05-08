@@ -57,4 +57,30 @@ test.describe('Rediseño /solicitar — Paso 1 (calculadora)', () => {
     await expect(page.getByText(/Te respondemos/)).toBeVisible()
     await expect(page.getByText(/Recibe el dinero/)).toBeVisible()
   })
+
+  test('mobile: un destino seleccionado en "Ver más opciones" sigue visible tras recargar', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await irAlFormulario(page)
+    // Expandir y seleccionar "Viaje o evento" (índice 7 — vive en la sección
+    // colapsada por default).
+    await page.getByRole('button', { name: 'Ver más opciones' }).click()
+    await page.getByRole('button', { name: 'Viaje o evento' }).click()
+    // Esperar a que el autoSave (debounced 300ms) persista el destino en sessionStorage.
+    await expect
+      .poll(
+        async () => {
+          const raw = await page.evaluate(() => sessionStorage.getItem('vl-solicitud'))
+          return raw ? JSON.parse(raw).state?.datos?.destinoPrestamo : null
+        },
+        { timeout: 3_000 },
+      )
+      .toBe('viaje_evento')
+    // Reload — el destino debe seguir visible y la sección debe estar expandida.
+    await page.reload()
+    await page.waitForSelector('text=¿Cuánto necesitas?', { timeout: 10_000 })
+    await expect(page.getByRole('button', { name: 'Viaje o evento' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Ver menos opciones' })).toBeVisible()
+  })
 })

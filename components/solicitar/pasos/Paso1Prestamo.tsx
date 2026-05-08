@@ -31,10 +31,12 @@ export default function Paso1Prestamo({ onNext }: Props) {
 
   // Mobile siempre muestra sólo los primeros 3 destinos por default. Desktop
   // muestra los 9. El botón "Ver más opciones" en mobile permite expandir.
-  // (No auto-expandimos en re-hidratación: mantenemos la pantalla mobile
-  // limpia a los 3 destinos hasta que el usuario decida expandir.)
   const MOBILE_COLLAPSE_AT = 3
-  const [showAllDestinos, setShowAllDestinos] = useState(false)
+  // Auto-expandir si el destino rehidratado vive más allá del corte mobile;
+  // de lo contrario la opción seleccionada quedaría oculta tras un reload.
+  const [showAllDestinos, setShowAllDestinos] = useState(
+    () => destino !== undefined && DESTINO_PRESTAMO.indexOf(destino) >= MOBILE_COLLAPSE_AT,
+  )
 
   return (
     <form onSubmit={handleSubmit} noValidate>
