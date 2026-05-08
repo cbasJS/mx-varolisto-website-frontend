@@ -45,6 +45,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
     const [focused, setFocused] = useState(false)
     const autoId = useId()
     const inputId = id ?? autoId
+    const isDisabled = props.disabled
 
     return (
       <div>
@@ -73,6 +74,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
               : error
                 ? 'border-error'
                 : 'border-gray-200 hover:border-outline-variant',
+            isDisabled && 'cursor-not-allowed bg-gray-50 opacity-70',
           )}
         >
           {prefix && <span className="mr-2 shrink-0 text-sm text-outline">{prefix}</span>}

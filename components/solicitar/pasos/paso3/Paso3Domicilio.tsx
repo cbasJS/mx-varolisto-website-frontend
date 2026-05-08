@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
 import { usePaso3 } from '@/hooks/solicitar/usePaso3'
 import type { Paso3Data } from '@/lib/solicitud/schemas/index'
 import { ANIOS_VIVIENDO, TIPO_VIVIENDA } from '@varolisto/shared-schemas/enums'
@@ -70,6 +71,7 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
               placeholder=" "
               maxLength={5}
               inputMode="numeric"
+              disabled={cargandoCP}
               labelSuffix={
                 <span
                   className={cn(
@@ -79,6 +81,14 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
                 >
                   {codigoPostalValue.length}/5
                 </span>
+              }
+              suffix={
+                cargandoCP ? (
+                  <Loader2
+                    className="size-5 animate-spin text-primary"
+                    aria-label="Buscando colonia"
+                  />
+                ) : undefined
               }
             />
             {cpValido && cpError && (
@@ -119,7 +129,7 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
           />
         </div>
 
-        <SectionDivider label="Situación de vivienda" />
+        <SectionDivider label="Detalles de tu vivienda" />
 
         <div className="grid gap-3 sm:grid-cols-2">
           <FloatingSelect
