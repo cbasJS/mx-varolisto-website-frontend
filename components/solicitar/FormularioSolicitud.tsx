@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useSolicitudNavigation } from '@/hooks/solicitar/useSolicitudNavigation'
 import { useBeforeUnloadCleanup } from '@/hooks/solicitar/useBeforeUnloadCleanup'
 import { useSolicitudStore } from '@/lib/solicitud/store'
-import { pasos, trustBadges } from '@/content/solicitar'
+import { pasos } from '@/content/solicitar'
 import BarraPasos from '@/components/wizard/BarraPasos'
 import PantallaExito from './PantallaExito'
 import { FormSkeleton } from '@/components/forms/FormSkeleton'
@@ -125,17 +125,6 @@ export default function FormularioSolicitud() {
                   />
                 )}
               </div>
-            </div>
-
-            <div className="mt-6 flex items-center justify-center gap-6 text-center">
-              {trustBadges.map(({ icono, texto }) => (
-                <div key={texto} className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-sm text-primary/30" aria-hidden>
-                    {icono}
-                  </span>
-                  <span className="text-xs text-primary/40">{texto}</span>
-                </div>
-              ))}
             </div>
           </>
         )}

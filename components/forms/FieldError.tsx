@@ -8,10 +8,7 @@ interface FieldErrorProps {
 export function FieldError({ message, id }: FieldErrorProps) {
   if (!message) return null
   return (
-    <p id={id} className="mt-1.5 flex items-center gap-1 text-xs text-error">
-      <span className="material-symbols-outlined text-sm" aria-hidden>
-        error
-      </span>
+    <p id={id} className="mt-1.5 px-4 text-xs text-error">
       {message}
     </p>
   )

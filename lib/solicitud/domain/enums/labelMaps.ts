@@ -22,15 +22,19 @@ import {
   Users,
   Plane,
   MoreHorizontal,
+  User,
+  Handshake,
+  Store,
+  Laptop,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 // ── Meta objects con icono (fuente de verdad para label + icono) ──────────────
 
-export const SEXO_META: Record<Sexo, { label: string; icono: string }> = {
-  M: { label: 'Hombre', icono: 'man' },
-  F: { label: 'Mujer', icono: 'woman' },
-  X: { label: 'Prefiero no decir', icono: 'person' },
+export const SEXO_META: Record<Sexo, { label: string; icono: string; lucideIcon: LucideIcon }> = {
+  M: { label: 'Hombre', icono: 'man', lucideIcon: User },
+  F: { label: 'Mujer', icono: 'woman', lucideIcon: User },
+  X: { label: 'Prefiero no decir', icono: 'person', lucideIcon: User },
 }
 
 export const DESTINOS_META: Record<
@@ -50,13 +54,33 @@ export const DESTINOS_META: Record<
 
 export const ACTIVIDADES_META: Record<
   TipoActividad,
-  { label: string; icono: string; hint: string }
+  { label: string; icono: string; hint: string; lucideIcon: LucideIcon }
 > = {
-  empleado_formal: { label: 'Empleado formal', icono: 'badge', hint: 'Con comprobante de nómina' },
-  empleado_informal: { label: 'Empleado informal', icono: 'handshake', hint: 'Sin contrato' },
-  negocio_propio: { label: 'Negocio propio', icono: 'store', hint: 'Dueño de negocio' },
-  independiente: { label: 'Por cuenta propia', icono: 'laptop_mac', hint: 'Honorarios' },
-  otro: { label: 'Otro', icono: 'more_horiz', hint: '' },
+  empleado_formal: {
+    label: 'Empleado formal',
+    icono: 'badge',
+    hint: 'Con comprobante de nómina',
+    lucideIcon: Briefcase,
+  },
+  empleado_informal: {
+    label: 'Empleado informal',
+    icono: 'handshake',
+    hint: 'Sin contrato',
+    lucideIcon: Handshake,
+  },
+  negocio_propio: {
+    label: 'Negocio propio',
+    icono: 'store',
+    hint: 'Dueño de negocio',
+    lucideIcon: Store,
+  },
+  independiente: {
+    label: 'Por cuenta propia',
+    icono: 'laptop_mac',
+    hint: 'Honorarios',
+    lucideIcon: Laptop,
+  },
+  otro: { label: 'Otro', icono: 'more_horiz', hint: '', lucideIcon: MoreHorizontal },
 }
 
 export const CANTIDAD_DEUDAS_META: Record<CantidadDeudas, string> = {

@@ -13,6 +13,7 @@ import { StepTitle } from '@/components/wizard/StepTitle'
 import { FormActions } from '@/components/wizard/FormActions'
 import { CamposCP } from './CamposCP'
 import { pasos } from '@/content/solicitar'
+import { cn } from '@/lib/utils'
 
 interface Props {
   onNext: (datos: Paso3Data) => void
@@ -67,8 +68,13 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
             placeholder=" "
             maxLength={5}
             inputMode="numeric"
-            suffix={
-              <span className="tabular-nums text-xs text-outline">
+            labelSuffix={
+              <span
+                className={cn(
+                  'tabular-nums',
+                  codigoPostalValue.length === 5 ? 'text-on-secondary-container' : 'text-outline',
+                )}
+              >
                 {codigoPostalValue.length}/5
               </span>
             }

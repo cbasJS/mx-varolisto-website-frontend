@@ -66,8 +66,15 @@ export function RefCard({ numero, prefix, register, control, errors }: RefCardPr
             },
           })}
           placeholder=" "
-          suffix={
-            <span className="tabular-nums text-xs text-outline">{telefonoValue.length}/10</span>
+          labelSuffix={
+            <span
+              className={cn(
+                'tabular-nums',
+                telefonoValue.length === 10 ? 'text-on-secondary-container' : 'text-outline',
+              )}
+            >
+              {telefonoValue.length}/10
+            </span>
           }
         />
         <div>

@@ -4,6 +4,7 @@ import { usePaso2 } from '@/hooks/solicitar/usePaso2'
 import type { Paso1Data } from '@/lib/solicitud/schemas/index'
 import { SEXO } from '@varolisto/shared-schemas/enums'
 import { SEXO_META } from '@/lib/solicitud/utils/lookup-labels'
+import { cn } from '@/lib/utils'
 import { FloatingInput } from '@/components/forms/FloatingInput'
 import { DatePickerInput } from '@/components/forms/DatePickerInput'
 import { PillOption } from '@/components/forms/PillOption'
@@ -67,13 +68,19 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
       </div>
 
       {/* Sexo */}
-      <PillGroup label="Sexo" required error={errors.sexo?.message} className="mb-4 mt-4">
+      <PillGroup
+        label="Sexo"
+        required
+        error={errors.sexo?.message}
+        className="mb-4 mt-4"
+        pillsClassName="grid grid-cols-1 sm:grid-cols-3 gap-3"
+      >
         {SEXO.map((value) => (
           <PillOption
             key={value}
             selected={sexoActual === value}
             onClick={() => setValue('sexo', value, { shouldValidate: true })}
-            icon={SEXO_META[value].icono}
+            icon={SEXO_META[value].lucideIcon}
           >
             {SEXO_META[value].label}
           </PillOption>
@@ -100,7 +107,16 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
           placeholder=" "
           maxLength={18}
           className="uppercase"
-          suffix={<span className="tabular-nums text-xs text-outline">{curpValue.length}/18</span>}
+          labelSuffix={
+            <span
+              className={cn(
+                'tabular-nums',
+                curpValue.length === 18 ? 'text-on-secondary-container' : 'text-outline',
+              )}
+            >
+              {curpValue.length}/18
+            </span>
+          }
         />
         <FloatingInput
           label="Correo electrónico"
@@ -120,8 +136,15 @@ export default function Paso2Identidad({ onNext, onBack }: Props) {
           {...register('telefono')}
           placeholder=" "
           maxLength={10}
-          suffix={
-            <span className="tabular-nums text-xs text-outline">{telefonoValue.length}/10</span>
+          labelSuffix={
+            <span
+              className={cn(
+                'tabular-nums',
+                telefonoValue.length === 10 ? 'text-on-secondary-container' : 'text-outline',
+              )}
+            >
+              {telefonoValue.length}/10
+            </span>
           }
         />
       </div>
