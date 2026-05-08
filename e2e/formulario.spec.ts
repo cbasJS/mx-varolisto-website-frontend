@@ -1009,12 +1009,14 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await page.locator('a[href="/"]').first().click()
 
     // Dialog debe aparecer con copy de submit
-    await expect(page.getByText('¿Seguro que quieres salir?')).toBeVisible({ timeout: 3_000 })
-    await expect(page.getByText('Estamos enviando tu solicitud')).toBeVisible()
+    await expect(page.getByText('Espera, estamos enviando tu solicitud')).toBeVisible({
+      timeout: 3_000,
+    })
+    await expect(page.getByText(/podría no completarse/)).toBeVisible()
 
-    // "Quedarme" cierra el dialog y permanece en /solicitar
-    await page.getByRole('button', { name: 'Quedarme' }).click()
-    await expect(page.getByText('¿Seguro que quieres salir?')).not.toBeVisible()
+    // "Mejor me quedo" cierra el dialog y permanece en /solicitar
+    await page.getByRole('button', { name: 'Mejor me quedo' }).click()
+    await expect(page.getByText('Espera, estamos enviando tu solicitud')).not.toBeVisible()
     expect(page.url()).toContain('/solicitar')
   })
 
@@ -1091,18 +1093,18 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await page.locator('a[href="/aviso-de-privacidad-integral"]').first().click()
 
     // AlertDialog con copy de archivos
-    await expect(page.getByText('¿Seguro que quieres salir?')).toBeVisible({ timeout: 3_000 })
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
     await expect(page.getByText(/perderás los archivos/)).toBeVisible()
 
-    // "Quedarme" → permanece en Paso 6
-    await page.getByRole('button', { name: 'Quedarme' }).click()
-    await expect(page.getByText('¿Seguro que quieres salir?')).not.toBeVisible()
+    // "Mejor me quedo" → permanece en Paso 6
+    await page.getByRole('button', { name: 'Mejor me quedo' }).click()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).not.toBeVisible()
     await expect(page.getByText('Tipo de identificación oficial')).toBeVisible()
 
-    // "Salir de todas formas" → navega
+    // "Sí, salir" → navega
     await page.locator('a[href="/aviso-de-privacidad-integral"]').first().click()
-    await expect(page.getByText('¿Seguro que quieres salir?')).toBeVisible({ timeout: 3_000 })
-    await page.getByRole('button', { name: 'Salir de todas formas' }).click()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
+    await page.getByRole('button', { name: 'Sí, salir' }).click()
     await page.waitForURL('**/aviso-de-privacidad-integral', {
       timeout: 5_000,
       waitUntil: 'domcontentloaded',
@@ -1121,7 +1123,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
 
     // Dialog NO debe aparecer y la navegación ocurre
     await page.waitForURL('**/', { timeout: 5_000, waitUntil: 'domcontentloaded' })
-    await expect(page.getByText('¿Seguro que quieres salir?')).not.toBeVisible()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).not.toBeVisible()
   })
 
   // ── E11. Datos capturados sin archivos ───────────────────────────────────
@@ -1135,19 +1137,19 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await page.locator('a[href="/"]').first().click()
 
     // Dialog con copy de datos
-    await expect(page.getByText('¿Seguro que quieres salir?')).toBeVisible({ timeout: 3_000 })
-    await expect(page.getByText(/perderás la información/)).toBeVisible()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
+    await expect(page.getByText(/perderás lo que ya llevas/)).toBeVisible()
     await expect(page.getByText(/perderás los archivos/).first()).not.toBeVisible()
 
-    // "Quedarme" → permanece en Paso 2 con datos intactos
-    await page.getByRole('button', { name: 'Quedarme' }).click()
-    await expect(page.getByText('¿Seguro que quieres salir?')).not.toBeVisible()
+    // "Mejor me quedo" → permanece en Paso 2 con datos intactos
+    await page.getByRole('button', { name: 'Mejor me quedo' }).click()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).not.toBeVisible()
     await expect(page.getByText('Cuéntanos sobre ti')).toBeVisible()
 
-    // "Salir de todas formas" → navega a "/"
+    // "Sí, salir" → navega a "/"
     await page.locator('a[href="/"]').first().click()
-    await expect(page.getByText('¿Seguro que quieres salir?')).toBeVisible({ timeout: 3_000 })
-    await page.getByRole('button', { name: 'Salir de todas formas' }).click()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
+    await page.getByRole('button', { name: 'Sí, salir' }).click()
     await page.waitForURL('/', { timeout: 5_000, waitUntil: 'domcontentloaded' })
   })
 })

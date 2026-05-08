@@ -39,7 +39,13 @@ test.describe('Rediseño /solicitar — stepper (BarraPasos)', () => {
 
     // Sólo 5 form-steps en el stepper; paso 1 (calculadora) y paso 7 (revisión)
     // son landings sin stepper.
-    const etiquetas = ['Tu identidad', 'Tu domicilio', 'Economía', 'Referencias', 'Documentos']
+    const etiquetas = [
+      'Tu identidad',
+      'Tu domicilio',
+      'Tu economía',
+      'Tus contactos',
+      'Tus documentos',
+    ]
     for (const et of etiquetas) {
       const label = desktopBar.getByText(et).first()
       await expect(label).toBeVisible()

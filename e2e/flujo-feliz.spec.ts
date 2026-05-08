@@ -171,11 +171,11 @@ test.describe('Flujo feliz — solicitud completa', () => {
     await checks.nth(1).click()
     await page.click("button:has-text('Enviar mi solicitud')")
 
-    await expect(page.getByText('¡Solicitud enviada!')).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByText('directamente por WhatsApp')).toBeVisible()
+    await expect(page.getByText('Listo, ya quedó tu solicitud')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/Estamos revisándola/)).toBeVisible()
     await expect(page.getByText(FOLIO_MOCK)).toBeVisible()
-    await expect(page.getByText('Folio de seguimiento')).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Volver al inicio' })).toBeVisible()
+    await expect(page.getByText('Tu folio')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Ir al inicio' })).toBeVisible()
   })
 
   test("botón Enviar muestra 'Enviando…' mientras el POST está en vuelo", async ({ page }) => {
