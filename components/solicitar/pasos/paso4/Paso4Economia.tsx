@@ -15,6 +15,7 @@ import { PillGroup } from '@/components/forms/PillGroup'
 import { SectionDivider } from '@/components/forms/SectionDivider'
 import { StepTitle } from '@/components/wizard/StepTitle'
 import { FormActions } from '@/components/wizard/FormActions'
+import { FormCard } from '@/components/wizard/FormCard'
 import { SelectorActividadLaboral } from './SelectorActividadLaboral'
 import { SeccionDeudas } from './SeccionDeudas'
 import { pasos } from '@/content/solicitar'
@@ -55,148 +56,158 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <StepTitle
-        numero={4}
-        total={pasos.length}
-        titulo="Tu situación económica"
-        subtitulo="Esta información nos ayuda a diseñar la mejor oferta para ti."
-      />
-
-      <SelectorActividadLaboral
-        value={tipoActividad}
-        onChange={(value) => setValue('tipoActividad', value, { shouldValidate: true })}
-        error={errors.tipoActividad?.message}
-      />
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <FloatingInput
-          label={labelEmpleador}
-          required
-          error={errors.nombreEmpleadorNegocio?.message}
-          {...register('nombreEmpleadorNegocio')}
-          placeholder=" "
+      <FormCard>
+        <StepTitle
+          numero={4}
+          total={pasos.length}
+          titulo="Tu situación económica"
+          subtitulo="Esta información nos ayuda a diseñar la mejor oferta para ti."
         />
 
-        <FloatingSelect
-          label="Antigüedad"
-          required
-          value={antiguedadActual}
-          onValueChange={(val) =>
-            setValue('antiguedad', val as (typeof ANTIGUEDAD)[number], { shouldValidate: true })
-          }
-          onOpenChange={setAntiguedadOpen}
-          isOpen={antiguedadOpen}
-          options={ANTIGUEDAD.map((v) => ({ value: v, label: ANTIGUEDAD_META[v] }))}
-          error={errors.antiguedad?.message}
+        <SelectorActividadLaboral
+          value={tipoActividad}
+          onChange={(value) => setValue('tipoActividad', value, { shouldValidate: true })}
+          error={errors.tipoActividad?.message}
         />
-        <FloatingSelect
-          label="Estado civil"
-          required
-          value={estadoCivilActual}
-          onValueChange={(val) =>
-            setValue('estadoCivil', val as (typeof ESTADO_CIVIL)[number], { shouldValidate: true })
-          }
-          onOpenChange={setEstadoCivilOpen}
-          isOpen={estadoCivilOpen}
-          options={ESTADO_CIVIL.map((v) => ({ value: v, label: ESTADO_CIVIL_LABELS[v] }))}
-          error={errors.estadoCivil?.message}
-        />
-        <div>
-          <FloatingSelect
-            label="Dependientes económicos"
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <FloatingInput
+            label={labelEmpleador}
             required
-            value={dependientesActual}
+            error={errors.nombreEmpleadorNegocio?.message}
+            {...register('nombreEmpleadorNegocio')}
+            placeholder=" "
+          />
+
+          <FloatingSelect
+            label="Antigüedad"
+            required
+            value={antiguedadActual}
             onValueChange={(val) =>
-              setValue('dependientesEconomicos', val as (typeof DEPENDIENTES_ECONOMICOS)[number], {
+              setValue('antiguedad', val as (typeof ANTIGUEDAD)[number], { shouldValidate: true })
+            }
+            onOpenChange={setAntiguedadOpen}
+            isOpen={antiguedadOpen}
+            options={ANTIGUEDAD.map((v) => ({ value: v, label: ANTIGUEDAD_META[v] }))}
+            error={errors.antiguedad?.message}
+          />
+          <FloatingSelect
+            label="Estado civil"
+            required
+            value={estadoCivilActual}
+            onValueChange={(val) =>
+              setValue('estadoCivil', val as (typeof ESTADO_CIVIL)[number], {
                 shouldValidate: true,
               })
             }
-            onOpenChange={setDependientesOpen}
-            isOpen={dependientesOpen}
-            options={DEPENDIENTES_ECONOMICOS.map((v) => ({
-              value: v,
-              label: DEPENDIENTES_LABELS[v],
-            }))}
-            error={errors.dependientesEconomicos?.message}
+            onOpenChange={setEstadoCivilOpen}
+            isOpen={estadoCivilOpen}
+            options={ESTADO_CIVIL.map((v) => ({ value: v, label: ESTADO_CIVIL_LABELS[v] }))}
+            error={errors.estadoCivil?.message}
           />
-          <p className="mt-1.5 text-xs text-outline">Personas que dependen de tu ingreso</p>
-        </div>
-      </div>
-
-      {/* Ingreso mensual */}
-      <div className="my-4">
-        <FloatingInput
-          label="Ingreso mensual aproximado"
-          required
-          type="text"
-          inputMode="numeric"
-          error={errors.ingresoMensual?.message}
-          prefix="$"
-          suffix="MXN"
-          value={ingresoDisplay}
-          onChange={ingresoHandlers.onChange}
-          onBlur={ingresoHandlers.onBlur}
-          onFocus={ingresoHandlers.onFocus}
-          placeholder=" "
-        />
-      </div>
-
-      <SectionDivider label="Deudas actuales" />
-
-      {/* ¿Tiene deudas? */}
-      <PillGroup
-        label="¿Tienes deudas actualmente?"
-        required
-        error={errors.tieneDeudas?.message}
-        className="mb-4"
-        pillsClassName="flex gap-3"
-      >
-        {[
-          {
-            value: 'si',
-            label: 'Sí, tengo deudas',
-            icono: 'credit_card_off',
-          },
-          { value: 'no', label: 'No tengo deudas', icono: 'check_circle' },
-        ].map(({ value, label, icono }) => (
-          <PillOption
-            key={value}
-            selected={tieneDeudas === value}
-            onClick={() => {
-              setValue('tieneDeudas', value as 'si' | 'no', { shouldValidate: true })
-              if (value === 'no') {
-                setValue('cantidadDeudas', 'sin_deudas', { shouldValidate: true })
-              } else {
-                setValue('cantidadDeudas', undefined, { shouldValidate: true })
+          <div>
+            <FloatingSelect
+              label="Dependientes económicos"
+              required
+              value={dependientesActual}
+              onValueChange={(val) =>
+                setValue(
+                  'dependientesEconomicos',
+                  val as (typeof DEPENDIENTES_ECONOMICOS)[number],
+                  {
+                    shouldValidate: true,
+                  },
+                )
               }
-            }}
-            icon={icono}
-            fullWidth
-          >
-            {label}
-          </PillOption>
-        ))}
-      </PillGroup>
+              onOpenChange={setDependientesOpen}
+              isOpen={dependientesOpen}
+              options={DEPENDIENTES_ECONOMICOS.map((v) => ({
+                value: v,
+                label: DEPENDIENTES_LABELS[v],
+              }))}
+              error={errors.dependientesEconomicos?.message}
+            />
+            <p className="mt-1.5 text-xs text-outline">Personas que dependen de tu ingreso</p>
+          </div>
+        </div>
 
-      {tieneDeudas === 'si' && (
-        <SeccionDeudas
-          cantidadDeudas={cantidadDeudas}
-          onCantidadChange={(value) => setValue('cantidadDeudas', value, { shouldValidate: true })}
-          errorCantidad={errors.cantidadDeudas?.message}
-          montoTotalDeudas={montoTotalDeudasActual}
-          onMontoTotalChange={(value) =>
-            setValue('montoTotalDeudas', value, { shouldValidate: true })
-          }
-          montoTotalOpen={montoTotalOpen}
-          onMontoTotalOpenChange={setMontoTotalOpen}
-          errorMontoTotal={errors.montoTotalDeudas?.message}
-          pagoDisplay={pagoDeudaDisplay}
-          pagoHandlers={pagoDeudaHandlers}
-          errorPago={errors.pagoMensualDeudas?.message}
-        />
-      )}
+        {/* Ingreso mensual */}
+        <div className="my-4">
+          <FloatingInput
+            label="Ingreso mensual aproximado"
+            required
+            type="text"
+            inputMode="numeric"
+            error={errors.ingresoMensual?.message}
+            prefix="$"
+            suffix="MXN"
+            value={ingresoDisplay}
+            onChange={ingresoHandlers.onChange}
+            onBlur={ingresoHandlers.onBlur}
+            onFocus={ingresoHandlers.onFocus}
+            placeholder=" "
+          />
+        </div>
 
-      <FormActions onBack={onBack} submitLabel="Continuar" disabled={!isValid} />
+        <SectionDivider label="Deudas actuales" />
+
+        {/* ¿Tiene deudas? */}
+        <PillGroup
+          label="¿Tienes deudas actualmente?"
+          required
+          error={errors.tieneDeudas?.message}
+          className="mb-4"
+          pillsClassName="flex gap-3"
+        >
+          {[
+            {
+              value: 'si',
+              label: 'Sí, tengo deudas',
+              icono: 'credit_card_off',
+            },
+            { value: 'no', label: 'No tengo deudas', icono: 'check_circle' },
+          ].map(({ value, label, icono }) => (
+            <PillOption
+              key={value}
+              selected={tieneDeudas === value}
+              onClick={() => {
+                setValue('tieneDeudas', value as 'si' | 'no', { shouldValidate: true })
+                if (value === 'no') {
+                  setValue('cantidadDeudas', 'sin_deudas', { shouldValidate: true })
+                } else {
+                  setValue('cantidadDeudas', undefined, { shouldValidate: true })
+                }
+              }}
+              icon={icono}
+              fullWidth
+            >
+              {label}
+            </PillOption>
+          ))}
+        </PillGroup>
+
+        {tieneDeudas === 'si' && (
+          <SeccionDeudas
+            cantidadDeudas={cantidadDeudas}
+            onCantidadChange={(value) =>
+              setValue('cantidadDeudas', value, { shouldValidate: true })
+            }
+            errorCantidad={errors.cantidadDeudas?.message}
+            montoTotalDeudas={montoTotalDeudasActual}
+            onMontoTotalChange={(value) =>
+              setValue('montoTotalDeudas', value, { shouldValidate: true })
+            }
+            montoTotalOpen={montoTotalOpen}
+            onMontoTotalOpenChange={setMontoTotalOpen}
+            errorMontoTotal={errors.montoTotalDeudas?.message}
+            pagoDisplay={pagoDeudaDisplay}
+            pagoHandlers={pagoDeudaHandlers}
+            errorPago={errors.pagoMensualDeudas?.message}
+          />
+        )}
+      </FormCard>
+
+      <FormActions onBack={onBack} submitLabel="Siguiente" disabled={!isValid} />
     </form>
   )
 }

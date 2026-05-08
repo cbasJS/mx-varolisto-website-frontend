@@ -96,6 +96,25 @@ test.describe('Rediseño /solicitar — Primitivas (FloatingInput, PillOption)',
     await expect(atrasBtn).toBeVisible()
     await expect(atrasBtn.locator('.material-symbols-outlined')).toHaveCount(0)
   })
+
+  test('FormActions: los botones Atrás/Continuar viven FUERA del form card (Figma)', async ({
+    page,
+  }) => {
+    await setStoreEnPaso2(page)
+    const formCard = page.locator('[data-testid="form-card"]')
+    await expect(formCard).toBeVisible()
+    // En Figma los buttons son siblings del card, no descendants.
+    await expect(formCard.getByRole('button', { name: /^Atrás$/ })).toHaveCount(0)
+    await expect(formCard.getByRole('button', { name: /Continuar/i })).toHaveCount(0)
+  })
+
+  test('FormActions: Atrás usa text-base (matchea Figma, no text-sm)', async ({ page }) => {
+    await setStoreEnPaso2(page)
+    const atrasBtn = page.getByRole('button', { name: /^Atrás$/ })
+    const fontSize = await atrasBtn.evaluate((el) => window.getComputedStyle(el).fontSize)
+    // text-base = 16px
+    expect(fontSize).toBe('16px')
+  })
 })
 
 test.describe('Rediseño /solicitar — counters fuera del input en pasos 3+', () => {

@@ -17,6 +17,7 @@ import Paso6Documentos from './pasos/paso6/Paso6Documentos'
 import Paso7Revision from './pasos/paso7/Paso7Revision'
 import { ResumenSolicitud } from './ResumenSolicitud'
 import { calcularCuota } from '@/lib/solicitud/utils/calcularCuota'
+import { FormCard } from '@/components/wizard/FormCard'
 
 interface StepperStripProps {
   pasoActual: number
@@ -74,11 +75,9 @@ export default function FormularioSolicitud() {
       <>
         <StepperStrip pasoActual={1} />
         <div className="mx-auto max-w-2xl px-4 py-6 md:py-10">
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div className="p-6 md:p-10">
-              <FormSkeleton />
-            </div>
-          </div>
+          <FormCard>
+            <FormSkeleton />
+          </FormCard>
         </div>
       </>
     )
@@ -101,36 +100,32 @@ export default function FormularioSolicitud() {
                 onCambiar={() => handleEditarPaso(1)}
               />
             )}
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-              <div className="p-6 md:p-10">
-                {pasoActual === 2 && (
-                  <Paso2Identidad onNext={(d) => handleNext(2, d)} onBack={handleBack} />
-                )}
-                {pasoActual === 3 && (
-                  <Paso3Domicilio onNext={(d) => handleNext(3, d)} onBack={handleBack} />
-                )}
-                {pasoActual === 4 && (
-                  <Paso4Economia onNext={(d) => handleNext(4, d)} onBack={handleBack} />
-                )}
-                {pasoActual === 5 && (
-                  <Paso5Referencias onNext={(d) => handleNext(5, d)} onBack={handleBack} />
-                )}
-                {pasoActual === 6 && (
-                  <Paso6Documentos onNext={(d) => handleNext(6, d)} onBack={handleBack} />
-                )}
-                {pasoActual === 7 && (
-                  <Paso7Revision
-                    onSubmit={handleSubmit}
-                    onBack={handleBack}
-                    onEditarPaso={handleEditarPaso}
-                    enviando={enviando}
-                    errorSubmit={errorSubmit}
-                    onLimpiarError={limpiarErrorSubmit}
-                    onConflictoConfirmado={handleConflictoConfirmado}
-                  />
-                )}
-              </div>
-            </div>
+            {pasoActual === 2 && (
+              <Paso2Identidad onNext={(d) => handleNext(2, d)} onBack={handleBack} />
+            )}
+            {pasoActual === 3 && (
+              <Paso3Domicilio onNext={(d) => handleNext(3, d)} onBack={handleBack} />
+            )}
+            {pasoActual === 4 && (
+              <Paso4Economia onNext={(d) => handleNext(4, d)} onBack={handleBack} />
+            )}
+            {pasoActual === 5 && (
+              <Paso5Referencias onNext={(d) => handleNext(5, d)} onBack={handleBack} />
+            )}
+            {pasoActual === 6 && (
+              <Paso6Documentos onNext={(d) => handleNext(6, d)} onBack={handleBack} />
+            )}
+            {pasoActual === 7 && (
+              <Paso7Revision
+                onSubmit={handleSubmit}
+                onBack={handleBack}
+                onEditarPaso={handleEditarPaso}
+                enviando={enviando}
+                errorSubmit={errorSubmit}
+                onLimpiarError={limpiarErrorSubmit}
+                onConflictoConfirmado={handleConflictoConfirmado}
+              />
+            )}
           </>
         )}
       </div>

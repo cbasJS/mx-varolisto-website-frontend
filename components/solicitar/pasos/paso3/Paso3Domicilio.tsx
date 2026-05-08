@@ -14,6 +14,7 @@ import { FormActions } from '@/components/wizard/FormActions'
 import { CamposCP } from './CamposCP'
 import { pasos } from '@/content/solicitar'
 import { cn } from '@/lib/utils'
+import { FormCard } from '@/components/wizard/FormCard'
 
 interface Props {
   onNext: (datos: Paso3Data) => void
@@ -50,107 +51,109 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <StepTitle
-        numero={3}
-        total={pasos.length}
-        titulo="Tu domicilio"
-        subtitulo="Usamos tu código postal para encontrar tu colonia automáticamente."
-      />
+      <FormCard>
+        <StepTitle
+          numero={3}
+          total={pasos.length}
+          titulo="Tu domicilio"
+          subtitulo="Usamos tu código postal para encontrar tu colonia automáticamente."
+        />
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        {/* CP */}
-        <div>
-          <FloatingInput
-            label="Código postal"
-            required
-            error={errors.codigoPostal?.message}
-            {...register('codigoPostal')}
-            placeholder=" "
-            maxLength={5}
-            inputMode="numeric"
-            labelSuffix={
-              <span
-                className={cn(
-                  'tabular-nums',
-                  codigoPostalValue.length === 5 ? 'text-on-secondary-container' : 'text-outline',
-                )}
-              >
-                {codigoPostalValue.length}/5
-              </span>
-            }
-          />
-          {cpValido && cpError && (
-            <p className="mt-1.5 text-xs text-error">Código postal no encontrado</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {/* CP */}
+          <div>
+            <FloatingInput
+              label="Código postal"
+              required
+              error={errors.codigoPostal?.message}
+              {...register('codigoPostal')}
+              placeholder=" "
+              maxLength={5}
+              inputMode="numeric"
+              labelSuffix={
+                <span
+                  className={cn(
+                    'tabular-nums',
+                    codigoPostalValue.length === 5 ? 'text-on-secondary-container' : 'text-outline',
+                  )}
+                >
+                  {codigoPostalValue.length}/5
+                </span>
+              }
+            />
+            {cpValido && cpError && (
+              <p className="mt-1.5 text-xs text-error">Código postal no encontrado</p>
+            )}
+          </div>
+
+          {cpValido && !cpError && (
+            <CamposCP
+              cargandoCP={cargandoCP}
+              colonias={colonias}
+              coloniaActual={coloniaActual}
+              errors={errors}
+              setValue={setValue}
+              register={register}
+            />
           )}
+
+          <FloatingInput
+            label="Calle"
+            required
+            error={errors.calle?.message}
+            {...register('calle')}
+            placeholder=" "
+          />
+          <FloatingInput
+            label="Número exterior"
+            required
+            error={errors.numeroExterior?.message}
+            {...register('numeroExterior')}
+            placeholder=" "
+          />
+          <FloatingInput
+            label="Número interior"
+            optional
+            {...register('numeroInterior')}
+            placeholder=" "
+          />
         </div>
 
-        {cpValido && !cpError && (
-          <CamposCP
-            cargandoCP={cargandoCP}
-            colonias={colonias}
-            coloniaActual={coloniaActual}
-            errors={errors}
-            setValue={setValue}
-            register={register}
+        <SectionDivider label="Situación de vivienda" />
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <FloatingSelect
+            label="Tiempo viviendo aquí"
+            required
+            value={aniosViviendoActual}
+            onValueChange={(val) =>
+              setValue('aniosViviendo', val as (typeof ANIOS_VIVIENDO)[number], {
+                shouldValidate: true,
+              })
+            }
+            onOpenChange={setAniosViviendoOpen}
+            isOpen={aniosViviendoOpen}
+            options={ANIOS_VIVIENDO.map((v) => ({ value: v, label: ANIOS_VIVIENDO_LABELS[v] }))}
+            error={errors.aniosViviendo?.message}
           />
-        )}
+          <FloatingSelect
+            label="Tipo de vivienda"
+            required
+            value={tipoViviendaActual}
+            onValueChange={(val) =>
+              setValue('tipoVivienda', val as (typeof TIPO_VIVIENDA)[number], {
+                shouldValidate: true,
+              })
+            }
+            onOpenChange={setTipoViviendaOpen}
+            isOpen={tipoViviendaOpen}
+            options={TIPO_VIVIENDA.map((v) => ({ value: v, label: TIPO_VIVIENDA_LABELS[v] }))}
+            error={errors.tipoVivienda?.message}
+          />
+        </div>
+      </FormCard>
 
-        <FloatingInput
-          label="Calle"
-          required
-          error={errors.calle?.message}
-          {...register('calle')}
-          placeholder=" "
-        />
-        <FloatingInput
-          label="Número exterior"
-          required
-          error={errors.numeroExterior?.message}
-          {...register('numeroExterior')}
-          placeholder=" "
-        />
-        <FloatingInput
-          label="Número interior"
-          optional
-          {...register('numeroInterior')}
-          placeholder=" "
-        />
-      </div>
-
-      <SectionDivider label="Situación de vivienda" />
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <FloatingSelect
-          label="Tiempo viviendo aquí"
-          required
-          value={aniosViviendoActual}
-          onValueChange={(val) =>
-            setValue('aniosViviendo', val as (typeof ANIOS_VIVIENDO)[number], {
-              shouldValidate: true,
-            })
-          }
-          onOpenChange={setAniosViviendoOpen}
-          isOpen={aniosViviendoOpen}
-          options={ANIOS_VIVIENDO.map((v) => ({ value: v, label: ANIOS_VIVIENDO_LABELS[v] }))}
-          error={errors.aniosViviendo?.message}
-        />
-        <FloatingSelect
-          label="Tipo de vivienda"
-          required
-          value={tipoViviendaActual}
-          onValueChange={(val) =>
-            setValue('tipoVivienda', val as (typeof TIPO_VIVIENDA)[number], {
-              shouldValidate: true,
-            })
-          }
-          onOpenChange={setTipoViviendaOpen}
-          isOpen={tipoViviendaOpen}
-          options={TIPO_VIVIENDA.map((v) => ({ value: v, label: TIPO_VIVIENDA_LABELS[v] }))}
-          error={errors.tipoVivienda?.message}
-        />
-      </div>
-
-      <FormActions onBack={onBack} submitLabel="Continuar" disabled={!isValid} />
+      <FormActions onBack={onBack} submitLabel="Siguiente" disabled={!isValid} />
     </form>
   )
 }

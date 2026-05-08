@@ -167,10 +167,10 @@ export default function Paso1Prestamo({ onNext }: Props) {
         type="submit"
         disabled={!isValid}
         className={cn(
-          'mb-6 flex w-full items-center justify-center gap-2 rounded-xl py-4 text-sm font-medium text-white transition-all active:scale-[0.98]',
+          'mb-6 flex w-full items-center justify-center gap-2 rounded-[12px] py-4 font-medium text-white transition-all active:scale-[0.98]',
           isValid
             ? 'bg-primary shadow-lg shadow-primary/30 hover:bg-primary/90'
-            : 'cursor-not-allowed bg-outline-variant shadow-none',
+            : 'cursor-not-allowed bg-primary opacity-50 shadow-none',
         )}
       >
         <span>Solicitar ahora</span>

@@ -635,8 +635,8 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       await expect(page.getByRole('button', { name: `Eliminar ${nombre}` }).first()).toBeVisible()
     }
 
-    // Botón Continuar habilitado (puedeAvanzar=true)
-    await expect(page.getByRole('button', { name: /Continuar/i })).toBeEnabled()
+    // Botón Siguiente habilitado (puedeAvanzar=true)
+    await expect(page.getByRole('button', { name: /Siguiente/i })).toBeEnabled()
   })
 
   // ── E5b. Click en X tras hidratación dispara DELETE al bucket ─────────────
@@ -959,7 +959,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar solicitud')")
+    await page.click("button:has-text('Enviar mi solicitud')")
 
     // Esperar a que el botón cambie a "Enviando…" — isSubmitting = true
     await page.waitForSelector('text=Enviando…', { timeout: 3_000 })

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { ArrowRight } from 'lucide-react'
 import { toast } from 'sonner'
 import { usePaso7 } from '@/hooks/solicitar/usePaso7'
 import { useSolicitudStore } from '@/lib/solicitud/store'
@@ -219,23 +220,20 @@ export default function Paso7Revision({
           errorTerminos={errors.aceptaTerminos?.message}
         />
 
-        {/* Botones */}
-        <div className="flex justify-between gap-3">
+        {/* Botones — match Figma: rounded-[12px], copy "Enviar mi solicitud" */}
+        <div className="flex items-stretch gap-3">
           <button
             type="button"
             onClick={onBack}
             disabled={enviando}
-            className="flex items-center gap-1.5 rounded-xl border-2 border-surface-container-high bg-white px-6 py-3 text-sm font-semibold text-on-surface-variant transition-all hover:border-outline-variant hover:bg-surface-bright active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 rounded-[12px] border-2 border-gray-300 bg-white py-3 font-medium text-gray-700 transition-all hover:bg-gray-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <span className="material-symbols-outlined text-sm" aria-hidden>
-              arrow_back
-            </span>
             Atrás
           </button>
           <button
             type="submit"
             disabled={!ambosAceptados || enviando}
-            className="flex items-center gap-2 rounded-xl bg-secondary px-8 py-3 text-sm font-bold text-white shadow-lg shadow-secondary/30 transition-all hover:bg-secondary/90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+            className="flex flex-[2] items-center justify-center gap-2 rounded-[12px] bg-primary px-6 py-3 font-medium text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {enviando ? (
               <>
@@ -244,14 +242,8 @@ export default function Paso7Revision({
               </>
             ) : (
               <>
-                <span
-                  className="material-symbols-outlined text-sm"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                  aria-hidden
-                >
-                  send
-                </span>
-                Enviar solicitud
+                Enviar mi solicitud
+                <ArrowRight className="size-5 shrink-0" aria-hidden />
               </>
             )}
           </button>

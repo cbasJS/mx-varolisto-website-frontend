@@ -160,7 +160,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar solicitud')")
+    await page.click("button:has-text('Enviar mi solicitud')")
 
     await expect(page.getByText('¡Todo listo!')).toBeVisible({ timeout: 10_000 })
     await expect(page.getByText('Solicitud recibida')).toBeVisible()
@@ -182,7 +182,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar solicitud')")
+    await page.click("button:has-text('Enviar mi solicitud')")
 
     await expect(page.getByText('Enviando…')).toBeVisible({ timeout: 3_000 })
   })
@@ -224,7 +224,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar solicitud')")
+    await page.click("button:has-text('Enviar mi solicitud')")
 
     await expect(page.getByRole('heading', { name: 'Solicitud activa existente' })).toBeVisible({
       timeout: 5_000,
@@ -242,7 +242,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar solicitud')")
+    await page.click("button:has-text('Enviar mi solicitud')")
 
     await expect(page.locator('[data-sonner-toast][data-type="error"]')).toBeVisible({
       timeout: 5_000,
@@ -257,7 +257,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     await page.waitForSelector('text=Revisa tu solicitud', { timeout: 5_000 })
 
     // El botón está disabled mientras no se acepten ambos términos
-    await expect(page.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Enviar mi solicitud' })).toBeDisabled()
   })
 
   test('botón Enviar está deshabilitado aceptando solo el primer checkbox', async ({ page }) => {
@@ -267,6 +267,6 @@ test.describe('Flujo feliz — solicitud completa', () => {
     await page.locator('button[role="checkbox"]').nth(0).click()
 
     // Con solo uno de los dos, el botón sigue deshabilitado
-    await expect(page.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Enviar mi solicitud' })).toBeDisabled()
   })
 })
