@@ -12,6 +12,18 @@ import type {
   DependientesEconomicos,
   TipoIdentificacion,
 } from '@varolisto/shared-schemas/enums'
+import {
+  Calculator,
+  Briefcase,
+  Heart,
+  Wrench,
+  Home,
+  GraduationCap,
+  Users,
+  Plane,
+  MoreHorizontal,
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
 // ── Meta objects con icono (fuente de verdad para label + icono) ──────────────
 
@@ -21,16 +33,19 @@ export const SEXO_META: Record<Sexo, { label: string; icono: string }> = {
   X: { label: 'Prefiero no decir', icono: 'person' },
 }
 
-export const DESTINOS_META: Record<DestinoPrestamo, { label: string; icono: string }> = {
-  liquidar_deuda: { label: 'Liquidar una deuda', icono: 'sync_alt' },
-  capital_trabajo: { label: 'Capital de trabajo', icono: 'store' },
-  gasto_medico: { label: 'Gasto médico', icono: 'local_hospital' },
-  equipo_trabajo: { label: 'Equipo de trabajo', icono: 'build' },
-  mejora_hogar: { label: 'Mejora del hogar', icono: 'home_repair_service' },
-  educacion: { label: 'Educación', icono: 'school' },
-  gasto_familiar: { label: 'Gasto familiar', icono: 'family_restroom' },
-  viaje_evento: { label: 'Viaje o evento', icono: 'flight' },
-  otro: { label: 'Otro', icono: 'more_horiz' },
+export const DESTINOS_META: Record<
+  DestinoPrestamo,
+  { label: string; icono: string; lucideIcon: LucideIcon }
+> = {
+  liquidar_deuda: { label: 'Liquidar una deuda', icono: 'sync_alt', lucideIcon: Calculator },
+  capital_trabajo: { label: 'Capital de trabajo', icono: 'store', lucideIcon: Briefcase },
+  gasto_medico: { label: 'Gasto médico', icono: 'local_hospital', lucideIcon: Heart },
+  equipo_trabajo: { label: 'Equipo de trabajo', icono: 'build', lucideIcon: Wrench },
+  mejora_hogar: { label: 'Mejora del hogar', icono: 'home_repair_service', lucideIcon: Home },
+  educacion: { label: 'Educación', icono: 'school', lucideIcon: GraduationCap },
+  gasto_familiar: { label: 'Gasto familiar', icono: 'family_restroom', lucideIcon: Users },
+  viaje_evento: { label: 'Viaje o evento', icono: 'flight', lucideIcon: Plane },
+  otro: { label: 'Otro', icono: 'more_horiz', lucideIcon: MoreHorizontal },
 }
 
 export const ACTIVIDADES_META: Record<

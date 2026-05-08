@@ -67,7 +67,7 @@ export default function FormularioSolicitud() {
       <>
         <StepperStrip pasoActual={1} />
         <div className="mx-auto max-w-2xl px-4 py-6 md:py-10">
-          <div className="overflow-hidden rounded-2xl border border-outline-variant bg-white shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="p-6 md:p-10">
               <FormSkeleton />
             </div>
@@ -82,48 +82,53 @@ export default function FormularioSolicitud() {
       <StepperStrip pasoActual={pasoActual} />
 
       <div className="mx-auto max-w-2xl px-4 py-6 md:py-10">
-        <div className="overflow-hidden rounded-2xl border border-outline-variant bg-white shadow-sm">
-          <div className="p-6 md:p-10">
-            {pasoActual === 1 && <Paso1Prestamo onNext={(d) => handleNext(1, d)} />}
-            {pasoActual === 2 && (
-              <Paso2Identidad onNext={(d) => handleNext(2, d)} onBack={handleBack} />
-            )}
-            {pasoActual === 3 && (
-              <Paso3Domicilio onNext={(d) => handleNext(3, d)} onBack={handleBack} />
-            )}
-            {pasoActual === 4 && (
-              <Paso4Economia onNext={(d) => handleNext(4, d)} onBack={handleBack} />
-            )}
-            {pasoActual === 5 && (
-              <Paso5Referencias onNext={(d) => handleNext(5, d)} onBack={handleBack} />
-            )}
-            {pasoActual === 6 && (
-              <Paso6Documentos onNext={(d) => handleNext(6, d)} onBack={handleBack} />
-            )}
-            {pasoActual === 7 && (
-              <Paso7Revision
-                onSubmit={handleSubmit}
-                onBack={handleBack}
-                onEditarPaso={handleEditarPaso}
-                enviando={enviando}
-                errorSubmit={errorSubmit}
-                onLimpiarError={limpiarErrorSubmit}
-                onConflictoConfirmado={handleConflictoConfirmado}
-              />
-            )}
-          </div>
-        </div>
-
-        <div className="mt-6 flex items-center justify-center gap-6 text-center">
-          {trustBadges.map(({ icono, texto }) => (
-            <div key={texto} className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-sm text-primary/30" aria-hidden>
-                {icono}
-              </span>
-              <span className="text-xs text-primary/40">{texto}</span>
+        {pasoActual === 1 ? (
+          <Paso1Prestamo onNext={(d) => handleNext(1, d)} />
+        ) : (
+          <>
+            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+              <div className="p-6 md:p-10">
+                {pasoActual === 2 && (
+                  <Paso2Identidad onNext={(d) => handleNext(2, d)} onBack={handleBack} />
+                )}
+                {pasoActual === 3 && (
+                  <Paso3Domicilio onNext={(d) => handleNext(3, d)} onBack={handleBack} />
+                )}
+                {pasoActual === 4 && (
+                  <Paso4Economia onNext={(d) => handleNext(4, d)} onBack={handleBack} />
+                )}
+                {pasoActual === 5 && (
+                  <Paso5Referencias onNext={(d) => handleNext(5, d)} onBack={handleBack} />
+                )}
+                {pasoActual === 6 && (
+                  <Paso6Documentos onNext={(d) => handleNext(6, d)} onBack={handleBack} />
+                )}
+                {pasoActual === 7 && (
+                  <Paso7Revision
+                    onSubmit={handleSubmit}
+                    onBack={handleBack}
+                    onEditarPaso={handleEditarPaso}
+                    enviando={enviando}
+                    errorSubmit={errorSubmit}
+                    onLimpiarError={limpiarErrorSubmit}
+                    onConflictoConfirmado={handleConflictoConfirmado}
+                  />
+                )}
+              </div>
             </div>
-          ))}
-        </div>
+
+            <div className="mt-6 flex items-center justify-center gap-6 text-center">
+              {trustBadges.map(({ icono, texto }) => (
+                <div key={texto} className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-sm text-primary/30" aria-hidden>
+                    {icono}
+                  </span>
+                  <span className="text-xs text-primary/40">{texto}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </>
   )
