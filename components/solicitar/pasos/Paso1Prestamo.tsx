@@ -16,18 +16,8 @@ interface Props {
 }
 
 export default function Paso1Prestamo({ onNext }: Props) {
-  const {
-    handleSubmit,
-    control,
-    setValue,
-    errors,
-    isValid,
-    monto,
-    plazoStr,
-    destino,
-    cuota,
-    TASA_MENSUAL,
-  } = usePaso1(onNext)
+  const { handleSubmit, control, setValue, errors, isValid, monto, plazoStr, destino, cuota } =
+    usePaso1(onNext)
 
   // Mobile siempre muestra sólo los primeros 3 destinos por default. Desktop
   // muestra los 9. El botón "Ver más opciones" en mobile permite expandir.
@@ -117,8 +107,8 @@ export default function Paso1Prestamo({ onNext }: Props) {
             <span className="text-sm text-on-surface-variant">/mes</span>
           </div>
           <p className="mt-2 text-xs text-outline">
-            Cálculo aproximado a tasa {(TASA_MENSUAL * 100).toFixed(2)}% mensual. La cuota final
-            depende de tu evaluación.
+            Cálculo orientativo. Tu cuota final incluye una cuota por servicio y se ajusta a tu
+            perfil de evaluación.
           </p>
         </div>
       </div>
