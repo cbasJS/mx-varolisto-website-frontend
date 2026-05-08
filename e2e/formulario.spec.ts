@@ -946,13 +946,47 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await page.route('**/api/solicitudes', () => {
       /* no responder */
     })
-    // Mock GET staging vacío
+    // Mock GET staging con los archivos requeridos: Paso 7 reconcilia archivos
+    // al montar y regresa a Paso 6 si no hay INE + 2 comprobantes de ingreso +
+    // comprobante de domicilio.
+    const SESSION = '00000000-0000-4000-a000-000000000001'
     await page.route('**/api/archivos/staging/**', (route) => {
       if (route.request().method() === 'GET') {
         route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ archivos: [] }),
+          body: JSON.stringify({
+            archivos: [
+              {
+                storagePath: `staging/${SESSION}/ine_frente_2000_frente.jpg`,
+                tipoArchivo: 'ine_frente',
+                tamanoBytes: 100000,
+                mimeType: 'image/jpeg',
+                uploadedAt: null,
+              },
+              {
+                storagePath: `staging/${SESSION}/comprobante_ingreso_2001_recibo1.pdf`,
+                tipoArchivo: 'comprobante_ingreso',
+                tamanoBytes: 50000,
+                mimeType: 'application/pdf',
+                uploadedAt: null,
+              },
+              {
+                storagePath: `staging/${SESSION}/comprobante_ingreso_2002_recibo2.pdf`,
+                tipoArchivo: 'comprobante_ingreso',
+                tamanoBytes: 50000,
+                mimeType: 'application/pdf',
+                uploadedAt: null,
+              },
+              {
+                storagePath: `staging/${SESSION}/comprobante_domicilio_2003_cfe.pdf`,
+                tipoArchivo: 'comprobante_domicilio',
+                tamanoBytes: 50000,
+                mimeType: 'application/pdf',
+                uploadedAt: null,
+              },
+            ],
+          }),
         })
       } else {
         route.continue()
