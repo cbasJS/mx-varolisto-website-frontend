@@ -1,7 +1,6 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft } from 'lucide-react'
 import { useScrolled } from '@/hooks/useScrolled'
 import { useMobile } from '@/hooks/useMobile'
 import { useInlineRevealed, useWizardActionsState } from './WizardActionsContext'
@@ -16,21 +15,30 @@ const SCROLL_THRESHOLD_PX = 120
  * alwaysVisible, onBack), así funciona idéntico a los CTAs inline en los 3
  * escenarios:
  *
- *   - Paso 1: solo "Ver mi oferta" (sin Atrás), shimmer, siempre visible.
+ *   - Paso 1: solo "Ver mi oferta" (sin Atrás), shimmer, alwaysVisible.
  *   - Pasos 2-6: "Atrás" + "Continuar"
- *   - Paso 7: "Atrás" + "Enviar solicitud" (verde, shimmer, loading state)
+ *   - Paso 7: "Atrás" + "Enviar solicitud" (verde, shimmer, loading state,
+ *     alwaysVisible)
  *
  * Comportamiento:
- *   - Aparece cuando el usuario hace scroll abajo (>120px), excepto en pasos
- *     `alwaysVisible` donde se muestra siempre.
- *   - Se oculta cuando el actionsSlot al fondo del form entra al viewport
- *     (los CTAs inline toman el control en mobile).
+ *   - Aparece cuando el usuario hace scroll abajo (>120px). Los pasos con
+ *     `alwaysVisible: true` (paso 1 y paso 7) bypassan el threshold y el
+ *     sticky aparece desde el inicio.
+ *   - Crossfade: en TODOS los pasos, el sticky se oculta cuando el sentinel
+ *     al fondo del form entra al viewport (los CTAs inline toman el control
+ *     en mobile). `alwaysVisible` NO bypassa el crossfade.
  *   - No se renderiza en desktop (md+).
  *   - Respeta `env(safe-area-inset-bottom)` (home indicator de iPhone).
  *
- * Tamaño/estilo: alineado con FormActions inline para una transición fluida —
- * `rounded-[12px]`, altura interna `py-3` (~48px), padding del contenedor
- * `py-2.5`. Anchos: Atrás compacto, Continuar `flex-1`.
+ * Coherencia visual con los CTAs inline (FormActions, Paso 1, Paso 7) y con
+ * el BottomNav del landing:
+ *   - Mismo `rounded-full` (pill shape — match BottomNav).
+ *   - Misma altura (`py-3` ≈ 48px) y `text-base font-medium`.
+ *   - Mismo ancho de fila (`mx-auto max-w-2xl px-4`) que el contenedor del
+ *     formulario, así Atrás/Continuar tienen idénticas dimensiones cuando el
+ *     usuario cruza el crossfade.
+ *   - Look fintech tipo BottomNav: `rounded-t-3xl` en el wrapper, blur,
+ *     sombra suave.
  */
 export function StickyMobileCTA() {
   const isMobile = useMobile()
@@ -49,7 +57,10 @@ export function StickyMobileCTA() {
     alwaysVisible,
   } = useWizardActionsState()
 
-  const visible = isMobile && (alwaysVisible || (scrolled && !inlineRevealed))
+  // alwaysVisible bypassa el threshold de scroll (sticky aparece desde el
+  // inicio sin esperar a que el usuario scrollee). El crossfade hacia los
+  // inline al llegar al fondo se respeta siempre — incluso con alwaysVisible.
+  const visible = isMobile && (alwaysVisible || scrolled) && !inlineRevealed
   const SubmitIcon = submitIcon
   const isDisabled = disabled || loading
 
@@ -75,46 +86,43 @@ export function StickyMobileCTA() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 24, opacity: 0 }}
           transition={{ type: 'tween', ease: [0.22, 1, 0.36, 1], duration: 0.22 }}
-          className="fixed inset-x-0 bottom-0 z-40 md:hidden"
+          className="py-3 fixed inset-x-0 bottom-0 z-50 border-t border-black/5 rounded-t-3xl bg-white/80 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-xl backdrop-saturate-150 md:hidden"
           style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
-          <div className="border-t border-black/5 bg-white/80 shadow-[0_-8px_24px_-12px_rgba(0,6,102,0.12)] backdrop-blur-xl backdrop-saturate-150">
-            <div className="mx-auto flex max-w-2xl items-stretch gap-3 px-4 py-2.5">
-              {onBack && (
-                <button
-                  type="button"
-                  onClick={onBack}
-                  disabled={loading}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-[12px] border-2 border-gray-300 bg-white px-4 py-3 text-base font-medium text-gray-700 transition-colors hover:bg-gray-50 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <ArrowLeft className="size-4" aria-hidden />
-                  <span>Atrás</span>
-                </button>
-              )}
+          <div className="mx-auto flex max-w-2xl items-stretch gap-3 px-4 py-3">
+            {onBack && (
               <button
-                type="submit"
-                form={formId}
-                disabled={isDisabled}
-                className={cn(
-                  'inline-flex flex-1 items-center justify-center gap-2 rounded-[12px] px-5 py-3 text-base font-medium transition-all',
-                  variantClasses,
-                  submitShimmer && !isDisabled && 'cta-shimmer',
-                  isDisabled ? 'cursor-not-allowed opacity-60' : 'active:scale-[0.98]',
-                )}
+                type="button"
+                onClick={onBack}
+                disabled={loading}
+                className="inline-flex items-center justify-center rounded-full border-2 border-gray-300 bg-white px-5 py-3 text-base font-medium text-gray-700 transition-colors hover:bg-gray-50 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {loading ? (
-                  <>
-                    <span className="inline-block size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                    <span>{loadingLabel ?? 'Enviando…'}</span>
-                  </>
-                ) : (
-                  <>
-                    <span>{submitLabel}</span>
-                    {SubmitIcon && <SubmitIcon className="size-4" aria-hidden />}
-                  </>
-                )}
+                <span>Atrás</span>
               </button>
-            </div>
+            )}
+            <button
+              type="submit"
+              form={formId}
+              disabled={isDisabled}
+              className={cn(
+                'inline-flex flex-1 items-center justify-center gap-2 rounded-full px-5 py-3 text-base font-medium transition-all',
+                variantClasses,
+                submitShimmer && !isDisabled && 'cta-shimmer',
+                isDisabled ? 'cursor-not-allowed opacity-60' : 'active:scale-[0.98]',
+              )}
+            >
+              {loading ? (
+                <>
+                  <span className="inline-block size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  <span>{loadingLabel ?? 'Enviando…'}</span>
+                </>
+              ) : (
+                <>
+                  <span>{submitLabel}</span>
+                  {SubmitIcon && <SubmitIcon className="size-4" aria-hidden />}
+                </>
+              )}
+            </button>
           </div>
         </motion.div>
       )}

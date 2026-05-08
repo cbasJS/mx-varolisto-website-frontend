@@ -11,9 +11,10 @@ import { Slider } from '@/components/ui/slider'
 import { FieldError } from '@/components/forms/FieldError'
 import { cn } from '@/lib/utils'
 import { ACTIVE_PASO_FORM_ID } from '@/components/wizard/PasoFormShell'
-import { useRegisterWizardActions } from '@/components/wizard/WizardActionsContext'
-// Paso 1 mantiene el sticky alwaysVisible — el inline queda solo para desktop
-// (md+). No depende de inlineRevealed.
+import {
+  useInlineRevealed,
+  useRegisterWizardActions,
+} from '@/components/wizard/WizardActionsContext'
 
 interface Props {
   onNext: (datos: Paso2Data) => void
@@ -22,12 +23,14 @@ interface Props {
 export default function Paso1Prestamo({ onNext }: Props) {
   const { handleSubmit, control, setValue, errors, isValid, monto, plazoStr, destino, cuota } =
     usePaso1(onNext)
+  const { inlineRevealed } = useInlineRevealed()
 
   // Registra el CTA en el WizardActionsContext para que el StickyMobileCTA
   // dispare el mismo submit que el botón inline. Sin onBack — paso 1 es la
-  // primera pantalla del flujo. `alwaysVisible: true` para que el sticky sea
-  // el CTA principal de la calculadora desde el inicio. `submitShimmer: true`
-  // para la animación premium tipo BottomNav.
+  // primera pantalla del flujo. `submitShimmer: true` para la animación
+  // premium tipo BottomNav. `alwaysVisible: true` → el sticky aparece desde
+  // el inicio sin esperar scroll, pero igual hace crossfade hacia el inline
+  // al llegar al fondo.
   useRegisterWizardActions({
     formId: ACTIVE_PASO_FORM_ID,
     submitLabel: 'Ver mi oferta',
@@ -171,24 +174,34 @@ export default function Paso1Prestamo({ onNext }: Props) {
         <FieldError message={errors.destinoPrestamo?.message} />
       </div>
 
-      {/* ── CTA Full-Width (desktop) ─────────────────────────── */}
-      {/* En mobile, este CTA se reemplaza por el StickyMobileCTA (alwaysVisible)
-          — el sticky dispara el submit del mismo form vía formId. Aquí
-          mantenemos el inline solo para desktop (md+) con tamaño coherente
-          (py-3, rounded-[12px]) y la animación cta-shimmer. */}
-      <button
-        type="submit"
-        disabled={!isValid}
+      {/* ── CTA Full-Width ──────────────────────────────────── */}
+      {/* En desktop siempre visible. En mobile, este CTA se reemplaza por el
+          StickyMobileCTA (alwaysVisible) y solo aparece cerca del fondo
+          (`inlineRevealed`) haciendo crossfade con el sticky. Reserva su
+          espacio siempre (opacity en lugar de display) para evitar layout
+          shifts que causarían loops del IntersectionObserver. */}
+      <div
         className={cn(
-          'mb-6 hidden w-full items-center justify-center gap-2 rounded-[12px] py-3 text-base font-medium text-white transition-all md:inline-flex',
-          isValid
-            ? 'bg-primary shadow-md shadow-primary/25 hover:bg-primary/95 active:scale-[0.98] cta-shimmer'
-            : 'cursor-not-allowed bg-primary opacity-60 shadow-none',
+          'transition-opacity duration-200',
+          inlineRevealed
+            ? 'opacity-100'
+            : 'pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100',
         )}
       >
-        <span>Ver mi oferta</span>
-        <ArrowRight className="size-4" aria-hidden />
-      </button>
+        <button
+          type="submit"
+          disabled={!isValid}
+          className={cn(
+            'mb-6 inline-flex w-full items-center justify-center gap-2 rounded-full py-3 text-base font-medium text-white transition-all',
+            isValid
+              ? 'bg-primary shadow-md shadow-primary/25 hover:bg-primary/95 active:scale-[0.98] cta-shimmer'
+              : 'cursor-not-allowed bg-primary opacity-60 shadow-none',
+          )}
+        >
+          <span>Ver mi oferta</span>
+          <ArrowRight className="size-4" aria-hidden />
+        </button>
+      </div>
 
       {/* ── Trust Indicators ─────────────────────────────────── */}
       <div className="mb-8 grid grid-cols-3 gap-4">

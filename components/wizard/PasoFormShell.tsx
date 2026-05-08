@@ -60,7 +60,14 @@ export function PasoFormShell({
       </form>
       {actionsSlot &&
         createPortal(
-          <div className={cn(inlineRevealed ? 'block' : 'hidden', 'md:block')}>
+          <div
+            className={cn(
+              'transition-opacity duration-200',
+              inlineRevealed
+                ? 'opacity-100'
+                : 'pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100',
+            )}
+          >
             <FormActions
               formId={ACTIVE_PASO_FORM_ID}
               onBack={onBack}

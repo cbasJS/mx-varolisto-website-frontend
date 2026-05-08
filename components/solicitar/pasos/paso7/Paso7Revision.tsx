@@ -149,7 +149,9 @@ export default function Paso7Revision({
   // funcione idéntico al botón inline: deshabilitado sin checkboxes, loading
   // mientras el POST está en vuelo, copy "Enviar solicitud" con icono Check.
   // `submitVariant: 'success'` → verde varolisto (#2ECC71). `submitShimmer`
-  // → animación premium tipo BottomNav.
+  // → animación premium tipo BottomNav. `alwaysVisible: true` → el sticky
+  // aparece desde el inicio sin esperar scroll, pero igual hace crossfade
+  // hacia el inline al llegar al fondo.
   useRegisterWizardActions({
     formId: ACTIVE_PASO_FORM_ID,
     submitLabel: 'Enviar solicitud',
@@ -160,6 +162,7 @@ export default function Paso7Revision({
     submitIcon: Check,
     submitVariant: 'success',
     submitShimmer: true,
+    alwaysVisible: true,
   })
 
   const cuotaMensual =
@@ -351,21 +354,24 @@ export default function Paso7Revision({
           />
         </FormCard>
 
-        {/* Botones inline — match Figma: rounded-[12px]. En mobile se ocultan
-            por defecto (sticky toma su lugar) y reaparecen cuando el usuario
-            llega cerca del fondo del form (`inlineRevealed`). En desktop son
-            visibles siempre. Usan el verde varolisto + cta-shimmer (paso 7). */}
+        {/* Botones inline — pill shape (rounded-full) match BottomNav. En
+            mobile aparecen cuando el usuario llega al fondo (`inlineRevealed`)
+            haciendo crossfade con el sticky verde + shimmer. En desktop son
+            visibles siempre. Reservan espacio siempre (opacity) para evitar
+            layout shifts que causarían loops del IntersectionObserver. */}
         <div
           className={cn(
-            'mt-8 items-stretch gap-3 md:flex',
-            inlineRevealed && !enviando ? 'flex' : 'hidden',
+            'mt-8 flex items-stretch gap-3 transition-opacity duration-200',
+            inlineRevealed && !enviando
+              ? 'opacity-100'
+              : 'pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100',
           )}
         >
           <button
             type="button"
             onClick={onBack}
             disabled={enviando}
-            className="inline-flex items-center justify-center gap-1.5 rounded-[12px] border-2 border-gray-300 bg-white px-4 py-3 text-base font-medium text-gray-700 transition-all hover:bg-gray-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-gray-300 bg-white px-5 py-3 text-base font-medium text-gray-700 transition-all hover:bg-gray-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Atrás
           </button>
@@ -373,7 +379,7 @@ export default function Paso7Revision({
             type="submit"
             disabled={!ambosAceptados || enviando}
             className={cn(
-              'inline-flex flex-1 items-center justify-center gap-2 rounded-[12px] bg-secondary px-5 py-3 text-base font-medium text-white shadow-md shadow-secondary/30 transition-all',
+              'inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-secondary px-5 py-3 text-base font-medium text-white shadow-md shadow-secondary/30 transition-all',
               !ambosAceptados || enviando
                 ? 'cursor-not-allowed opacity-60'
                 : 'cta-shimmer hover:bg-secondary/95 active:scale-[0.98]',

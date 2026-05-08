@@ -70,20 +70,22 @@ test.describe('Sticky mobile CTA — visibilidad y scroll', () => {
 })
 
 test.describe('Sticky mobile CTA — paso 1 (calculadora)', () => {
-  test('mobile, paso 1: sticky SIEMPRE visible (sin importar scroll)', async ({ page }) => {
+  test('mobile, paso 1: alwaysVisible + crossfade — visible desde el inicio, se oculta al fondo', async ({
+    page,
+  }) => {
     await page.setViewportSize(MOBILE_VIEWPORT)
     await irAPaso(page, 1)
     await page.waitForSelector('text=¿Cuánto necesitas?', { timeout: 15_000 })
 
     const sticky = page.getByTestId('sticky-mobile-cta')
-    // Sin scroll — visible inmediatamente.
+    // Top sin scroll — sticky visible (alwaysVisible bypassa el threshold).
     await expect(sticky).toBeVisible()
-    // Tras scroll abajo — sigue visible.
-    await scrollDown(page, 400)
+    // Scroll medio — sigue visible.
+    await scrollDown(page, 200)
     await expect(sticky).toBeVisible()
-    // Tras volver arriba — sigue visible.
-    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
-    await expect(sticky).toBeVisible()
+    // Fondo — sticky se oculta (crossfade hacia inline).
+    await page.evaluate(() => window.scrollTo({ top: 99999, behavior: 'instant' }))
+    await expect(sticky).toBeHidden()
   })
 
   test('mobile, paso 1: muestra "Ver mi oferta" sin botón Atrás', async ({ page }) => {
@@ -107,6 +109,7 @@ test.describe('Sticky mobile CTA — paso 1 (calculadora)', () => {
     const submitBtn = page
       .getByTestId('sticky-mobile-cta')
       .getByRole('button', { name: /ver mi oferta/i })
+    await expect(submitBtn).toBeVisible()
     const className = await submitBtn.getAttribute('class')
     expect(className).toContain('cta-shimmer')
   })
@@ -117,7 +120,6 @@ test.describe('Sticky mobile CTA — paso 1 (calculadora)', () => {
     await page.setViewportSize(MOBILE_VIEWPORT)
     await irAPaso(page, 1)
     await page.waitForSelector('text=¿Cuánto necesitas?', { timeout: 15_000 })
-    await scrollDown(page, 400)
 
     const submitBtn = page
       .getByTestId('sticky-mobile-cta')
@@ -130,9 +132,9 @@ test.describe('Sticky mobile CTA — paso 1 (calculadora)', () => {
     await page.setViewportSize(MOBILE_VIEWPORT)
     await irAPaso(page, 1)
     await page.waitForSelector('text=¿Cuánto necesitas?', { timeout: 15_000 })
-    await scrollDown(page, 400)
 
     const sticky = page.getByTestId('sticky-mobile-cta')
+    await expect(sticky).toBeVisible()
     await sticky.getByRole('button', { name: /ver mi oferta/i }).click({ force: true })
     await expect(page.getByText('Cuéntanos quién eres')).toBeVisible({
       timeout: 5_000,
@@ -164,9 +166,11 @@ test.describe('Sticky mobile CTA — pasos 2-6 (data steps)', () => {
 
     const sticky = page.getByTestId('sticky-mobile-cta')
     await expect(sticky).toBeVisible()
-    // force: true para evitar el overlay dev de Next.js (badge "N") que
-    // intercepta pointer events sobre la esquina inferior izquierda en mobile.
-    await sticky.getByRole('button', { name: /atrás/i }).click({ force: true })
+    // Click programático para evitar interferencia del overlay dev de Next.js
+    // (badge "N") sobre la esquina inferior izquierda en mobile.
+    await sticky
+      .getByRole('button', { name: /atrás/i })
+      .evaluate((el) => (el as HTMLButtonElement).click())
     await expect(page.getByText('¿Cuánto necesitas?')).toBeVisible({
       timeout: 5_000,
     })
@@ -187,24 +191,30 @@ test.describe('Sticky mobile CTA — pasos 2-6 (data steps)', () => {
     await expect(submitBtn).toHaveAttribute('form', ACTIVE_FORM_ID)
   })
 
-  test('mobile: el FormActions inline (portal del paso 2) está oculto en mobile', async ({
+  test('mobile: el FormActions inline (portal del paso 2) está oculto vía opacity', async ({
     page,
   }) => {
     await page.setViewportSize(MOBILE_VIEWPORT)
     await irAPaso(page, 2)
     await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 15_000 })
 
-    const inlineSubmit = page
-      .locator('button[type="submit"][form="paso-form-activo"]')
-      .filter({ hasNotText: '' })
-      .first()
-    // El inline existe en el DOM (portal) pero no debe estar visible en mobile.
-    const visibles = await page
-      .locator('button[type="submit"][form="paso-form-activo"]:visible')
-      .count()
-    // Si el sticky NO está visible (sin scroll), no hay submits visibles.
-    expect(visibles).toBe(0)
-    void inlineSubmit
+    // El inline reserva su espacio siempre (no usa display:none) — para evitar
+    // layout shifts que romperían el IntersectionObserver. Sin scroll, el
+    // sticky no está montado, queda solo el inline con su wrapper en
+    // opacity:0 y pointer-events:none. Subo dos niveles para llegar al
+    // wrapper que aplica opacity (FormActions tiene su propio div interior
+    // que envuelve los botones).
+    const inlineSubmit = page.locator('button[type="submit"][form="paso-form-activo"]').first()
+    const wrapperOpacity = await inlineSubmit.evaluate((btn) => {
+      let el: HTMLElement | null = btn.parentElement
+      while (el) {
+        const op = window.getComputedStyle(el).opacity
+        if (op === '0') return op
+        el = el.parentElement
+      }
+      return null
+    })
+    expect(wrapperOpacity).toBe('0')
   })
 })
 
@@ -325,16 +335,28 @@ test.describe('Sticky mobile CTA — crossfade con CTAs inline al fondo', () => 
     await expect(inlineSubmits).toHaveCount(1)
   })
 
-  test('mobile, paso 1: aunque haya scroll al fondo, sticky sigue visible (alwaysVisible)', async ({
+  test('mobile, paso 7: alwaysVisible — sticky visible desde el inicio sin scroll', async ({
     page,
   }) => {
     await page.setViewportSize(MOBILE_VIEWPORT)
-    await irAPaso(page, 1)
-    await page.waitForSelector('text=¿Cuánto necesitas?', { timeout: 15_000 })
+    await irAPaso(page, 7)
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
+
+    // alwaysVisible bypassa el threshold de scroll — visible inmediatamente.
+    await expect(page.getByTestId('sticky-mobile-cta')).toBeVisible()
+  })
+
+  test('mobile, paso 7: al llegar al fondo, sticky se oculta y inline aparece (crossfade)', async ({
+    page,
+  }) => {
+    await page.setViewportSize(MOBILE_VIEWPORT)
+    await irAPaso(page, 7)
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     await page.evaluate(() => window.scrollTo({ top: 99999, behavior: 'instant' }))
 
-    // En paso 1 el sticky es alwaysVisible — no se oculta al llegar al fondo.
-    await expect(page.getByTestId('sticky-mobile-cta')).toBeVisible()
+    // alwaysVisible no bypassa el crossfade — al fondo, sticky se oculta
+    // y los CTAs inline (mobile) toman el control.
+    await expect(page.getByTestId('sticky-mobile-cta')).toBeHidden()
   })
 })
