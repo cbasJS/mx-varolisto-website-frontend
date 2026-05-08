@@ -61,7 +61,7 @@ export default function Paso3Domicilio({ onNext, onBack, actionsSlot }: Props) {
         numero={3}
         total={pasos.length}
         titulo="¿Dónde vives?"
-        subtitulo="Con tu CP llenamos colonia, ciudad y estado por ti."
+        subtitulo="Con tu CP encontramos tu colonia y llenamos ciudad y estado por ti."
       />
 
       <div className="grid gap-3 sm:grid-cols-2">
