@@ -60,28 +60,33 @@ export const ACTIVIDADES_META: Record<
   empleado_formal: {
     label: 'Empleado formal',
     icono: 'badge',
-    hint: 'Con comprobante de nómina',
+    hint: 'Con nómina o recibos',
     lucideIcon: Contact,
   },
   empleado_informal: {
     label: 'Empleado informal',
     icono: 'handshake',
-    hint: 'Sin contrato',
+    hint: 'Sin contrato fijo',
     lucideIcon: Handshake,
   },
   negocio_propio: {
     label: 'Negocio propio',
     icono: 'store',
-    hint: 'Dueño de negocio',
+    hint: 'Soy el dueño',
     lucideIcon: Store,
   },
   independiente: {
     label: 'Por cuenta propia',
     icono: 'laptop_mac',
-    hint: 'Honorarios',
+    hint: 'Honorarios o servicios profesionales',
     lucideIcon: Laptop,
   },
-  otro: { label: 'Otro', icono: 'more_horiz', hint: '', lucideIcon: MoreHorizontal },
+  otro: {
+    label: 'Otro',
+    icono: 'more_horiz',
+    hint: 'Otra fuente de ingresos',
+    lucideIcon: MoreHorizontal,
+  },
 }
 
 export const CANTIDAD_DEUDAS_META: Record<CantidadDeudas, string> = {

@@ -180,7 +180,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 6. Paso 4 tiene estadoCivil y dependientesEconomicos ─────────────────
   test('Paso 4 tiene campos estadoCivil y dependientesEconomicos', async ({ page }) => {
     await setStep(page, 4)
-    await page.waitForSelector('h2:has-text("Tu situación económica")', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Sobre tu trabajo y finanzas")', { timeout: 5_000 })
     await expect(page.getByText('Estado civil')).toBeVisible()
     await expect(page.getByText('Dependientes económicos')).toBeVisible()
   })
@@ -188,7 +188,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 7. Paso 4 label "Por cuenta propia" no "Freelance" ───────────────────
   test("Paso 4 muestra 'Por cuenta propia' y NO 'Freelance'", async ({ page }) => {
     await setStep(page, 4)
-    await page.waitForSelector('h2:has-text("Tu situación económica")', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Sobre tu trabajo y finanzas")', { timeout: 5_000 })
     await expect(page.getByText('Por cuenta propia')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Freelance' })).not.toBeVisible()
   })

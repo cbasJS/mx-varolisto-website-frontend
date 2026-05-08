@@ -56,7 +56,7 @@ export async function llenarPaso3(page: Page, opts?: { cambiarCp?: boolean }) {
   await page.locator('select, [role=combobox]').filter({ hasText: '¿La casa es' }).click()
   await page.getByRole('option', { name: 'Rentada' }).click()
   await page.click('button[type=submit]')
-  await page.waitForSelector('h2:has-text("Tu situación económica")')
+  await page.waitForSelector('h2:has-text("Sobre tu trabajo y finanzas")')
 }
 
 /** Fill Paso 4 — Economía. */
@@ -81,7 +81,7 @@ export async function llenarPaso4(page: Page) {
   await ingreso.fill('15000')
   await ingreso.blur()
   // Sin deudas
-  await page.click("button:has-text('No tengo deudas')")
+  await page.click("button:has-text('No, ninguno')")
   await page.click('button[type=submit]')
   await page.waitForSelector('h2:has-text("Referencias personales")')
 }

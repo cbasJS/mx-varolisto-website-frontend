@@ -21,7 +21,7 @@ export function SelectorActividadLaboral({
   return (
     <div className="mb-6">
       <p className="mb-4 text-xs font-bold uppercase tracking-wider text-gray-500">
-        Tipo de actividad laboral{' '}
+        ¿A qué te dedicas?{' '}
         <span className="text-error" aria-hidden>
           *
         </span>

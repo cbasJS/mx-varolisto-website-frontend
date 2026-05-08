@@ -65,8 +65,8 @@ export default function Paso4Economia({ onNext, onBack, actionsSlot }: Props) {
       <StepTitle
         numero={4}
         total={pasos.length}
-        titulo="Tu situación económica"
-        subtitulo="Esta información nos ayuda a diseñar la mejor oferta para ti."
+        titulo="Sobre tu trabajo y finanzas"
+        subtitulo="Con esto definimos la cuota y el plazo más cómodos para ti."
       />
 
       <SelectorActividadLaboral
@@ -150,19 +150,19 @@ export default function Paso4Economia({ onNext, onBack, actionsSlot }: Props) {
         />
       </div>
 
-      <SectionDivider label="Deudas actuales" />
+      <SectionDivider label="Otros compromisos" />
 
       {/* ¿Tiene deudas? */}
       <PillGroup
-        label="¿Tienes deudas actualmente?"
+        label="¿Tienes algún pago pendiente cada mes?"
         required
         error={errors.tieneDeudas?.message}
         className="mb-4"
         pillsClassName="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
         {[
-          { value: 'si', label: 'Sí, tengo deudas', icono: TrendingDown },
-          { value: 'no', label: 'No tengo deudas', icono: CheckCircle2 },
+          { value: 'si', label: 'Sí, tengo', icono: TrendingDown },
+          { value: 'no', label: 'No, ninguno', icono: CheckCircle2 },
         ].map(({ value, label, icono }) => (
           <PillOption
             key={value}
