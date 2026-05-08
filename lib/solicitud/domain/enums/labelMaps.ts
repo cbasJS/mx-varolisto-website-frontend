@@ -23,6 +23,7 @@ import {
   Plane,
   MoreHorizontal,
   User,
+  Contact,
   Handshake,
   Store,
   Laptop,
@@ -60,7 +61,7 @@ export const ACTIVIDADES_META: Record<
     label: 'Empleado formal',
     icono: 'badge',
     hint: 'Con comprobante de nómina',
-    lucideIcon: Briefcase,
+    lucideIcon: Contact,
   },
   empleado_informal: {
     label: 'Empleado informal',

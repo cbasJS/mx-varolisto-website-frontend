@@ -1,5 +1,6 @@
 'use client'
 
+import { TrendingDown, CheckCircle2 } from 'lucide-react'
 import { usePaso4 } from '@/hooks/solicitar/usePaso4'
 import type { Paso4Data } from '@/lib/solicitud/schemas/index'
 import { ANTIGUEDAD, ESTADO_CIVIL, DEPENDIENTES_ECONOMICOS } from '@varolisto/shared-schemas/enums'
@@ -157,15 +158,11 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
           required
           error={errors.tieneDeudas?.message}
           className="mb-4"
-          pillsClassName="flex gap-3"
+          pillsClassName="grid grid-cols-1 md:grid-cols-2 gap-4"
         >
           {[
-            {
-              value: 'si',
-              label: 'Sí, tengo deudas',
-              icono: 'credit_card_off',
-            },
-            { value: 'no', label: 'No tengo deudas', icono: 'check_circle' },
+            { value: 'si', label: 'Sí, tengo deudas', icono: TrendingDown },
+            { value: 'no', label: 'No tengo deudas', icono: CheckCircle2 },
           ].map(({ value, label, icono }) => (
             <PillOption
               key={value}

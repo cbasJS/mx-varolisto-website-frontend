@@ -47,7 +47,12 @@ export function PillOption({
         (isLucideIcon(icon) ? (
           (() => {
             const Icono = icon
-            return <Icono className="size-5 shrink-0" aria-hidden />
+            return (
+              <Icono
+                className={cn('size-5 shrink-0', selected ? 'text-secondary' : 'text-gray-400')}
+                aria-hidden
+              />
+            )
           })()
         ) : (
           <span
