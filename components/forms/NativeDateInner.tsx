@@ -90,7 +90,7 @@ export function NativeDateInner({
             setFocused(false)
             onBlur()
           }}
-          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          className="absolute inset-0 h-full w-full cursor-pointer text-base opacity-0 md:text-sm"
           aria-invalid={!!error}
           aria-describedby={error ? `${autoId}-error` : undefined}
         />

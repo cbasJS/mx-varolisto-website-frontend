@@ -91,7 +91,7 @@ export function DatePickerInner({
           showPopperArrow={false}
           portalId="datepicker-portal"
           placeholderText="DD/MM/AAAA"
-          className="w-full cursor-pointer bg-transparent text-sm text-on-surface outline-none placeholder:text-outline-variant"
+          className="w-full cursor-pointer bg-transparent text-base md:text-sm text-on-surface outline-none placeholder:text-outline-variant"
           wrapperClassName="w-full"
           autoComplete="off"
           aria-invalid={error ? 'true' : 'false'}

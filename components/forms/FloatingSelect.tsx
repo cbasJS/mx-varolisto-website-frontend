@@ -61,7 +61,7 @@ export function FloatingSelect({
         <SelectTrigger
           data-size=""
           className={cn(
-            'h-auto w-full rounded-full border-2 bg-white px-4 py-3 text-sm shadow-none transition-colors duration-200 focus:ring-0 data-[size=sm]:h-auto data-[size=default]:h-auto',
+            'h-auto w-full rounded-full border-2 bg-white px-4 py-3 text-base md:text-sm shadow-none transition-colors duration-200 focus:ring-0 data-[size=sm]:h-auto data-[size=default]:h-auto',
             error
               ? 'border-error'
               : isOpen

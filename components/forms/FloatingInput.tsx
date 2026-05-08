@@ -90,7 +90,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
               onBlur?.(e)
             }}
             className={cn(
-              'w-full bg-transparent text-sm text-on-surface outline-none placeholder:text-outline-variant',
+              'w-full bg-transparent text-base md:text-sm text-on-surface outline-none placeholder:text-outline-variant',
               className,
             )}
             autoCorrect="off"
