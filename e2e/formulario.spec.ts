@@ -72,7 +72,7 @@ async function fillPaso1(page: import('@playwright/test').Page) {
   await page.click("button:has-text('4')")
   await page.click("button:has-text('Gasto médico')")
   await page.click('button[type=submit]')
-  await page.waitForSelector('text=Cuéntanos sobre ti', { timeout: 5_000 })
+  await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 5_000 })
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -104,7 +104,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 3. Paso 2 = Identidad ────────────────────────────────────────────────
   test('Paso 2 es Identidad y contiene CURP, email, teléfono; RFC oculto', async ({ page }) => {
     await fillPaso1(page)
-    await expect(page.getByText('Cuéntanos sobre ti')).toBeVisible()
+    await expect(page.getByText('Cuéntanos quién eres')).toBeVisible()
     await expect(page.locator('input[name=curp]')).toBeVisible()
     await expect(page.locator('input[name=email]')).toBeVisible()
     await expect(page.locator('input[name=telefono]')).toBeVisible()
@@ -540,7 +540,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   }) => {
     // Stepper se oculta en paso 1 (calculadora) y paso 7 (revisión).
     await setStep(page, 2)
-    await page.waitForSelector('text=Cuéntanos sobre ti', { timeout: 5_000 })
+    await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 5_000 })
 
     // Desktop: BarraPasosDesktop muestra los 5 form-steps; Tu identidad activa.
     const desktopStepper = page.locator('div.hidden.md\\:block').filter({ hasText: 'Tu identidad' })
@@ -549,7 +549,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     // Switch to mobile viewport to check mobile bar (Paso 1 de 5).
     await page.setViewportSize({ width: 375, height: 812 })
     await page.reload()
-    await page.waitForSelector('text=Cuéntanos sobre ti')
+    await page.waitForSelector('text=Cuéntanos quién eres')
     const mobileStepper = page.locator('div.md\\:hidden').filter({ hasText: 'Paso 1 de 5' })
     await expect(mobileStepper.getByText('Paso 1 de 5')).toBeVisible()
     await expect(mobileStepper.getByText('Tu identidad')).toBeVisible()
@@ -1131,7 +1131,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     page,
   }) => {
     await setStep(page, 2, {})
-    await page.waitForSelector('text=Cuéntanos sobre ti', { timeout: 5_000 })
+    await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 5_000 })
 
     // Click logo
     await page.locator('a[href="/"]').first().click()
@@ -1144,7 +1144,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     // "Mejor me quedo" → permanece en Paso 2 con datos intactos
     await page.getByRole('button', { name: 'Mejor me quedo' }).click()
     await expect(page.getByText('¿Salir y empezar de nuevo?')).not.toBeVisible()
-    await expect(page.getByText('Cuéntanos sobre ti')).toBeVisible()
+    await expect(page.getByText('Cuéntanos quién eres')).toBeVisible()
 
     // "Sí, salir" → navega a "/"
     await page.locator('a[href="/"]').first().click()

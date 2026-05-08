@@ -15,7 +15,7 @@ export async function llenarPaso1(page: Page) {
   // Select destino: gasto_medico
   await page.click("button:has-text('Gasto médico')")
   await page.click('button[type=submit]')
-  await page.waitForSelector('text=Cuéntanos sobre ti')
+  await page.waitForSelector('text=Cuéntanos quién eres')
 }
 
 /** Fill Paso 2 — Identidad. */

@@ -28,7 +28,7 @@ async function irAPaso2(page: Page) {
     )
   })
   await page.goto('/solicitar')
-  await page.waitForSelector('text=Cuéntanos sobre ti', { timeout: 15_000 })
+  await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 15_000 })
 }
 
 test.describe('Rediseño /solicitar — stepper (BarraPasos)', () => {

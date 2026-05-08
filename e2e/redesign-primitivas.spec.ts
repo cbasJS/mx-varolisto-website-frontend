@@ -23,7 +23,7 @@ async function setStoreEnPaso2(page: Page) {
     sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
   }, STORE)
   await page.goto('/solicitar')
-  await page.waitForSelector('text=Cuéntanos sobre ti', { timeout: 15_000 })
+  await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 15_000 })
 }
 
 test.describe('Rediseño /solicitar — Primitivas (FloatingInput, PillOption)', () => {
@@ -179,7 +179,7 @@ test.describe('Rediseño /solicitar — fixes Fase 2.2 (Sexo grid + Colonia labe
       sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
     }, STORE)
     await page.goto('/solicitar')
-    await page.waitForSelector('text=Cuéntanos sobre ti', { timeout: 15_000 })
+    await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 15_000 })
   }
 
   async function setStoreEnPaso3WithCP(page: Page) {

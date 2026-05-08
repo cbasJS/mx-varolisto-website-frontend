@@ -35,7 +35,7 @@ import type { LucideIcon } from 'lucide-react'
 export const SEXO_META: Record<Sexo, { label: string; icono: string; lucideIcon: LucideIcon }> = {
   M: { label: 'Hombre', icono: 'man', lucideIcon: User },
   F: { label: 'Mujer', icono: 'woman', lucideIcon: User },
-  X: { label: 'Prefiero no decir', icono: 'person', lucideIcon: User },
+  X: { label: 'Prefiero no decirlo', icono: 'person', lucideIcon: User },
 }
 
 export const DESTINOS_META: Record<

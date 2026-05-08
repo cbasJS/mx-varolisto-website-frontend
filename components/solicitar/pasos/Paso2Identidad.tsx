@@ -44,8 +44,8 @@ export default function Paso2Identidad({ onNext, onBack, actionsSlot }: Props) {
       <StepTitle
         numero={2}
         total={pasos.length}
-        titulo="Cuéntanos sobre ti"
-        subtitulo="Necesitamos algunos datos para personalizar tu oferta."
+        titulo="Cuéntanos quién eres"
+        subtitulo="Estos datos son sólo para validar tu identidad. Nada se comparte con terceros."
       />
 
       {/* Nombre */}
@@ -73,9 +73,9 @@ export default function Paso2Identidad({ onNext, onBack, actionsSlot }: Props) {
         />
       </div>
 
-      {/* Sexo */}
+      {/* Género */}
       <PillGroup
-        label="Sexo"
+        label="Género"
         required
         error={errors.sexo?.message}
         className="mb-4 mt-4"
@@ -104,11 +104,13 @@ export default function Paso2Identidad({ onNext, onBack, actionsSlot }: Props) {
           required
           showYearDropdown
           showMonthDropdown
+          hint="Debes ser mayor de edad"
         />
         <FloatingInput
           label="CURP"
           required
           error={errors.curp?.message}
+          hint="La encuentras en tu INE o en gob.mx"
           {...register('curp', { setValueAs: (v: string) => v.toUpperCase() })}
           placeholder=" "
           maxLength={18}
@@ -134,11 +136,12 @@ export default function Paso2Identidad({ onNext, onBack, actionsSlot }: Props) {
           placeholder=" "
         />
         <FloatingInput
-          label="Teléfono celular"
+          label="WhatsApp · Celular"
           type="tel"
           inputMode="numeric"
           required
           error={errors.telefono?.message}
+          hint="Por aquí te avisamos del estatus de tu solicitud"
           {...register('telefono')}
           placeholder=" "
           maxLength={10}
