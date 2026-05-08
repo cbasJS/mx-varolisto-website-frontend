@@ -44,24 +44,23 @@ export default function Paso1Prestamo({ onNext }: Props) {
       <div className="mb-8 text-center">
         <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/5 px-4 py-2 text-sm text-primary">
           <Sparkles className="size-4" aria-hidden />
-          Tu préstamo, directo y rápido
+          Préstamos personales · 100% en línea
         </span>
         <h1 className="mb-2 font-headline text-2xl font-bold text-on-surface sm:text-3xl">
           ¿Cuánto necesitas?
         </h1>
         <p className="text-sm text-on-surface-variant sm:text-base">
-          Mueve el control para elegir el monto y plazo que mejor te funcione.
+          Elige cuánto y en cuántos meses. Te decimos al instante cuánto pagarías.
         </p>
       </div>
 
       {/* ── Amount Card ──────────────────────────────────────── */}
       <div className="mb-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="mb-6 text-center">
-          <p className="mb-2 text-sm text-on-surface-variant">Vas a pedir</p>
+          <p className="mb-2 text-sm text-on-surface-variant">Quiero pedir</p>
           <p className="font-headline text-5xl font-bold tracking-tight text-primary sm:text-6xl">
             ${monto.toLocaleString('es-MX')}
           </p>
-          <p className="mt-1 text-sm text-outline">pesos</p>
         </div>
 
         <div className="mb-6">
@@ -87,7 +86,7 @@ export default function Paso1Prestamo({ onNext }: Props) {
         </div>
 
         <div className="mb-6">
-          <p className="mb-3 text-sm font-medium text-on-surface">¿En cuántos meses?</p>
+          <p className="mb-3 text-sm font-medium text-on-surface">¿A cuántos meses lo pagas?</p>
           <div className="grid grid-cols-5 gap-2">
             {PLAZO_MESES.map((m) => (
               <button
@@ -110,7 +109,7 @@ export default function Paso1Prestamo({ onNext }: Props) {
         </div>
 
         <div className="rounded-xl border border-secondary/30 bg-secondary/10 p-4">
-          <p className="mb-1 text-xs text-on-surface-variant">Pagarías cada mes:</p>
+          <p className="mb-1 text-xs text-on-surface-variant">Tu pago mensual sería</p>
           <div className="flex items-baseline gap-1">
             <span className="font-headline text-3xl font-bold text-on-secondary-container">
               ${cuota.toLocaleString('es-MX')}
@@ -118,14 +117,15 @@ export default function Paso1Prestamo({ onNext }: Props) {
             <span className="text-sm text-on-surface-variant">/mes</span>
           </div>
           <p className="mt-2 text-xs text-outline">
-            * Tasa {(TASA_MENSUAL * 100).toFixed(2)}% mensual. Cuota final sujeta a evaluación.
+            Cálculo aproximado a tasa {(TASA_MENSUAL * 100).toFixed(2)}% mensual. La cuota final
+            depende de tu evaluación.
           </p>
         </div>
       </div>
 
       {/* ── Destino Card ─────────────────────────────────────── */}
       <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <p className="mb-4 text-sm font-medium text-on-surface">¿Para qué usarás el dinero?</p>
+        <p className="mb-4 text-sm font-medium text-on-surface">¿Para qué lo usarás?</p>
         <div className="grid grid-cols-3 gap-2">
           {DESTINO_PRESTAMO.map((value, index) => {
             const Icono = DESTINOS_META[value].lucideIcon
@@ -158,7 +158,7 @@ export default function Paso1Prestamo({ onNext }: Props) {
             onClick={() => setShowAllDestinos((v) => !v)}
             className="mt-3 w-full text-sm font-medium text-primary transition-colors hover:text-primary/80 md:hidden"
           >
-            {showAllDestinos ? 'Ver menos opciones' : 'Ver más opciones'}
+            {showAllDestinos ? 'Menos opciones' : 'Más opciones'}
           </button>
         )}
         <FieldError message={errors.destinoPrestamo?.message} />
@@ -175,7 +175,7 @@ export default function Paso1Prestamo({ onNext }: Props) {
             : 'cursor-not-allowed bg-primary opacity-50 shadow-none',
         )}
       >
-        <span>Solicitar ahora</span>
+        <span>Ver mi oferta</span>
         <ArrowRight className="size-5" aria-hidden />
       </button>
 
@@ -185,7 +185,7 @@ export default function Paso1Prestamo({ onNext }: Props) {
           <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
             <Lock className="size-5 text-primary" aria-hidden />
           </div>
-          <p className="text-xs text-on-surface-variant">Tus datos seguros</p>
+          <p className="text-xs text-on-surface-variant">Datos cifrados</p>
         </div>
         <div className="flex flex-col items-center gap-2 text-center">
           <div className="flex size-10 items-center justify-center rounded-full bg-secondary/10">
@@ -197,25 +197,25 @@ export default function Paso1Prestamo({ onNext }: Props) {
           <div className="flex size-10 items-center justify-center rounded-full bg-purple-50">
             <Clock className="size-5 text-purple-600" aria-hidden />
           </div>
-          <p className="text-xs text-on-surface-variant">Respuesta en 24h</p>
+          <p className="text-xs text-on-surface-variant">Respuesta en 24 h</p>
         </div>
       </div>
 
-      {/* ── Info Section "Es súper fácil" ────────────────────── */}
+      {/* ── Info Section "Así de simple" ─────────────────────── */}
       <div className="rounded-xl bg-primary/5 p-4">
-        <h3 className="mb-2 text-sm font-medium text-on-surface">Es súper fácil</h3>
+        <h3 className="mb-2 text-sm font-medium text-on-surface">Así de simple</h3>
         <ol className="space-y-2 text-sm text-on-surface-variant">
           <li className="flex gap-2">
             <span className="font-medium text-primary">1.</span>
-            <span>Completa tu solicitud (menos de 5 minutos)</span>
+            <span>Llenas tu solicitud · 5 min</span>
           </li>
           <li className="flex gap-2">
             <span className="font-medium text-primary">2.</span>
-            <span>Te respondemos en menos de 24 horas</span>
+            <span>Te respondemos en menos de 24 h</span>
           </li>
           <li className="flex gap-2">
             <span className="font-medium text-primary">3.</span>
-            <span>Recibe el dinero directo en tu cuenta</span>
+            <span>El dinero llega a tu cuenta</span>
           </li>
         </ol>
       </div>
