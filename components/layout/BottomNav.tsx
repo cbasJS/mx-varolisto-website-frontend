@@ -18,7 +18,7 @@ export default function BottomNav() {
         href={CTA_URL}
         className="cta-shimmer flex-1 flex items-center justify-center gap-2 bg-secondary-mobile text-white rounded-full py-3 px-4 font-headline font-bold text-sm shadow-lg"
         whileTap={{ scale: 0.95 }}
-        aria-label="Solicitar préstamo ahora"
+        aria-label="Solicitar préstamo"
       >
         <span
           className="material-symbols-outlined text-lg"
@@ -27,7 +27,7 @@ export default function BottomNav() {
         >
           bolt
         </span>
-        Solicitar ahora
+        Solicitar préstamo
       </motion.a>
 
       <motion.a

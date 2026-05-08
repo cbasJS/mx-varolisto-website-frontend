@@ -27,22 +27,22 @@ export const heroCopy: HeroCopy = {
   badge: {
     mobileLabel: 'Estamos de tu lado',
     mobileIcon: 'thumb_up',
-    desktopLabel: 'Sin trámites complicados',
+    desktopLabel: 'Préstamos personales · 100% en línea',
     ariaLabel: 'Estamos de tu lado',
   },
   headline: {
     before: 'Cuando necesitas dinero,',
     highlight: 'aquí empiezas',
   },
-  subtitle: 'Sin trámites complicados. Te contactamos en minutos.',
+  subtitle: 'Sin filas ni sucursales. Respuesta en menos de 24 h.',
   ctaPrimary: {
-    label: 'Solicitar ahora',
-    microcopy: 'Te toma menos de 2 minutos',
-    ariaLabel: 'Solicitar financiamiento ahora',
+    label: 'Solicitar préstamo',
+    microcopy: 'Te toma menos de 5 minutos · sin compromiso',
+    ariaLabel: 'Solicitar préstamo',
   },
   ctaWhatsapp: {
     label: 'WhatsApp',
-    microcopy: 'Te respondemos lo antes posible',
+    microcopy: 'Te respondemos en menos de 24 h',
     ariaLabel: 'Hablar con un asesor por WhatsApp',
   },
   footer: 'Atención personalizada en todo México',
