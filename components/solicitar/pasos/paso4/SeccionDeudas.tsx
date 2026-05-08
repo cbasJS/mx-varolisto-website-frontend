@@ -49,7 +49,7 @@ export function SeccionDeudas({
       {/* Cantidad */}
       <div>
         <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-outline">
-          ¿Cuántas deudas tienes?{' '}
+          ¿Cuántos pagos mensuales tienes?{' '}
           <span className="text-error" aria-hidden>
             *
           </span>
@@ -90,7 +90,7 @@ export function SeccionDeudas({
 
       {/* Pago mensual */}
       <FloatingInput
-        label="Pago mensual de deudas"
+        label="Total que pagas al mes"
         required
         type="text"
         inputMode="numeric"

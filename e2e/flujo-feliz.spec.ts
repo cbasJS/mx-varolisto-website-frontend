@@ -164,18 +164,18 @@ test.describe('Flujo feliz — solicitud completa', () => {
     )
 
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Revisa tu solicitud', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
 
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar mi solicitud')")
+    await page.click("button:has-text('Enviar solicitud')")
 
-    await expect(page.getByText('¡Solicitud enviada!')).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByText('directamente por WhatsApp')).toBeVisible()
+    await expect(page.getByText('Listo, ya quedó tu solicitud')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/Estamos revisándola/)).toBeVisible()
     await expect(page.getByText(FOLIO_MOCK)).toBeVisible()
-    await expect(page.getByText('Folio de seguimiento')).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Volver al inicio' })).toBeVisible()
+    await expect(page.getByText('Tu folio')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Ir al inicio' })).toBeVisible()
   })
 
   test("botón Enviar muestra 'Enviando…' mientras el POST está en vuelo", async ({ page }) => {
@@ -185,21 +185,21 @@ test.describe('Flujo feliz — solicitud completa', () => {
     })
 
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Revisa tu solicitud', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
 
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar mi solicitud')")
+    await page.click("button:has-text('Enviar solicitud')")
 
-    await expect(page.getByText('Enviando…')).toBeVisible({ timeout: 3_000 })
+    await expect(page.getByText('Enviando tu solicitud…')).toBeVisible({ timeout: 3_000 })
   })
 
   // ── Paso 7: resumen de datos ──────────────────────────────────────────────
 
   test('Paso 7 muestra resumen con datos del solicitante y del préstamo', async ({ page }) => {
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Revisa tu solicitud', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
 
     // Datos de identidad
     await expect(page.getByText('María')).toBeVisible()
@@ -226,30 +226,32 @@ test.describe('Flujo feliz — solicitud completa', () => {
     )
 
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Revisa tu solicitud', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
 
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar mi solicitud')")
+    await page.click("button:has-text('Enviar solicitud')")
 
-    await expect(page.getByRole('heading', { name: 'Solicitud activa existente' })).toBeVisible({
+    await expect(
+      page.getByRole('heading', { name: 'Ya tienes una solicitud en curso' }),
+    ).toBeVisible({
       timeout: 5_000,
     })
     await expect(page.getByText('¡Solicitud enviada!')).not.toBeVisible()
-    await expect(page.getByText('Revisa tu solicitud')).toBeVisible()
+    await expect(page.getByText('Casi listo. Revisa todo')).toBeVisible()
   })
 
   test('error de red muestra mensaje de reintento y permanece en Paso 7', async ({ page }) => {
     await page.route('**/api/solicitudes', (route) => route.abort('failed'))
 
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Revisa tu solicitud', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
 
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar mi solicitud')")
+    await page.click("button:has-text('Enviar solicitud')")
 
     await expect(page.locator('[data-sonner-toast][data-type="error"]')).toBeVisible({
       timeout: 5_000,
@@ -261,19 +263,19 @@ test.describe('Flujo feliz — solicitud completa', () => {
 
   test('botón Enviar está deshabilitado sin aceptar ningún checkbox', async ({ page }) => {
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Revisa tu solicitud', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
 
     // El botón está disabled mientras no se acepten ambos términos
-    await expect(page.getByRole('button', { name: 'Enviar mi solicitud' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled()
   })
 
   test('botón Enviar está deshabilitado aceptando solo el primer checkbox', async ({ page }) => {
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Revisa tu solicitud', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
 
     await page.locator('button[role="checkbox"]').nth(0).click()
 
     // Con solo uno de los dos, el botón sigue deshabilitado
-    await expect(page.getByRole('button', { name: 'Enviar mi solicitud' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled()
   })
 })

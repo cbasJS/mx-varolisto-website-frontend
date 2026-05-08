@@ -18,8 +18,8 @@ export function AvisoDuplicados({ cantidad, onDismiss }: AvisoDuplicadosProps) {
       </span>
       <p className="flex-1 text-sm text-amber-800">
         {cantidad === 1
-          ? 'Un archivo ya estaba en la lista y fue omitido.'
-          : `${cantidad} archivos ya estaban en la lista y fueron omitidos.`}
+          ? 'Ya tenías ese archivo, lo dejamos como estaba.'
+          : `Ya tenías ${cantidad} archivos repetidos, los dejamos como estaban.`}
       </p>
       <button
         type="button"

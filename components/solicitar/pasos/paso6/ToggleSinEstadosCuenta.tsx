@@ -35,7 +35,7 @@ export function ToggleSinEstadosCuenta({ checked, onToggle }: ToggleSinEstadosCu
           </span>
         )}
       </span>
-      <span className="font-medium leading-snug">No cuento con estados de cuenta bancarios</span>
+      <span className="font-medium leading-snug">No tengo estados de cuenta</span>
     </button>
   )
 }

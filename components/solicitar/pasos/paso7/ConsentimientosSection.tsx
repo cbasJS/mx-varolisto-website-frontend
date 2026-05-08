@@ -36,7 +36,7 @@ export function ConsentimientosSection({
           <Check className="size-3.5 text-white" aria-hidden />
         </Checkbox>
         <span className="text-sm leading-tight text-gray-600">
-          He leído y acepto los{' '}
+          Acepto los{' '}
           <a
             href="/terminos-condiciones"
             target="_blank"
@@ -44,7 +44,7 @@ export function ConsentimientosSection({
           >
             Términos y Condiciones
           </a>{' '}
-          y el uso de medios electrónicos para la celebración del contrato.
+          y firmar este contrato por medios electrónicos.
         </span>
       </label>
       <FieldError message={errorTerminos} />
@@ -59,7 +59,7 @@ export function ConsentimientosSection({
           <Check className="size-3.5 text-white" aria-hidden />
         </Checkbox>
         <span className="text-sm leading-tight text-gray-600">
-          Autorizo el tratamiento de mis datos personales de acuerdo al{' '}
+          Autorizo el uso de mis datos según el{' '}
           <a
             href="/aviso-de-privacidad-integral"
             target="_blank"

@@ -9,14 +9,14 @@ export async function fetchColonias(cp: string): Promise<CopomexResponse[]> {
     res = await fetch(`/api/colonias?cp=${cp}`)
   } catch {
     throw new ColoniaServiceError(
-      'No pudimos consultar tu código postal. Intenta de nuevo en un momento.',
+      'Estamos teniendo un problema buscando tu CP. Inténtalo en unos segundos.',
     )
   }
 
   if (res.status === 404) throw new ColoniaNotFoundError('CP no encontrado')
   if (!res.ok)
     throw new ColoniaServiceError(
-      'No pudimos consultar tu código postal. Intenta de nuevo en un momento.',
+      'Estamos teniendo un problema buscando tu CP. Inténtalo en unos segundos.',
     )
 
   const data: unknown = await res.json()

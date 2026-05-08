@@ -193,7 +193,7 @@ export default function FormularioSolicitud() {
               : 'overflow-hidden'
           }
         >
-          <div className={showChrome ? 'overflow-hidden p-6 md:p-10' : 'overflow-hidden'}>
+          <div className={showChrome ? 'overflow-hidden p-6' : 'overflow-hidden'}>
             {animatedSlot}
           </div>
         </div>

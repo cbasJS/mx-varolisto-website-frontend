@@ -83,14 +83,14 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
       <StepTitle
         numero={6}
         total={pasos.length}
-        titulo="Documentos"
-        subtitulo="Sube tu identificación, comprobante de ingresos y comprobante de domicilio."
+        titulo="Sube tus documentos"
+        subtitulo="Tres archivos para verificar tu identidad y dirección. Te toma menos de 3 minutos."
       />
 
       {/* ── Tipo de identificación ───────────────────────────── */}
       <div className="mb-6">
         <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">
-          Tipo de identificación oficial{' '}
+          ¿Con qué te identificas?{' '}
           <span className="text-error" aria-hidden>
             *
           </span>
@@ -126,7 +126,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
           })}
         </div>
         {isCleaningUp && (
-          <p className="mt-2 text-xs text-outline">Eliminando documentos anteriores…</p>
+          <p className="mt-2 text-xs text-outline">Limpiando los archivos del tipo anterior…</p>
         )}
       </div>
 
@@ -134,7 +134,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
       {tipoIdentificacion === 'ine' && (
         <div className="mb-6">
           <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">
-            Fotografía de tu INE / IFE
+            Foto de tu INE — ambos lados
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             <DropzoneCard
@@ -167,11 +167,11 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
       {tipoIdentificacion === 'pasaporte' && (
         <div className="mb-6">
           <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">
-            Fotografía de tu pasaporte
+            Foto de tu pasaporte
           </p>
           <DropzoneCard
             variant="id"
-            label="Página principal del pasaporte"
+            label="Hoja con tu foto"
             getRootProps={dropzonePasaporte.getRootProps}
             getInputProps={dropzonePasaporte.getInputProps}
             isDragActive={dropzonePasaporte.isDragActive}
@@ -222,7 +222,8 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
       <SectionDivider label="Comprobante de domicilio" />
 
       <InfoBanner variant="info">
-        Debe coincidir con la dirección que ingresaste. Luz, agua o teléfono, no mayor a 3 meses.
+        Recibo de luz, agua o teléfono <strong>a tu nombre</strong>, con menos de 3 meses. La
+        dirección debe coincidir con la que ingresaste.
       </InfoBanner>
 
       <div className="mt-4">

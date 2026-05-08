@@ -28,23 +28,23 @@ async function setStoreEnPaso2(page: Page) {
     sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
   }, STORE)
   await page.goto('/solicitar')
-  await page.waitForSelector('text=Cuéntanos sobre ti', { timeout: 15_000 })
+  await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 15_000 })
 }
 
 test.describe('Rediseño /solicitar — Resumen de solicitud (pasos 2-7)', () => {
   test('NO aparece el resumen en Paso 1', async ({ page }) => {
     await irAlFormulario(page)
-    await expect(page.getByText('Estás pidiendo:')).toHaveCount(0)
+    await expect(page.getByText('Tu solicitud:')).toHaveCount(0)
   })
 
   test('Aparece resumen en Paso 2 con monto, plazo y cuota visibles', async ({ page }) => {
     await setStoreEnPaso2(page)
     const resumen = page.locator('[data-testid="resumen-solicitud"]')
     await expect(resumen).toBeVisible()
-    await expect(resumen.getByText('Estás pidiendo:')).toBeVisible()
+    await expect(resumen.getByText('Tu solicitud:')).toBeVisible()
     await expect(resumen.getByText('$8,000')).toBeVisible()
-    await expect(resumen.getByText('en 4 meses')).toBeVisible()
-    await expect(resumen.getByText('Pagas al mes')).toBeVisible()
+    await expect(resumen.getByText('a 4 meses')).toBeVisible()
+    await expect(resumen.getByText('Pagarías al mes')).toBeVisible()
   })
 
   test('El resumen tiene fondo navy (gradient con primary)', async ({ page }) => {
@@ -58,7 +58,7 @@ test.describe('Rediseño /solicitar — Resumen de solicitud (pasos 2-7)', () =>
 
   test('Click en "Cambiar" regresa al Paso 1', async ({ page }) => {
     await setStoreEnPaso2(page)
-    await page.getByRole('button', { name: 'Cambiar' }).click()
+    await page.getByRole('button', { name: 'Editar' }).click()
     await expect(page.getByText('¿Cuánto necesitas?')).toBeVisible()
   })
 })

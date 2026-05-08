@@ -72,9 +72,6 @@ export function CamposCP({
             </SelectContent>
           </Select>
         )}
-        {!errors.colonia && !coloniaActual && colonias && (
-          <p className="mt-1.5 px-4 text-xs text-outline">Selecciona tu colonia</p>
-        )}
         <FieldError message={errors.colonia?.message} />
       </div>
 

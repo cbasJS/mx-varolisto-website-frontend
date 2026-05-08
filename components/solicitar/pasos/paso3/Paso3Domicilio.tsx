@@ -60,8 +60,8 @@ export default function Paso3Domicilio({ onNext, onBack, actionsSlot }: Props) {
       <StepTitle
         numero={3}
         total={pasos.length}
-        titulo="Tu domicilio"
-        subtitulo="Usamos tu código postal para encontrar tu colonia automáticamente."
+        titulo="¿Dónde vives?"
+        subtitulo="Con tu CP encontramos tu colonia y llenamos ciudad y estado por ti."
       />
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -96,7 +96,9 @@ export default function Paso3Domicilio({ onNext, onBack, actionsSlot }: Props) {
             }
           />
           {cpValido && cpError && (
-            <p className="mt-1.5 text-xs text-error">Código postal no encontrado</p>
+            <p className="mt-1.5 text-xs text-error">
+              No encontramos este CP. Revísalo y vuelve a intentar.
+            </p>
           )}
         </div>
 
@@ -133,11 +135,11 @@ export default function Paso3Domicilio({ onNext, onBack, actionsSlot }: Props) {
         />
       </div>
 
-      <SectionDivider label="Detalles de tu vivienda" />
+      <SectionDivider label="Sobre tu vivienda" />
 
       <div className="grid gap-3 sm:grid-cols-2">
         <FloatingSelect
-          label="Tiempo viviendo aquí"
+          label="¿Cuánto llevas viviendo ahí?"
           required
           value={aniosViviendoActual}
           onValueChange={(val) =>
@@ -151,7 +153,7 @@ export default function Paso3Domicilio({ onNext, onBack, actionsSlot }: Props) {
           error={errors.aniosViviendo?.message}
         />
         <FloatingSelect
-          label="Tipo de vivienda"
+          label="¿La casa es…?"
           required
           value={tipoViviendaActual}
           onValueChange={(val) =>

@@ -16,16 +16,16 @@ interface FormActionsProps {
 }
 
 /**
- * Botones Atrás / Siguiente al pie de cada paso del formulario.
- * Layout estilo Figma: Atrás flex-1 (gris outline, sólo texto), Siguiente
- * flex-2 (navy con ArrowRight). En el primer paso, sólo Siguiente (sin Atrás).
+ * Botones Atrás / Continuar al pie de cada paso del formulario.
+ * Layout estilo Figma: Atrás flex-1 (gris outline, sólo texto), Continuar
+ * flex-2 (navy con ArrowRight). En el primer paso, sólo Continuar (sin Atrás).
  *
  * NOTA: usamos `rounded-[12px]` (en lugar de `rounded-xl`) porque el proyecto
  * sobreescribe `rounded-xl` a 1.5rem (24px). Figma usa 12px para estos botones.
  */
 export function FormActions({
   onBack,
-  submitLabel = 'Siguiente',
+  submitLabel = 'Continuar',
   isFirst,
   disabled,
   formId,

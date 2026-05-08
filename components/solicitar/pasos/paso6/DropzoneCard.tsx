@@ -45,7 +45,7 @@ export function DropzoneCard(props: DropzoneCardProps) {
         {done ? (
           <div className="flex flex-col items-center text-center">
             <CheckCircle2 className="mb-3 size-8 text-green-600" aria-hidden />
-            <p className="text-sm font-bold text-green-900">Subida exitosa</p>
+            <p className="text-sm font-bold text-green-900">¡Listo!</p>
           </div>
         ) : (
           <div className="flex flex-col items-center text-center">
@@ -53,7 +53,7 @@ export function DropzoneCard(props: DropzoneCardProps) {
               <Icon className="size-5 text-gray-500" aria-hidden />
             </div>
             <p className="mb-1 text-sm font-bold text-on-surface">{label}</p>
-            <p className="text-xs text-gray-500">JPG, PNG o PDF · Máx. 10 MB</p>
+            <p className="text-xs text-gray-500">JPG, PNG o PDF — 10 MB máx.</p>
           </div>
         )}
       </div>
@@ -75,9 +75,9 @@ export function DropzoneCard(props: DropzoneCardProps) {
         <UploadCloud className="size-5 text-gray-500" aria-hidden />
       </div>
       <p className="mb-1 text-sm font-bold text-on-surface">
-        {isDragActive ? 'Suelta aquí los archivos' : 'Arrastra o toca para subir'}
+        {isDragActive ? 'Suelta el archivo' : 'Toca para subir o arrastra aquí'}
       </p>
-      <p className="text-xs text-gray-500">JPG, PNG o PDF · Máx. 10 MB c/u</p>
+      <p className="text-xs text-gray-500">JPG, PNG o PDF — 10 MB máx. c/u</p>
     </div>
   )
 }

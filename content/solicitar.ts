@@ -18,45 +18,43 @@ export interface Paso {
 export const pasos: readonly Paso[] = [
   { numero: 1, etiqueta: 'Tu identidad', icono: User },
   { numero: 2, etiqueta: 'Tu domicilio', icono: Home },
-  { numero: 3, etiqueta: 'Economía', icono: Briefcase },
-  { numero: 4, etiqueta: 'Referencias', icono: Users },
-  { numero: 5, etiqueta: 'Documentos', icono: FileText },
+  { numero: 3, etiqueta: 'Tu economía', icono: Briefcase },
+  { numero: 4, etiqueta: 'Tus contactos', icono: Users },
+  { numero: 5, etiqueta: 'Tus documentos', icono: FileText },
 ] as const
 
 export const trustBadges = [
-  { icono: 'lock', texto: 'Datos encriptados' },
-  { icono: 'verified_user', texto: '100% seguro' },
-  { icono: 'support_agent', texto: 'Soporte en 24h' },
+  { icono: 'lock', texto: 'Datos cifrados' },
+  { icono: 'verified_user', texto: 'Solicitud segura' },
+  { icono: 'support_agent', texto: 'Soporte por WhatsApp' },
 ] as const
 
 export const exitoCopy = {
-  titulo: '¡Solicitud enviada!',
-  subtituloPrefijo:
-    'Hemos recibido tu solicitud y nuestros analistas ya la están revisando. Todo el seguimiento y la respuesta final te la daremos ',
-  subtituloEnfasis: 'directamente por WhatsApp',
-  subtituloSufijo: '.',
-  labelProximosPasos: 'Te escribiremos al:',
-  mensajeContacto:
-    'Guarda nuestro número para que sepas que somos nosotros y asegúrate de tener conexión.',
-  labelFolio: 'Folio de seguimiento',
-  botonInicio: 'Volver al inicio',
+  titulo: 'Listo, ya quedó tu solicitud',
+  subtituloPrefijo: 'Estamos revisándola. En menos de 24 h te escribimos al ',
+  subtituloEnfasis: 'WhatsApp',
+  subtituloSufijo: ' con la respuesta.',
+  labelProximosPasos: 'Te contactaremos en:',
+  mensajeContacto: 'Guarda nuestro número para reconocer el mensaje.',
+  labelFolio: 'Tu folio',
+  botonInicio: 'Ir al inicio',
 } as const
 
 export const salidaCopy = {
   submitting: {
-    titulo: '¿Seguro que quieres salir?',
-    descripcion: 'Estamos enviando tu solicitud. Si sales ahora, podríamos perder los datos.',
+    titulo: 'Espera, estamos enviando tu solicitud',
+    descripcion: 'Si sales ahora, la solicitud podría no completarse. Tarda apenas unos segundos.',
   },
   archivos: {
-    titulo: '¿Seguro que quieres salir?',
+    titulo: '¿Salir y empezar de nuevo?',
     descripcion:
-      'Si sales ahora, perderás los archivos que ya subiste y la información capturada. Tendrías que empezar de nuevo.',
+      'Si sales ahora perderás los archivos que ya subiste y todo lo que llenaste. Tendrías que empezar desde cero.',
   },
   datos: {
-    titulo: '¿Seguro que quieres salir?',
+    titulo: '¿Salir y empezar de nuevo?',
     descripcion:
-      'Si sales ahora, perderás la información que has capturado y tendrías que empezar de nuevo.',
+      'Si sales ahora perderás lo que ya llevas y tendrías que volver a llenar el formulario.',
   },
-  botonQuedarme: 'Quedarme',
-  botonSalir: 'Salir de todas formas',
+  botonQuedarme: 'Mejor me quedo',
+  botonSalir: 'Sí, salir',
 } as const

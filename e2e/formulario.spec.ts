@@ -72,7 +72,7 @@ async function fillPaso1(page: import('@playwright/test').Page) {
   await page.click("button:has-text('4')")
   await page.click("button:has-text('Gasto médico')")
   await page.click('button[type=submit]')
-  await page.waitForSelector('text=Cuéntanos sobre ti', { timeout: 5_000 })
+  await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 5_000 })
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -104,7 +104,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 3. Paso 2 = Identidad ────────────────────────────────────────────────
   test('Paso 2 es Identidad y contiene CURP, email, teléfono; RFC oculto', async ({ page }) => {
     await fillPaso1(page)
-    await expect(page.getByText('Cuéntanos sobre ti')).toBeVisible()
+    await expect(page.getByText('Cuéntanos quién eres')).toBeVisible()
     await expect(page.locator('input[name=curp]')).toBeVisible()
     await expect(page.locator('input[name=email]')).toBeVisible()
     await expect(page.locator('input[name=telefono]')).toBeVisible()
@@ -148,7 +148,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     })
 
     await setStep(page, 3, { colonia: '', municipio: '', codigoPostal: '' })
-    await page.waitForSelector('h2:has-text("Tu domicilio")', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("¿Dónde vives?")', { timeout: 5_000 })
 
     // Fill calle and número first (independent of CP)
     await page.fill('input[name=calle]', 'Insurgentes Sur')
@@ -172,15 +172,15 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 5. Paso 3 tiene aniosViviendo y tipoVivienda ─────────────────────────
   test('Paso 3 tiene selects de aniosViviendo y tipoVivienda', async ({ page }) => {
     await setStep(page, 3)
-    await page.waitForSelector('h2:has-text("Tu domicilio")', { timeout: 5_000 })
-    await expect(page.getByText('Tiempo viviendo aquí')).toBeVisible()
-    await expect(page.getByText('Tipo de vivienda')).toBeVisible()
+    await page.waitForSelector('h2:has-text("¿Dónde vives?")', { timeout: 5_000 })
+    await expect(page.getByText('¿Cuánto llevas viviendo ahí?')).toBeVisible()
+    await expect(page.getByText('¿La casa es…?')).toBeVisible()
   })
 
   // ── 6. Paso 4 tiene estadoCivil y dependientesEconomicos ─────────────────
   test('Paso 4 tiene campos estadoCivil y dependientesEconomicos', async ({ page }) => {
     await setStep(page, 4)
-    await page.waitForSelector('h2:has-text("Tu situación económica")', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Sobre tu trabajo y finanzas")', { timeout: 5_000 })
     await expect(page.getByText('Estado civil')).toBeVisible()
     await expect(page.getByText('Dependientes económicos')).toBeVisible()
   })
@@ -188,7 +188,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 7. Paso 4 label "Por cuenta propia" no "Freelance" ───────────────────
   test("Paso 4 muestra 'Por cuenta propia' y NO 'Freelance'", async ({ page }) => {
     await setStep(page, 4)
-    await page.waitForSelector('h2:has-text("Tu situación económica")', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Sobre tu trabajo y finanzas")', { timeout: 5_000 })
     await expect(page.getByText('Por cuenta propia')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Freelance' })).not.toBeVisible()
   })
@@ -196,13 +196,13 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 8. Paso 6: INE → frente + reverso ────────────────────────────────────
   test('Paso 6: seleccionar INE muestra dropzones de frente y reverso', async ({ page }) => {
     await setStep(page, 6)
-    await page.waitForSelector('text=Tipo de identificación oficial', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
 
-    await page.click("button:has-text('INE / IFE')")
+    await page.click("button:has-text('INE')")
 
     await expect(page.getByText('Frente de tu INE')).toBeVisible()
     await expect(page.getByText('Reverso de tu INE')).toBeVisible()
-    await expect(page.getByText('Página principal del pasaporte')).not.toBeVisible()
+    await expect(page.getByText('Hoja con tu foto')).not.toBeVisible()
   })
 
   // ── 9. Paso 6: Pasaporte → dropzone único ────────────────────────────────
@@ -210,11 +210,11 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     page,
   }) => {
     await setStep(page, 6)
-    await page.waitForSelector('text=Tipo de identificación oficial', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
 
-    await page.click("button:has-text('Pasaporte mexicano')")
+    await page.click("button:has-text('Pasaporte')")
 
-    await expect(page.getByText('Página principal del pasaporte')).toBeVisible()
+    await expect(page.getByText('Hoja con tu foto')).toBeVisible()
     await expect(page.getByText('Frente de tu INE')).not.toBeVisible()
     await expect(page.getByText('Reverso de tu INE')).not.toBeVisible()
   })
@@ -222,7 +222,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 10. Paso 6 NO tiene campo CLABE ──────────────────────────────────────
   test('Paso 6 no tiene campo CLABE interbancaria', async ({ page }) => {
     await setStep(page, 6)
-    await page.waitForSelector('text=Tipo de identificación oficial', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
 
     await expect(page.getByText(/CLABE interbancaria/i)).not.toBeVisible()
     await expect(page.locator('input[name=clabe]')).not.toBeVisible()
@@ -245,7 +245,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     )
 
     await setStep(page, 3, { colonia: '', municipio: '', codigoPostal: '', ciudad: undefined })
-    await page.waitForSelector('h2:has-text("Tu domicilio")', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("¿Dónde vives?")', { timeout: 5_000 })
 
     const cpInput = page.locator('input[name=codigoPostal]')
     await cpInput.fill('29950')
@@ -319,17 +319,17 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
     })
     await page.reload()
-    await page.waitForSelector('text=Tipo de identificación oficial', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
 
     // Verify INE frente archivo is shown
     await expect(page.getByText('ine_frente.jpg')).toBeVisible()
 
     // Cambiar a Pasaporte — triggers async cleanup
-    await page.click("button:has-text('Pasaporte mexicano')")
+    await page.click("button:has-text('Pasaporte')")
 
     // Radios deben estar deshabilitados mientras dura el cleanup
     // (can be very fast in test env, so check that they become re-enabled)
-    await expect(page.locator("button:has-text('Pasaporte mexicano')")).toBeEnabled({
+    await expect(page.locator("button:has-text('Pasaporte')")).toBeEnabled({
       timeout: 3_000,
     })
 
@@ -340,7 +340,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     expect(deletedPaths).toContain('staging/00000000-0000-4000-a000-000000000001/ine_frente.jpg')
 
     // Dropzone de pasaporte ahora visible
-    await expect(page.getByText('Página principal del pasaporte')).toBeVisible()
+    await expect(page.getByText('Hoja con tu foto')).toBeVisible()
   })
 
   // ── E2. Eliminación y re-subida de comprobante ───────────────────────────
@@ -395,7 +395,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
     })
     await page.reload()
-    await page.waitForSelector('text=Tipo de identificación oficial', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
 
     // Ambos comprobantes visibles
     await expect(page.getByText('comprobante_enero.jpg')).toBeVisible()
@@ -461,7 +461,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
     })
     await page.reload()
-    await page.waitForSelector('text=Tipo de identificación oficial', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
     await expect(page.getByText('ine_frente_viejo.jpg')).toBeVisible()
 
     // Eliminar con la X
@@ -519,14 +519,14 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
     })
     await page.reload()
-    await page.waitForSelector('text=Tipo de identificación oficial', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
     await expect(page.getByText('comprobante_error.jpg')).toBeVisible()
 
     // Click X — DELETE falla, retry falla
     await page.click('[aria-label="Eliminar comprobante_error.jpg"]')
 
     // Toast de error debe aparecer
-    await expect(page.getByText('No pudimos eliminar el archivo. Intenta de nuevo.')).toBeVisible({
+    await expect(page.getByText('No pudimos quitar el archivo. Inténtalo de nuevo.')).toBeVisible({
       timeout: 5_000,
     })
 
@@ -540,7 +540,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   }) => {
     // Stepper se oculta en paso 1 (calculadora) y paso 7 (revisión).
     await setStep(page, 2)
-    await page.waitForSelector('text=Cuéntanos sobre ti', { timeout: 5_000 })
+    await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 5_000 })
 
     // Desktop: BarraPasosDesktop muestra los 5 form-steps; Tu identidad activa.
     const desktopStepper = page.locator('div.hidden.md\\:block').filter({ hasText: 'Tu identidad' })
@@ -549,7 +549,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     // Switch to mobile viewport to check mobile bar (Paso 1 de 5).
     await page.setViewportSize({ width: 375, height: 812 })
     await page.reload()
-    await page.waitForSelector('text=Cuéntanos sobre ti')
+    await page.waitForSelector('text=Cuéntanos quién eres')
     const mobileStepper = page.locator('div.md\\:hidden').filter({ hasText: 'Paso 1 de 5' })
     await expect(mobileStepper.getByText('Paso 1 de 5')).toBeVisible()
     await expect(mobileStepper.getByText('Tu identidad')).toBeVisible()
@@ -628,7 +628,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       { SESSION, datos: DATOS_BASE },
     )
     await page.reload()
-    await page.waitForSelector('text=Tipo de identificación oficial', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
 
     // Verifica que los 4 nombres de archivo son visibles en la lista
     for (const archivo of ARCHIVOS_MOCK) {
@@ -642,8 +642,8 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       await expect(page.getByRole('button', { name: `Eliminar ${nombre}` }).first()).toBeVisible()
     }
 
-    // Botón Siguiente habilitado (puedeAvanzar=true)
-    await expect(page.getByRole('button', { name: /Siguiente/i })).toBeEnabled()
+    // Botón Continuar habilitado (puedeAvanzar=true)
+    await expect(page.getByRole('button', { name: /Continuar/i })).toBeEnabled()
   })
 
   // ── E5b. Click en X tras hidratación dispara DELETE al bucket ─────────────
@@ -704,7 +704,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       { SESSION, datos: DATOS_BASE },
     )
     await page.reload()
-    await page.waitForSelector('text=Tipo de identificación oficial', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
     await expect(page.getByText(NOMBRE).first()).toBeVisible({ timeout: 5_000 })
 
     await page
@@ -781,7 +781,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       { datos: DATOS_BASE },
     )
     await page.reload()
-    await page.waitForSelector('text=Tipo de identificación oficial', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
 
     // Simular que isSubmitting está activo inyectando el flag directamente
     // (No podemos simular el submit completo sin llenar todos los pasos,
@@ -893,7 +893,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       { SESSION, datos: DATOS_BASE },
     )
     await page.reload()
-    await page.waitForSelector('text=Tipo de identificación oficial', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
     // Esperar a que la hidratación del GET /staging cargue los archivos en el store
     await page.waitForFunction(
       () => document.querySelectorAll('[aria-label^="Eliminar"]').length >= 2,
@@ -994,27 +994,29 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     })
 
     await setStep(page, 7)
-    await page.waitForSelector('text=Revisa tu solicitud', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
 
     // Aceptar términos y enviar
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar mi solicitud')")
+    await page.click("button:has-text('Enviar solicitud')")
 
-    // Esperar a que el botón cambie a "Enviando…" — isSubmitting = true
-    await page.waitForSelector('text=Enviando…', { timeout: 3_000 })
+    // Esperar a que el botón cambie a "Enviando tu solicitud…" — isSubmitting = true
+    await page.waitForSelector('text=Enviando tu solicitud…', { timeout: 3_000 })
 
     // En vuelo — click logo
     await page.locator('a[href="/"]').first().click()
 
     // Dialog debe aparecer con copy de submit
-    await expect(page.getByText('¿Seguro que quieres salir?')).toBeVisible({ timeout: 3_000 })
-    await expect(page.getByText('Estamos enviando tu solicitud')).toBeVisible()
+    await expect(page.getByText('Espera, estamos enviando tu solicitud')).toBeVisible({
+      timeout: 3_000,
+    })
+    await expect(page.getByText(/podría no completarse/)).toBeVisible()
 
-    // "Quedarme" cierra el dialog y permanece en /solicitar
-    await page.getByRole('button', { name: 'Quedarme' }).click()
-    await expect(page.getByText('¿Seguro que quieres salir?')).not.toBeVisible()
+    // "Mejor me quedo" cierra el dialog y permanece en /solicitar
+    await page.getByRole('button', { name: 'Mejor me quedo' }).click()
+    await expect(page.getByText('Espera, estamos enviando tu solicitud')).not.toBeVisible()
     expect(page.url()).toContain('/solicitar')
   })
 
@@ -1080,7 +1082,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       { SESSION, datos: DATOS_BASE },
     )
     await page.reload()
-    await page.waitForSelector('text=Tipo de identificación oficial', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
     // Esperar a que hidratarArchivos cargue los archivos del staging antes de interactuar
     await page.waitForFunction(
       () => document.querySelectorAll('[aria-label^="Eliminar"]').length >= 3,
@@ -1091,18 +1093,18 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await page.locator('a[href="/aviso-de-privacidad-integral"]').first().click()
 
     // AlertDialog con copy de archivos
-    await expect(page.getByText('¿Seguro que quieres salir?')).toBeVisible({ timeout: 3_000 })
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
     await expect(page.getByText(/perderás los archivos/)).toBeVisible()
 
-    // "Quedarme" → permanece en Paso 6
-    await page.getByRole('button', { name: 'Quedarme' }).click()
-    await expect(page.getByText('¿Seguro que quieres salir?')).not.toBeVisible()
-    await expect(page.getByText('Tipo de identificación oficial')).toBeVisible()
+    // "Mejor me quedo" → permanece en Paso 6
+    await page.getByRole('button', { name: 'Mejor me quedo' }).click()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).not.toBeVisible()
+    await expect(page.getByText('¿Con qué te identificas?')).toBeVisible()
 
-    // "Salir de todas formas" → navega
+    // "Sí, salir" → navega
     await page.locator('a[href="/aviso-de-privacidad-integral"]').first().click()
-    await expect(page.getByText('¿Seguro que quieres salir?')).toBeVisible({ timeout: 3_000 })
-    await page.getByRole('button', { name: 'Salir de todas formas' }).click()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
+    await page.getByRole('button', { name: 'Sí, salir' }).click()
     await page.waitForURL('**/aviso-de-privacidad-integral', {
       timeout: 5_000,
       waitUntil: 'domcontentloaded',
@@ -1121,7 +1123,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
 
     // Dialog NO debe aparecer y la navegación ocurre
     await page.waitForURL('**/', { timeout: 5_000, waitUntil: 'domcontentloaded' })
-    await expect(page.getByText('¿Seguro que quieres salir?')).not.toBeVisible()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).not.toBeVisible()
   })
 
   // ── E11. Datos capturados sin archivos ───────────────────────────────────
@@ -1129,25 +1131,25 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     page,
   }) => {
     await setStep(page, 2, {})
-    await page.waitForSelector('text=Cuéntanos sobre ti', { timeout: 5_000 })
+    await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 5_000 })
 
     // Click logo
     await page.locator('a[href="/"]').first().click()
 
     // Dialog con copy de datos
-    await expect(page.getByText('¿Seguro que quieres salir?')).toBeVisible({ timeout: 3_000 })
-    await expect(page.getByText(/perderás la información/)).toBeVisible()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
+    await expect(page.getByText(/perderás lo que ya llevas/)).toBeVisible()
     await expect(page.getByText(/perderás los archivos/).first()).not.toBeVisible()
 
-    // "Quedarme" → permanece en Paso 2 con datos intactos
-    await page.getByRole('button', { name: 'Quedarme' }).click()
-    await expect(page.getByText('¿Seguro que quieres salir?')).not.toBeVisible()
-    await expect(page.getByText('Cuéntanos sobre ti')).toBeVisible()
+    // "Mejor me quedo" → permanece en Paso 2 con datos intactos
+    await page.getByRole('button', { name: 'Mejor me quedo' }).click()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).not.toBeVisible()
+    await expect(page.getByText('Cuéntanos quién eres')).toBeVisible()
 
-    // "Salir de todas formas" → navega a "/"
+    // "Sí, salir" → navega a "/"
     await page.locator('a[href="/"]').first().click()
-    await expect(page.getByText('¿Seguro que quieres salir?')).toBeVisible({ timeout: 3_000 })
-    await page.getByRole('button', { name: 'Salir de todas formas' }).click()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
+    await page.getByRole('button', { name: 'Sí, salir' }).click()
     await page.waitForURL('/', { timeout: 5_000, waitUntil: 'domcontentloaded' })
   })
 })

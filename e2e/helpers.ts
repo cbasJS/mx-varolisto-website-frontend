@@ -15,7 +15,7 @@ export async function llenarPaso1(page: Page) {
   // Select destino: gasto_medico
   await page.click("button:has-text('Gasto médico')")
   await page.click('button[type=submit]')
-  await page.waitForSelector('text=Cuéntanos sobre ti')
+  await page.waitForSelector('text=Cuéntanos quién eres')
 }
 
 /** Fill Paso 2 — Identidad. */
@@ -32,7 +32,7 @@ export async function llenarPaso2(page: Page) {
   await page.fill('input[name=email]', 'maria@example.com')
   await page.fill('input[name=telefono]', '5512345678')
   await page.click('button[type=submit]')
-  await page.waitForSelector('h2:has-text("Tu domicilio")')
+  await page.waitForSelector('h2:has-text("¿Dónde vives?")')
 }
 
 /** Fill Paso 3 — Domicilio. Validates CP logic. */
@@ -47,13 +47,16 @@ export async function llenarPaso3(page: Page, opts?: { cambiarCp?: boolean }) {
   await page.fill('input[name=calle]', 'Insurgentes Sur')
   await page.fill('input[name=numeroExterior]', '123')
   // aniosViviendo
-  await page.locator('select, [role=combobox]').filter({ hasText: 'Tiempo viviendo' }).click()
+  await page
+    .locator('select, [role=combobox]')
+    .filter({ hasText: '¿Cuánto llevas viviendo' })
+    .click()
   await page.getByRole('option', { name: '1 – 2 años' }).click()
   // tipoVivienda
-  await page.locator('select, [role=combobox]').filter({ hasText: 'Tipo de vivienda' }).click()
+  await page.locator('select, [role=combobox]').filter({ hasText: '¿La casa es' }).click()
   await page.getByRole('option', { name: 'Rentada' }).click()
   await page.click('button[type=submit]')
-  await page.waitForSelector('h2:has-text("Tu situación económica")')
+  await page.waitForSelector('h2:has-text("Sobre tu trabajo y finanzas")')
 }
 
 /** Fill Paso 4 — Economía. */
@@ -78,20 +81,20 @@ export async function llenarPaso4(page: Page) {
   await ingreso.fill('15000')
   await ingreso.blur()
   // Sin deudas
-  await page.click("button:has-text('No tengo deudas')")
+  await page.click("button:has-text('No, ninguno')")
   await page.click('button[type=submit]')
-  await page.waitForSelector('h2:has-text("Referencias personales")')
+  await page.waitForSelector('h2:has-text("Dos contactos de confianza")')
 }
 
 /** Fill Paso 5 — Referencias. */
 export async function llenarPaso5(page: Page) {
   await page.fill('input[name=ref1Nombre]', 'Juan Pérez')
   await page.fill('input[name=ref1Telefono]', '5598765432')
-  await page.locator('[role=combobox]').filter({ hasText: 'Relación' }).first().click()
+  await page.locator('[role=combobox]').filter({ hasText: '¿Qué relación' }).first().click()
   await page.getByRole('option', { name: 'Familiar' }).click()
   await page.fill('input[name=ref2Nombre]', 'Ana Torres')
   await page.fill('input[name=ref2Telefono]', '5511112222')
-  await page.locator('[role=combobox]').filter({ hasText: 'Relación' }).last().click()
+  await page.locator('[role=combobox]').filter({ hasText: '¿Qué relación' }).last().click()
   await page.getByRole('option', { name: 'Amigo' }).click()
   await page.click('button[type=submit]')
   await page.waitForSelector('h2:has-text("Documentos")')
