@@ -8,6 +8,36 @@ const STAGGER_DELAY = 0.15
 const VIEWPORT_MARGIN = '-80px'
 const VIEWPORT_MARGIN_CLOSE = '-60px'
 
+const PASO_SLIDE_X = 50
+const PASO_SLIDE_DURATION = 0.3
+
+export type StepDirection = 1 | -1
+
+export function getStepDirection(prev: number | null, current: number): StepDirection {
+  if (prev == null) return 1
+  return current < prev ? -1 : 1
+}
+
+// Variants funcionales: framer-motion lee `custom={direction}` en cada motion.div
+// al momento de animar, así el paso saliente conserva la dirección con la que
+// navegó aunque el usuario cambie de sentido entre frames.
+export const pasoSlideVariants: Variants = {
+  enter: (direction: StepDirection) => ({
+    opacity: 0,
+    x: direction > 0 ? PASO_SLIDE_X : -PASO_SLIDE_X,
+  }),
+  center: {
+    opacity: 1,
+    x: 0,
+  },
+  exit: (direction: StepDirection) => ({
+    opacity: 0,
+    x: direction > 0 ? -PASO_SLIDE_X : PASO_SLIDE_X,
+  }),
+}
+
+export const pasoTransition = { duration: PASO_SLIDE_DURATION, ease: 'easeInOut' as const }
+
 export const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   show: {

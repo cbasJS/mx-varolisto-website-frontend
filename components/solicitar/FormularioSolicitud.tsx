@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useSolicitudNavigation } from '@/hooks/solicitar/useSolicitudNavigation'
 import { useBeforeUnloadCleanup } from '@/hooks/solicitar/useBeforeUnloadCleanup'
 import { useSolicitudStore } from '@/lib/solicitud/store'
-import { pasos, trustBadges } from '@/content/solicitar'
+import { pasoSlideVariants, pasoTransition } from '@/lib/animations'
+import { pasos } from '@/content/solicitar'
 import BarraPasos from '@/components/wizard/BarraPasos'
 import PantallaExito from './PantallaExito'
 import { FormSkeleton } from '@/components/forms/FormSkeleton'
@@ -15,6 +17,32 @@ import Paso4Economia from './pasos/paso4/Paso4Economia'
 import Paso5Referencias from './pasos/paso5/Paso5Referencias'
 import Paso6Documentos from './pasos/paso6/Paso6Documentos'
 import Paso7Revision from './pasos/paso7/Paso7Revision'
+import { ResumenSolicitud } from './ResumenSolicitud'
+import { calcularCuota } from '@/lib/solicitud/utils/calcularCuota'
+import { FormCard } from '@/components/wizard/FormCard'
+
+interface StepperStripProps {
+  pasoActual: number
+}
+
+function StepperStrip({ pasoActual }: StepperStripProps) {
+  // Franja blanca que cubre desde el top de la página (debajo del Navbar fijo)
+  // hasta el final del stepper. El pt-[72px] = NAVBAR_HEIGHT.
+  // Paso 1 (calculadora) y paso 7 (revisión) son landings → no renderizan
+  // stepper. El strip queda como pad blanco detrás del Navbar transparente.
+  const showStepper = pasoActual > 1 && pasoActual < 7
+  return (
+    <div data-testid="stepper-strip" className="bg-white pt-[72px]">
+      {showStepper && (
+        <div className="border-b border-gray-200">
+          <div className="mx-auto max-w-4xl px-4 py-3 md:py-6">
+            <BarraPasos pasoActual={pasoActual} pasos={pasos} />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function FormularioSolicitud() {
   const inicializarSession = useSolicitudStore((s) => s.inicializarSession)
@@ -25,6 +53,7 @@ export default function FormularioSolicitud() {
 
   const {
     pasoActual,
+    direction,
     folio,
     hasHydrated,
     datos,
@@ -40,69 +69,139 @@ export default function FormularioSolicitud() {
 
   useBeforeUnloadCleanup(enviando)
 
+  // Slot estático donde los pasos 2-6 portalizan sus FormActions: vive afuera
+  // del card animado, así los botones no transicionan junto al inner content.
+  const [actionsSlot, setActionsSlot] = useState<HTMLDivElement | null>(null)
+
   if (folio) {
-    return <PantallaExito folio={folio} telefono={datos.telefono} />
+    return (
+      <>
+        <StepperStrip pasoActual={1} />
+        <PantallaExito folio={folio} telefono={datos.telefono} />
+      </>
+    )
   }
 
   if (!hasHydrated) {
     return (
-      <div>
-        <BarraPasos pasoActual={1} pasos={pasos} />
-        <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 border-t-4 border-t-secondary">
-          <div className="p-6 md:p-10">
+      <>
+        <StepperStrip pasoActual={1} />
+        <div className="mx-auto max-w-2xl px-4 py-6 md:py-10">
+          <FormCard>
             <FormSkeleton />
-          </div>
+          </FormCard>
         </div>
-      </div>
+      </>
     )
   }
 
+  const showResumen =
+    pasoActual >= 2 && pasoActual <= 6 && datos.montoSolicitado != null && datos.plazoMeses != null
+  const showChrome = pasoActual >= 2 && pasoActual <= 6
+
+  // Sólo el motion.div anima — el chrome (FormCard) y el slot de FormActions
+  // viven afuera del AnimatePresence en el orquestador, así sólo los hijos del
+  // chrome (el inner content del paso) transicionan.
+  const animatedSlot = (
+    <AnimatePresence mode="wait" initial={false} custom={direction}>
+      <motion.div
+        key={pasoActual}
+        data-testid="paso-motion-wrapper"
+        data-paso={pasoActual}
+        custom={direction}
+        variants={pasoSlideVariants}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        transition={pasoTransition}
+      >
+        {pasoActual === 1 && <Paso1Prestamo onNext={(d) => handleNext(1, d)} />}
+        {pasoActual === 2 && (
+          <Paso2Identidad
+            onNext={(d) => handleNext(2, d)}
+            onBack={handleBack}
+            actionsSlot={actionsSlot}
+          />
+        )}
+        {pasoActual === 3 && (
+          <Paso3Domicilio
+            onNext={(d) => handleNext(3, d)}
+            onBack={handleBack}
+            actionsSlot={actionsSlot}
+          />
+        )}
+        {pasoActual === 4 && (
+          <Paso4Economia
+            onNext={(d) => handleNext(4, d)}
+            onBack={handleBack}
+            actionsSlot={actionsSlot}
+          />
+        )}
+        {pasoActual === 5 && (
+          <Paso5Referencias
+            onNext={(d) => handleNext(5, d)}
+            onBack={handleBack}
+            actionsSlot={actionsSlot}
+          />
+        )}
+        {pasoActual === 6 && (
+          <Paso6Documentos
+            onNext={(d) => handleNext(6, d)}
+            onBack={handleBack}
+            actionsSlot={actionsSlot}
+          />
+        )}
+        {pasoActual === 7 && (
+          <Paso7Revision
+            onSubmit={handleSubmit}
+            onBack={handleBack}
+            onEditarPaso={handleEditarPaso}
+            enviando={enviando}
+            errorSubmit={errorSubmit}
+            onLimpiarError={limpiarErrorSubmit}
+            onConflictoConfirmado={handleConflictoConfirmado}
+          />
+        )}
+      </motion.div>
+    </AnimatePresence>
+  )
+
   return (
-    <div>
-      <BarraPasos pasoActual={pasoActual} pasos={pasos} />
+    <>
+      <StepperStrip pasoActual={pasoActual} />
 
-      <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 border-t-4 border-t-secondary">
-        <div className="p-6 md:p-10">
-          {pasoActual === 1 && <Paso1Prestamo onNext={(d) => handleNext(1, d)} />}
-          {pasoActual === 2 && (
-            <Paso2Identidad onNext={(d) => handleNext(2, d)} onBack={handleBack} />
-          )}
-          {pasoActual === 3 && (
-            <Paso3Domicilio onNext={(d) => handleNext(3, d)} onBack={handleBack} />
-          )}
-          {pasoActual === 4 && (
-            <Paso4Economia onNext={(d) => handleNext(4, d)} onBack={handleBack} />
-          )}
-          {pasoActual === 5 && (
-            <Paso5Referencias onNext={(d) => handleNext(5, d)} onBack={handleBack} />
-          )}
-          {pasoActual === 6 && (
-            <Paso6Documentos onNext={(d) => handleNext(6, d)} onBack={handleBack} />
-          )}
-          {pasoActual === 7 && (
-            <Paso7Revision
-              onSubmit={handleSubmit}
-              onBack={handleBack}
-              onEditarPaso={handleEditarPaso}
-              enviando={enviando}
-              errorSubmit={errorSubmit}
-              onLimpiarError={limpiarErrorSubmit}
-              onConflictoConfirmado={handleConflictoConfirmado}
-            />
-          )}
-        </div>
-      </div>
+      <div className="mx-auto max-w-2xl px-4 py-6 md:py-10">
+        {/* Resumen — estático, fuera del AnimatePresence */}
+        {showResumen && (
+          <ResumenSolicitud
+            monto={datos.montoSolicitado!}
+            plazoMeses={datos.plazoMeses!}
+            cuota={calcularCuota(datos.montoSolicitado!, parseInt(datos.plazoMeses!, 10))}
+            onCambiar={() => handleEditarPaso(1)}
+          />
+        )}
 
-      <div className="mt-6 flex items-center justify-center gap-6 text-center">
-        {trustBadges.map(({ icono, texto }) => (
-          <div key={texto} className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-sm text-primary/30" aria-hidden>
-              {icono}
-            </span>
-            <span className="text-xs text-primary/40">{texto}</span>
+        {/* Chrome wrapper — siempre presente para que el AnimatePresence
+            mantenga una posición estable en el árbol y el exit/enter
+            funcionen al cruzar la frontera paso 1↔2 y 6↔7. Las clases de
+            chrome (rounded, border, bg) sólo aplican en pasos 2-6. */}
+        <div
+          data-testid={showChrome ? 'form-card' : undefined}
+          className={
+            showChrome
+              ? 'overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm'
+              : 'overflow-hidden'
+          }
+        >
+          <div className={showChrome ? 'overflow-hidden p-6 md:p-10' : 'overflow-hidden'}>
+            {animatedSlot}
           </div>
-        ))}
+        </div>
+
+        {/* Slot estático para FormActions de los pasos 2-6 (portal). Vive
+            afuera del chrome para que los botones no transicionen. */}
+        <div ref={setActionsSlot} />
       </div>
-    </div>
+    </>
   )
 }

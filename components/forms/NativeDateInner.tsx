@@ -36,34 +36,17 @@ export function NativeDateInner({
   const inputRef = useRef<HTMLInputElement>(null)
   const [focused, setFocused] = useState(false)
   const hasValue = !!value
-  const lifted = focused || hasValue
 
   const maxAttr = maxDate ? dateToYYYYMMDD(maxDate) : undefined
   const minAttr = minDate ? dateToYYYYMMDD(minDate) : undefined
 
   return (
-    <div className="group relative">
-      <div
-        onClick={() => inputRef.current?.showPicker?.()}
-        className={cn(
-          'relative min-h-[60px] rounded-xl border-2 bg-white transition-all duration-200',
-          focused
-            ? 'border-primary shadow-sm shadow-primary/10'
-            : error
-              ? 'border-error'
-              : 'border-surface-container-high hover:border-outline-variant',
-        )}
+    <div>
+      <label
+        htmlFor={autoId}
+        className="mb-2 flex items-center text-xs font-medium uppercase tracking-wider text-on-surface-variant"
       >
-        <label
-          htmlFor={autoId}
-          className={cn(
-            'pointer-events-none absolute left-4 z-10 transition-all duration-200 select-none',
-            lifted
-              ? 'top-2 text-[10px] font-semibold uppercase tracking-widest'
-              : 'top-1/2 -translate-y-1/2 text-sm',
-            focused ? 'text-primary' : error ? 'text-error' : 'text-outline',
-          )}
-        >
+        <span>
           {label}
           {required && (
             <span className="ml-0.5 text-error" aria-hidden>
@@ -73,10 +56,27 @@ export function NativeDateInner({
           {optional && (
             <span className="ml-1 normal-case tracking-normal opacity-60">(opcional)</span>
           )}
-        </label>
-        <div className="w-full pb-2 pt-6 pl-4 pr-4 text-base leading-normal text-on-surface">
-          {hasValue ? formatDDMMYYYY(value) : ' '}
-        </div>
+        </span>
+      </label>
+      <div
+        onClick={() => inputRef.current?.showPicker?.()}
+        className={cn(
+          'relative flex items-center rounded-full border-2 bg-white px-4 py-3 transition-colors duration-200',
+          focused
+            ? 'border-primary'
+            : error
+              ? 'border-error'
+              : 'border-gray-200 hover:border-outline-variant',
+        )}
+      >
+        <span
+          className={cn(
+            'w-full text-sm leading-normal',
+            hasValue ? 'text-on-surface' : 'text-outline-variant',
+          )}
+        >
+          {hasValue ? formatDDMMYYYY(value) : 'DD/MM/AAAA'}
+        </span>
         <input
           ref={inputRef}
           id={autoId}
@@ -90,7 +90,7 @@ export function NativeDateInner({
             setFocused(false)
             onBlur()
           }}
-          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          className="absolute inset-0 h-full w-full cursor-pointer text-base opacity-0 md:text-sm"
           aria-invalid={!!error}
           aria-describedby={error ? `${autoId}-error` : undefined}
         />

@@ -41,31 +41,14 @@ export function DatePickerInner({
 }: DatePickerInnerProps) {
   const [focused, setFocused] = useState(false)
   const selectedDate = yyyymmddToDate(value)
-  const hasValue = selectedDate !== null
-  const lifted = focused || hasValue
 
   return (
-    <div className="group relative">
-      <div
-        className={cn(
-          'relative rounded-xl border-2 bg-white transition-all duration-200',
-          focused
-            ? 'border-primary shadow-sm shadow-primary/10'
-            : error
-              ? 'border-error'
-              : 'border-surface-container-high hover:border-outline-variant',
-        )}
+    <div>
+      <label
+        htmlFor={autoId}
+        className="mb-2 flex items-center text-xs font-medium uppercase tracking-wider text-on-surface-variant"
       >
-        <label
-          htmlFor={autoId}
-          className={cn(
-            'pointer-events-none absolute left-4 z-10 transition-all duration-200 select-none',
-            lifted
-              ? 'top-2 text-[10px] font-semibold uppercase tracking-widest'
-              : 'top-1/2 -translate-y-1/2 text-sm',
-            focused ? 'text-primary' : error ? 'text-error' : 'text-outline',
-          )}
-        >
+        <span>
           {label}
           {required && (
             <span className="ml-0.5 text-error" aria-hidden>
@@ -75,7 +58,18 @@ export function DatePickerInner({
           {optional && (
             <span className="ml-1 normal-case tracking-normal opacity-60">(opcional)</span>
           )}
-        </label>
+        </span>
+      </label>
+      <div
+        className={cn(
+          'rounded-full border-2 bg-white px-4 py-3 transition-colors duration-200',
+          focused
+            ? 'border-primary'
+            : error
+              ? 'border-error'
+              : 'border-gray-200 hover:border-outline-variant',
+        )}
+      >
         <DatePicker
           id={autoId}
           selected={selectedDate}
@@ -96,8 +90,8 @@ export function DatePickerInner({
           popperPlacement="bottom-start"
           showPopperArrow={false}
           portalId="datepicker-portal"
-          placeholderText=" "
-          className="w-full cursor-pointer bg-transparent pb-2 pt-6 pl-4 pr-4 text-base md:text-sm text-on-surface outline-none"
+          placeholderText="DD/MM/AAAA"
+          className="w-full cursor-pointer bg-transparent text-base md:text-sm text-on-surface outline-none placeholder:text-outline-variant"
           wrapperClassName="w-full"
           autoComplete="off"
           aria-invalid={error ? 'true' : 'false'}

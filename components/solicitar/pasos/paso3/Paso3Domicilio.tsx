@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
 import { usePaso3 } from '@/hooks/solicitar/usePaso3'
 import type { Paso3Data } from '@/lib/solicitud/schemas/index'
 import { ANIOS_VIVIENDO, TIPO_VIVIENDA } from '@varolisto/shared-schemas/enums'
@@ -10,16 +11,18 @@ import { FloatingInput } from '@/components/forms/FloatingInput'
 import { FloatingSelect } from '@/components/forms/FloatingSelect'
 import { SectionDivider } from '@/components/forms/SectionDivider'
 import { StepTitle } from '@/components/wizard/StepTitle'
-import { FormActions } from '@/components/wizard/FormActions'
+import { PasoFormShell } from '@/components/wizard/PasoFormShell'
 import { CamposCP } from './CamposCP'
 import { pasos } from '@/content/solicitar'
+import { cn } from '@/lib/utils'
 
 interface Props {
   onNext: (datos: Paso3Data) => void
   onBack: () => void
+  actionsSlot: HTMLElement | null
 }
 
-export default function Paso3Domicilio({ onNext, onBack }: Props) {
+export default function Paso3Domicilio({ onNext, onBack, actionsSlot }: Props) {
   const {
     register,
     handleSubmit,
@@ -48,7 +51,12 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
   }, [cpServiceError])
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
+    <PasoFormShell
+      onSubmit={handleSubmit}
+      onBack={onBack}
+      disabled={!isValid}
+      actionsSlot={actionsSlot}
+    >
       <StepTitle
         numero={3}
         total={pasos.length}
@@ -67,10 +75,24 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
             placeholder=" "
             maxLength={5}
             inputMode="numeric"
-            suffix={
-              <span className="tabular-nums text-xs text-outline">
+            disabled={cargandoCP}
+            labelSuffix={
+              <span
+                className={cn(
+                  'tabular-nums',
+                  codigoPostalValue.length === 5 ? 'text-on-secondary-container' : 'text-outline',
+                )}
+              >
                 {codigoPostalValue.length}/5
               </span>
+            }
+            suffix={
+              cargandoCP ? (
+                <Loader2
+                  className="size-5 animate-spin text-primary"
+                  aria-label="Buscando colonia"
+                />
+              ) : undefined
             }
           />
           {cpValido && cpError && (
@@ -111,7 +133,7 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
         />
       </div>
 
-      <SectionDivider label="Situación de vivienda" />
+      <SectionDivider label="Detalles de tu vivienda" />
 
       <div className="grid gap-3 sm:grid-cols-2">
         <FloatingSelect
@@ -143,8 +165,6 @@ export default function Paso3Domicilio({ onNext, onBack }: Props) {
           error={errors.tipoVivienda?.message}
         />
       </div>
-
-      <FormActions onBack={onBack} submitLabel="Continuar" disabled={!isValid} />
-    </form>
+    </PasoFormShell>
   )
 }

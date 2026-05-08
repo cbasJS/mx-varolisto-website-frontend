@@ -148,7 +148,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     })
 
     await setStep(page, 3, { colonia: '', municipio: '', codigoPostal: '' })
-    await page.waitForSelector('text=Tu domicilio', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Tu domicilio")', { timeout: 5_000 })
 
     // Fill calle and número first (independent of CP)
     await page.fill('input[name=calle]', 'Insurgentes Sur')
@@ -172,7 +172,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 5. Paso 3 tiene aniosViviendo y tipoVivienda ─────────────────────────
   test('Paso 3 tiene selects de aniosViviendo y tipoVivienda', async ({ page }) => {
     await setStep(page, 3)
-    await page.waitForSelector('text=Tu domicilio', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Tu domicilio")', { timeout: 5_000 })
     await expect(page.getByText('Tiempo viviendo aquí')).toBeVisible()
     await expect(page.getByText('Tipo de vivienda')).toBeVisible()
   })
@@ -180,7 +180,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 6. Paso 4 tiene estadoCivil y dependientesEconomicos ─────────────────
   test('Paso 4 tiene campos estadoCivil y dependientesEconomicos', async ({ page }) => {
     await setStep(page, 4)
-    await page.waitForSelector('text=Tu situación económica', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Tu situación económica")', { timeout: 5_000 })
     await expect(page.getByText('Estado civil')).toBeVisible()
     await expect(page.getByText('Dependientes económicos')).toBeVisible()
   })
@@ -188,7 +188,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 7. Paso 4 label "Por cuenta propia" no "Freelance" ───────────────────
   test("Paso 4 muestra 'Por cuenta propia' y NO 'Freelance'", async ({ page }) => {
     await setStep(page, 4)
-    await page.waitForSelector('text=Tu situación económica', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Tu situación económica")', { timeout: 5_000 })
     await expect(page.getByText('Por cuenta propia')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Freelance' })).not.toBeVisible()
   })
@@ -245,7 +245,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     )
 
     await setStep(page, 3, { colonia: '', municipio: '', codigoPostal: '', ciudad: undefined })
-    await page.waitForSelector('text=Tu domicilio', { timeout: 5_000 })
+    await page.waitForSelector('h2:has-text("Tu domicilio")', { timeout: 5_000 })
 
     const cpInput = page.locator('input[name=codigoPostal]')
     await cpInput.fill('29950')
@@ -534,24 +534,25 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await expect(page.getByText('comprobante_error.jpg')).toBeVisible()
   })
 
-  // ── 11. BarraPasos: 7 pasos, primero = Préstamo ──────────────────────────
-  test('BarraPasos muestra 7 pasos, el primero es Préstamo (mobile y desktop)', async ({
+  // ── 11. BarraPasos: 5 form-steps, primero = Tu identidad (visible en pasos 2-6) ──
+  test('BarraPasos muestra 5 form-steps, primero = Tu identidad (mobile y desktop, en paso 2)', async ({
     page,
   }) => {
-    await irAlFormulario(page)
+    // Stepper se oculta en paso 1 (calculadora) y paso 7 (revisión).
+    await setStep(page, 2)
+    await page.waitForSelector('text=Cuéntanos sobre ti', { timeout: 5_000 })
 
-    // Desktop: step node with icon (paso 1 = active)
-    // The step label "Préstamo" is visible in desktop bar
-    await expect(page.getByText('Préstamo').first()).toBeVisible()
+    // Desktop: BarraPasosDesktop muestra los 5 form-steps; Tu identidad activa.
+    const desktopStepper = page.locator('div.hidden.md\\:block').filter({ hasText: 'Tu identidad' })
+    await expect(desktopStepper.getByText('Tu identidad')).toBeVisible()
 
-    // Switch to mobile viewport to check mobile bar
+    // Switch to mobile viewport to check mobile bar (Paso 1 de 5).
     await page.setViewportSize({ width: 375, height: 812 })
     await page.reload()
-    await page.waitForSelector('text=¿Cuánto necesitas?')
-    // "Paso 1 de 7" aparece en BarraPasos (mobile) y en StepTitle dentro del form;
-    // .first() apunta al BarraPasos que renderiza antes en el DOM.
-    await expect(page.getByText('Paso 1 de 7').first()).toBeVisible()
-    await expect(page.getByText('Préstamo').first()).toBeVisible()
+    await page.waitForSelector('text=Cuéntanos sobre ti')
+    const mobileStepper = page.locator('div.md\\:hidden').filter({ hasText: 'Paso 1 de 5' })
+    await expect(mobileStepper.getByText('Paso 1 de 5')).toBeVisible()
+    await expect(mobileStepper.getByText('Tu identidad')).toBeVisible()
   })
 
   // ── E5. Hidratación al cargar Paso 6 con archivos en staging ────────────
@@ -588,6 +589,13 @@ test.describe('Formulario de solicitud — Fase 2', () => {
         tamanoBytes: 480000,
         mimeType: 'image/jpeg',
         uploadedAt: '2026-04-28T20:00:03.000Z',
+      },
+      {
+        storagePath: `staging/${SESSION}/comprobante_domicilio_1714000000004_recibo_luz.pdf`,
+        tipoArchivo: 'comprobante_domicilio',
+        tamanoBytes: 98000,
+        mimeType: 'application/pdf',
+        uploadedAt: '2026-04-28T20:00:04.000Z',
       },
     ]
 
@@ -634,8 +642,8 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       await expect(page.getByRole('button', { name: `Eliminar ${nombre}` }).first()).toBeVisible()
     }
 
-    // Botón Continuar habilitado (puedeAvanzar=true)
-    await expect(page.getByRole('button', { name: /Continuar/i })).toBeEnabled()
+    // Botón Siguiente habilitado (puedeAvanzar=true)
+    await expect(page.getByRole('button', { name: /Siguiente/i })).toBeEnabled()
   })
 
   // ── E5b. Click en X tras hidratación dispara DELETE al bucket ─────────────
@@ -938,13 +946,47 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await page.route('**/api/solicitudes', () => {
       /* no responder */
     })
-    // Mock GET staging vacío
+    // Mock GET staging con los archivos requeridos: Paso 7 reconcilia archivos
+    // al montar y regresa a Paso 6 si no hay INE + 2 comprobantes de ingreso +
+    // comprobante de domicilio.
+    const SESSION = '00000000-0000-4000-a000-000000000001'
     await page.route('**/api/archivos/staging/**', (route) => {
       if (route.request().method() === 'GET') {
         route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ archivos: [] }),
+          body: JSON.stringify({
+            archivos: [
+              {
+                storagePath: `staging/${SESSION}/ine_frente_2000_frente.jpg`,
+                tipoArchivo: 'ine_frente',
+                tamanoBytes: 100000,
+                mimeType: 'image/jpeg',
+                uploadedAt: null,
+              },
+              {
+                storagePath: `staging/${SESSION}/comprobante_ingreso_2001_recibo1.pdf`,
+                tipoArchivo: 'comprobante_ingreso',
+                tamanoBytes: 50000,
+                mimeType: 'application/pdf',
+                uploadedAt: null,
+              },
+              {
+                storagePath: `staging/${SESSION}/comprobante_ingreso_2002_recibo2.pdf`,
+                tipoArchivo: 'comprobante_ingreso',
+                tamanoBytes: 50000,
+                mimeType: 'application/pdf',
+                uploadedAt: null,
+              },
+              {
+                storagePath: `staging/${SESSION}/comprobante_domicilio_2003_cfe.pdf`,
+                tipoArchivo: 'comprobante_domicilio',
+                tamanoBytes: 50000,
+                mimeType: 'application/pdf',
+                uploadedAt: null,
+              },
+            ],
+          }),
         })
       } else {
         route.continue()
@@ -958,7 +1000,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar solicitud')")
+    await page.click("button:has-text('Enviar mi solicitud')")
 
     // Esperar a que el botón cambie a "Enviando…" — isSubmitting = true
     await page.waitForSelector('text=Enviando…', { timeout: 3_000 })

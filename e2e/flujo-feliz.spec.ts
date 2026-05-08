@@ -77,6 +77,15 @@ const ARCHIVOS_COMPLETOS = [
     archivoId: 'arch-0003',
   },
   {
+    clienteId: 'cliente-comprobante-2',
+    tipoArchivo: 'comprobante_ingreso',
+    nombreOriginal: 'nomina_marzo.jpg',
+    mimeType: 'image/jpeg',
+    tamanoBytes: 298000, // ~291 KB
+    storagePath: `staging/${SESSION_UUID}/nomina_marzo.jpg`,
+    archivoId: 'arch-0003b',
+  },
+  {
     clienteId: 'cliente-domicilio',
     tipoArchivo: 'comprobante_domicilio',
     nombreOriginal: 'recibo_luz.pdf',
@@ -160,13 +169,12 @@ test.describe('Flujo feliz — solicitud completa', () => {
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar solicitud')")
+    await page.click("button:has-text('Enviar mi solicitud')")
 
-    await expect(page.getByText('¡Todo listo!')).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByText('Solicitud recibida')).toBeVisible()
-    await expect(page.getByText('Tu solicitud fue enviada exitosamente.')).toBeVisible()
+    await expect(page.getByText('¡Solicitud enviada!')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText('directamente por WhatsApp')).toBeVisible()
     await expect(page.getByText(FOLIO_MOCK)).toBeVisible()
-    await expect(page.getByText('Número de folio')).toBeVisible()
+    await expect(page.getByText('Folio de seguimiento')).toBeVisible()
     await expect(page.getByRole('link', { name: 'Volver al inicio' })).toBeVisible()
   })
 
@@ -182,7 +190,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar solicitud')")
+    await page.click("button:has-text('Enviar mi solicitud')")
 
     await expect(page.getByText('Enviando…')).toBeVisible({ timeout: 3_000 })
   })
@@ -198,7 +206,9 @@ test.describe('Flujo feliz — solicitud completa', () => {
     await expect(page.getByText('García')).toBeVisible()
     await expect(page.getByText('maria.garcia@example.com')).toBeVisible()
     await expect(page.getByText('5512345678')).toBeVisible()
-    // Datos del préstamo — monto y plazo dentro del rango del producto
+    // Datos del préstamo — el card "Detalles del préstamo" del Paso 7 es el
+    // único lugar donde aparecen monto/plazo/destino (ResumenSolicitud del
+    // header se oculta en Paso 7). No requiere scope al <form>.
     await expect(page.getByText('$5,000')).toBeVisible()
     await expect(page.getByText('4 meses')).toBeVisible()
     await expect(page.getByText('Gasto médico')).toBeVisible()
@@ -221,12 +231,12 @@ test.describe('Flujo feliz — solicitud completa', () => {
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar solicitud')")
+    await page.click("button:has-text('Enviar mi solicitud')")
 
     await expect(page.getByRole('heading', { name: 'Solicitud activa existente' })).toBeVisible({
       timeout: 5_000,
     })
-    await expect(page.getByText('¡Todo listo!')).not.toBeVisible()
+    await expect(page.getByText('¡Solicitud enviada!')).not.toBeVisible()
     await expect(page.getByText('Revisa tu solicitud')).toBeVisible()
   })
 
@@ -239,12 +249,12 @@ test.describe('Flujo feliz — solicitud completa', () => {
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
     await checks.nth(1).click()
-    await page.click("button:has-text('Enviar solicitud')")
+    await page.click("button:has-text('Enviar mi solicitud')")
 
     await expect(page.locator('[data-sonner-toast][data-type="error"]')).toBeVisible({
       timeout: 5_000,
     })
-    await expect(page.getByText('¡Todo listo!')).not.toBeVisible()
+    await expect(page.getByText('¡Solicitud enviada!')).not.toBeVisible()
   })
 
   // ── Validación de checkboxes ──────────────────────────────────────────────
@@ -254,7 +264,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     await page.waitForSelector('text=Revisa tu solicitud', { timeout: 5_000 })
 
     // El botón está disabled mientras no se acepten ambos términos
-    await expect(page.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Enviar mi solicitud' })).toBeDisabled()
   })
 
   test('botón Enviar está deshabilitado aceptando solo el primer checkbox', async ({ page }) => {
@@ -264,6 +274,6 @@ test.describe('Flujo feliz — solicitud completa', () => {
     await page.locator('button[role="checkbox"]').nth(0).click()
 
     // Con solo uno de los dos, el botón sigue deshabilitado
-    await expect(page.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Enviar mi solicitud' })).toBeDisabled()
   })
 })

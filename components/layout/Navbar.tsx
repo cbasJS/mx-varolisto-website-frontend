@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { CTA_URL, DARK_HEADER_ROUTES } from '@/lib/config'
+import { CTA_URL, OPAQUE_HEADER_ROUTES } from '@/lib/config'
 import { useScrolled } from '@/hooks/useScrolled'
 import { scrollToSection } from '@/lib/scroll'
 import { navLinks } from '@/content/nav'
@@ -14,15 +14,14 @@ export default function Navbar() {
   const isHome = pathname === '/'
   const scrolled = useScrolled()
 
-  const hasDarkHeader = DARK_HEADER_ROUTES.includes(pathname)
-  const logoColor = !scrolled && hasDarkHeader ? 'text-white' : 'text-primary'
+  const isOpaqueRoute = (OPAQUE_HEADER_ROUTES as readonly string[]).includes(pathname)
+  const logoColor = 'text-primary'
+  const opaque = isOpaqueRoute || scrolled
 
   return (
     <motion.header
       className={`fixed top-0 w-full z-50 transition-shadow duration-300 ${
-        scrolled
-          ? 'bg-white/90 backdrop-blur-xl shadow-sm border-b border-surface-container'
-          : 'bg-transparent'
+        opaque ? 'bg-white shadow-sm border-b border-gray-200' : 'bg-transparent'
       }`}
       initial={{ y: -64, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}

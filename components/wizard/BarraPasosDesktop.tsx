@@ -1,41 +1,46 @@
 'use client'
 
-import type { Paso } from './BarraPasos'
+import type { Paso } from '@/content/solicitar'
 import { StepNode } from './StepNode'
 
 interface BarraPasosDesktopProps {
-  pasoActual: number
+  /** Índice del form-step actual (1..pasos.length). */
+  stepperActual: number
   pasos: readonly Paso[]
 }
 
-export function BarraPasosDesktop({ pasoActual, pasos }: BarraPasosDesktopProps) {
+export function BarraPasosDesktop({ stepperActual, pasos }: BarraPasosDesktopProps) {
   return (
-    <div className="mb-8 hidden md:block px-4">
-      <div className="flex items-center">
+    <div className="hidden md:block">
+      <div className="flex items-start justify-between">
         {pasos.map((paso, i) => {
           const estado: 'completado' | 'actual' | 'pendiente' =
-            paso.numero < pasoActual
+            paso.numero < stepperActual
               ? 'completado'
-              : paso.numero === pasoActual
+              : paso.numero === stepperActual
                 ? 'actual'
                 : 'pendiente'
+          const completado = estado === 'completado'
 
           return (
-            <div key={paso.numero} className="flex flex-1 items-center">
+            <div key={paso.numero} className="relative flex flex-1 flex-col items-center">
+              {i < pasos.length - 1 && (
+                <div
+                  data-testid={`step-connector-${paso.numero}`}
+                  className="absolute left-1/2 top-5 z-0 h-0.5 w-full overflow-hidden bg-gray-100"
+                >
+                  <div
+                    className="h-full bg-primary transition-all duration-500 ease-out"
+                    style={{ width: completado ? '100%' : '0%' }}
+                  />
+                </div>
+              )}
               <StepNode
                 numero={paso.numero}
                 etiqueta={paso.etiqueta}
                 icono={paso.icono}
                 estado={estado}
               />
-              {i < pasos.length - 1 && (
-                <div className="relative mx-1 h-px flex-1 overflow-hidden rounded-full bg-white/10">
-                  <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-secondary transition-all duration-500 ease-out"
-                    style={{ width: estado === 'completado' ? '100%' : '0%' }}
-                  />
-                </div>
-              )}
             </div>
           )
         })}

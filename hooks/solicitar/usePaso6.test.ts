@@ -55,6 +55,16 @@ const ARCHIVO_COMPROBANTE_2 = {
   archivoId: 'arch-uuid-comp-002',
 }
 
+const ARCHIVO_DOMICILIO = {
+  clienteId: 'cliente-uuid-dom-001',
+  tipoArchivo: 'comprobante_domicilio' as const,
+  nombreOriginal: 'recibo_luz.pdf',
+  mimeType: 'application/pdf',
+  tamanoBytes: 98_000,
+  storagePath: 'staging/session-06600/recibo_luz.pdf',
+  archivoId: 'arch-uuid-dom-001',
+}
+
 describe('usePaso6 — minComprobantes y puedeAvanzar', () => {
   beforeEach(() => {
     useSolicitudStore.setState({
@@ -85,7 +95,22 @@ describe('usePaso6 — minComprobantes y puedeAvanzar', () => {
     expect(result.current.puedeAvanzar).toBe(false)
   })
 
-  it('puedeAvanzar es true con INE completa y 2 comprobantes', async () => {
+  it('puedeAvanzar es true con INE completa, 2 comprobantes y domicilio', async () => {
+    useSolicitudStore.setState({
+      archivosSubidos: [
+        ARCHIVO_INE_FRENTE,
+        ARCHIVO_INE_REVERSO,
+        ARCHIVO_COMPROBANTE,
+        ARCHIVO_COMPROBANTE_2,
+        ARCHIVO_DOMICILIO,
+      ],
+    })
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    await waitFor(() => expect(result.current.entradas.length).toBeGreaterThan(0))
+    expect(result.current.puedeAvanzar).toBe(true)
+  })
+
+  it('puedeAvanzar es false sin comprobante de domicilio aunque INE y comprobantes estén completos', async () => {
     useSolicitudStore.setState({
       archivosSubidos: [
         ARCHIVO_INE_FRENTE,
@@ -96,7 +121,8 @@ describe('usePaso6 — minComprobantes y puedeAvanzar', () => {
     })
     const { result } = renderHook(() => usePaso6(vi.fn()))
     await waitFor(() => expect(result.current.entradas.length).toBeGreaterThan(0))
-    expect(result.current.puedeAvanzar).toBe(true)
+    expect(result.current.puedeAvanzar).toBe(false)
+    expect(result.current.tieneDomicilio).toBe(false)
   })
 })
 
@@ -119,6 +145,7 @@ describe('usePaso6 — MIME types aceptados por dropzones', () => {
     'dropzoneIneFrente',
     'dropzoneIneReverso',
     'dropzonePasaporte',
+    'dropzoneDomicilio',
   ] as const
 
   for (const nombre of dropzonesEsperados) {

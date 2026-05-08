@@ -12,36 +12,76 @@ import type {
   DependientesEconomicos,
   TipoIdentificacion,
 } from '@varolisto/shared-schemas/enums'
+import {
+  Calculator,
+  Briefcase,
+  Heart,
+  Wrench,
+  Home,
+  GraduationCap,
+  Users,
+  Plane,
+  MoreHorizontal,
+  User,
+  Contact,
+  Handshake,
+  Store,
+  Laptop,
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
 // ── Meta objects con icono (fuente de verdad para label + icono) ──────────────
 
-export const SEXO_META: Record<Sexo, { label: string; icono: string }> = {
-  M: { label: 'Hombre', icono: 'man' },
-  F: { label: 'Mujer', icono: 'woman' },
-  X: { label: 'Prefiero no decir', icono: 'person' },
+export const SEXO_META: Record<Sexo, { label: string; icono: string; lucideIcon: LucideIcon }> = {
+  M: { label: 'Hombre', icono: 'man', lucideIcon: User },
+  F: { label: 'Mujer', icono: 'woman', lucideIcon: User },
+  X: { label: 'Prefiero no decir', icono: 'person', lucideIcon: User },
 }
 
-export const DESTINOS_META: Record<DestinoPrestamo, { label: string; icono: string }> = {
-  liquidar_deuda: { label: 'Liquidar una deuda', icono: 'sync_alt' },
-  capital_trabajo: { label: 'Capital de trabajo', icono: 'store' },
-  gasto_medico: { label: 'Gasto médico', icono: 'local_hospital' },
-  equipo_trabajo: { label: 'Equipo de trabajo', icono: 'build' },
-  mejora_hogar: { label: 'Mejora del hogar', icono: 'home_repair_service' },
-  educacion: { label: 'Educación', icono: 'school' },
-  gasto_familiar: { label: 'Gasto familiar', icono: 'family_restroom' },
-  viaje_evento: { label: 'Viaje o evento', icono: 'flight' },
-  otro: { label: 'Otro', icono: 'more_horiz' },
+export const DESTINOS_META: Record<
+  DestinoPrestamo,
+  { label: string; icono: string; lucideIcon: LucideIcon }
+> = {
+  liquidar_deuda: { label: 'Liquidar una deuda', icono: 'sync_alt', lucideIcon: Calculator },
+  capital_trabajo: { label: 'Capital de trabajo', icono: 'store', lucideIcon: Briefcase },
+  gasto_medico: { label: 'Gasto médico', icono: 'local_hospital', lucideIcon: Heart },
+  equipo_trabajo: { label: 'Equipo de trabajo', icono: 'build', lucideIcon: Wrench },
+  mejora_hogar: { label: 'Mejora del hogar', icono: 'home_repair_service', lucideIcon: Home },
+  educacion: { label: 'Educación', icono: 'school', lucideIcon: GraduationCap },
+  gasto_familiar: { label: 'Gasto familiar', icono: 'family_restroom', lucideIcon: Users },
+  viaje_evento: { label: 'Viaje o evento', icono: 'flight', lucideIcon: Plane },
+  otro: { label: 'Otro', icono: 'more_horiz', lucideIcon: MoreHorizontal },
 }
 
 export const ACTIVIDADES_META: Record<
   TipoActividad,
-  { label: string; icono: string; hint: string }
+  { label: string; icono: string; hint: string; lucideIcon: LucideIcon }
 > = {
-  empleado_formal: { label: 'Empleado formal', icono: 'badge', hint: 'Con comprobante de nómina' },
-  empleado_informal: { label: 'Empleado informal', icono: 'handshake', hint: 'Sin contrato' },
-  negocio_propio: { label: 'Negocio propio', icono: 'store', hint: 'Dueño de negocio' },
-  independiente: { label: 'Por cuenta propia', icono: 'laptop_mac', hint: 'Honorarios' },
-  otro: { label: 'Otro', icono: 'more_horiz', hint: '' },
+  empleado_formal: {
+    label: 'Empleado formal',
+    icono: 'badge',
+    hint: 'Con comprobante de nómina',
+    lucideIcon: Contact,
+  },
+  empleado_informal: {
+    label: 'Empleado informal',
+    icono: 'handshake',
+    hint: 'Sin contrato',
+    lucideIcon: Handshake,
+  },
+  negocio_propio: {
+    label: 'Negocio propio',
+    icono: 'store',
+    hint: 'Dueño de negocio',
+    lucideIcon: Store,
+  },
+  independiente: {
+    label: 'Por cuenta propia',
+    icono: 'laptop_mac',
+    hint: 'Honorarios',
+    lucideIcon: Laptop,
+  },
+  otro: { label: 'Otro', icono: 'more_horiz', hint: '', lucideIcon: MoreHorizontal },
 }
 
 export const CANTIDAD_DEUDAS_META: Record<CantidadDeudas, string> = {

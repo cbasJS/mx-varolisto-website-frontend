@@ -1,5 +1,7 @@
 'use client'
 
+import { CheckCircle2, FileText, UploadCloud } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type DropzoneCardSharedProps = {
@@ -12,8 +14,8 @@ type DropzoneCardSharedProps = {
 type DropzoneCardIdProps = DropzoneCardSharedProps & {
   variant: 'id'
   label: string
-  icono: string
   done: boolean
+  icon?: LucideIcon
 }
 
 type DropzoneCardComprobanteProps = DropzoneCardSharedProps & {
@@ -27,43 +29,33 @@ export function DropzoneCard(props: DropzoneCardProps) {
   const inputProps = getInputProps() as React.InputHTMLAttributes<HTMLInputElement>
 
   if (props.variant === 'id') {
-    const { label, icono, done } = props
+    const { label, done, icon: Icon = FileText } = props
     return (
       <div
         {...getRootProps()}
         className={cn(
-          'relative rounded-2xl border-2 border-dashed p-6 text-center transition-all duration-200 cursor-pointer',
+          'relative flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed bg-gray-50/50 p-8 text-center transition-colors',
           disabled && 'cursor-not-allowed opacity-50',
-          done && 'border-secondary/50 bg-secondary/5',
-          !disabled && !done && isDragActive && 'border-secondary bg-secondary/5 scale-[1.01]',
-          !disabled &&
-            !done &&
-            !isDragActive &&
-            'border-outline-variant bg-surface-bright hover:border-primary/40 hover:bg-primary/3',
+          done && 'border-green-500',
+          !disabled && !done && isDragActive && 'border-secondary bg-secondary/5',
+          !disabled && !done && !isDragActive && 'border-gray-300 hover:bg-gray-50',
         )}
       >
         <input {...inputProps} />
-        <div className="flex flex-col items-center gap-2">
-          <div
-            className={cn(
-              'flex size-10 items-center justify-center rounded-full transition-colors',
-              done ? 'bg-secondary/20' : isDragActive ? 'bg-secondary/20' : 'bg-surface-container',
-            )}
-          >
-            <span
-              className={cn(
-                'material-symbols-outlined text-xl',
-                done ? 'text-secondary' : isDragActive ? 'text-secondary' : 'text-outline',
-              )}
-              style={{ fontVariationSettings: "'FILL' 1" }}
-              aria-hidden
-            >
-              {done ? 'check_circle' : icono}
-            </span>
+        {done ? (
+          <div className="flex flex-col items-center text-center">
+            <CheckCircle2 className="mb-3 size-8 text-green-600" aria-hidden />
+            <p className="text-sm font-bold text-green-900">Subida exitosa</p>
           </div>
-          <p className="text-sm font-semibold text-on-surface">{done ? 'Subida exitosa' : label}</p>
-          {!done && <p className="text-xs text-outline">JPG, PNG o PDF · Máx. 10 MB</p>}
-        </div>
+        ) : (
+          <div className="flex flex-col items-center text-center">
+            <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-gray-100">
+              <Icon className="size-5 text-gray-500" aria-hidden />
+            </div>
+            <p className="mb-1 text-sm font-bold text-on-surface">{label}</p>
+            <p className="text-xs text-gray-500">JPG, PNG o PDF · Máx. 10 MB</p>
+          </div>
+        )}
       </div>
     )
   }
@@ -72,35 +64,20 @@ export function DropzoneCard(props: DropzoneCardProps) {
     <div
       {...getRootProps()}
       className={cn(
-        'rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200',
-        disabled
-          ? 'cursor-not-allowed border-surface-container-high bg-surface-bright opacity-50'
-          : 'cursor-pointer',
-        !disabled && isDragActive
-          ? 'border-secondary bg-secondary/5 scale-[1.01]'
-          : !disabled
-            ? 'border-outline-variant bg-surface-bright hover:border-primary/40 hover:bg-primary/3'
-            : '',
+        'flex flex-col items-center justify-center rounded-3xl border-2 border-dashed bg-gray-50/50 p-10 text-center transition-colors',
+        disabled ? 'cursor-not-allowed border-gray-200 opacity-50' : 'cursor-pointer',
+        !disabled && isDragActive && 'border-secondary bg-secondary/5',
+        !disabled && !isDragActive && 'border-gray-300 hover:bg-gray-50',
       )}
     >
       <input {...inputProps} />
-      <div className="flex flex-col items-center gap-2">
-        <div className="flex size-12 items-center justify-center rounded-full bg-surface-container">
-          <span
-            className="material-symbols-outlined text-2xl text-outline"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-            aria-hidden
-          >
-            {isDragActive ? 'file_download' : 'upload_file'}
-          </span>
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-on-surface">
-            {isDragActive ? 'Suelta aquí los archivos' : 'Arrastra o toca para subir'}
-          </p>
-          <p className="mt-0.5 text-xs text-outline">JPG, PNG o PDF · Máx. 10 MB c/u</p>
-        </div>
+      <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-gray-100">
+        <UploadCloud className="size-5 text-gray-500" aria-hidden />
       </div>
+      <p className="mb-1 text-sm font-bold text-on-surface">
+        {isDragActive ? 'Suelta aquí los archivos' : 'Arrastra o toca para subir'}
+      </p>
+      <p className="text-xs text-gray-500">JPG, PNG o PDF · Máx. 10 MB c/u</p>
     </div>
   )
 }

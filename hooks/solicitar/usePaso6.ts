@@ -98,9 +98,15 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   const idCompleta = tiposIdRequeridos.every((t) => tiposSubidos.includes(t))
   const comprobantesSubidosYa = tiposSubidos.filter((t) => t === 'comprobante_ingreso').length
   const tieneComprobante = comprobantesSubidosYa >= minComprobantes
+  const tieneDomicilio = tiposSubidos.includes('comprobante_domicilio')
 
   const puedeAvanzar =
-    !!tipoIdentificacion && idCompleta && tieneComprobante && !hayEnVuelo && !isCleaningUp
+    !!tipoIdentificacion &&
+    idCompleta &&
+    tieneComprobante &&
+    tieneDomicilio &&
+    !hayEnVuelo &&
+    !isCleaningUp
 
   const totalArchivos =
     archivosSubidos.length +
@@ -175,6 +181,11 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
       e.tipoArchivo === 'pasaporte_principal' &&
       (e.estado === 'pending' || e.estado === 'uploading'),
   )
+  const domicilioEnVuelo = entradas.some(
+    (e) =>
+      e.tipoArchivo === 'comprobante_domicilio' &&
+      (e.estado === 'pending' || e.estado === 'uploading'),
+  )
 
   const disabledComprobante =
     totalComprobantes >= MAX_COMPROBANTES_INGRESO || comprobantesEnVuelo > 0
@@ -184,6 +195,8 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     tiposSubidos.includes('ine_reverso') || ineReversoEnVuelo || totalArchivos >= 7
   const disabledPasaporte =
     tiposSubidos.includes('pasaporte_principal') || pasaporteEnVuelo || totalArchivos >= 7
+  const disabledDomicilio =
+    tiposSubidos.includes('comprobante_domicilio') || domicilioEnVuelo || totalArchivos >= 7
 
   const onDropComprobante = useCallback(
     (accepted: File[]) => agregarConTipo(accepted, 'comprobante_ingreso'),
@@ -233,6 +246,18 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     disabled: disabledPasaporte,
   })
 
+  const onDropDomicilio = useCallback(
+    (accepted: File[]) => agregarConTipo(accepted, 'comprobante_domicilio'),
+    [agregarConTipo],
+  )
+  const dropzoneDomicilio = useDropzone({
+    onDrop: onDropDomicilio,
+    accept: dropzoneAccept,
+    maxSize: 10 * 1024 * 1024,
+    maxFiles: 1,
+    disabled: disabledDomicilio,
+  })
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!puedeAvanzar || !tipoIdentificacion) return
@@ -244,6 +269,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     (e) => e.tipoArchivo === 'ine_frente' || e.tipoArchivo === 'ine_reverso',
   )
   const entradasPasaporte = entradas.filter((e) => e.tipoArchivo === 'pasaporte_principal')
+  const entradasDomicilio = entradas.filter((e) => e.tipoArchivo === 'comprobante_domicilio')
 
   return {
     tipoIdentificacion,
@@ -253,6 +279,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     entradasComprobante,
     entradasIne,
     entradasPasaporte,
+    entradasDomicilio,
     archivosSubidos,
     eliminarEntrada,
     reintentarUpload,
@@ -261,6 +288,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     puedeAvanzar,
     idCompleta,
     tieneComprobante,
+    tieneDomicilio,
     minComprobantes,
     comprobantesSubidosYa,
     sinEstadosCuenta,
@@ -272,6 +300,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     dropzoneIneFrente: { ...dropzoneIneFrente, isDisabled: disabledIneFrente },
     dropzoneIneReverso: { ...dropzoneIneReverso, isDisabled: disabledIneReverso },
     dropzonePasaporte: { ...dropzonePasaporte, isDisabled: disabledPasaporte },
+    dropzoneDomicilio: { ...dropzoneDomicilio, isDisabled: disabledDomicilio },
     tiposSubidos,
     duplicadosOmitidos,
     setDuplicadosOmitidos,

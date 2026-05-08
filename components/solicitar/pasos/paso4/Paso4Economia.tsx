@@ -1,5 +1,6 @@
 'use client'
 
+import { TrendingDown, CheckCircle2 } from 'lucide-react'
 import { usePaso4 } from '@/hooks/solicitar/usePaso4'
 import type { Paso4Data } from '@/lib/solicitud/schemas/index'
 import { ANTIGUEDAD, ESTADO_CIVIL, DEPENDIENTES_ECONOMICOS } from '@varolisto/shared-schemas/enums'
@@ -14,7 +15,7 @@ import { PillOption } from '@/components/forms/PillOption'
 import { PillGroup } from '@/components/forms/PillGroup'
 import { SectionDivider } from '@/components/forms/SectionDivider'
 import { StepTitle } from '@/components/wizard/StepTitle'
-import { FormActions } from '@/components/wizard/FormActions'
+import { PasoFormShell } from '@/components/wizard/PasoFormShell'
 import { SelectorActividadLaboral } from './SelectorActividadLaboral'
 import { SeccionDeudas } from './SeccionDeudas'
 import { pasos } from '@/content/solicitar'
@@ -22,9 +23,10 @@ import { pasos } from '@/content/solicitar'
 interface Props {
   onNext: (datos: Paso4Data) => void
   onBack: () => void
+  actionsSlot: HTMLElement | null
 }
 
-export default function Paso4Economia({ onNext, onBack }: Props) {
+export default function Paso4Economia({ onNext, onBack, actionsSlot }: Props) {
   const {
     register,
     handleSubmit,
@@ -54,7 +56,12 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
   } = usePaso4(onNext)
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
+    <PasoFormShell
+      onSubmit={handleSubmit}
+      onBack={onBack}
+      disabled={!isValid}
+      actionsSlot={actionsSlot}
+    >
       <StepTitle
         numero={4}
         total={pasos.length}
@@ -94,7 +101,9 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
           required
           value={estadoCivilActual}
           onValueChange={(val) =>
-            setValue('estadoCivil', val as (typeof ESTADO_CIVIL)[number], { shouldValidate: true })
+            setValue('estadoCivil', val as (typeof ESTADO_CIVIL)[number], {
+              shouldValidate: true,
+            })
           }
           onOpenChange={setEstadoCivilOpen}
           isOpen={estadoCivilOpen}
@@ -149,15 +158,11 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
         required
         error={errors.tieneDeudas?.message}
         className="mb-4"
-        pillsClassName="flex gap-3"
+        pillsClassName="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
         {[
-          {
-            value: 'si',
-            label: 'Sí, tengo deudas',
-            icono: 'credit_card_off',
-          },
-          { value: 'no', label: 'No tengo deudas', icono: 'check_circle' },
+          { value: 'si', label: 'Sí, tengo deudas', icono: TrendingDown },
+          { value: 'no', label: 'No tengo deudas', icono: CheckCircle2 },
         ].map(({ value, label, icono }) => (
           <PillOption
             key={value}
@@ -195,8 +200,6 @@ export default function Paso4Economia({ onNext, onBack }: Props) {
           errorPago={errors.pagoMensualDeudas?.message}
         />
       )}
-
-      <FormActions onBack={onBack} submitLabel="Continuar" disabled={!isValid} />
-    </form>
+    </PasoFormShell>
   )
 }

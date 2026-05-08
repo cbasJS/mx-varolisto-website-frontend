@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { getStepDirection, type StepDirection } from '@/lib/animations'
 import { useSolicitudStore } from '@/lib/solicitud/store'
 import { useSetSubmitting } from '@/lib/solicitud/submitting-context'
 import {
@@ -47,7 +48,12 @@ export function useSolicitudNavigation() {
     setSubmittingContext(v)
   }
 
+  const prevPasoRef = useRef<number | null>(null)
+  const [direction, setDirection] = useState<StepDirection>(1)
+
   useEffect(() => {
+    setDirection(getStepDirection(prevPasoRef.current, pasoActual))
+    prevPasoRef.current = pasoActual
     window.scrollTo(0, 0)
   }, [pasoActual])
 
@@ -93,6 +99,7 @@ export function useSolicitudNavigation() {
 
   return {
     pasoActual,
+    direction,
     folio,
     hasHydrated,
     datos,

@@ -1,11 +1,26 @@
-export const pasos = [
-  { numero: 1, etiqueta: 'Préstamo', icono: 'payments' },
-  { numero: 2, etiqueta: 'Identidad', icono: 'person' },
-  { numero: 3, etiqueta: 'Domicilio', icono: 'home' },
-  { numero: 4, etiqueta: 'Economía', icono: 'account_balance_wallet' },
-  { numero: 5, etiqueta: 'Referencias', icono: 'group' },
-  { numero: 6, etiqueta: 'Documentos', icono: 'folder_open' },
-  { numero: 7, etiqueta: 'Revisión', icono: 'fact_check' },
+import { User, Home, Briefcase, Users, FileText } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+
+export interface Paso {
+  numero: number
+  etiqueta: string
+  icono: LucideIcon
+}
+
+/**
+ * Pasos del stepper (form steps).
+ * El stepper sólo cubre los pasos de captura del formulario. Los extremos
+ * (paso 1 = calculadora/landing, paso 7 = revisión/landing pre-submit) no
+ * se renderizan en el stepper. Mapeo app pasoActual → stepper position:
+ *   app paso 2 → stepper paso 1 (Tu identidad)
+ *   app paso 6 → stepper paso 5 (Documentos)
+ */
+export const pasos: readonly Paso[] = [
+  { numero: 1, etiqueta: 'Tu identidad', icono: User },
+  { numero: 2, etiqueta: 'Tu domicilio', icono: Home },
+  { numero: 3, etiqueta: 'Economía', icono: Briefcase },
+  { numero: 4, etiqueta: 'Referencias', icono: Users },
+  { numero: 5, etiqueta: 'Documentos', icono: FileText },
 ] as const
 
 export const trustBadges = [
@@ -15,14 +30,15 @@ export const trustBadges = [
 ] as const
 
 export const exitoCopy = {
-  etiquetaRecibida: 'Solicitud recibida',
-  titulo: '¡Todo listo!',
-  subtitulo: 'Tu solicitud fue enviada exitosamente.',
-  labelFolio: 'Número de folio',
-  avisoFolio: 'Guarda este folio — lo necesitarás para cualquier consulta sobre tu solicitud.',
-  labelProximosPasos: 'Próximos pasos',
-  mensajeContacto: (telefono?: string) =>
-    `Te contactaremos por WhatsApp${telefono ? ` al número ${telefono}` : ''} en un máximo de 24 horas hábiles para informarte el resultado.`,
+  titulo: '¡Solicitud enviada!',
+  subtituloPrefijo:
+    'Hemos recibido tu solicitud y nuestros analistas ya la están revisando. Todo el seguimiento y la respuesta final te la daremos ',
+  subtituloEnfasis: 'directamente por WhatsApp',
+  subtituloSufijo: '.',
+  labelProximosPasos: 'Te escribiremos al:',
+  mensajeContacto:
+    'Guarda nuestro número para que sepas que somos nosotros y asegúrate de tener conexión.',
+  labelFolio: 'Folio de seguimiento',
   botonInicio: 'Volver al inicio',
 } as const
 

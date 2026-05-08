@@ -2,11 +2,13 @@
 
 import { useEffect } from 'react'
 import { toast } from 'sonner'
+import { Contact, Briefcase, Home, type LucideIcon } from 'lucide-react'
 import { usePaso6, type Paso6StoreData } from '@/hooks/solicitar/usePaso6'
 import { TIPO_IDENTIFICACION_LABELS } from '@/lib/solicitud/utils/lookup-labels'
 import type { TipoIdentificacion } from '@varolisto/shared-schemas/enums'
 import { SectionDivider } from '@/components/forms/SectionDivider'
 import { StepTitle } from '@/components/wizard/StepTitle'
+import { PasoFormShell } from '@/components/wizard/PasoFormShell'
 import { InfoBanner } from '@/components/forms/InfoBanner'
 import { cn } from '@/lib/utils'
 import { ListaEntradas } from './ListaEntradas'
@@ -17,17 +19,18 @@ import { pasos } from '@/content/solicitar'
 
 export type { Paso6StoreData }
 
-const OPCIONES_ID: { value: TipoIdentificacion; icono: string }[] = [
-  { value: 'ine', icono: 'badge' },
-  { value: 'pasaporte', icono: 'travel_luggage_and_bags' },
+const OPCIONES_ID: { value: TipoIdentificacion; lucideIcon: LucideIcon }[] = [
+  { value: 'ine', lucideIcon: Contact },
+  { value: 'pasaporte', lucideIcon: Briefcase },
 ]
 
 interface Props {
   onNext: (datos: Paso6StoreData) => void
   onBack: () => void
+  actionsSlot: HTMLElement | null
 }
 
-export default function Paso6Documentos({ onNext, onBack }: Props) {
+export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) {
   const {
     tipoIdentificacion,
     handleChangeTipoIdentificacion,
@@ -35,6 +38,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
     entradasComprobante,
     entradasIne,
     entradasPasaporte,
+    entradasDomicilio,
     eliminarEntrada,
     reintentarUpload,
     hayEnVuelo,
@@ -52,6 +56,7 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
     dropzoneIneFrente,
     dropzoneIneReverso,
     dropzonePasaporte,
+    dropzoneDomicilio,
     tiposSubidos,
     duplicadosOmitidos,
     setDuplicadosOmitidos,
@@ -69,54 +74,56 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
   }, [errorEliminacion, setErrorEliminacion])
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
+    <PasoFormShell
+      onSubmit={handleSubmit}
+      onBack={onBack}
+      disabled={!puedeAvanzar}
+      actionsSlot={actionsSlot}
+    >
       <StepTitle
         numero={6}
         total={pasos.length}
         titulo="Documentos"
-        subtitulo="Sube tu identificación y comprobante de ingresos."
+        subtitulo="Sube tu identificación, comprobante de ingresos y comprobante de domicilio."
       />
 
       {/* ── Tipo de identificación ───────────────────────────── */}
       <div className="mb-6">
-        <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-outline">
+        <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">
           Tipo de identificación oficial{' '}
           <span className="text-error" aria-hidden>
             *
           </span>
         </p>
-        <div className="flex gap-3">
-          {OPCIONES_ID.map(({ value, icono }) => (
-            <button
-              key={value}
-              type="button"
-              disabled={isCleaningUp}
-              onClick={() => handleChangeTipoIdentificacion(value)}
-              className={cn(
-                'flex flex-1 items-center gap-3 rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all active:scale-[0.98]',
-                isCleaningUp && 'cursor-not-allowed opacity-60',
-                tipoIdentificacion === value
-                  ? 'border-primary bg-primary text-white shadow-md'
-                  : 'border-surface-container-high bg-white text-on-surface-variant hover:border-primary/40',
-              )}
-            >
-              {isCleaningUp && tipoIdentificacion === value ? (
-                <span className="inline-block size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              ) : (
-                <span
-                  className={cn(
-                    'material-symbols-outlined text-base',
-                    tipoIdentificacion === value ? 'text-secondary' : 'text-outline',
-                  )}
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                  aria-hidden
-                >
-                  {icono}
-                </span>
-              )}
-              {TIPO_IDENTIFICACION_LABELS[value]}
-            </button>
-          ))}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {OPCIONES_ID.map(({ value, lucideIcon: Icono }) => {
+            const selected = tipoIdentificacion === value
+            return (
+              <button
+                key={value}
+                type="button"
+                disabled={isCleaningUp}
+                onClick={() => handleChangeTipoIdentificacion(value)}
+                className={cn(
+                  'flex items-center gap-3 rounded-2xl border-2 px-4 py-4 text-sm font-bold transition-all active:scale-[0.98]',
+                  isCleaningUp && 'cursor-not-allowed opacity-60',
+                  selected
+                    ? 'border-primary bg-primary text-white shadow-md'
+                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300',
+                )}
+              >
+                {isCleaningUp && selected ? (
+                  <span className="inline-block size-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                ) : (
+                  <Icono
+                    className={cn('size-6 shrink-0', selected ? 'text-secondary' : 'text-gray-500')}
+                    aria-hidden
+                  />
+                )}
+                {TIPO_IDENTIFICACION_LABELS[value]}
+              </button>
+            )
+          })}
         </div>
         {isCleaningUp && (
           <p className="mt-2 text-xs text-outline">Eliminando documentos anteriores…</p>
@@ -126,14 +133,13 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
       {/* ── Dropzones de identificación ─────────────────────── */}
       {tipoIdentificacion === 'ine' && (
         <div className="mb-6">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-outline">
+          <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">
             Fotografía de tu INE / IFE
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             <DropzoneCard
               variant="id"
               label="Frente de tu INE"
-              icono="flip_to_front"
               getRootProps={dropzoneIneFrente.getRootProps}
               getInputProps={dropzoneIneFrente.getInputProps}
               isDragActive={dropzoneIneFrente.isDragActive}
@@ -143,7 +149,6 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
             <DropzoneCard
               variant="id"
               label="Reverso de tu INE"
-              icono="flip_to_back"
               getRootProps={dropzoneIneReverso.getRootProps}
               getInputProps={dropzoneIneReverso.getInputProps}
               isDragActive={dropzoneIneReverso.isDragActive}
@@ -161,13 +166,12 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
 
       {tipoIdentificacion === 'pasaporte' && (
         <div className="mb-6">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-outline">
+          <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">
             Fotografía de tu pasaporte
           </p>
           <DropzoneCard
             variant="id"
             label="Página principal del pasaporte"
-            icono="travel_luggage_and_bags"
             getRootProps={dropzonePasaporte.getRootProps}
             getInputProps={dropzonePasaporte.getInputProps}
             isDragActive={dropzonePasaporte.isDragActive}
@@ -215,42 +219,32 @@ export default function Paso6Documentos({ onNext, onBack }: Props) {
         reintentarUpload={reintentarUpload}
       />
 
-      <AvisoDuplicados cantidad={duplicadosOmitidos} onDismiss={() => setDuplicadosOmitidos(0)} />
+      <SectionDivider label="Comprobante de domicilio" />
 
-      {/* Botones */}
-      <div className="mt-8 flex justify-between gap-3">
-        <button
-          type="button"
-          onClick={onBack}
-          className="flex items-center gap-1.5 rounded-xl border-2 border-surface-container-high bg-white px-6 py-3 text-sm font-semibold text-on-surface-variant transition-all hover:border-outline-variant hover:bg-surface-bright active:scale-[0.98]"
-        >
-          <span className="material-symbols-outlined text-sm" aria-hidden>
-            arrow_back
-          </span>
-          Atrás
-        </button>
-        <button
-          type="submit"
-          disabled={!puedeAvanzar}
-          title={
-            hayEnVuelo
-              ? 'Espera a que terminen de subir los archivos'
-              : !tipoIdentificacion
-                ? 'Selecciona un tipo de identificación'
-                : !idCompleta
-                  ? 'Sube tu identificación completa'
-                  : !tieneComprobante
-                    ? `Sube al menos ${minComprobantes} comprobante${minComprobantes > 1 ? 's' : ''} de ingresos (${comprobantesSubidosYa}/${minComprobantes})`
-                    : undefined
-          }
-          className="flex items-center gap-2 rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
-        >
-          Continuar
-          <span className="material-symbols-outlined text-sm" aria-hidden>
-            arrow_forward
-          </span>
-        </button>
+      <InfoBanner variant="info">
+        Debe coincidir con la dirección que ingresaste. Luz, agua o teléfono, no mayor a 3 meses.
+      </InfoBanner>
+
+      <div className="mt-4">
+        <DropzoneCard
+          variant="id"
+          label="Comprobante de domicilio"
+          icon={Home}
+          getRootProps={dropzoneDomicilio.getRootProps}
+          getInputProps={dropzoneDomicilio.getInputProps}
+          isDragActive={dropzoneDomicilio.isDragActive}
+          disabled={dropzoneDomicilio.isDisabled ?? false}
+          done={tiposSubidos.includes('comprobante_domicilio')}
+        />
       </div>
-    </form>
+
+      <ListaEntradas
+        entradas={entradasDomicilio}
+        eliminarEntrada={eliminarEntrada}
+        reintentarUpload={reintentarUpload}
+      />
+
+      <AvisoDuplicados cantidad={duplicadosOmitidos} onDismiss={() => setDuplicadosOmitidos(0)} />
+    </PasoFormShell>
   )
 }

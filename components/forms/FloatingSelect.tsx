@@ -27,6 +27,10 @@ interface FloatingSelectProps {
   disabled?: boolean
 }
 
+/**
+ * Select estilo Figma: label uppercase ABOVE el trigger, trigger rounded-full
+ * border-2. Conservamos el nombre del archivo (antes era floating label).
+ */
 export function FloatingSelect({
   label,
   required,
@@ -40,56 +44,42 @@ export function FloatingSelect({
 }: FloatingSelectProps) {
   return (
     <div>
-      <div
-        className={cn(
-          'relative rounded-xl border-2 bg-white transition-all duration-200',
-          error
-            ? 'border-error'
-            : isOpen
-              ? 'border-primary shadow-sm shadow-primary/10'
-              : 'border-surface-container-high hover:border-outline-variant',
-          disabled && 'opacity-50',
+      <p className="mb-2 text-xs font-medium uppercase tracking-wider text-on-surface-variant">
+        {label}
+        {required && (
+          <span className="ml-0.5 text-error" aria-hidden>
+            *
+          </span>
         )}
+      </p>
+      <Select
+        value={value}
+        onValueChange={onValueChange}
+        onOpenChange={onOpenChange}
+        disabled={disabled}
       >
-        <span
+        <SelectTrigger
+          data-size=""
           className={cn(
-            'pointer-events-none absolute left-4 z-10 select-none transition-all duration-200',
-            value
-              ? 'top-2 text-[10px] font-semibold uppercase tracking-widest text-outline'
-              : 'top-1/2 -translate-y-1/2 text-sm text-outline',
+            'h-auto w-full rounded-full border-2 bg-white px-4 py-3 text-base md:text-sm shadow-none transition-colors duration-200 focus:ring-0 data-[size=sm]:h-auto data-[size=default]:h-auto',
+            error
+              ? 'border-error'
+              : isOpen
+                ? 'border-primary'
+                : 'border-gray-200 hover:border-outline-variant',
+            disabled && 'opacity-50',
           )}
         >
-          {label}{' '}
-          {required && (
-            <span className="text-error" aria-hidden>
-              *
-            </span>
-          )}
-        </span>
-        <Select
-          value={value}
-          onValueChange={onValueChange}
-          onOpenChange={onOpenChange}
-          disabled={disabled}
-        >
-          <SelectTrigger
-            data-size=""
-            className={cn(
-              '!h-[52px] w-full rounded-xl border-0 bg-transparent pl-4 pr-3 text-sm shadow-none focus:ring-0',
-              value ? 'pb-2 pt-6' : 'py-0',
-            )}
-          >
-            <SelectValue placeholder="" />
-          </SelectTrigger>
-          <SelectContent>
-            {options.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+          <SelectValue placeholder="Selecciona…" />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <FieldError message={error} />
     </div>
   )

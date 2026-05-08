@@ -20,42 +20,38 @@ export function SelectorActividadLaboral({
 }: SelectorActividadLaboralProps) {
   return (
     <div className="mb-6">
-      <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-outline">
+      <p className="mb-4 text-xs font-bold uppercase tracking-wider text-gray-500">
         Tipo de actividad laboral{' '}
         <span className="text-error" aria-hidden>
           *
         </span>
       </p>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {TIPO_ACTIVIDAD.map((opcion) => {
-          const { label, icono, hint } = ACTIVIDADES_META[opcion]
+          const { label, hint, lucideIcon: Icono } = ACTIVIDADES_META[opcion]
+          const selected = value === opcion
           return (
             <button
               key={opcion}
               type="button"
               onClick={() => onChange(opcion)}
               className={cn(
-                'flex flex-col items-start gap-1 rounded-xl border-2 p-3 text-left transition-all active:scale-[0.97]',
-                value === opcion
-                  ? 'border-primary bg-primary text-white'
-                  : 'border-surface-container-high bg-white hover:border-primary/30',
+                'flex flex-col rounded-2xl border-2 p-4 text-left transition-all active:scale-[0.98]',
+                selected
+                  ? 'border-primary bg-primary text-white shadow-md'
+                  : 'border-gray-200 bg-white text-on-surface hover:border-gray-300',
               )}
             >
-              <span
+              <Icono
                 className={cn(
-                  'material-symbols-outlined text-lg',
-                  value === opcion ? 'text-secondary' : 'text-outline',
+                  'mb-2 size-6 shrink-0',
+                  selected ? 'text-secondary' : 'text-gray-400',
                 )}
-                style={{ fontVariationSettings: "'FILL' 1" }}
                 aria-hidden
-              >
-                {icono}
-              </span>
-              <span className="text-sm font-semibold leading-tight">{label}</span>
+              />
+              <span className="mb-1 font-semibold leading-tight">{label}</span>
               {hint && (
-                <span
-                  className={cn('text-[11px]', value === opcion ? 'text-white/70' : 'text-outline')}
-                >
+                <span className={cn('text-xs', selected ? 'text-white/70' : 'text-gray-500')}>
                   {hint}
                 </span>
               )}
