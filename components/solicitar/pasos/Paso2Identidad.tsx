@@ -110,7 +110,7 @@ export default function Paso2Identidad({ onNext, onBack, actionsSlot }: Props) {
           label="CURP"
           required
           error={errors.curp?.message}
-          hint="La encuentras en tu INE o en gob.mx"
+          hint="La encuentras en tu INE"
           {...register('curp', { setValueAs: (v: string) => v.toUpperCase() })}
           placeholder=" "
           maxLength={18}
