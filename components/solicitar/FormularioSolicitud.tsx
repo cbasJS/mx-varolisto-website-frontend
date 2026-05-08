@@ -21,7 +21,7 @@ import { ResumenSolicitud } from './ResumenSolicitud'
 import { calcularCuota } from '@/lib/solicitud/utils/calcularCuota'
 import { FormCard } from '@/components/wizard/FormCard'
 import { StickyMobileCTA } from '@/components/wizard/StickyMobileCTA'
-import { WizardActionsProvider } from '@/components/wizard/WizardActionsContext'
+import { WizardActionsProvider, useInlineRevealed } from '@/components/wizard/WizardActionsContext'
 
 interface StepperStripProps {
   pasoActual: number
@@ -82,6 +82,27 @@ function FormularioSolicitudInner() {
   // Slot estático donde los pasos 2-6 portalizan sus FormActions: vive afuera
   // del card animado, así los botones no transicionan junto al inner content.
   const [actionsSlot, setActionsSlot] = useState<HTMLDivElement | null>(null)
+
+  // Sentinel al final del contenedor del form. Cuando entra al viewport, el
+  // usuario está cerca del fondo del form: ocultamos el sticky y mostramos
+  // los CTAs inline en mobile (crossfade fluido). Funciona para los 3
+  // escenarios (paso 1, pasos 2-6, paso 7) porque vive después de TODO el
+  // contenido del paso, sin importar si los botones inline están en el slot
+  // (pasos 2-6) o dentro del form del paso (1 y 7).
+  const [sentinelRef, setSentinelRef] = useState<HTMLDivElement | null>(null)
+  const { setInlineRevealed } = useInlineRevealed()
+  useEffect(() => {
+    if (!sentinelRef) {
+      setInlineRevealed(false)
+      return
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setInlineRevealed(entry.isIntersecting),
+      { rootMargin: '0px 0px -64px 0px' },
+    )
+    observer.observe(sentinelRef)
+    return () => observer.disconnect()
+  }, [sentinelRef, setInlineRevealed])
 
   if (folio) {
     return (
@@ -211,6 +232,11 @@ function FormularioSolicitudInner() {
         {/* Slot estático para FormActions de los pasos 2-6 (portal). Vive
             afuera del chrome para que los botones no transicionen. */}
         <div ref={setActionsSlot} />
+
+        {/* Sentinel para el IntersectionObserver — marca el final del form.
+            Cuando entra al viewport, el sticky se oculta y los inline aparecen
+            en mobile. */}
+        <div ref={setSentinelRef} aria-hidden className="h-px" />
       </div>
 
       {/* Sticky CTA mobile-only que reemplaza los botones inline en mobile.

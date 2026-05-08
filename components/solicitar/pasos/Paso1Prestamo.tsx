@@ -12,6 +12,8 @@ import { FieldError } from '@/components/forms/FieldError'
 import { cn } from '@/lib/utils'
 import { ACTIVE_PASO_FORM_ID } from '@/components/wizard/PasoFormShell'
 import { useRegisterWizardActions } from '@/components/wizard/WizardActionsContext'
+// Paso 1 mantiene el sticky alwaysVisible — el inline queda solo para desktop
+// (md+). No depende de inlineRevealed.
 
 interface Props {
   onNext: (datos: Paso2Data) => void
@@ -23,11 +25,15 @@ export default function Paso1Prestamo({ onNext }: Props) {
 
   // Registra el CTA en el WizardActionsContext para que el StickyMobileCTA
   // dispare el mismo submit que el botón inline. Sin onBack — paso 1 es la
-  // primera pantalla del flujo.
+  // primera pantalla del flujo. `alwaysVisible: true` para que el sticky sea
+  // el CTA principal de la calculadora desde el inicio. `submitShimmer: true`
+  // para la animación premium tipo BottomNav.
   useRegisterWizardActions({
     formId: ACTIVE_PASO_FORM_ID,
     submitLabel: 'Ver mi oferta',
     disabled: !isValid,
+    submitShimmer: true,
+    alwaysVisible: true,
   })
 
   // Mobile siempre muestra sólo los primeros 3 destinos por default. Desktop
@@ -166,20 +172,22 @@ export default function Paso1Prestamo({ onNext }: Props) {
       </div>
 
       {/* ── CTA Full-Width (desktop) ─────────────────────────── */}
-      {/* En mobile, este CTA se reemplaza por el StickyMobileCTA — el sticky
-          dispara el submit del mismo form vía formId. */}
+      {/* En mobile, este CTA se reemplaza por el StickyMobileCTA (alwaysVisible)
+          — el sticky dispara el submit del mismo form vía formId. Aquí
+          mantenemos el inline solo para desktop (md+) con tamaño coherente
+          (py-3, rounded-[12px]) y la animación cta-shimmer. */}
       <button
         type="submit"
         disabled={!isValid}
         className={cn(
-          'mb-6 hidden w-full items-center justify-center gap-2 rounded-[12px] py-4 font-medium text-white transition-all active:scale-[0.98] md:flex',
+          'mb-6 hidden w-full items-center justify-center gap-2 rounded-[12px] py-3 text-base font-medium text-white transition-all md:inline-flex',
           isValid
-            ? 'bg-primary shadow-lg shadow-primary/30 hover:bg-primary/90'
-            : 'cursor-not-allowed bg-primary opacity-50 shadow-none',
+            ? 'bg-primary shadow-md shadow-primary/25 hover:bg-primary/95 active:scale-[0.98] cta-shimmer'
+            : 'cursor-not-allowed bg-primary opacity-60 shadow-none',
         )}
       >
         <span>Ver mi oferta</span>
-        <ArrowRight className="size-5" aria-hidden />
+        <ArrowRight className="size-4" aria-hidden />
       </button>
 
       {/* ── Trust Indicators ─────────────────────────────────── */}

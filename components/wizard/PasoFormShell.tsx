@@ -3,7 +3,8 @@
 import type { FormEventHandler, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { FormActions } from './FormActions'
-import { useRegisterWizardActions } from './WizardActionsContext'
+import { useInlineRevealed, useRegisterWizardActions } from './WizardActionsContext'
+import { cn } from '@/lib/utils'
 
 /**
  * id estable del `<form>` activo. Como el orquestador usa
@@ -29,8 +30,10 @@ interface Props {
  * portaliza los `<FormActions>` inline a un slot estático afuera del card
  * animado, así sólo el inner content transiciona entre pasos.
  *
- * El FormActions inline está oculto en mobile (`hidden md:flex`) — el sticky
- * es el único CTA visible en mobile.
+ * El FormActions inline está oculto en mobile mientras `inlineRevealed === false`
+ * (el sticky toma su lugar). Cuando el usuario llega cerca del fondo del form,
+ * el orquestador setea `inlineRevealed = true` y los inline aparecen en mobile
+ * (el sticky desaparece). En desktop el inline es visible siempre.
  */
 export function PasoFormShell({
   onSubmit,
@@ -40,6 +43,8 @@ export function PasoFormShell({
   actionsSlot,
   children,
 }: Props) {
+  const { inlineRevealed } = useInlineRevealed()
+
   useRegisterWizardActions({
     formId: ACTIVE_PASO_FORM_ID,
     submitLabel: submitLabel ?? 'Continuar',
@@ -55,7 +60,7 @@ export function PasoFormShell({
       </form>
       {actionsSlot &&
         createPortal(
-          <div className="hidden md:block">
+          <div className={cn(inlineRevealed ? 'block' : 'hidden', 'md:block')}>
             <FormActions
               formId={ACTIVE_PASO_FORM_ID}
               onBack={onBack}
