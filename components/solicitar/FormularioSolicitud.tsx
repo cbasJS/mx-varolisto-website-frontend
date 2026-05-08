@@ -20,6 +20,8 @@ import Paso7Revision from './pasos/paso7/Paso7Revision'
 import { ResumenSolicitud } from './ResumenSolicitud'
 import { calcularCuota } from '@/lib/solicitud/utils/calcularCuota'
 import { FormCard } from '@/components/wizard/FormCard'
+import { StickyMobileCTA } from '@/components/wizard/StickyMobileCTA'
+import { WizardActionsProvider } from '@/components/wizard/WizardActionsContext'
 
 interface StepperStripProps {
   pasoActual: number
@@ -45,6 +47,14 @@ function StepperStrip({ pasoActual }: StepperStripProps) {
 }
 
 export default function FormularioSolicitud() {
+  return (
+    <WizardActionsProvider>
+      <FormularioSolicitudInner />
+    </WizardActionsProvider>
+  )
+}
+
+function FormularioSolicitudInner() {
   const inicializarSession = useSolicitudStore((s) => s.inicializarSession)
 
   useEffect(() => {
@@ -170,7 +180,7 @@ export default function FormularioSolicitud() {
     <>
       <StepperStrip pasoActual={pasoActual} />
 
-      <div className="mx-auto max-w-2xl px-4 py-6 md:py-10">
+      <div className="mx-auto max-w-2xl px-4 py-6 pb-28 md:py-10 md:pb-10">
         {/* Resumen — estático, fuera del AnimatePresence */}
         {showResumen && (
           <ResumenSolicitud
@@ -202,6 +212,12 @@ export default function FormularioSolicitud() {
             afuera del chrome para que los botones no transicionen. */}
         <div ref={setActionsSlot} />
       </div>
+
+      {/* Sticky CTA mobile-only que reemplaza los botones inline en mobile.
+          Lee el estado del paso activo (label, disabled, loading, onBack)
+          desde el WizardActionsContext y dispara el submit del form vía
+          formId. Aparece al hacer scroll y se oculta al volver arriba. */}
+      <StickyMobileCTA />
     </>
   )
 }

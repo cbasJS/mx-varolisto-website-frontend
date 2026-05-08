@@ -10,6 +10,8 @@ import { DESTINOS_META } from '@/lib/solicitud/utils/lookup-labels'
 import { Slider } from '@/components/ui/slider'
 import { FieldError } from '@/components/forms/FieldError'
 import { cn } from '@/lib/utils'
+import { ACTIVE_PASO_FORM_ID } from '@/components/wizard/PasoFormShell'
+import { useRegisterWizardActions } from '@/components/wizard/WizardActionsContext'
 
 interface Props {
   onNext: (datos: Paso2Data) => void
@@ -18,6 +20,15 @@ interface Props {
 export default function Paso1Prestamo({ onNext }: Props) {
   const { handleSubmit, control, setValue, errors, isValid, monto, plazoStr, destino, cuota } =
     usePaso1(onNext)
+
+  // Registra el CTA en el WizardActionsContext para que el StickyMobileCTA
+  // dispare el mismo submit que el botón inline. Sin onBack — paso 1 es la
+  // primera pantalla del flujo.
+  useRegisterWizardActions({
+    formId: ACTIVE_PASO_FORM_ID,
+    submitLabel: 'Ver mi oferta',
+    disabled: !isValid,
+  })
 
   // Mobile siempre muestra sólo los primeros 3 destinos por default. Desktop
   // muestra los 9. El botón "Ver más opciones" en mobile permite expandir.
@@ -29,7 +40,7 @@ export default function Paso1Prestamo({ onNext }: Props) {
   )
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
+    <form id={ACTIVE_PASO_FORM_ID} onSubmit={handleSubmit} noValidate>
       {/* ── Hero ─────────────────────────────────────────────── */}
       <div className="mb-8 text-center">
         <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/5 px-4 py-2 text-sm text-primary">
@@ -154,12 +165,14 @@ export default function Paso1Prestamo({ onNext }: Props) {
         <FieldError message={errors.destinoPrestamo?.message} />
       </div>
 
-      {/* ── CTA Full-Width ───────────────────────────────────── */}
+      {/* ── CTA Full-Width (desktop) ─────────────────────────── */}
+      {/* En mobile, este CTA se reemplaza por el StickyMobileCTA — el sticky
+          dispara el submit del mismo form vía formId. */}
       <button
         type="submit"
         disabled={!isValid}
         className={cn(
-          'mb-6 flex w-full items-center justify-center gap-2 rounded-[12px] py-4 font-medium text-white transition-all active:scale-[0.98]',
+          'mb-6 hidden w-full items-center justify-center gap-2 rounded-[12px] py-4 font-medium text-white transition-all active:scale-[0.98] md:flex',
           isValid
             ? 'bg-primary shadow-lg shadow-primary/30 hover:bg-primary/90'
             : 'cursor-not-allowed bg-primary opacity-50 shadow-none',

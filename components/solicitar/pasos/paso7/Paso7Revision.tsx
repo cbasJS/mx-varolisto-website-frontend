@@ -19,6 +19,8 @@ import { ModalConflicto } from './ModalConflicto'
 import { ConsentimientosSection } from './ConsentimientosSection'
 import { pasos } from '@/content/solicitar'
 import { cn } from '@/lib/utils'
+import { ACTIVE_PASO_FORM_ID } from '@/components/wizard/PasoFormShell'
+import { useRegisterWizardActions } from '@/components/wizard/WizardActionsContext'
 
 interface Props {
   onSubmit: (datos: Paso7Data) => void
@@ -138,6 +140,20 @@ export default function Paso7Revision({
   }, [errorSubmit]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const ambosAceptados = privacidad === true && terminos === true
+
+  // Registra el CTA en el WizardActionsContext para que el StickyMobileCTA
+  // funcione idéntico al botón inline: deshabilitado sin checkboxes, loading
+  // mientras el POST está en vuelo, copy "Enviar solicitud" con icono Check.
+  useRegisterWizardActions({
+    formId: ACTIVE_PASO_FORM_ID,
+    submitLabel: 'Enviar solicitud',
+    disabled: !ambosAceptados,
+    loading: enviando,
+    loadingLabel: 'Enviando tu solicitud…',
+    onBack,
+    submitIcon: Check,
+  })
+
   const cuotaMensual =
     datos.montoSolicitado && datos.plazoMeses
       ? calcularCuota(datos.montoSolicitado, Number(datos.plazoMeses))
@@ -153,7 +169,7 @@ export default function Paso7Revision({
     <>
       {errorSubmit?.tipo === 'conflicto' && <ModalConflicto onConfirmado={onConflictoConfirmado} />}
 
-      <form onSubmit={handleSubmit} noValidate>
+      <form id={ACTIVE_PASO_FORM_ID} onSubmit={handleSubmit} noValidate>
         <FormCard>
           <StepTitle
             numero={7}
@@ -327,8 +343,10 @@ export default function Paso7Revision({
           />
         </FormCard>
 
-        {/* Botones — match Figma: rounded-[12px], copy "Enviar solicitud" */}
-        <div className="mt-8 flex items-stretch gap-3">
+        {/* Botones inline — match Figma: rounded-[12px], copy "Enviar solicitud".
+            En mobile se reemplazan por el StickyMobileCTA (mismo formId, mismo
+            comportamiento). */}
+        <div className="mt-8 hidden items-stretch gap-3 md:flex">
           <button
             type="button"
             onClick={onBack}

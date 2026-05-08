@@ -3,6 +3,7 @@
 import type { FormEventHandler, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { FormActions } from './FormActions'
+import { useRegisterWizardActions } from './WizardActionsContext'
 
 /**
  * id estable del `<form>` activo. Como el orquestador usa
@@ -17,15 +18,19 @@ interface Props {
   onBack?: () => void
   disabled?: boolean
   submitLabel?: string
-  /** Slot donde se portalizan los botones (estático en el orquestador). */
+  /** Slot donde se portalizan los botones inline (estático en el orquestador). */
   actionsSlot: HTMLElement | null
   children: ReactNode
 }
 
 /**
- * Wrapper para los pasos 2-6. Renderiza el `<form>` con id estable y portal-iza
- * los `<FormActions>` a un slot estático afuera del card animado, así sólo el
- * inner content transiciona entre pasos.
+ * Wrapper para los pasos 2-6. Renderiza el `<form>` con id estable, registra
+ * el CTA del paso en el WizardActionsContext (para el StickyMobileCTA) y
+ * portaliza los `<FormActions>` inline a un slot estático afuera del card
+ * animado, así sólo el inner content transiciona entre pasos.
+ *
+ * El FormActions inline está oculto en mobile (`hidden md:flex`) — el sticky
+ * es el único CTA visible en mobile.
  */
 export function PasoFormShell({
   onSubmit,
@@ -35,6 +40,14 @@ export function PasoFormShell({
   actionsSlot,
   children,
 }: Props) {
+  useRegisterWizardActions({
+    formId: ACTIVE_PASO_FORM_ID,
+    submitLabel: submitLabel ?? 'Continuar',
+    disabled: disabled ?? false,
+    loading: false,
+    onBack,
+  })
+
   return (
     <>
       <form id={ACTIVE_PASO_FORM_ID} onSubmit={onSubmit} noValidate>
@@ -42,12 +55,14 @@ export function PasoFormShell({
       </form>
       {actionsSlot &&
         createPortal(
-          <FormActions
-            formId={ACTIVE_PASO_FORM_ID}
-            onBack={onBack}
-            disabled={disabled}
-            submitLabel={submitLabel}
-          />,
+          <div className="hidden md:block">
+            <FormActions
+              formId={ACTIVE_PASO_FORM_ID}
+              onBack={onBack}
+              disabled={disabled}
+              submitLabel={submitLabel}
+            />
+          </div>,
           actionsSlot,
         )}
     </>
