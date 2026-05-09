@@ -2,16 +2,27 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { footerLinks } from '@/content/nav'
 import BrandName from '@/components/layout/BrandName'
+import { cn } from '@/lib/utils'
 
 const currentYear = new Date().getFullYear()
 
 export default function Footer() {
+  const pathname = usePathname()
+  // En /solicitar el sticky-CTA mobile ocupa el bottom y reserva su propio
+  // safe-area; el pb-32 del landing (espacio para el BottomNav) genera un
+  // hueco innecesario entre el contenido y el footer.
+  const esSolicitar = pathname?.startsWith('/solicitar')
+
   return (
     <motion.footer
       id="contacto"
-      className="w-full py-12 px-6 bg-surface-container-lowest border-t border-surface-container pb-32 md:pb-12"
+      className={cn(
+        'w-full py-12 px-6 bg-surface-container-lowest border-t border-surface-container md:pb-12',
+        esSolicitar ? 'pb-12' : 'pb-32',
+      )}
       aria-label="Pie de página"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
