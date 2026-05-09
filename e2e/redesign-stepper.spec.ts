@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { irAlFormulario } from './helpers'
 
 /**
  * Inyecta el store en pasoActual=2 para que el stepper sea visible
