@@ -6,6 +6,11 @@ import {
   esErrorDeValidacion,
 } from '@/lib/solicitud/infrastructure/http/apiErrors'
 import { buildPayload } from '@/lib/solicitud/domain/solicitud/buildPayload'
+import {
+  ejecutarMockSubmit,
+  getMockSubmitCase,
+  isDevMockEnabled,
+} from '@/lib/solicitud/dev/mockSubmit'
 import type { CrearSolicitudResponse } from '@varolisto/shared-schemas/api'
 import type { TipoIdentificacion } from '@varolisto/shared-schemas/enums'
 import type { ArchivoSubido } from '@/lib/solicitud/infrastructure/persistence/solicitudStore'
@@ -39,6 +44,11 @@ export interface SubmitSolicitudResult {
 }
 
 export async function submitSolicitud(input: SubmitSolicitudInput): Promise<SubmitSolicitudResult> {
+  if (isDevMockEnabled() && getMockSubmitCase()) {
+    const mocked = await ejecutarMockSubmit()
+    return { folio: mocked.folio }
+  }
+
   const payload = buildPayload(input)
 
   const response = await apiPost<ReturnType<typeof buildPayload>, CrearSolicitudResponse>(
