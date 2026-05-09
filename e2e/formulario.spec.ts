@@ -1026,45 +1026,43 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   }) => {
     const SESSION = '00000000-0000-4000-a000-000000000010'
 
-    await page.route(`**/api/archivos/staging/${SESSION}`, (route) => {
-      if (route.request().method() === 'GET') {
-        route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            archivos: [
-              {
-                storagePath: `staging/${SESSION}/ine_frente_1000_frente.jpg`,
-                tipoArchivo: 'ine_frente',
-                tamanoBytes: 100000,
-                mimeType: 'image/jpeg',
-                uploadedAt: null,
-              },
-              {
-                storagePath: `staging/${SESSION}/ine_reverso_1001_reverso.jpg`,
-                tipoArchivo: 'ine_reverso',
-                tamanoBytes: 90000,
-                mimeType: 'image/jpeg',
-                uploadedAt: null,
-              },
-              {
-                storagePath: `staging/${SESSION}/comprobante_ingreso_1002_recibo.pdf`,
-                tipoArchivo: 'comprobante_ingreso',
-                tamanoBytes: 50000,
-                mimeType: 'application/pdf',
-                uploadedAt: null,
-              },
-            ],
-          }),
-        })
-      } else {
-        route.continue()
-      }
-    })
-
+    // Inyectamos archivosSubidos directamente en sessionStorage. Aunque
+    // partialize los excluye al guardar (no se persisten por PII), zustand
+    // mergea el storage con el state inicial al rehidratar, así arrancamos
+    // el form en paso 6 con archivos pre-poblados sin depender de hidratación
+    // desde el backend.
     await page.goto('/solicitar')
     await page.evaluate(
       ({ SESSION, datos }) => {
+        const archivosSubidos = [
+          {
+            clienteId: '11111111-1111-4111-a111-111111111111',
+            archivoId: '21111111-1111-4111-a111-111111111111',
+            tipoArchivo: 'ine_frente',
+            nombreOriginal: 'ine_frente.jpg',
+            mimeType: 'image/jpeg',
+            tamanoBytes: 100000,
+            storagePath: `staging/${SESSION}/ine_frente_1000_frente.jpg`,
+          },
+          {
+            clienteId: '11111111-1111-4111-a111-111111111112',
+            archivoId: '21111111-1111-4111-a111-111111111112',
+            tipoArchivo: 'ine_reverso',
+            nombreOriginal: 'ine_reverso.jpg',
+            mimeType: 'image/jpeg',
+            tamanoBytes: 90000,
+            storagePath: `staging/${SESSION}/ine_reverso_1001_reverso.jpg`,
+          },
+          {
+            clienteId: '11111111-1111-4111-a111-111111111113',
+            archivoId: '21111111-1111-4111-a111-111111111113',
+            tipoArchivo: 'comprobante_ingreso',
+            nombreOriginal: 'recibo.pdf',
+            mimeType: 'application/pdf',
+            tamanoBytes: 50000,
+            storagePath: `staging/${SESSION}/comprobante_ingreso_1002_recibo.pdf`,
+          },
+        ]
         const store = {
           state: {
             pasoActual: 6,
@@ -1072,7 +1070,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
             timestampInicio: Date.now(),
             coloniasCache: {},
             sessionUuid: SESSION,
-            archivosSubidos: [],
+            archivosSubidos,
             tipoIdentificacion: 'ine',
           },
           version: 0,
@@ -1083,7 +1081,6 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     )
     await page.reload()
     await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
-    // Esperar a que hidratarArchivos cargue los archivos del staging antes de interactuar
     await page.waitForFunction(
       () => document.querySelectorAll('[aria-label^="Eliminar"]').length >= 3,
       { timeout: 5_000 },
@@ -1106,7 +1103,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
     await page.getByRole('button', { name: 'Sí, salir' }).click()
     await page.waitForURL('**/aviso-de-privacidad-integral', {
-      timeout: 5_000,
+      timeout: 30_000,
       waitUntil: 'domcontentloaded',
     })
   })

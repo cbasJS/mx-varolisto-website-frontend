@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useSolicitudStore } from '@/lib/solicitud/store'
 import { useUploadArchivo } from './useUploadArchivo'
@@ -13,7 +13,6 @@ import {
   TIPOS_SIN_BANCO,
   COPY_ALTERNATIVOS,
 } from '@/lib/solicitud/utils/lookup-labels'
-import { hidratarArchivos } from '@/lib/solicitud/application/useCases/hidratarArchivos'
 import { MAX_COMPROBANTES_INGRESO } from '@/lib/solicitud/domain/solicitud/documentosConfig'
 
 const dropzoneAccept = Object.fromEntries(ACCEPTED_MIME_TYPES.map((mime) => [mime, [] as string[]]))
@@ -27,36 +26,10 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   const archivosSubidos = useSolicitudStore((s) => s.archivosSubidos)
   const tipoIdentificacion = useSolicitudStore((s) => s.tipoIdentificacion)
   const setTipoIdentificacion = useSolicitudStore((s) => s.setTipoIdentificacion)
-  const sessionUuid = useSolicitudStore((s) => s.sessionUuid)
-  const agregarArchivoSubido = useSolicitudStore((s) => s.agregarArchivoSubido)
 
   const [sinEstadosCuenta, setSinEstadosCuenta] = useState(false)
   const [duplicadosOmitidos, setDuplicadosOmitidos] = useState(0)
   const [isCleaningUp, setIsCleaningUp] = useState(false)
-
-  // Ref para evitar que StrictMode double-invoke dispare dos fetches simultáneos
-  const hidratacionDisparada = useRef(false)
-
-  // Reconciliación al montar: hidrata archivos ya subidos en staging
-  useEffect(() => {
-    if (!sessionUuid) return
-    if (archivosSubidos.length > 0) return
-    if (hidratacionDisparada.current) return
-    hidratacionDisparada.current = true
-
-    hidratarArchivos(sessionUuid)
-      .then(({ archivos }) => {
-        for (const archivo of archivos) {
-          agregarArchivoSubido(archivo)
-        }
-        hidratarEntradas(archivos)
-      })
-      .catch(() => {
-        // Error de red — no bloquear. El usuario puede continuar y subir archivos nuevos.
-        hidratacionDisparada.current = false
-      })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionUuid])
 
   const {
     entradas,
@@ -69,8 +42,11 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     setErrorEliminacion,
   } = useUploadArchivo()
 
-  // Sincroniza archivos del store al mapa de entradas cuando ya vienen hidratados
-  // desde sessionStorage (archivosSubidos.length > 0 al montar, sin fetch al backend)
+  // Sincroniza archivos del store al mapa de entradas cuando ya hay archivos
+  // al montar (caso: el usuario regresa al paso 6 desde otro paso dentro de
+  // la misma sesión). Tras un refresh archivosSubidos siempre arranca vacío
+  // por diseño: no se persiste en sessionStorage y los huérfanos del bucket
+  // se limpian en beforeunload, así que no hay nada que hidratar.
   useEffect(() => {
     if (archivosSubidos.length === 0) return
     hidratarEntradas(archivosSubidos)

@@ -26,10 +26,6 @@ const ARCHIVO_COMPROBANTE = {
   archivoId: 'arch-uuid-comp-001',
 }
 
-vi.mock('@/lib/solicitud/application/useCases/hidratarArchivos', () => ({
-  hidratarArchivos: vi.fn().mockResolvedValue({ archivos: [] }),
-}))
-
 vi.mock('@/lib/solicitud/application/useCases/uploadFile', () => ({
   solicitarUploadUrl: vi.fn(),
   eliminarArchivoStaging: vi.fn().mockResolvedValue(undefined),
