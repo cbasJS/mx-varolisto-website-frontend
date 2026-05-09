@@ -7,9 +7,7 @@ import { usePaso7 } from '@/hooks/solicitar/usePaso7'
 import { useSolicitudStore } from '@/lib/solicitud/store'
 import type { Paso7Data } from '@/lib/solicitud/schemas/index'
 import type { ErrorSubmit } from '@/hooks/solicitar/useSolicitudNavigation'
-import type { ArchivoSubido } from '@/lib/solicitud/store'
 import { calcularCuota } from '@/lib/solicitud/domain/loan/calcularCuota'
-import { hidratarArchivos } from '@/lib/solicitud/application/useCases/hidratarArchivos'
 import { DESTINO_LABELS, TIPO_IDENTIFICACION_LABELS } from '@/lib/solicitud/utils/lookup-labels'
 import { StepTitle } from '@/components/wizard/StepTitle'
 import { FormCard } from '@/components/wizard/FormCard'
@@ -82,43 +80,25 @@ export default function Paso7Revision({
   const datos = useSolicitudStore((s) => s.datos)
   const archivosSubidos = useSolicitudStore((s) => s.archivosSubidos)
   const tipoIdentificacion = useSolicitudStore((s) => s.tipoIdentificacion)
-  const sessionUuid = useSolicitudStore((s) => s.sessionUuid)
   const setPaso = useSolicitudStore((s) => s.setPaso)
-  const agregarArchivoSubido = useSolicitudStore((s) => s.agregarArchivoSubido)
 
-  // Refrescar el paso 7 borra archivosSubidos del sessionStorage (no se
-  // persiste por PII). Hidratamos desde el bucket; si los requisitos del
-  // paso 6 no se cumplen, retrocedemos para que el usuario vuelva a subir.
+  // Si el usuario llega al paso 7 sin archivos en memoria (refresh, sesión
+  // recién montada) o con archivos que no cumplen requisitos, retrocedemos
+  // al paso 6 para que vuelva a subirlos. archivosSubidos no se persiste y
+  // los huérfanos del bucket se limpian en beforeunload, así que no
+  // intentamos rehidratar — siempre re-pedimos el upload.
   const reconciliacionRef = useRef(false)
   useEffect(() => {
     if (reconciliacionRef.current) return
     reconciliacionRef.current = true
 
-    const cumpleRequisitos = (archivos: ArchivoSubido[]) => {
-      const tipos = archivos.map((a) => a.tipoArchivo)
-      const tieneIne = tipos.includes('ine_frente') || tipos.includes('pasaporte_principal')
-      const tieneIngresos = tipos.filter((t) => t === 'comprobante_ingreso').length >= 2
-      const tieneDomicilio = tipos.includes('comprobante_domicilio')
-      return tieneIne && tieneIngresos && tieneDomicilio
-    }
+    const tipos = archivosSubidos.map((a) => a.tipoArchivo)
+    const tieneIne = tipos.includes('ine_frente') || tipos.includes('pasaporte_principal')
+    const tieneIngresos = tipos.filter((t) => t === 'comprobante_ingreso').length >= 2
+    const tieneDomicilio = tipos.includes('comprobante_domicilio')
+    const cumpleRequisitos = tieneIne && tieneIngresos && tieneDomicilio
 
-    if (archivosSubidos.length > 0) {
-      if (!cumpleRequisitos(archivosSubidos)) setPaso(6)
-      return
-    }
-    if (!sessionUuid) {
-      setPaso(6)
-      return
-    }
-    hidratarArchivos(sessionUuid)
-      .then(({ archivos }) => {
-        archivos.forEach((a) => agregarArchivoSubido(a))
-        if (!cumpleRequisitos(archivos)) setPaso(6)
-      })
-      .catch(() => {
-        // Si la hidratación falla, retrocedemos: no podemos validar el paso 7.
-        setPaso(6)
-      })
+    if (!cumpleRequisitos) setPaso(6)
     // Solo corre al montar; las dependencias son leídas vía store snapshot.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -362,7 +342,7 @@ export default function Paso7Revision({
         <div
           className={cn(
             'mt-8 flex items-stretch gap-3 transition-opacity duration-200',
-            inlineRevealed && !enviando
+            inlineRevealed
               ? 'opacity-100'
               : 'pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100',
           )}

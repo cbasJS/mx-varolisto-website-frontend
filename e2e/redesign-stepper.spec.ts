@@ -67,7 +67,9 @@ test.describe('Rediseño /solicitar — stepper (BarraPasos)', () => {
   })
 
   test('el stepper queda en una franja con fondo blanco pegada al navbar', async ({ page }) => {
-    await irAlFormulario(page)
+    // El strip solo se renderiza cuando hay stepper visible (pasos 2-6); en
+    // paso 1 y 7 se omite para que el contenido quede pegado al navbar.
+    await irAPaso2(page)
     const strip = page.locator('[data-testid="stepper-strip"]')
     await expect(strip).toBeVisible()
 

@@ -90,7 +90,7 @@ export function DatePickerInner({
           popperPlacement="bottom-start"
           showPopperArrow={false}
           portalId="datepicker-portal"
-          placeholderText="DD/MM/AAAA"
+          placeholderText=""
           className="w-full cursor-pointer bg-transparent text-base md:text-sm text-on-surface outline-none placeholder:text-outline-variant"
           wrapperClassName="w-full"
           autoComplete="off"

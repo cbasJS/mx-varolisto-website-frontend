@@ -11,9 +11,10 @@ import { generateUUID } from '@/lib/utils'
 export type { ArchivoSubido, SolicitudState, SolicitudActions }
 
 // PII en sessionStorage tiene un horizonte limitado: si la sesión queda
-// inactiva más de 24h, descartamos los datos al rehidratar. Reduce la
-// ventana en la que un eventual XSS podría exfiltrar datos personales.
-const PII_TTL_MS = 24 * 60 * 60 * 1000
+// inactiva más de 2h, descartamos los datos al rehidratar. Reduce la
+// ventana en la que un eventual XSS podría exfiltrar datos personales y
+// alinea la persistencia al tiempo realista de completar la solicitud.
+const PII_TTL_MS = 2 * 60 * 60 * 1000
 
 const estadoInicial: SolicitudState = {
   pasoActual: 1,
@@ -53,7 +54,19 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
           archivosSubidos: s.archivosSubidos.filter((a) => a.clienteId !== clienteId),
         })),
       setTipoIdentificacion: (tipo) => set({ tipoIdentificacion: tipo }),
-      resetForm: () => set({ ...estadoInicial, timestampInicio: Date.now(), comprobantes: [] }),
+      resetForm: () =>
+        set({
+          ...estadoInicial,
+          timestampInicio: Date.now(),
+          comprobantes: [],
+          // El store ya está hidratado en memoria; si dejáramos _hasHydrated en
+          // false, FormularioSolicitudInner caería al FormSkeleton porque
+          // inicializarSession solo corre al montar y no hay quien revierta el
+          // flag. Y un sessionUuid fresco es necesario para que el siguiente
+          // intento de envío no se aborte por `if (!sessionUuid) return`.
+          _hasHydrated: true,
+          sessionUuid: generateUUID(),
+        }),
       setHasHydrated: (value) => set({ _hasHydrated: value }),
     }),
     {
@@ -89,7 +102,7 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
         }) as unknown as SolicitudState & SolicitudActions,
       onRehydrateStorage: () => (state) => {
         if (!state) return
-        // TTL: si la sesión hidratada tiene PII de hace >24h, la descartamos.
+        // TTL: si la sesión hidratada tiene PII de hace >2h, la descartamos.
         // Evita que datos personales queden indefinidamente en sessionStorage
         // si el usuario nunca cierra la pestaña o usa "Continue where you left off".
         const edadMs = Date.now() - (state.timestampInicio ?? 0)

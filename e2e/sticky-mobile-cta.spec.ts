@@ -360,3 +360,169 @@ test.describe('Sticky mobile CTA — crossfade con CTAs inline al fondo', () => 
     await expect(page.getByTestId('sticky-mobile-cta')).toBeHidden()
   })
 })
+
+test.describe('Paso 7 — CTAs durante el submit', () => {
+  // Hidrata el store en paso 7 con datos completos + archivos que cumplen
+  // requisitos (INE + 2 comprobantes de ingreso + comprobante de domicilio),
+  // para que Paso7Revision no retroceda a paso 6 al montar.
+  async function irAPaso7Completo(page: Page) {
+    const SESSION = '00000000-0000-4000-a000-000000000777'
+    await page.addInitScript(
+      ({ key, session }) => {
+        sessionStorage.setItem(
+          key,
+          JSON.stringify({
+            state: {
+              pasoActual: 7,
+              datos: {
+                montoSolicitado: 5000,
+                plazoMeses: '4',
+                destinoPrestamo: 'liquidar_deuda',
+                nombre: 'María',
+                apellidoPaterno: 'García',
+                apellidoMaterno: 'López',
+                sexo: 'F',
+                fechaNacimiento: '1990-05-15',
+                estadoCivil: 'soltero',
+                dependientesEconomicos: 'ninguno',
+                curp: 'GALM900515MDFXXX01',
+                email: 'maria@example.com',
+                telefono: '5512345678',
+                codigoPostal: '06600',
+                ciudad: 'Ciudad de México',
+                estado: 'Ciudad de México',
+                municipio: 'Cuauhtémoc',
+                colonia: 'Juárez',
+                calle: 'Insurgentes Sur',
+                numeroExterior: '123',
+                aniosViviendo: '5',
+                tipoVivienda: 'rentada',
+                tipoActividad: 'empleado_formal',
+                nombreEmpleadorNegocio: 'ACME Corp',
+                ingresoMensual: 15000,
+                tieneDeudas: 'no',
+                ref1Nombre: 'Juan Pérez',
+                ref1Telefono: '5598765432',
+                ref1Relacion: 'familiar',
+                ref2Nombre: 'Ana Torres',
+                ref2Telefono: '5511112222',
+                ref2Relacion: 'amigo',
+              },
+              timestampInicio: Date.now(),
+              coloniasCache: {},
+              sessionUuid: session,
+              archivosSubidos: [
+                {
+                  clienteId: '11111111-1111-4111-a111-111111111701',
+                  archivoId: '21111111-1111-4111-a111-111111111701',
+                  tipoArchivo: 'ine_frente',
+                  nombreOriginal: 'ine_frente.jpg',
+                  mimeType: 'image/jpeg',
+                  tamanoBytes: 100000,
+                  storagePath: `staging/${session}/ine_frente.jpg`,
+                },
+                {
+                  clienteId: '11111111-1111-4111-a111-111111111702',
+                  archivoId: '21111111-1111-4111-a111-111111111702',
+                  tipoArchivo: 'ine_reverso',
+                  nombreOriginal: 'ine_reverso.jpg',
+                  mimeType: 'image/jpeg',
+                  tamanoBytes: 100000,
+                  storagePath: `staging/${session}/ine_reverso.jpg`,
+                },
+                {
+                  clienteId: '11111111-1111-4111-a111-111111111703',
+                  archivoId: '21111111-1111-4111-a111-111111111703',
+                  tipoArchivo: 'comprobante_ingreso',
+                  nombreOriginal: 'recibo1.pdf',
+                  mimeType: 'application/pdf',
+                  tamanoBytes: 50000,
+                  storagePath: `staging/${session}/recibo1.pdf`,
+                },
+                {
+                  clienteId: '11111111-1111-4111-a111-111111111704',
+                  archivoId: '21111111-1111-4111-a111-111111111704',
+                  tipoArchivo: 'comprobante_ingreso',
+                  nombreOriginal: 'recibo2.pdf',
+                  mimeType: 'application/pdf',
+                  tamanoBytes: 50000,
+                  storagePath: `staging/${session}/recibo2.pdf`,
+                },
+                {
+                  clienteId: '11111111-1111-4111-a111-111111111705',
+                  archivoId: '21111111-1111-4111-a111-111111111705',
+                  tipoArchivo: 'comprobante_domicilio',
+                  nombreOriginal: 'cfe.pdf',
+                  mimeType: 'application/pdf',
+                  tamanoBytes: 50000,
+                  storagePath: `staging/${session}/cfe.pdf`,
+                },
+              ],
+              tipoIdentificacion: 'ine',
+            },
+            version: 0,
+          }),
+        )
+      },
+      { key: STORE_KEY, session: SESSION },
+    )
+    // Mock /api/solicitudes — queda colgado para mantener enviando=true
+    await page.route('**/api/solicitudes', () => {
+      /* never resolve */
+    })
+    await page.goto('/solicitar')
+  }
+
+  test('mobile, scrolled al fondo: CTAs inline siguen visibles con loading durante submit', async ({
+    page,
+  }) => {
+    await page.setViewportSize(MOBILE_VIEWPORT)
+    await irAPaso7Completo(page)
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
+
+    // Aceptar checkboxes ANTES de scrollear (evita que el focus mueva el scroll)
+    const checkboxes = page.locator('button[role="checkbox"]')
+    await checkboxes.nth(0).click()
+    await checkboxes.nth(1).click()
+
+    // Scroll al fondo → inlineRevealed=true → sticky oculto, inline visible
+    await page.evaluate(() => window.scrollTo({ top: 99999, behavior: 'instant' }))
+    await expect(page.getByTestId('sticky-mobile-cta')).toBeHidden()
+
+    // Click submit en inline; el POST queda colgado → enviando=true
+    const inlineSubmit = page
+      .locator(`form#${ACTIVE_FORM_ID} > div.mt-8 button[type="submit"]`)
+      .first()
+    await inlineSubmit.click()
+
+    // Durante el submit el inline DEBE seguir visible con su loading state
+    await expect(page.getByText('Enviando tu solicitud…')).toBeVisible({ timeout: 3_000 })
+    const inlineWrapper = page.locator(`form#${ACTIVE_FORM_ID} > div.mt-8`)
+    const opacity = await inlineWrapper.evaluate((el) => window.getComputedStyle(el).opacity)
+    expect(opacity).toBe('1')
+  })
+
+  test('mobile, sin scroll: sticky CTA sigue visible con loading durante submit', async ({
+    page,
+  }) => {
+    await page.setViewportSize(MOBILE_VIEWPORT)
+    await irAPaso7Completo(page)
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
+
+    const checkboxes = page.locator('button[role="checkbox"]')
+    await checkboxes.nth(0).click()
+    await checkboxes.nth(1).click()
+
+    // Volver arriba (los clicks pueden mover el scroll por focus)
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
+
+    const sticky = page.getByTestId('sticky-mobile-cta')
+    await expect(sticky).toBeVisible()
+
+    await sticky.locator('button[type="submit"]').click()
+
+    // El sticky permanece visible mostrando el loading
+    await expect(sticky).toBeVisible()
+    await expect(sticky.getByText('Enviando tu solicitud…')).toBeVisible({ timeout: 3_000 })
+  })
+})

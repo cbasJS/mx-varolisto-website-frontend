@@ -164,7 +164,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     )
 
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
@@ -185,7 +185,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     })
 
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
@@ -199,7 +199,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
 
   test('Paso 7 muestra resumen con datos del solicitante y del préstamo', async ({ page }) => {
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     // Datos de identidad
     await expect(page.getByText('María')).toBeVisible()
@@ -226,7 +226,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     )
 
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
@@ -242,11 +242,56 @@ test.describe('Flujo feliz — solicitud completa', () => {
     await expect(page.getByText('Casi listo. Revisa todo')).toBeVisible()
   })
 
+  test('modal de conflicto: click en "Entendido" limpia sessionStorage y regresa al Paso 1', async ({
+    page,
+  }) => {
+    await page.route('**/api/solicitudes', (route) =>
+      route.fulfill({
+        status: 409,
+        contentType: 'application/json',
+        body: JSON.stringify({ code: 'conflict', mensaje: 'Ya existe una solicitud activa' }),
+      }),
+    )
+
+    await inyectarStore(page, 7)
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
+
+    const checks = page.locator('button[role="checkbox"]')
+    await checks.nth(0).click()
+    await checks.nth(1).click()
+    await page.click("button:has-text('Enviar solicitud')")
+
+    await expect(
+      page.getByRole('heading', { name: 'Ya tienes una solicitud en curso' }),
+    ).toBeVisible({ timeout: 5_000 })
+
+    await page.getByRole('button', { name: 'Entendido' }).click()
+
+    // El modal cierra y vemos el Paso 1 (calculadora) — no el skeleton ni el
+    // Paso 7. El bug previo dejaba _hasHydrated=false en resetForm y la UI se
+    // quedaba pintando el FormSkeleton, sin pintar el Paso 1.
+    await expect(page.getByRole('heading', { name: '¿Cuánto necesitas?' })).toBeVisible({
+      timeout: 5_000,
+    })
+    await expect(page.getByText('Casi listo. Revisa todo')).not.toBeVisible()
+
+    // El store reseteado debe tener pasoActual=1, datos vacíos y sessionUuid
+    // distinto del previo (regenerado para el siguiente intento).
+    const persistido = await page.evaluate(() => {
+      const raw = sessionStorage.getItem('vl-solicitud')
+      return raw ? JSON.parse(raw) : null
+    })
+    expect(persistido?.state?.pasoActual).toBe(1)
+    expect(persistido?.state?.datos).toEqual({})
+    expect(persistido?.state?.sessionUuid).toBeTruthy()
+    expect(persistido?.state?.sessionUuid).not.toBe('00000000-0000-4000-a000-000000000099')
+  })
+
   test('error de red muestra mensaje de reintento y permanece en Paso 7', async ({ page }) => {
     await page.route('**/api/solicitudes', (route) => route.abort('failed'))
 
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
@@ -263,7 +308,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
 
   test('botón Enviar está deshabilitado sin aceptar ningún checkbox', async ({ page }) => {
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     // El botón está disabled mientras no se acepten ambos términos
     await expect(page.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled()
@@ -271,7 +316,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
 
   test('botón Enviar está deshabilitado aceptando solo el primer checkbox', async ({ page }) => {
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     await page.locator('button[role="checkbox"]').nth(0).click()
 

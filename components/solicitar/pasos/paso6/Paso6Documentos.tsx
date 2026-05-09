@@ -84,7 +84,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
         numero={6}
         total={pasos.length}
         titulo="Sube tus documentos"
-        subtitulo="Tres archivos para verificar tu identidad y dirección. Te toma menos de 3 minutos."
+        subtitulo="Tus documentos para verificar identidad, ingresos y domicilio. Te toma menos de 1 minuto."
       />
 
       {/* ── Tipo de identificación ───────────────────────────── */}

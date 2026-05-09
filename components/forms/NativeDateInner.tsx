@@ -71,11 +71,11 @@ export function NativeDateInner({
       >
         <span
           className={cn(
-            'w-full text-sm leading-normal',
+            'block min-h-[1.5em] w-full text-base leading-normal md:text-sm',
             hasValue ? 'text-on-surface' : 'text-outline-variant',
           )}
         >
-          {hasValue ? formatDDMMYYYY(value) : 'DD/MM/AAAA'}
+          {hasValue ? formatDDMMYYYY(value) : ' '}
         </span>
         <input
           ref={inputRef}
