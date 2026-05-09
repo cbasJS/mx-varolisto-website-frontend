@@ -10,6 +10,7 @@ import {
   fetchColonias,
   ColoniaServiceError,
 } from '@/lib/solicitud/application/useCases/getColonias'
+import { getCpErrorMessage } from '@/lib/solicitud/application/useCases/getCpErrorMessage'
 import { COLONIAS_STALE_TIME_MS } from '@/lib/config'
 import { useAutoSave } from './useAutoSave'
 import { normalizeRegister } from '@/lib/solicitud/utils/normalizeRegister'
@@ -71,7 +72,8 @@ export function usePaso3(onNext: (datos: Paso3Data) => void) {
     staleTime: COLONIAS_STALE_TIME_MS,
   })
 
-  const cpServiceError = cpErrorObj instanceof ColoniaServiceError ? cpErrorObj.message : null
+  const cpErrorMessage = getCpErrorMessage(cpErrorObj)
+  const cpServiceError = cpErrorObj instanceof ColoniaServiceError ? cpErrorMessage : null
 
   useEffect(() => {
     if (colonias && colonias.length > 0 && cpValido) {
@@ -115,6 +117,7 @@ export function usePaso3(onNext: (datos: Paso3Data) => void) {
     colonias,
     cargandoCP,
     cpError,
+    cpErrorMessage,
     cpServiceError,
     aniosViviendoActual,
     tipoViviendaActual,
