@@ -75,7 +75,7 @@ export function NativeDateInner({
             hasValue ? 'text-on-surface' : 'text-outline-variant',
           )}
         >
-          {hasValue ? formatDDMMYYYY(value) : 'DD/MM/AAAA'}
+          {hasValue ? formatDDMMYYYY(value) : ''}
         </span>
         <input
           ref={inputRef}
