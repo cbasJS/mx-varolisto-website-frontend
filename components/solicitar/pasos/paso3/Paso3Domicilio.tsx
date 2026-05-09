@@ -35,6 +35,7 @@ export default function Paso3Domicilio({ onNext, onBack, actionsSlot }: Props) {
     colonias,
     cargandoCP,
     cpError,
+    cpErrorMessage,
     cpServiceError,
     aniosViviendoActual,
     tipoViviendaActual,
@@ -95,10 +96,8 @@ export default function Paso3Domicilio({ onNext, onBack, actionsSlot }: Props) {
               ) : undefined
             }
           />
-          {cpValido && cpError && (
-            <p className="mt-1.5 text-xs text-error">
-              No encontramos este CP. Revísalo y vuelve a intentar.
-            </p>
+          {cpValido && cpError && cpErrorMessage && (
+            <p className="mt-1.5 text-xs text-error">{cpErrorMessage}</p>
           )}
         </div>
 
