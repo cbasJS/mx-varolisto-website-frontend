@@ -21,7 +21,7 @@ export function usePaso1(onNext: (datos: Paso2Data) => void) {
     defaultValues: {
       montoSolicitado: datos.montoSolicitado ?? 5000,
       plazoMeses: datos.plazoMeses ?? '3',
-      destinoPrestamo: datos.destinoPrestamo,
+      destinoPrestamo: datos.destinoPrestamo ?? 'liquidar_deuda',
     },
   })
 
