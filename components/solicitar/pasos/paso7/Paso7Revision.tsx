@@ -342,7 +342,7 @@ export default function Paso7Revision({
         <div
           className={cn(
             'mt-8 flex items-stretch gap-3 transition-opacity duration-200',
-            inlineRevealed && !enviando
+            inlineRevealed
               ? 'opacity-100'
               : 'pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100',
           )}
