@@ -21,8 +21,8 @@ describe('usePaso1 — defaults', () => {
   })
 
   it('respeta destinoPrestamo previo del store', () => {
-    useSolicitudStore.setState({ datos: { destinoPrestamo: 'gastos_medicos' } })
+    useSolicitudStore.setState({ datos: { destinoPrestamo: 'gasto_medico' } })
     const { result } = renderHook(() => usePaso1(vi.fn()))
-    expect(result.current.destino).toBe('gastos_medicos')
+    expect(result.current.destino).toBe('gasto_medico')
   })
 })
