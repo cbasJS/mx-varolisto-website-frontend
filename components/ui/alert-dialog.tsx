@@ -4,6 +4,11 @@ import * as React from 'react'
 import { AlertDialog as AlertDialogPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
+import {
+  ACTION_BASE,
+  ACTION_VARIANTS,
+  type AlertDialogActionVariant,
+} from './alert-dialog-variants'
 
 function AlertDialog({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
@@ -141,20 +146,6 @@ function AlertDialogDescription({
   )
 }
 
-type AlertDialogActionVariant = 'primary' | 'ghost' | 'destructive'
-
-const ACTION_BASE =
-  'inline-flex items-center justify-center rounded-xl px-5 h-11 font-headline text-[14px] font-semibold transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-zinc-900 disabled:pointer-events-none disabled:opacity-50'
-
-const ACTION_VARIANTS: Record<AlertDialogActionVariant, string> = {
-  primary:
-    'bg-primary text-white shadow-[0_1px_2px_rgba(0,6,102,0.20),_0_4px_12px_rgba(0,6,102,0.18)] hover:bg-primary/95 hover:shadow-[0_2px_4px_rgba(0,6,102,0.24),_0_6px_16px_rgba(0,6,102,0.28)] focus-visible:ring-primary/40',
-  ghost:
-    'bg-white text-zinc-700 border border-black/[0.06] hover:bg-zinc-50 hover:text-zinc-900 dark:bg-transparent dark:text-zinc-300 dark:border-white/[0.08] dark:hover:bg-white/[0.04] dark:hover:text-white focus-visible:ring-zinc-400/60',
-  destructive:
-    'bg-[#dc2626] text-white shadow-[0_1px_2px_rgba(220,38,38,0.20),_0_4px_12px_rgba(220,38,38,0.20)] hover:bg-[#b91c1c] hover:shadow-[0_2px_4px_rgba(220,38,38,0.28),_0_6px_16px_rgba(220,38,38,0.32)] focus-visible:ring-[#dc2626]/40',
-}
-
 function AlertDialogAction({
   className,
   variant = 'primary',
@@ -173,12 +164,15 @@ function AlertDialogAction({
 
 function AlertDialogCancel({
   className,
+  variant = 'ghost',
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel> & {
+  variant?: AlertDialogActionVariant
+}) {
   return (
     <AlertDialogPrimitive.Cancel
       data-slot="alert-dialog-cancel"
-      className={cn(ACTION_BASE, ACTION_VARIANTS.ghost, className)}
+      className={cn(ACTION_BASE, ACTION_VARIANTS[variant], className)}
       {...props}
     />
   )

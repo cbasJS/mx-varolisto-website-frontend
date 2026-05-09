@@ -44,10 +44,12 @@ export default function ConfirmacionSalidaDialog({ open, copy, onQuedarme, onSal
           <AlertDialogDescription>{copy.descripcion}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onQuedarme}>{copy.botonQuedarme}</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={onSalir}>
+          <AlertDialogAction variant="outline-destructive" onClick={onSalir}>
             {copy.botonSalir}
           </AlertDialogAction>
+          <AlertDialogCancel variant="primary" onClick={onQuedarme}>
+            {copy.botonQuedarme}
+          </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
