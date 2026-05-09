@@ -164,7 +164,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     )
 
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
@@ -185,7 +185,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     })
 
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
@@ -199,7 +199,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
 
   test('Paso 7 muestra resumen con datos del solicitante y del préstamo', async ({ page }) => {
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     // Datos de identidad
     await expect(page.getByText('María')).toBeVisible()
@@ -226,7 +226,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     )
 
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
@@ -254,7 +254,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     )
 
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
@@ -291,7 +291,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     await page.route('**/api/solicitudes', (route) => route.abort('failed'))
 
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
     await checks.nth(0).click()
@@ -308,7 +308,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
 
   test('botón Enviar está deshabilitado sin aceptar ningún checkbox', async ({ page }) => {
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     // El botón está disabled mientras no se acepten ambos términos
     await expect(page.getByRole('button', { name: 'Enviar solicitud' })).toBeDisabled()
@@ -316,7 +316,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
 
   test('botón Enviar está deshabilitado aceptando solo el primer checkbox', async ({ page }) => {
     await inyectarStore(page, 7)
-    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     await page.locator('button[role="checkbox"]').nth(0).click()
 

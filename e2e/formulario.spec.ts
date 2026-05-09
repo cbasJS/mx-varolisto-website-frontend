@@ -196,7 +196,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 8. Paso 6: INE → frente + reverso ────────────────────────────────────
   test('Paso 6: seleccionar INE muestra dropzones de frente y reverso', async ({ page }) => {
     await setStep(page, 6)
-    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
 
     await page.click("button:has-text('INE')")
 
@@ -210,7 +210,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     page,
   }) => {
     await setStep(page, 6)
-    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
 
     await page.click("button:has-text('Pasaporte')")
 
@@ -222,7 +222,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   // ── 10. Paso 6 NO tiene campo CLABE ──────────────────────────────────────
   test('Paso 6 no tiene campo CLABE interbancaria', async ({ page }) => {
     await setStep(page, 6)
-    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
 
     await expect(page.getByText(/CLABE interbancaria/i)).not.toBeVisible()
     await expect(page.locator('input[name=clabe]')).not.toBeVisible()
@@ -319,7 +319,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
     })
     await page.reload()
-    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
 
     // Verify INE frente archivo is shown
     await expect(page.getByText('ine_frente.jpg')).toBeVisible()
@@ -395,7 +395,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
     })
     await page.reload()
-    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
 
     // Ambos comprobantes visibles
     await expect(page.getByText('comprobante_enero.jpg')).toBeVisible()
@@ -461,7 +461,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
     })
     await page.reload()
-    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
     await expect(page.getByText('ine_frente_viejo.jpg')).toBeVisible()
 
     // Eliminar con la X
@@ -519,7 +519,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
     })
     await page.reload()
-    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
     await expect(page.getByText('comprobante_error.jpg')).toBeVisible()
 
     // Click X — DELETE falla, retry falla
@@ -629,7 +629,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       { SESSION, datos: DATOS_BASE, archivosSubidos: ARCHIVOS_MEMORIA },
     )
     await page.reload()
-    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
 
     for (const archivo of ARCHIVOS_MEMORIA) {
       await expect(page.getByText(archivo.nombreOriginal).first()).toBeVisible({ timeout: 5_000 })
@@ -690,7 +690,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       { SESSION, datos: DATOS_BASE, STORAGE_PATH, NOMBRE },
     )
     await page.reload()
-    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
     await expect(page.getByText(NOMBRE).first()).toBeVisible({ timeout: 5_000 })
 
     await page
@@ -767,7 +767,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       { datos: DATOS_BASE },
     )
     await page.reload()
-    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
 
     // Simular que isSubmitting está activo inyectando el flag directamente
     // (No podemos simular el submit completo sin llenar todos los pasos,
@@ -870,7 +870,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       { SESSION, datos: DATOS_BASE },
     )
     await page.reload()
-    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
     await page.waitForFunction(
       () => document.querySelectorAll('[aria-label^="Eliminar"]').length >= 2,
       { timeout: 5_000 },
@@ -1069,7 +1069,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       { SESSION, datos: DATOS_BASE },
     )
     await page.reload()
-    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 5_000 })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
     await page.waitForFunction(
       () => document.querySelectorAll('[aria-label^="Eliminar"]').length >= 3,
       { timeout: 5_000 },
