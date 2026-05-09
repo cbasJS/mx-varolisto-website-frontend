@@ -1,7 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useNavegacionConGuarda } from '@/hooks/solicitar/useNavegacionConGuarda'
+import {
+  useNavegacionConGuarda,
+  type VarianteDialogo,
+} from '@/hooks/solicitar/useNavegacionConGuarda'
 import ConfirmacionSalidaDialog from './ConfirmacionSalidaDialog'
 
 export interface GuardaCopy {
@@ -18,6 +21,10 @@ interface Props {
   isSubmitting: boolean
   copy: GuardaCopy
   children: React.ReactNode
+  // Side-effects a ejecutar antes de la navegación cuando el usuario confirma
+  // salir (cleanup, reset del store, etc). Recibe la variante para que el
+  // caller decida si aplica — p. ej. en submitting puede preferir no resetear.
+  onAntesDeSalir?: (variante: VarianteDialogo) => void
 }
 
 export default function GuardaWrapper({
@@ -26,6 +33,7 @@ export default function GuardaWrapper({
   isSubmitting,
   copy,
   children,
+  onAntesDeSalir,
 }: Props) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
@@ -35,6 +43,11 @@ export default function GuardaWrapper({
     hayArchivos,
     isSubmitting,
   )
+
+  const handleSalir = () => {
+    onAntesDeSalir?.(variante)
+    confirmarSalida()
+  }
 
   return (
     <>
@@ -49,7 +62,7 @@ export default function GuardaWrapper({
             botonSalir: copy.botonSalir,
           }}
           onQuedarme={cancelarSalida}
-          onSalir={confirmarSalida}
+          onSalir={handleSalir}
         />
       )}
     </>

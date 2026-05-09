@@ -1146,10 +1146,18 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await expect(page.getByText('¿Salir y empezar de nuevo?')).not.toBeVisible()
     await expect(page.getByText('Cuéntanos quién eres')).toBeVisible()
 
-    // "Sí, salir" → navega a "/"
+    // "Sí, salir" → navega a "/" y resetea el form en sessionStorage
     await page.locator('a[href="/"]').first().click()
     await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
     await page.getByRole('button', { name: 'Sí, salir' }).click()
     await page.waitForURL('/', { timeout: 5_000, waitUntil: 'domcontentloaded' })
+
+    // El store quedó reseteado: datos vacíos en sessionStorage para que un
+    // re-ingreso al formulario empiece desde cero.
+    const persistido = await page.evaluate(() => sessionStorage.getItem('vl-solicitud'))
+    if (persistido) {
+      const parsed = JSON.parse(persistido) as { state?: { datos?: Record<string, unknown> } }
+      expect(parsed.state?.datos ?? {}).toEqual({})
+    }
   })
 })
