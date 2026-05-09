@@ -54,7 +54,19 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
           archivosSubidos: s.archivosSubidos.filter((a) => a.clienteId !== clienteId),
         })),
       setTipoIdentificacion: (tipo) => set({ tipoIdentificacion: tipo }),
-      resetForm: () => set({ ...estadoInicial, timestampInicio: Date.now(), comprobantes: [] }),
+      resetForm: () =>
+        set({
+          ...estadoInicial,
+          timestampInicio: Date.now(),
+          comprobantes: [],
+          // El store ya está hidratado en memoria; si dejáramos _hasHydrated en
+          // false, FormularioSolicitudInner caería al FormSkeleton porque
+          // inicializarSession solo corre al montar y no hay quien revierta el
+          // flag. Y un sessionUuid fresco es necesario para que el siguiente
+          // intento de envío no se aborte por `if (!sessionUuid) return`.
+          _hasHydrated: true,
+          sessionUuid: generateUUID(),
+        }),
       setHasHydrated: (value) => set({ _hasHydrated: value }),
     }),
     {
