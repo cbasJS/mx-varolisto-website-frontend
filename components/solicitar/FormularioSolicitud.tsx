@@ -23,25 +23,29 @@ import { FormCard } from '@/components/wizard/FormCard'
 import { StickyMobileCTA } from '@/components/wizard/StickyMobileCTA'
 import { WizardActionsProvider, useInlineRevealed } from '@/components/wizard/WizardActionsContext'
 
+// El Navbar es fixed top-0 y no reserva altura; cualquier contenido que arranque
+// en y=0 quedaría tapado. NAVBAR_SPACER_PT es el padding-top que reserva su
+// altura. Se aplica en el StepperStrip cuando se ve el stepper, o directamente
+// al contenedor del form en pasos sin stepper (1 y 7).
+const NAVBAR_SPACER_PT = 'pt-[72px]'
+
 interface StepperStripProps {
   pasoActual: number
 }
 
 function StepperStrip({ pasoActual }: StepperStripProps) {
-  // Franja blanca que cubre desde el top de la página (debajo del Navbar fijo)
-  // hasta el final del stepper. El pt-[72px] = NAVBAR_HEIGHT.
-  // Paso 1 (calculadora) y paso 7 (revisión) son landings → no renderizan
-  // stepper. El strip queda como pad blanco detrás del Navbar transparente.
+  // Solo se renderiza cuando hay stepper visible. En paso 1 (calculadora) y
+  // paso 7 (revisión) el strip se omite por completo para que el contenido
+  // del form quede pegado al navbar sin colchón intermedio.
   const showStepper = pasoActual > 1 && pasoActual < 7
+  if (!showStepper) return null
   return (
-    <div data-testid="stepper-strip" className="bg-white pt-[72px]">
-      {showStepper && (
-        <div className="border-b border-gray-200">
-          <div className="mx-auto max-w-4xl px-4 py-3 md:py-6">
-            <BarraPasos pasoActual={pasoActual} pasos={pasos} />
-          </div>
+    <div data-testid="stepper-strip" className={`bg-white ${NAVBAR_SPACER_PT}`}>
+      <div className="border-b border-gray-200">
+        <div className="mx-auto max-w-4xl px-4 py-3 md:py-6">
+          <BarraPasos pasoActual={pasoActual} pasos={pasos} />
         </div>
-      )}
+      </div>
     </div>
   )
 }
@@ -106,29 +110,35 @@ function FormularioSolicitudInner() {
 
   if (folio) {
     return (
-      <>
-        <StepperStrip pasoActual={1} />
+      <div className={NAVBAR_SPACER_PT}>
         <PantallaExito folio={folio} telefono={datos.telefono} />
-      </>
+      </div>
     )
   }
 
   if (!hasHydrated) {
     return (
-      <>
-        <StepperStrip pasoActual={1} />
-        <div className="mx-auto max-w-2xl px-4 py-6 md:py-10">
-          <FormCard>
-            <FormSkeleton />
-          </FormCard>
-        </div>
-      </>
+      <div className={`${NAVBAR_SPACER_PT} mx-auto max-w-2xl px-4 pb-6 md:pb-10`}>
+        <FormCard>
+          <FormSkeleton />
+        </FormCard>
+      </div>
     )
   }
 
   const showResumen =
     pasoActual >= 2 && pasoActual <= 6 && datos.montoSolicitado != null && datos.plazoMeses != null
   const showChrome = pasoActual >= 2 && pasoActual <= 6
+  const hayStepperVisible = pasoActual > 1 && pasoActual < 7
+
+  // Sin stepper, el strip no existe en el DOM: el contenedor reserva el spacer
+  // del navbar y deja el contenido pegado al header. Pb mobile alineado al pt
+  // para que el espacio hacia el footer global iguale el padding superior; el
+  // sticky CTA usa su propio safe-area-inset-bottom y se oculta por sentinel
+  // antes de tapar contenido.
+  const containerClasses = hayStepperVisible
+    ? 'mx-auto max-w-2xl px-4 py-6 pb-6 md:py-10 md:pb-10'
+    : `${NAVBAR_SPACER_PT} mx-auto max-w-2xl px-4 pb-6 md:pb-10`
 
   // Sólo el motion.div anima — el chrome (FormCard) y el slot de FormActions
   // viven afuera del AnimatePresence en el orquestador, así sólo los hijos del
@@ -201,7 +211,7 @@ function FormularioSolicitudInner() {
     <>
       <StepperStrip pasoActual={pasoActual} />
 
-      <div className="mx-auto max-w-2xl px-4 py-6 pb-28 md:py-10 md:pb-10">
+      <div className={containerClasses}>
         {/* Resumen — estático, fuera del AnimatePresence */}
         {showResumen && (
           <ResumenSolicitud
