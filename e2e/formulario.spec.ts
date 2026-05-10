@@ -90,7 +90,7 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   test('Paso 1 es Préstamo deseado y NO tiene campo Primer crédito', async ({ page }) => {
     await irAlFormulario(page)
     await expect(page.getByText('¿Cuánto necesitas?')).toBeVisible()
-    await expect(page.getByText(/primer cr[eé]dito/i)).not.toBeVisible()
+    await expect(page.getByLabel(/primer cr[eé]dito/i)).not.toBeVisible()
     await expect(page.locator('input[name=destinoOtro]')).not.toBeVisible()
   })
 
