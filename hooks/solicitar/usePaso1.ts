@@ -1,10 +1,12 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { paso2Schema, type Paso2Data } from '@/lib/solicitud/schemas/index'
 import { useSolicitudStore } from '@/lib/solicitud/store'
 import { calcularCuota, TASA_MENSUAL } from '@/lib/solicitud/utils/calcularCuota'
+import { getPlazoMaximo, getPlazosDisponibles } from '@varolisto/shared-schemas/domain'
 import { useAutoSave } from './useAutoSave'
 
 export function usePaso1(onNext: (datos: Paso2Data) => void) {
@@ -30,6 +32,17 @@ export function usePaso1(onNext: (datos: Paso2Data) => void) {
   const plazo = parseInt(plazoStr, 10)
   const destino = watch('destinoPrestamo')
   const cuota = calcularCuota(monto, plazo)
+  const plazosDisponibles = getPlazosDisponibles(monto)
+
+  // Si el monto cambia y el plazo actualmente seleccionado ya no está dentro
+  // de los plazos disponibles para ese monto, lo re-ajustamos al máximo
+  // permitido. Esto evita estados inválidos del form al mover el slider de
+  // monto hacia abajo.
+  useEffect(() => {
+    if (!plazosDisponibles.includes(plazoStr)) {
+      setValue('plazoMeses', getPlazoMaximo(monto), { shouldValidate: true })
+    }
+  }, [monto, plazoStr, plazosDisponibles, setValue])
 
   useAutoSave(watch, 1)
 
@@ -41,6 +54,7 @@ export function usePaso1(onNext: (datos: Paso2Data) => void) {
     isValid,
     monto,
     plazoStr,
+    plazosDisponibles,
     destino,
     cuota,
     TASA_MENSUAL,

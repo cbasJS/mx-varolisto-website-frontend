@@ -14,6 +14,7 @@ import { FormCard } from '@/components/wizard/FormCard'
 import { SeccionCard } from './SeccionCard'
 import { Fila } from './FilaDatos'
 import { ModalConflicto } from './ModalConflicto'
+import { ModalPlazoInvalido } from './ModalPlazoInvalido'
 import { ConsentimientosSection } from './ConsentimientosSection'
 import { DevMockPanel } from './DevMockPanel'
 import { isDevMockEnabled } from '@/lib/solicitud/dev/mockSubmit'
@@ -161,6 +162,9 @@ export default function Paso7Revision({
   return (
     <>
       {errorSubmit?.tipo === 'conflicto' && <ModalConflicto onConfirmado={onConflictoConfirmado} />}
+      {errorSubmit?.tipo === 'plazo_invalido_para_monto' && (
+        <ModalPlazoInvalido onConfirmado={onConflictoConfirmado} />
+      )}
 
       <form id={ACTIVE_PASO_FORM_ID} onSubmit={handleSubmit} noValidate>
         <FormCard>

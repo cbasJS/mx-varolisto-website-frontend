@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Controller } from 'react-hook-form'
-import { Sparkles, ArrowRight, Lock, FileCheck, Clock } from 'lucide-react'
+import { Sparkles, ArrowRight, Lock, FileCheck, Clock, Info } from 'lucide-react'
 import { usePaso1 } from '@/hooks/solicitar/usePaso1'
 import type { Paso2Data } from '@/lib/solicitud/schemas/index'
 import { DESTINO_PRESTAMO, PLAZO_MESES } from '@varolisto/shared-schemas/enums'
@@ -21,8 +21,18 @@ interface Props {
 }
 
 export default function Paso1Prestamo({ onNext }: Props) {
-  const { handleSubmit, control, setValue, errors, isValid, monto, plazoStr, destino, cuota } =
-    usePaso1(onNext)
+  const {
+    handleSubmit,
+    control,
+    setValue,
+    errors,
+    isValid,
+    monto,
+    plazoStr,
+    plazosDisponibles,
+    destino,
+    cuota,
+  } = usePaso1(onNext)
   const { inlineRevealed } = useInlineRevealed()
 
   // Registra el CTA en el WizardActionsContext para que el StickyMobileCTA
@@ -95,25 +105,44 @@ export default function Paso1Prestamo({ onNext }: Props) {
           <FieldError message={errors.montoSolicitado?.message} />
         </div>
 
+        <div className="-mt-3 mb-4 flex items-center gap-2 text-[14px] leading-relaxed text-on-surface-variant">
+          <Info className="size-3.5 shrink-0 text-outline" aria-hidden />
+          <span>
+            Hasta <span className="font-medium text-secondary">$7,000</span> en tu primer crédito,
+            sujeto a evaluación.
+          </span>
+        </div>
+
         <div className="mb-6">
           <p className="mb-3 text-sm font-medium text-on-surface">¿A cuántos meses lo pagas?</p>
           <div className="grid grid-cols-5 gap-2">
-            {PLAZO_MESES.map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setValue('plazoMeses', m, { shouldValidate: true })}
-                className={cn(
-                  'rounded-xl border-2 py-3 text-center transition-all active:scale-[0.96]',
-                  plazoStr === m
-                    ? 'border-primary bg-primary text-white shadow-md'
-                    : 'border-gray-200 bg-white text-on-surface-variant hover:border-primary/40',
-                )}
-              >
-                <span className="block text-xl font-bold leading-none">{m}</span>
-                <span className="block text-xs opacity-75">meses</span>
-              </button>
-            ))}
+            {PLAZO_MESES.map((m) => {
+              const disponible = plazosDisponibles.includes(m)
+              const selected = plazoStr === m
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  disabled={!disponible}
+                  onClick={() => {
+                    if (disponible) {
+                      setValue('plazoMeses', m, { shouldValidate: true })
+                    }
+                  }}
+                  className={cn(
+                    'rounded-xl border-2 py-3 text-center transition-all active:scale-[0.96]',
+                    !disponible
+                      ? 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300'
+                      : selected
+                        ? 'border-primary bg-primary text-white shadow-md'
+                        : 'border-gray-200 bg-white text-on-surface-variant hover:border-primary/40',
+                  )}
+                >
+                  <span className="block text-xl font-bold leading-none">{m}</span>
+                  <span className="block text-xs opacity-75">meses</span>
+                </button>
+              )
+            })}
           </div>
           <FieldError message={errors.plazoMeses?.message} />
         </div>

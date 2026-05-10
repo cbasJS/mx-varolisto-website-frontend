@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { Info } from 'lucide-react'
 import { MdOutlineWhatsapp, MdOutlineVerified } from 'react-icons/md'
 import { CTA_URL, WHATSAPP_URL } from '@/lib/config'
 import { staggerContainer, fadeUpVariant, fadeInVariant } from '@/lib/animations'
@@ -47,8 +48,14 @@ export default function Hero() {
             >
               {ctaPrimary.label}
             </a>
-            <p className="text-xs font-semibold text-on-surface-variant/70">
+            <p className="hidden md:block text-xs font-semibold text-on-surface-variant/70">
               {ctaPrimary.microcopy}
+            </p>
+            <p className="md:hidden flex items-center justify-center gap-1.5 text-xs font-semibold text-on-surface-variant/70">
+              <Info className="size-3.5 shrink-0" aria-hidden />
+              <span>
+                Hasta <span className="text-secondary">$7,000</span> en tu primer crédito.
+              </span>
             </p>
           </div>
 
@@ -57,7 +64,7 @@ export default function Hero() {
               href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full bg-surface-container-highest md:bg-surface-container-lowest md:border-2 md:border-surface-container text-primary md:text-on-surface px-8 py-4 rounded-full md:rounded-2xl font-headline font-bold text-lg hover:bg-surface-variant md:hover:bg-surface-bright transition-all active:scale-95 flex items-center justify-center gap-3"
+              className="w-full border border-gray-200/70 bg-white shadow-sm md:bg-surface-container-lowest md:border-2 md:border-surface-container text-primary md:text-on-surface px-8 py-4 rounded-full md:rounded-2xl font-headline font-bold text-lg hover:bg-surface-variant md:hover:bg-surface-bright transition-all active:scale-95 flex items-center justify-center gap-3"
               aria-label={ctaWhatsapp.ariaLabel}
             >
               <MdOutlineWhatsapp className="text-2xl text-secondary" aria-hidden="true" />

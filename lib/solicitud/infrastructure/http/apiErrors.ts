@@ -28,3 +28,7 @@ export function esErrorDeValidacion(e: unknown): e is ApiError {
 export function esErrorDeConflicto(e: unknown): e is ApiError {
   return e instanceof ApiError && e.status === 409
 }
+
+export function esErrorPlazoInvalidoParaMonto(e: unknown): e is ApiError {
+  return e instanceof ApiError && e.status === 422 && e.code === 'plazo_invalido_para_monto'
+}

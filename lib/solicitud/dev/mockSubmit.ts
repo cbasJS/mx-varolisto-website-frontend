@@ -12,6 +12,7 @@ export type MockSubmitCase =
   | 'exito_201'
   | 'conflicto_solicitud_revision'
   | 'conflicto_prestamo_activo'
+  | 'plazo_invalido_para_monto'
   | 'no_elegible_403'
   | 'validacion_422'
   | 'error_500'
@@ -61,6 +62,13 @@ export async function ejecutarMockSubmit(): Promise<CrearSolicitudResponse> {
         code: 'prestamo_activo',
         mensaje: 'Tienes un crédito activo. Termínalo antes de solicitar otro.',
       })
+    case 'plazo_invalido_para_monto':
+      throw new ApiError({
+        status: 422,
+        code: 'plazo_invalido_para_monto',
+        mensaje:
+          'El plazo 6 no está disponible para un monto de $2500. Plazos válidos: 2, 3 meses.',
+      })
     case 'no_elegible_403':
       throw new ApiError({
         status: 403,
@@ -97,6 +105,7 @@ export const MOCK_CASE_LABELS: Record<MockSubmitCase, string> = {
   exito_201: '201 — Éxito (PantallaExito)',
   conflicto_solicitud_revision: '409 — solicitud_en_revision (modal)',
   conflicto_prestamo_activo: '409 — prestamo_activo (modal)',
+  plazo_invalido_para_monto: '422 — plazo_invalido_para_monto (modal)',
   no_elegible_403: '403 — solicitante_no_elegible (toast)',
   validacion_422: '422 — validation_error (sin UI hoy)',
   error_500: '500 — internal_error (toast)',

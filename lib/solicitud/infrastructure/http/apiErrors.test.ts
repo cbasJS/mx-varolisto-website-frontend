@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { ApiError, esErrorDeValidacion, esErrorDeConflicto } from './apiErrors'
+import {
+  ApiError,
+  esErrorDeConflicto,
+  esErrorDeValidacion,
+  esErrorPlazoInvalidoParaMonto,
+} from './apiErrors'
 import { clasificarError } from '@/lib/solicitud/application/useCases/submitSolicitud'
 
 describe('ApiError', () => {
@@ -61,10 +66,39 @@ describe('esErrorDeConflicto', () => {
   })
 })
 
+describe('esErrorPlazoInvalidoParaMonto', () => {
+  it('devuelve true para ApiError 422 con code "plazo_invalido_para_monto"', () => {
+    const err = new ApiError({ status: 422, code: 'plazo_invalido_para_monto' })
+    expect(esErrorPlazoInvalidoParaMonto(err)).toBe(true)
+  })
+
+  it('devuelve false para ApiError 422 con otro code (validation_error)', () => {
+    const err = new ApiError({ status: 422, code: 'validation_error' })
+    expect(esErrorPlazoInvalidoParaMonto(err)).toBe(false)
+  })
+
+  it('devuelve false para ApiError con status distinto a 422', () => {
+    const err = new ApiError({ status: 409, code: 'plazo_invalido_para_monto' })
+    expect(esErrorPlazoInvalidoParaMonto(err)).toBe(false)
+  })
+
+  it('devuelve false para errores que no son ApiError', () => {
+    expect(esErrorPlazoInvalidoParaMonto(new Error('genérico'))).toBe(false)
+    expect(esErrorPlazoInvalidoParaMonto(null)).toBe(false)
+  })
+})
+
 describe('clasificarError', () => {
   it('clasifica 409 como conflicto (folio duplicado)', () => {
     const resultado = clasificarError(new ApiError({ status: 409 }))
     expect(resultado).toEqual({ tipo: 'conflicto' })
+  })
+
+  it('clasifica 422 con code "plazo_invalido_para_monto" como tipo plazo_invalido_para_monto', () => {
+    const resultado = clasificarError(
+      new ApiError({ status: 422, code: 'plazo_invalido_para_monto' }),
+    )
+    expect(resultado).toEqual({ tipo: 'plazo_invalido_para_monto' })
   })
 
   it('clasifica 422 como validacion e incluye detalles por campo', () => {
