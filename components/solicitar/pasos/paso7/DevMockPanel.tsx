@@ -16,6 +16,7 @@ const ORDEN: MockSubmitCase[] = [
   'exito_201',
   'conflicto_solicitud_revision',
   'conflicto_prestamo_activo',
+  'plazo_invalido_para_monto',
   'no_elegible_403',
   'validacion_422',
   'error_500',

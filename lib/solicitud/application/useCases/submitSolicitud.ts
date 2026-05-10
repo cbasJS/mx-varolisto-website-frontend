@@ -4,6 +4,7 @@ import {
   ApiError,
   esErrorDeConflicto,
   esErrorDeValidacion,
+  esErrorPlazoInvalidoParaMonto,
 } from '@/lib/solicitud/infrastructure/http/apiErrors'
 import { buildPayload } from '@/lib/solicitud/domain/solicitud/buildPayload'
 import {
@@ -27,6 +28,7 @@ type DatosSolicitud = Partial<Paso1Data & Paso2Data & Paso3Data & Paso4Data & Pa
 
 export type ErrorSubmit =
   | { tipo: 'conflicto' }
+  | { tipo: 'plazo_invalido_para_monto' }
   | { tipo: 'validacion'; detalles?: Record<string, string[]> }
   | { tipo: 'red' }
   | { tipo: 'desconocido'; mensaje?: string }
@@ -62,6 +64,7 @@ export async function submitSolicitud(input: SubmitSolicitudInput): Promise<Subm
 
 export function clasificarError(err: unknown): ErrorSubmit {
   if (esErrorDeConflicto(err)) return { tipo: 'conflicto' }
+  if (esErrorPlazoInvalidoParaMonto(err)) return { tipo: 'plazo_invalido_para_monto' }
   if (esErrorDeValidacion(err)) return { tipo: 'validacion', detalles: (err as ApiError).detalles }
   if (err instanceof ApiError && err.status === 0) return { tipo: 'red' }
   return { tipo: 'desconocido', mensaje: err instanceof ApiError ? err.mensaje : undefined }
