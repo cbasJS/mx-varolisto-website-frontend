@@ -42,6 +42,7 @@ const inputBase: BuildPayloadInput = {
     estadoCivil: 'soltero',
     dependientesEconomicos: 'ninguno',
     ingresoMensual: 15000,
+    gastoMensual: 5000,
     tieneDeudas: 'no',
     // referencias (schema paso5)
     ref1Nombre: 'María Pérez',
@@ -79,8 +80,30 @@ describe('buildPayload', () => {
     expect(payload.antiguedad).toBe('mas_2')
     expect(payload.estadoCivil).toBe('soltero')
     expect(payload.dependientesEconomicos).toBe('ninguno')
-    expect(payload.tieneDeudas).toBe('no')
     expect(payload.ingresoMensual).toBe(15000) // mínimo $1,000 según schema
+    expect(payload.gastoMensual).toBe(5000) // Bloque 1.A: insumo para capacidad disponible v7
+  })
+
+  it('hardcodea tieneDeudas=no y cantidadDeudas=sin_deudas como dummies de transición (Bloque 1.A)', () => {
+    // El backend sigue esperando el contrato viejo hasta el Bloque 2. La UI ya
+    // no captura "tienes deudas", así que el payload envía 'no' / 'sin_deudas'
+    // sin importar lo que esté en el store. Defense in depth: incluso si una
+    // sesión stale tiene tieneDeudas='si', el payload sale como 'no'.
+    const inputConStale: BuildPayloadInput = {
+      ...inputBase,
+      datos: {
+        ...inputBase.datos,
+        tieneDeudas: 'si',
+        cantidadDeudas: 'una_deuda',
+        montoTotalDeudas: '5k_15k',
+        pagoMensualDeudas: 1500,
+      },
+    }
+    const payload = buildPayload(inputConStale)
+    expect(payload.tieneDeudas).toBe('no')
+    expect(payload.cantidadDeudas).toBe('sin_deudas')
+    expect(payload.montoTotalDeudas).toBeUndefined()
+    expect(payload.pagoMensualDeudas).toBeUndefined()
   })
 
   it('mapea las referencias con relaciones válidas', () => {

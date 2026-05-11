@@ -75,7 +75,7 @@ export async function llenarPaso4(page: Page) {
   // Ingreso
   const ingreso = page
     .locator("input[placeholder=' ']")
-    .filter({ has: page.locator("~ *:has-text('MXN')") })
+    .filter({ has: page.locator("~ *:has-text('MN')") })
     .first()
   await ingreso.click()
   await ingreso.fill('15000')

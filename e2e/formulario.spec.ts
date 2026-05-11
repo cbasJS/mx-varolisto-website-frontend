@@ -30,6 +30,7 @@ const DATOS_BASE = {
   estadoCivil: 'soltero',
   dependientesEconomicos: 'ninguno',
   ingresoMensual: 15000,
+  gastoMensual: 7500,
   tieneDeudas: 'no',
   cantidadDeudas: 'sin_deudas',
   ref1Nombre: 'Juan Pérez',

@@ -8,7 +8,7 @@ import {
 
 // formatCurrency se usa en Paso 4 para dos campos:
 //   - ingresoMensual: mín $1,000 (sin máximo)
-//   - pagoMensualDeudas: mín $0 (opcional)
+//   - gastoMensual: mín $0 (con stepper de $500 y refine cruzado vs ingresoMensual)
 
 describe('initCurrencyDisplay', () => {
   it('formatea el ingreso mínimo válido ($1,000) al cargar del store', () => {

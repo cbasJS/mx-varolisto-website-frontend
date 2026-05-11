@@ -1,6 +1,6 @@
 'use client'
 
-import { TrendingDown, CheckCircle2 } from 'lucide-react'
+import { Minus, Plus } from 'lucide-react'
 import { usePaso4 } from '@/hooks/solicitar/usePaso4'
 import type { Paso4Data } from '@/lib/solicitud/schemas/index'
 import { ANTIGUEDAD, ESTADO_CIVIL, DEPENDIENTES_ECONOMICOS } from '@varolisto/shared-schemas/enums'
@@ -11,14 +11,12 @@ import {
 } from '@/lib/solicitud/utils/lookup-labels'
 import { FloatingInput } from '@/components/forms/FloatingInput'
 import { FloatingSelect } from '@/components/forms/FloatingSelect'
-import { PillOption } from '@/components/forms/PillOption'
-import { PillGroup } from '@/components/forms/PillGroup'
-import { SectionDivider } from '@/components/forms/SectionDivider'
+import { FieldError } from '@/components/forms/FieldError'
 import { StepTitle } from '@/components/wizard/StepTitle'
 import { PasoFormShell } from '@/components/wizard/PasoFormShell'
 import { SelectorActividadLaboral } from './SelectorActividadLaboral'
-import { SeccionDeudas } from './SeccionDeudas'
 import { pasos } from '@/content/solicitar'
+import { cn } from '@/lib/utils'
 
 interface Props {
   onNext: (datos: Paso4Data) => void
@@ -34,8 +32,6 @@ export default function Paso4Economia({ onNext, onBack, actionsSlot }: Props) {
     errors,
     isValid,
     tipoActividad,
-    tieneDeudas,
-    cantidadDeudas,
     antiguedadActual,
     antiguedadOpen,
     setAntiguedadOpen,
@@ -45,15 +41,17 @@ export default function Paso4Economia({ onNext, onBack, actionsSlot }: Props) {
     dependientesActual,
     dependientesOpen,
     setDependientesOpen,
-    montoTotalDeudasActual,
-    montoTotalOpen,
-    setMontoTotalOpen,
     labelEmpleador,
     ingresoDisplay,
     ingresoHandlers,
-    pagoDeudaDisplay,
-    pagoDeudaHandlers,
+    gastoDisplay,
+    gastoHandlers,
+    incrementarGasto,
+    decrementarGasto,
+    puedeDecrementarGasto,
   } = usePaso4(onNext)
+
+  const gastoErrorMsg = errors.gastoMensual?.message
 
   return (
     <PasoFormShell
@@ -141,7 +139,7 @@ export default function Paso4Economia({ onNext, onBack, actionsSlot }: Props) {
           inputMode="numeric"
           error={errors.ingresoMensual?.message}
           prefix="$"
-          suffix="MXN"
+          suffix="MN"
           value={ingresoDisplay}
           onChange={ingresoHandlers.onChange}
           onBlur={ingresoHandlers.onBlur}
@@ -150,56 +148,83 @@ export default function Paso4Economia({ onNext, onBack, actionsSlot }: Props) {
         />
       </div>
 
-      <SectionDivider label="Otros compromisos" />
-
-      {/* ¿Tiene deudas? */}
-      <PillGroup
-        label="¿Tienes algún pago pendiente cada mes?"
-        required
-        error={errors.tieneDeudas?.message}
-        className="mb-4"
-        pillsClassName="grid grid-cols-1 md:grid-cols-2 gap-4"
-      >
-        {[
-          { value: 'si', label: 'Sí, tengo', icono: TrendingDown },
-          { value: 'no', label: 'No, ninguno', icono: CheckCircle2 },
-        ].map(({ value, label, icono }) => (
-          <PillOption
-            key={value}
-            selected={tieneDeudas === value}
-            onClick={() => {
-              setValue('tieneDeudas', value as 'si' | 'no', { shouldValidate: true })
-              if (value === 'no') {
-                setValue('cantidadDeudas', 'sin_deudas', { shouldValidate: true })
-              } else {
-                setValue('cantidadDeudas', undefined, { shouldValidate: true })
-              }
-            }}
-            icon={icono}
-            fullWidth
+      {/* Gasto mensual con stepper de $500 (Bloque 1.A v7) */}
+      {/* Mismo lenguaje visual que el FloatingInput de ingresoMensual:
+          wrapper rounded-full + border-2, prefijo $, sufijo MN, mismas
+          transiciones de borde. Los botones - / + se integran dentro del
+          mismo contenedor a la derecha, separados por un divider sutil.
+          El alto exterior coincide con el de ingresoMensual. */}
+      <div className="my-4">
+        <label
+          htmlFor="gastoMensual"
+          className="mb-2 flex items-center text-xs font-medium uppercase tracking-wider text-on-surface-variant"
+        >
+          Gasto mensual aproximado
+          <span className="ml-0.5 text-error" aria-hidden>
+            *
+          </span>
+        </label>
+        <div
+          className={cn(
+            'flex items-center rounded-full border-2 bg-white py-2 pl-4 pr-1.5 transition-colors duration-200',
+            gastoErrorMsg
+              ? 'border-error'
+              : 'border-gray-200 hover:border-outline-variant focus-within:border-primary',
+          )}
+        >
+          <span className="mr-2 shrink-0 text-sm text-outline">$</span>
+          <input
+            id="gastoMensual"
+            type="text"
+            inputMode="numeric"
+            value={gastoDisplay}
+            onChange={gastoHandlers.onChange}
+            onBlur={gastoHandlers.onBlur}
+            onFocus={gastoHandlers.onFocus}
+            placeholder=" "
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            aria-invalid={!!gastoErrorMsg}
+            aria-describedby={gastoErrorMsg ? 'gastoMensual-error' : 'gastoMensual-hint'}
+            className="w-full min-w-0 bg-transparent text-base text-on-surface outline-none placeholder:text-outline-variant md:text-sm"
+          />
+          <span className="mx-2 shrink-0 text-xs text-outline">MN</span>
+          <span className="mr-1 h-5 w-px shrink-0 bg-gray-200" aria-hidden />
+          <button
+            type="button"
+            onClick={decrementarGasto}
+            disabled={!puedeDecrementarGasto}
+            aria-label="Restar 500 pesos al gasto mensual"
+            className={cn(
+              'grid size-8 flex-none place-items-center rounded-lg text-on-surface-variant transition-colors duration-150',
+              'hover:bg-gray-100 hover:text-primary',
+              'active:bg-gray-200',
+              'disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:bg-transparent disabled:hover:text-gray-300',
+            )}
           >
-            {label}
-          </PillOption>
-        ))}
-      </PillGroup>
-
-      {tieneDeudas === 'si' && (
-        <SeccionDeudas
-          cantidadDeudas={cantidadDeudas}
-          onCantidadChange={(value) => setValue('cantidadDeudas', value, { shouldValidate: true })}
-          errorCantidad={errors.cantidadDeudas?.message}
-          montoTotalDeudas={montoTotalDeudasActual}
-          onMontoTotalChange={(value) =>
-            setValue('montoTotalDeudas', value, { shouldValidate: true })
-          }
-          montoTotalOpen={montoTotalOpen}
-          onMontoTotalOpenChange={setMontoTotalOpen}
-          errorMontoTotal={errors.montoTotalDeudas?.message}
-          pagoDisplay={pagoDeudaDisplay}
-          pagoHandlers={pagoDeudaHandlers}
-          errorPago={errors.pagoMensualDeudas?.message}
-        />
-      )}
+            <Minus className="size-4 stroke-[1.75]" />
+          </button>
+          <button
+            type="button"
+            onClick={incrementarGasto}
+            aria-label="Sumar 500 pesos al gasto mensual"
+            className={cn(
+              'ml-0.5 grid size-8 flex-none place-items-center rounded-lg text-on-surface-variant transition-colors duration-150',
+              'hover:bg-gray-100 hover:text-primary',
+              'active:bg-gray-200',
+            )}
+          >
+            <Plus className="size-4 stroke-[1.75]" />
+          </button>
+        </div>
+        <FieldError message={gastoErrorMsg} id="gastoMensual-error" />
+        {!gastoErrorMsg && (
+          <p id="gastoMensual-hint" className="mt-1.5 text-xs text-outline">
+            Renta, transporte, comida, deudas y demás gastos del mes.
+          </p>
+        )}
+      </div>
     </PasoFormShell>
   )
 }
