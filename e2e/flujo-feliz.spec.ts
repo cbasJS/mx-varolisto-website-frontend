@@ -36,6 +36,7 @@ const DATOS_COMPLETOS = {
   estadoCivil: 'soltero',
   dependientesEconomicos: 'ninguno',
   ingresoMensual: 8500,
+  gastoMensual: 4500,
   tieneDeudas: 'no',
   // Referencias (paso 5)
   ref1Nombre: 'Juan Pérez',

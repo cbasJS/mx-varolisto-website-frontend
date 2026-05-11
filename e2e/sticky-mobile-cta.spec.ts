@@ -400,6 +400,7 @@ test.describe('Paso 7 — CTAs durante el submit', () => {
                 tipoActividad: 'empleado_formal',
                 nombreEmpleadorNegocio: 'ACME Corp',
                 ingresoMensual: 15000,
+                gastoMensual: 6500,
                 tieneDeudas: 'no',
                 ref1Nombre: 'Juan Pérez',
                 ref1Telefono: '5598765432',

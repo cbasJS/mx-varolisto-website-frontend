@@ -76,10 +76,15 @@ export function buildPayload({
     estadoCivil: datos.estadoCivil!,
     dependientesEconomicos: datos.dependientesEconomicos!,
     ingresoMensual: datos.ingresoMensual!,
-    tieneDeudas: datos.tieneDeudas!,
-    cantidadDeudas: datos.cantidadDeudas,
-    montoTotalDeudas: datos.montoTotalDeudas,
-    pagoMensualDeudas: datos.pagoMensualDeudas,
+    gastoMensual: datos.gastoMensual!,
+    // Bloque 1.A — dummies de transición: la UI ya no captura "deudas", pero
+    // el contrato del backend todavía exige tieneDeudas/cantidadDeudas hasta
+    // que el Bloque 2 deje de pedirlos. Hardcodear protege ante sesiones
+    // stale que tengan tieneDeudas='si' del flujo anterior.
+    tieneDeudas: 'no' as const,
+    cantidadDeudas: 'sin_deudas' as const,
+    montoTotalDeudas: undefined,
+    pagoMensualDeudas: undefined,
     // Paso 5 (UI) — referencias (schema paso5)
     ref1Nombre: datos.ref1Nombre ?? '',
     ref1Telefono: datos.ref1Telefono ?? '',

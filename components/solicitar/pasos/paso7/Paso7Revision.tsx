@@ -263,7 +263,14 @@ export default function Paso7Revision({
                       : undefined
                   }
                 />
-                <Fila label="Deudas actuales" value={datos.tieneDeudas === 'si' ? 'Sí' : 'No'} />
+                <Fila
+                  label="Gasto mensual"
+                  value={
+                    typeof datos.gastoMensual === 'number'
+                      ? `$${datos.gastoMensual.toLocaleString('es-MX')} MXN`
+                      : undefined
+                  }
+                />
               </div>
             </SeccionCard>
 
