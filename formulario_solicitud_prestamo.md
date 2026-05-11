@@ -271,7 +271,7 @@ PASO 3 — Situación económica:
 - Select tipoActividad con las 5 opciones
 - Input nombreEmpleadorNegocio (label cambia según tipoActividad: "Empresa" si empleado, "Nombre de tu negocio" si negocio_propio)
 - Select antigüedad: "Menos de 1 año", "Entre 1 y 2 años", "Más de 2 años"
-- Input ingresoMensual con prefijo "$" y sufijo "MXN"
+- Input ingresoMensual con prefijo "$" y sufijo "MN"
 - Divider "Deudas actuales"
 - RadioGroup tieneDeudas (Sí / No)
 - Si tieneDeudas === "si": mostrar condicionalmente:

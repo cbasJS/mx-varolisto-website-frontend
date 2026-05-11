@@ -139,7 +139,7 @@ export default function Paso4Economia({ onNext, onBack, actionsSlot }: Props) {
           inputMode="numeric"
           error={errors.ingresoMensual?.message}
           prefix="$"
-          suffix="MXN"
+          suffix="MN"
           value={ingresoDisplay}
           onChange={ingresoHandlers.onChange}
           onBlur={ingresoHandlers.onBlur}
@@ -149,6 +149,11 @@ export default function Paso4Economia({ onNext, onBack, actionsSlot }: Props) {
       </div>
 
       {/* Gasto mensual con stepper de $500 (Bloque 1.A v7) */}
+      {/* Mismo lenguaje visual que el FloatingInput de ingresoMensual:
+          wrapper rounded-full + border-2, prefijo $, sufijo MN, mismas
+          transiciones de borde. Los botones - / + se integran dentro del
+          mismo contenedor a la derecha, separados por un divider sutil.
+          El alto exterior coincide con el de ingresoMensual. */}
       <div className="my-4">
         <label
           htmlFor="gastoMensual"
@@ -159,50 +164,58 @@ export default function Paso4Economia({ onNext, onBack, actionsSlot }: Props) {
             *
           </span>
         </label>
-        <div className="flex items-stretch gap-2">
+        <div
+          className={cn(
+            'flex items-center rounded-full border-2 bg-white py-2 pl-4 pr-1.5 transition-colors duration-200',
+            gastoErrorMsg
+              ? 'border-error'
+              : 'border-gray-200 hover:border-outline-variant focus-within:border-primary',
+          )}
+        >
+          <span className="mr-2 shrink-0 text-sm text-outline">$</span>
+          <input
+            id="gastoMensual"
+            type="text"
+            inputMode="numeric"
+            value={gastoDisplay}
+            onChange={gastoHandlers.onChange}
+            onBlur={gastoHandlers.onBlur}
+            onFocus={gastoHandlers.onFocus}
+            placeholder=" "
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            aria-invalid={!!gastoErrorMsg}
+            aria-describedby={gastoErrorMsg ? 'gastoMensual-error' : 'gastoMensual-hint'}
+            className="w-full min-w-0 bg-transparent text-base text-on-surface outline-none placeholder:text-outline-variant md:text-sm"
+          />
+          <span className="mx-2 shrink-0 text-xs text-outline">MN</span>
+          <span className="mr-1 h-5 w-px shrink-0 bg-gray-200" aria-hidden />
           <button
             type="button"
             onClick={decrementarGasto}
             disabled={!puedeDecrementarGasto}
             aria-label="Restar 500 pesos al gasto mensual"
-            className="grid w-12 flex-none place-items-center rounded-xl border-2 border-gray-200 bg-white text-primary transition-all active:scale-[0.96] hover:border-primary/40 active:border-primary active:bg-primary active:text-white disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-300 disabled:hover:border-gray-100"
-          >
-            <Minus className="size-5" />
-          </button>
-          <div
             className={cn(
-              'flex flex-1 items-center rounded-full border-2 bg-white px-4 py-3 transition-colors duration-200',
-              gastoErrorMsg
-                ? 'border-error'
-                : 'border-gray-200 hover:border-outline-variant focus-within:border-primary',
+              'grid size-8 flex-none place-items-center rounded-lg text-on-surface-variant transition-colors duration-150',
+              'hover:bg-gray-100 hover:text-primary',
+              'active:bg-gray-200',
+              'disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:bg-transparent disabled:hover:text-gray-300',
             )}
           >
-            <span className="mr-2 shrink-0 text-sm text-outline">$</span>
-            <input
-              id="gastoMensual"
-              type="text"
-              inputMode="numeric"
-              value={gastoDisplay}
-              onChange={gastoHandlers.onChange}
-              onBlur={gastoHandlers.onBlur}
-              onFocus={gastoHandlers.onFocus}
-              placeholder=" "
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              aria-invalid={!!gastoErrorMsg}
-              aria-describedby={gastoErrorMsg ? 'gastoMensual-error' : 'gastoMensual-hint'}
-              className="w-full bg-transparent text-base text-on-surface outline-none placeholder:text-outline-variant md:text-sm"
-            />
-            <span className="ml-2 shrink-0 text-xs text-outline">MXN</span>
-          </div>
+            <Minus className="size-4 stroke-[1.75]" />
+          </button>
           <button
             type="button"
             onClick={incrementarGasto}
             aria-label="Sumar 500 pesos al gasto mensual"
-            className="grid w-12 flex-none place-items-center rounded-xl border-2 border-gray-200 bg-white text-primary transition-all active:scale-[0.96] hover:border-primary/40 active:border-primary active:bg-primary active:text-white"
+            className={cn(
+              'ml-0.5 grid size-8 flex-none place-items-center rounded-lg text-on-surface-variant transition-colors duration-150',
+              'hover:bg-gray-100 hover:text-primary',
+              'active:bg-gray-200',
+            )}
           >
-            <Plus className="size-5" />
+            <Plus className="size-4 stroke-[1.75]" />
           </button>
         </div>
         <FieldError message={gastoErrorMsg} id="gastoMensual-error" />

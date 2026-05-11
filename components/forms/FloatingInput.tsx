@@ -14,7 +14,7 @@ interface FloatingInputProps extends Omit<React.InputHTMLAttributes<HTMLInputEle
   labelSuffix?: React.ReactNode
   /** Renderizado dentro del input, a la izquierda (e.g. "$" o icono). */
   prefix?: React.ReactNode
-  /** Renderizado dentro del input, a la derecha (e.g. "MXN"). */
+  /** Renderizado dentro del input, a la derecha (e.g. "MN"). */
   suffix?: React.ReactNode
 }
 

@@ -259,7 +259,7 @@ export default function Paso7Revision({
                   label="Ingreso mensual"
                   value={
                     datos.ingresoMensual
-                      ? `$${datos.ingresoMensual.toLocaleString('es-MX')} MXN`
+                      ? `$${datos.ingresoMensual.toLocaleString('es-MX')} MN`
                       : undefined
                   }
                 />
@@ -267,7 +267,7 @@ export default function Paso7Revision({
                   label="Gasto mensual"
                   value={
                     typeof datos.gastoMensual === 'number'
-                      ? `$${datos.gastoMensual.toLocaleString('es-MX')} MXN`
+                      ? `$${datos.gastoMensual.toLocaleString('es-MX')} MN`
                       : undefined
                   }
                 />
