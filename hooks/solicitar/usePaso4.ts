@@ -14,6 +14,7 @@ import {
   formatCurrencyOnFocus,
 } from '@/lib/solicitud/utils/formatCurrency'
 import { useAutoSave } from './useAutoSave'
+import { useEdicionesTracking } from '@/lib/solicitud/infrastructure/telemetria'
 import { normalizeRegister } from '@/lib/solicitud/utils/normalizeRegister'
 
 export function usePaso4(onNext: (datos: Paso4Data) => void) {
@@ -129,6 +130,7 @@ export function usePaso4(onNext: (datos: Paso4Data) => void) {
     typeof gastoMensualActual === 'number' && gastoMensualActual > GASTO_MENSUAL_MIN
 
   useAutoSave(watch, 4)
+  useEdicionesTracking(watch)
 
   return {
     register,

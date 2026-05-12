@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { paso1Schema, type Paso1Data } from '@/lib/solicitud/schemas/index'
 import { useSolicitudStore } from '@/lib/solicitud/store'
 import { useAutoSave } from './useAutoSave'
+import { useEdicionesTracking } from '@/lib/solicitud/infrastructure/telemetria'
 import { normalizeRegister } from '@/lib/solicitud/utils/normalizeRegister'
 
 export function usePaso2(onNext: (datos: Paso1Data) => void) {
@@ -54,6 +55,7 @@ export function usePaso2(onNext: (datos: Paso1Data) => void) {
   const curpValue = useWatch({ control, name: 'curp' }) ?? ''
 
   useAutoSave(watch, 2)
+  useEdicionesTracking(watch)
 
   return {
     register,

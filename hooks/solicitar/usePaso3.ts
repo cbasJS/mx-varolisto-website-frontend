@@ -13,6 +13,7 @@ import {
 import { getCpErrorMessage } from '@/lib/solicitud/application/useCases/getCpErrorMessage'
 import { COLONIAS_STALE_TIME_MS } from '@/lib/config'
 import { useAutoSave } from './useAutoSave'
+import { useEdicionesTracking } from '@/lib/solicitud/infrastructure/telemetria'
 import { normalizeRegister } from '@/lib/solicitud/utils/normalizeRegister'
 
 export function usePaso3(onNext: (datos: Paso3Data) => void) {
@@ -103,6 +104,7 @@ export function usePaso3(onNext: (datos: Paso3Data) => void) {
   }, [colonias, setValue, coloniaActual, codigoPostal])
 
   useAutoSave(watch, 3)
+  useEdicionesTracking(watch)
 
   return {
     register,

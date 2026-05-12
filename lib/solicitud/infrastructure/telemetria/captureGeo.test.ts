@@ -39,7 +39,7 @@ describe('capturarGeolocalizacion', () => {
     process.env.NEXT_PUBLIC_TELEMETRIA_GEO_ENABLED = '1'
     Object.defineProperty(navigator, 'geolocation', {
       value: {
-        getCurrentPosition: (ok: (p: GeolocationPosition) => void, _err: PositionErrorCallback) => {
+        getCurrentPosition: (ok: (p: GeolocationPosition) => void) => {
           ok({
             coords: {
               latitude: 19.4326,

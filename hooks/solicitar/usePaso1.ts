@@ -8,6 +8,7 @@ import { useSolicitudStore } from '@/lib/solicitud/store'
 import { calcularCuota, TASA_MENSUAL } from '@/lib/solicitud/utils/calcularCuota'
 import { getPlazoMaximo, getPlazosDisponibles } from '@varolisto/shared-schemas/domain'
 import { useAutoSave } from './useAutoSave'
+import { useEdicionesTracking } from '@/lib/solicitud/infrastructure/telemetria'
 
 export function usePaso1(onNext: (datos: Paso2Data) => void) {
   const datos = useSolicitudStore((s) => s.datos)
@@ -45,6 +46,7 @@ export function usePaso1(onNext: (datos: Paso2Data) => void) {
   }, [monto, plazoStr, plazosDisponibles, setValue])
 
   useAutoSave(watch, 1)
+  useEdicionesTracking(watch)
 
   return {
     handleSubmit: handleSubmit(onNext),

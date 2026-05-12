@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import type { TelemetriaSolicitud } from '@varolisto/shared-schemas/form'
 import { getStepDirection, type StepDirection } from '@/lib/animations'
 import { useSolicitudStore } from '@/lib/solicitud/store'
 import { useSetSubmitting } from '@/lib/solicitud/submitting-context'
@@ -26,7 +27,17 @@ type PasoData = Partial<
   Paso1Data & Paso2Data & Paso3Data & Paso4Data & Paso5Data & Paso6StoreData & Paso7Data
 >
 
-export function useSolicitudNavigation() {
+export interface UseSolicitudNavigationOptions {
+  /**
+   * Bloque 1.B — provider de telemetría inyectado por el orquestador del
+   * formulario. Si está presente y devuelve un payload válido, se anexa al
+   * POST. Si devuelve null o si lanza, la solicitud se manda sin telemetría.
+   */
+  getTelemetriaPayload?: () => TelemetriaSolicitud | null
+}
+
+export function useSolicitudNavigation(options: UseSolicitudNavigationOptions = {}) {
+  const { getTelemetriaPayload } = options
   const pasoActual = useSolicitudStore((s) => s.pasoActual)
   const setPaso = useSolicitudStore((s) => s.setPaso)
   const guardarPaso = useSolicitudStore((s) => s.guardarPaso)
@@ -79,6 +90,14 @@ export function useSolicitudNavigation() {
     setEnviandoSync(true)
     setErrorSubmit(null)
 
+    // Telemetría — opcional. Si falla, mandamos sin el bloque y seguimos.
+    let telemetria: TelemetriaSolicitud | null = null
+    try {
+      telemetria = getTelemetriaPayload?.() ?? null
+    } catch {
+      telemetria = null
+    }
+
     try {
       const { folio } = await submitSolicitud({
         datos,
@@ -86,6 +105,7 @@ export function useSolicitudNavigation() {
         tipoIdentificacion: tipoIdentificacion!,
         archivosSubidos,
         paso7Data,
+        ...(telemetria ? { telemetria } : {}),
       })
       resetForm()
       setFolio(folio)
