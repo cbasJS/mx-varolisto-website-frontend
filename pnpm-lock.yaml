@@ -15,8 +15,8 @@ importers:
         specifier: ^5.99.2
         version: 5.100.5(react@18.3.1)
       '@varolisto/shared-schemas':
-        specifier: ^0.12.0
-        version: 0.12.0(zod@4.3.6)
+        specifier: ^0.13.0
+        version: 0.13.0(zod@4.3.6)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1822,8 +1822,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@varolisto/shared-schemas@0.12.0':
-    resolution: {integrity: sha512-gMkc0ryg1uyStCmF+0nR3K/g8lAqmM/3vXgjpP2eYTy1Ew9nsAJVoDIApiZoVIcsZozmP4iNBOQB5bM2RJInNA==, tarball: https://npm.pkg.github.com/download/@varolisto/shared-schemas/0.12.0/8d342b49f2d291fe7dfe080cf56a6c61c0db4f23}
+  '@varolisto/shared-schemas@0.13.0':
+    resolution: {integrity: sha512-/IpezP9zz0pVqzlL7I2OHxhZOZ1dVzFzi2x0S6Fbfgscx556MmngJl9R3C9GempA3pcaGwqFbGac5mvzktvvmg==, tarball: https://npm.pkg.github.com/download/@varolisto/shared-schemas/0.13.0/f39f430e7184f543a9900304a0735ac1363eadb4}
     peerDependencies:
       zod: ^4.0.0
 
@@ -6473,7 +6473,7 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@varolisto/shared-schemas@0.12.0(zod@4.3.6)':
+  '@varolisto/shared-schemas@0.13.0(zod@4.3.6)':
     dependencies:
       zod: 4.3.6
 
