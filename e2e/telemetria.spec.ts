@@ -74,6 +74,15 @@ const ARCHIVOS_COMPLETOS = [
     archivoId: 'arch-0003',
   },
   {
+    clienteId: 'cliente-comprobante-2',
+    tipoArchivo: 'comprobante_ingreso',
+    nombreOriginal: 'nomina_marzo.jpg',
+    mimeType: 'image/jpeg',
+    tamanoBytes: 298000,
+    storagePath: `staging/${SESSION_UUID}/nomina_marzo.jpg`,
+    archivoId: 'arch-0003b',
+  },
+  {
     clienteId: 'cliente-domicilio',
     tipoArchivo: 'comprobante_domicilio',
     nombreOriginal: 'recibo_luz.pdf',
@@ -84,10 +93,18 @@ const ARCHIVOS_COMPLETOS = [
   },
 ]
 
+// Flag-guard para que el init script sólo inyecte una vez por test, sin
+// re-poblar sessionStorage en navegaciones subsecuentes (post-submit a "/").
+const SETUP_FLAG = 'vl-e2e-setup-injected'
+
 async function inyectarStore(page: import('@playwright/test').Page) {
-  await page.goto('/solicitar')
-  await page.evaluate(
-    ({ datos, archivos, sessionUuid }) => {
+  // addInitScript corre antes que cualquier script de la página. Reemplaza
+  // el patrón goto → evaluate → reload, que bajo carga del dev server permite
+  // que el inicializarSession() del primer mount sobreescriba la inyección
+  // antes del reload, dejando la página en Paso 1.
+  await page.addInitScript(
+    ({ datos, archivos, sessionUuid, flag }) => {
+      if (sessionStorage.getItem(flag) === 'true') return
       const store = {
         state: {
           pasoActual: 7,
@@ -101,10 +118,16 @@ async function inyectarStore(page: import('@playwright/test').Page) {
         version: 0,
       }
       sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
+      sessionStorage.setItem(flag, 'true')
     },
-    { datos: DATOS_COMPLETOS, archivos: ARCHIVOS_COMPLETOS, sessionUuid: SESSION_UUID },
+    {
+      datos: DATOS_COMPLETOS,
+      archivos: ARCHIVOS_COMPLETOS,
+      sessionUuid: SESSION_UUID,
+      flag: SETUP_FLAG,
+    },
   )
-  await page.reload()
+  await page.goto('/solicitar')
 }
 
 test.describe('Telemetría (Bloque 1.B) — payload del POST /api/solicitudes', () => {
