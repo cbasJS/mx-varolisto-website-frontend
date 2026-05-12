@@ -48,7 +48,7 @@ describe('usePaso4 — validación cruzada gasto vs ingreso', () => {
     // explicación.
     await waitFor(() => {
       expect(result.current.errors.gastoMensual?.message).toBe(
-        'Tu gasto no puede ser mayor que tu ingreso',
+        'Tus gastos mensuales no pueden superar tus ingresos',
       )
     })
   })
@@ -66,7 +66,7 @@ describe('usePaso4 — validación cruzada gasto vs ingreso', () => {
 
     await waitFor(() => {
       expect(result.current.errors.gastoMensual?.message).toBe(
-        'Tu gasto no puede ser mayor que tu ingreso',
+        'Tus gastos mensuales no pueden superar tus ingresos',
       )
     })
   })
@@ -83,7 +83,7 @@ describe('usePaso4 — validación cruzada gasto vs ingreso', () => {
 
     await waitFor(() => {
       expect(result.current.errors.gastoMensual?.message).toBe(
-        'Tu gasto no puede ser mayor que tu ingreso',
+        'Tus gastos mensuales no pueden superar tus ingresos',
       )
     })
 
