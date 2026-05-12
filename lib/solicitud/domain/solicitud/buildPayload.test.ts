@@ -222,3 +222,124 @@ describe('buildPayload', () => {
     expect(payload.archivosDeclarados[0].tipoArchivo).toBe('pasaporte_principal')
   })
 })
+
+// Telemetría — Bloque 1.B del scoring v7.
+// El bloque es opcional en el contrato de @varolisto/shared-schemas: si la
+// captura falla por cualquier razón, la solicitud se manda igual (la
+// telemetría es complementaria, no requisito).
+describe('buildPayload — bloque telemetría', () => {
+  // Datos representativos de una captura real: 4 minutos llenando el form,
+  // pasos 2-6 medidos. Pasos 1 (landing) y 7 (revisión) capturados pero
+  // fuera del cálculo anti-fraude del Bloque 2C.
+  const telemetriaBase = {
+    iniciadoEn: '2026-05-12T10:00:00.000Z',
+    enviadoEn: '2026-05-12T10:04:30.000Z',
+    duracionTotalMs: 270_000, // 4m30s wall-clock
+    tiemposPaso: {
+      paso1Ms: 12_000, // 12s mirando el slider de la calculadora
+      paso2Ms: 45_000, // 45s identidad
+      paso3Ms: 60_000, // 60s domicilio (incluye espera de colonias)
+      paso4Ms: 30_000, // 30s economía
+      paso5Ms: 25_000, // 25s referencias
+      paso6Ms: 50_000, // 50s subir docs
+      paso7Ms: 8_000, // 8s revisión rápida
+    },
+    // Suma de paso2..paso6 = 210_000ms (3m30s captura real de datos)
+    tiempoCapturaFormularioMs: 210_000,
+    edicionesPorCampo: {
+      nombre: 1,
+      curp: 3,
+      codigoPostal: 2,
+    },
+    dispositivo: {
+      userAgent:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+      viewport: { width: 390, height: 844 }, // iPhone 14 Pro vertical
+      idioma: 'es-MX',
+      zonaHoraria: 'America/Mexico_City',
+      plataforma: 'MacIntel',
+    },
+    red: { referrer: 'https://www.google.com/' },
+    fingerprint: 'abc123def456deadbeef',
+  } as const
+
+  it('incluye el bloque telemetria tal cual cuando viene completo', () => {
+    const payload = buildPayload({ ...inputBase, telemetria: telemetriaBase })
+    expect(payload.telemetria).toBeDefined()
+    expect(payload.telemetria?.iniciadoEn).toBe('2026-05-12T10:00:00.000Z')
+    expect(payload.telemetria?.enviadoEn).toBe('2026-05-12T10:04:30.000Z')
+    expect(payload.telemetria?.dispositivo.zonaHoraria).toBe('America/Mexico_City')
+    expect(payload.telemetria?.fingerprint).toBe('abc123def456deadbeef')
+  })
+
+  it('cuando los pasos 2-6 están todos medidos, tiempoCapturaFormularioMs es la suma exacta', () => {
+    const payload = buildPayload({ ...inputBase, telemetria: telemetriaBase })
+    const suma =
+      telemetriaBase.tiemposPaso.paso2Ms +
+      telemetriaBase.tiemposPaso.paso3Ms +
+      telemetriaBase.tiemposPaso.paso4Ms +
+      telemetriaBase.tiemposPaso.paso5Ms +
+      telemetriaBase.tiemposPaso.paso6Ms
+    // Restricción del schema (refine): equality estricta cuando los 5 están medidos.
+    expect(payload.telemetria?.tiempoCapturaFormularioMs).toBe(suma)
+    expect(suma).toBe(210_000)
+  })
+
+  it('cuando algún paso 2-6 es null, tiempoCapturaFormularioMs suma sólo los medidos', () => {
+    const telemetriaParcial = {
+      ...telemetriaBase,
+      tiemposPaso: {
+        ...telemetriaBase.tiemposPaso,
+        paso3Ms: null, // El usuario nunca pasó por el paso 3 (impossible en flujo normal pero defensivo)
+        paso5Ms: null,
+      },
+      tiempoCapturaFormularioMs:
+        telemetriaBase.tiemposPaso.paso2Ms +
+        telemetriaBase.tiemposPaso.paso4Ms +
+        telemetriaBase.tiemposPaso.paso6Ms,
+    }
+    const payload = buildPayload({ ...inputBase, telemetria: telemetriaParcial })
+    // Cuando hay nulls, el refine del schema no verifica equality — el cliente
+    // decide qué mandar y el backend lo acepta. Nuestra suma debe excluir nulls.
+    expect(payload.telemetria?.tiempoCapturaFormularioMs).toBe(125_000)
+    expect(payload.telemetria?.tiemposPaso.paso3Ms).toBeNull()
+    expect(payload.telemetria?.tiemposPaso.paso5Ms).toBeNull()
+  })
+
+  it('si no se proporciona telemetria, el payload sale sin el bloque (opcional por contrato)', () => {
+    const payload = buildPayload(inputBase)
+    expect(payload.telemetria).toBeUndefined()
+  })
+
+  it('preserva geolocalización cuando el feature flag la capturó', () => {
+    const telemetriaConGeo = {
+      ...telemetriaBase,
+      geolocalizacion: {
+        lat: 19.4326,
+        lon: -99.1332,
+        precisionMetros: 50,
+        capturadaEn: '2026-05-12T10:00:05.000Z',
+      },
+    }
+    const payload = buildPayload({ ...inputBase, telemetria: telemetriaConGeo })
+    expect(payload.telemetria?.geolocalizacion?.lat).toBe(19.4326)
+    expect(payload.telemetria?.geolocalizacion?.lon).toBe(-99.1332)
+  })
+
+  it('omite red y fingerprint opcionales cuando no se capturan', () => {
+    const telemetriaMinima = {
+      iniciadoEn: '2026-05-12T10:00:00.000Z',
+      enviadoEn: '2026-05-12T10:04:30.000Z',
+      duracionTotalMs: 270_000,
+      tiemposPaso: telemetriaBase.tiemposPaso,
+      tiempoCapturaFormularioMs: 210_000,
+      edicionesPorCampo: {},
+      dispositivo: telemetriaBase.dispositivo,
+    }
+    const payload = buildPayload({ ...inputBase, telemetria: telemetriaMinima })
+    expect(payload.telemetria).toBeDefined()
+    expect(payload.telemetria?.red).toBeUndefined()
+    expect(payload.telemetria?.fingerprint).toBeUndefined()
+    expect(payload.telemetria?.geolocalizacion).toBeUndefined()
+  })
+})
