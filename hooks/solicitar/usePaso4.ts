@@ -25,6 +25,7 @@ export function usePaso4(onNext: (datos: Paso4Data) => void) {
     control,
     watch,
     setValue,
+    trigger,
     formState: { errors, isValid },
   } = useForm<Paso4Data>({
     resolver: zodResolver(paso4Schema),
@@ -74,6 +75,11 @@ export function usePaso4(onNext: (datos: Paso4Data) => void) {
       const { display, num } = formatCurrencyOnChange(e.target.value)
       setIngresoDisplay(display)
       setValue('ingresoMensual', num as number, { shouldValidate: true })
+      // El refine cruzado de paso4Schema asigna el error a path ['gastoMensual'].
+      // RHF, al hacer shouldValidate sobre 'ingresoMensual', solo aplica errores
+      // de ese path al formState — el cruzado quedaría invisible. Forzamos la
+      // revalidación de gastoMensual para que el mensaje sí aparezca.
+      void trigger('gastoMensual')
     },
     onBlur: () => setIngresoDisplay(formatCurrencyOnBlur(ingresoDisplay)),
     onFocus: () => setIngresoDisplay(formatCurrencyOnFocus(ingresoDisplay)),
