@@ -1,14 +1,22 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import {
+  TELEMETRIA_CAMPO_KEY_REGEX,
+  TELEMETRIA_CAMPO_MAX_LENGTH,
+  TELEMETRIA_EDICIONES_MAX_KEYS,
+  TELEMETRIA_EDICIONES_MAX_VALUE,
+} from '@varolisto/shared-schemas'
 import type {
   ArchivoSubido,
+  NumeroPasoTelemetria,
   SolicitudState,
   SolicitudActions,
+  TiemposPaso,
 } from '@/lib/solicitud/domain/solicitud/types'
 import type { CopomexResponse } from '@/lib/solicitud/infrastructure/colonias/types'
 import { generateUUID } from '@/lib/utils'
 
-export type { ArchivoSubido, SolicitudState, SolicitudActions }
+export type { ArchivoSubido, SolicitudState, SolicitudActions, TiemposPaso }
 
 // PII en sessionStorage tiene un horizonte limitado: si la sesión queda
 // inactiva más de 2h, descartamos los datos al rehidratar. Reduce la
@@ -16,16 +24,37 @@ export type { ArchivoSubido, SolicitudState, SolicitudActions }
 // alinea la persistencia al tiempo realista de completar la solicitud.
 const PII_TTL_MS = 2 * 60 * 60 * 1000
 
+const PASO_MIN: NumeroPasoTelemetria = 1
+const PASO_MAX: NumeroPasoTelemetria = 7
+
+const tiemposPasoIniciales = (): TiemposPaso => ({
+  paso1Ms: null,
+  paso2Ms: null,
+  paso3Ms: null,
+  paso4Ms: null,
+  paso5Ms: null,
+  paso6Ms: null,
+  paso7Ms: null,
+})
+
 const estadoInicial: SolicitudState = {
   pasoActual: 1,
   datos: {},
   timestampInicio: Date.now(),
+  iniciadoEn: null,
   coloniasCache: {},
   sessionUuid: null,
   archivosSubidos: [],
   tipoIdentificacion: null,
   comprobantes: [],
+  tiemposPaso: tiemposPasoIniciales(),
+  pasoActualEntrada: null,
+  edicionesPorCampo: {},
   _hasHydrated: false,
+}
+
+function esPasoValido(paso: number): paso is NumeroPasoTelemetria {
+  return Number.isInteger(paso) && paso >= PASO_MIN && paso <= PASO_MAX
 }
 
 export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
@@ -38,9 +67,11 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
       setColoniasCache: (cp, data: CopomexResponse[]) =>
         set((s) => ({ coloniasCache: { ...s.coloniasCache, [cp]: data } })),
       inicializarSession: () => {
-        if (!get().sessionUuid) {
-          set({ sessionUuid: generateUUID() })
-        }
+        const s = get()
+        const patch: Partial<SolicitudState> = {}
+        if (!s.sessionUuid) patch.sessionUuid = generateUUID()
+        if (!s.iniciadoEn) patch.iniciadoEn = new Date().toISOString()
+        if (Object.keys(patch).length > 0) set(patch)
       },
       agregarArchivoSubido: (archivo) =>
         set((s) => {
@@ -66,8 +97,53 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
           // intento de envío no se aborte por `if (!sessionUuid) return`.
           _hasHydrated: true,
           sessionUuid: generateUUID(),
+          // Telemetría — la reseteamos a estado inicial: la solicitud anterior
+          // ya viajó con su captura propia; la siguiente empieza con la cuenta
+          // en cero. iniciadoEn vuelve a null para que el próximo mount lo
+          // setee fresco.
+          iniciadoEn: null,
+          tiemposPaso: tiemposPasoIniciales(),
+          pasoActualEntrada: null,
+          edicionesPorCampo: {},
         }),
       setHasHydrated: (value) => set({ _hasHydrated: value }),
+      marcarEntradaPaso: (paso) => {
+        if (!esPasoValido(paso)) return
+        const s = get()
+        const ahora = Date.now()
+        const patch: Partial<SolicitudState> = { pasoActualEntrada: ahora }
+
+        // Si había un paso abierto, acumulamos su tiempo en tiemposPaso[paso{N}Ms].
+        // Permite re-entradas: si el usuario vuelve al mismo paso, los ms se
+        // suman al acumulado existente en lugar de sobreescribir.
+        if (s.pasoActualEntrada !== null && esPasoValido(s.pasoActual)) {
+          const delta = Math.max(0, ahora - s.pasoActualEntrada)
+          const key = `paso${s.pasoActual}Ms` as keyof TiemposPaso
+          const acumulado = s.tiemposPaso[key] ?? 0
+          patch.tiemposPaso = { ...s.tiemposPaso, [key]: acumulado + delta }
+        }
+
+        set(patch)
+      },
+      incrementarEdicion: (nombreCampo) => {
+        if (typeof nombreCampo !== 'string') return
+        if (nombreCampo.length === 0 || nombreCampo.length > TELEMETRIA_CAMPO_MAX_LENGTH) return
+        if (!TELEMETRIA_CAMPO_KEY_REGEX.test(nombreCampo)) return
+
+        const ediciones = get().edicionesPorCampo
+        const yaExiste = Object.prototype.hasOwnProperty.call(ediciones, nombreCampo)
+
+        // Si la key no existe y ya estamos en el máximo de keys, no agregamos
+        // una nueva — el schema rechazaría el payload completo en el backend.
+        if (!yaExiste && Object.keys(ediciones).length >= TELEMETRIA_EDICIONES_MAX_KEYS) {
+          return
+        }
+
+        const actual = ediciones[nombreCampo] ?? 0
+        // Clamp al máximo para no exceder el schema.
+        const siguiente = Math.min(actual + 1, TELEMETRIA_EDICIONES_MAX_VALUE)
+        set({ edicionesPorCampo: { ...ediciones, [nombreCampo]: siguiente } })
+      },
     }),
     {
       name: 'vl-solicitud',
@@ -92,6 +168,12 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
       // rehidrata barato desde /api/colonias (con revalidate 24h del lado del
       // server). Persistirlo aumenta la superficie de PII en sessionStorage
       // sin beneficio claro de UX.
+      //
+      // Tampoco se persiste el bloque de telemetría (`iniciadoEn`,
+      // `tiemposPaso`, `pasoActualEntrada`, `edicionesPorCampo`): vive sólo
+      // en memoria y viaja en el payload del POST. Si la pestaña muere antes
+      // del submit, la captura se pierde — la telemetría es opcional por
+      // contrato, no bloquea el envío.
       partialize: (state) =>
         ({
           pasoActual: state.pasoActual,
