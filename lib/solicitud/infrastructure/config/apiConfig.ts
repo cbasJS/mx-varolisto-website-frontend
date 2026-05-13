@@ -14,10 +14,18 @@
 
 export type Ambiente = 'local' | 'sandbox' | 'production'
 
+// Acceso centralizado a NEXT_PUBLIC_ENV: Next.js inlinea el literal en build
+// time, así que el bundler puede seguir aplicando dead-code elimination en
+// quienes consumen esta constante (ej. dev/mockSubmit.ts).
+export const NEXT_PUBLIC_ENV = process.env.NEXT_PUBLIC_ENV
+
 function resolverAmbiente(): Ambiente {
-  const explicit = process.env.NEXT_PUBLIC_ENV
-  if (explicit === 'local' || explicit === 'sandbox' || explicit === 'production') {
-    return explicit
+  if (
+    NEXT_PUBLIC_ENV === 'local' ||
+    NEXT_PUBLIC_ENV === 'sandbox' ||
+    NEXT_PUBLIC_ENV === 'production'
+  ) {
+    return NEXT_PUBLIC_ENV
   }
   if (process.env.NODE_ENV === 'production') return 'production'
   if (process.env.NODE_ENV === 'test') return 'sandbox'
