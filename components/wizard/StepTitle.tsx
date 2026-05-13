@@ -1,16 +1,6 @@
 'use client'
 
-export function StepTitle({
-  numero,
-  total,
-  titulo,
-  subtitulo,
-}: {
-  numero: number
-  total: number
-  titulo: string
-  subtitulo?: string
-}) {
+export function StepTitle({ titulo, subtitulo }: { titulo: string; subtitulo?: string }) {
   return (
     <div className="mb-7">
       <h2 className="font-headline text-2xl font-bold text-on-surface">{titulo}</h2>

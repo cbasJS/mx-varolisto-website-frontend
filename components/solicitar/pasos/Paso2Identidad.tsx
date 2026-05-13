@@ -11,7 +11,6 @@ import { PillOption } from '@/components/forms/PillOption'
 import { PillGroup } from '@/components/forms/PillGroup'
 import { StepTitle } from '@/components/wizard/StepTitle'
 import { PasoFormShell } from '@/components/wizard/PasoFormShell'
-import { pasos } from '@/content/solicitar'
 
 interface Props {
   onNext: (datos: Paso1Data) => void
@@ -42,8 +41,6 @@ export default function Paso2Identidad({ onNext, onBack, actionsSlot }: Props) {
       actionsSlot={actionsSlot}
     >
       <StepTitle
-        numero={2}
-        total={pasos.length}
         titulo="Cuéntanos quién eres"
         subtitulo="Estos datos son sólo para validar tu identidad. Nada se comparte con terceros."
       />
