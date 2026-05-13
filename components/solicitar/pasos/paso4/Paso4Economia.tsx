@@ -15,7 +15,6 @@ import { FieldError } from '@/components/forms/FieldError'
 import { StepTitle } from '@/components/wizard/StepTitle'
 import { PasoFormShell } from '@/components/wizard/PasoFormShell'
 import { SelectorActividadLaboral } from './SelectorActividadLaboral'
-import { pasos } from '@/content/solicitar'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -61,8 +60,6 @@ export default function Paso4Economia({ onNext, onBack, actionsSlot }: Props) {
       actionsSlot={actionsSlot}
     >
       <StepTitle
-        numero={4}
-        total={pasos.length}
         titulo="Sobre tu trabajo y finanzas"
         subtitulo="Con esto definimos la cuota y el plazo más cómodos para ti."
       />

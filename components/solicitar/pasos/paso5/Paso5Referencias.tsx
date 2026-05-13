@@ -7,7 +7,6 @@ import { PasoFormShell } from '@/components/wizard/PasoFormShell'
 import { InfoBanner } from '@/components/forms/InfoBanner'
 import { SectionDivider } from '@/components/forms/SectionDivider'
 import { RefCard } from './RefCard'
-import { pasos } from '@/content/solicitar'
 
 interface Props {
   onNext: (datos: Paso5Data) => void
@@ -26,8 +25,6 @@ export default function Paso5Referencias({ onNext, onBack, actionsSlot }: Props)
       actionsSlot={actionsSlot}
     >
       <StepTitle
-        numero={5}
-        total={pasos.length}
         titulo="Dos contactos de confianza"
         subtitulo="Personas que puedan confirmar quién eres si las llamamos."
       />

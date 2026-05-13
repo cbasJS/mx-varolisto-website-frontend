@@ -15,7 +15,6 @@ import { ListaEntradas } from './ListaEntradas'
 import { DropzoneCard } from './DropzoneCard'
 import { ToggleSinEstadosCuenta } from './ToggleSinEstadosCuenta'
 import { AvisoDuplicados } from './AvisoDuplicados'
-import { pasos } from '@/content/solicitar'
 
 export type { Paso6StoreData }
 
@@ -41,12 +40,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
     entradasDomicilio,
     eliminarEntrada,
     reintentarUpload,
-    hayEnVuelo,
     puedeAvanzar,
-    idCompleta,
-    tieneComprobante,
-    minComprobantes,
-    comprobantesSubidosYa,
     sinEstadosCuenta,
     setSinEstadosCuenta,
     copyDocumentos,
@@ -81,8 +75,6 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
       actionsSlot={actionsSlot}
     >
       <StepTitle
-        numero={6}
-        total={pasos.length}
         titulo="Sube tus documentos"
         subtitulo="Tus documentos para verificar identidad, ingresos y domicilio. Te toma menos de 1 minuto."
       />
