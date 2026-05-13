@@ -6,6 +6,7 @@ import {
   TELEMETRIA_EDICIONES_MAX_KEYS,
   TELEMETRIA_EDICIONES_MAX_VALUE,
 } from '@varolisto/shared-schemas'
+import { NEXT_PUBLIC_ENV } from '@/lib/solicitud/infrastructure/config/apiConfig'
 import type {
   ArchivoSubido,
   NumeroPasoTelemetria,
@@ -230,7 +231,7 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
     // diff de acciones y inspección del state desde el panel del navegador.
     {
       name: 'solicitud-store',
-      enabled: process.env.NODE_ENV !== 'production',
+      enabled: NEXT_PUBLIC_ENV !== 'production',
     },
   ),
 )

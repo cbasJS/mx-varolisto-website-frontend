@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@fingerprintjs/fingerprintjs', () => {
   let visitorId = 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'
@@ -98,33 +98,47 @@ describe('calcularFingerprint', () => {
   })
 
   describe('switch de debug NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL', () => {
+    // Las constantes NEXT_PUBLIC_* se centralizan en apiConfig.ts como
+    // top-level const, así que se capturan al cargar el módulo. Para que
+    // vi.stubEnv tenga efecto hay que limpiar el cache de módulos y re-
+    // importar el SUT por test.
+    afterEach(() => {
+      vi.unstubAllEnvs()
+      vi.resetModules()
+    })
+
     it('devuelve undefined sin invocar FingerprintJS.load cuando el flag = "1" en entorno no-prod', async () => {
-      vi.stubEnv('NODE_ENV', 'development')
+      vi.stubEnv('NEXT_PUBLIC_ENV', 'local')
       vi.stubEnv('NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL', '1')
+      vi.resetModules()
+      const FingerprintJSMock = (await import('@fingerprintjs/fingerprintjs')).default
+      const { calcularFingerprint, _resetAgenteParaTests } = await import('./captureFingerprint')
       _resetAgenteParaTests()
       const fp = await calcularFingerprint()
       expect(fp).toBeUndefined()
-      expect(FingerprintJS.load).not.toHaveBeenCalled()
-      vi.unstubAllEnvs()
+      expect(FingerprintJSMock.load).not.toHaveBeenCalled()
     })
 
     it('ignora el flag en builds de produccion (no se puede activar desde NEXT_PUBLIC en prod)', async () => {
-      vi.stubEnv('NODE_ENV', 'production')
+      vi.stubEnv('NEXT_PUBLIC_ENV', 'production')
       vi.stubEnv('NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL', '1')
+      vi.resetModules()
+      const FingerprintJSMock = (await import('@fingerprintjs/fingerprintjs')).default
+      const { calcularFingerprint, _resetAgenteParaTests } = await import('./captureFingerprint')
       _resetAgenteParaTests()
       const fp = await calcularFingerprint()
       expect(fp).toBe('a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4')
-      expect(FingerprintJS.load).toHaveBeenCalledTimes(1)
-      vi.unstubAllEnvs()
+      expect(FingerprintJSMock.load).toHaveBeenCalledTimes(1)
     })
 
     it('no se activa si el flag esta ausente o vale algo distinto de "1"', async () => {
-      vi.stubEnv('NODE_ENV', 'development')
+      vi.stubEnv('NEXT_PUBLIC_ENV', 'local')
       vi.stubEnv('NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL', '0')
+      vi.resetModules()
+      const { calcularFingerprint, _resetAgenteParaTests } = await import('./captureFingerprint')
       _resetAgenteParaTests()
       const fp = await calcularFingerprint()
       expect(fp).toBe('a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4')
-      vi.unstubAllEnvs()
     })
   })
 })

@@ -1,5 +1,9 @@
 import FingerprintJS, { type Agent } from '@fingerprintjs/fingerprintjs'
 import { TELEMETRIA_FINGERPRINT_MAX_LENGTH } from '@varolisto/shared-schemas'
+import {
+  NEXT_PUBLIC_ENV,
+  NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL,
+} from '@/lib/solicitud/infrastructure/config/apiConfig'
 
 /**
  * Calcula un fingerprint estable del dispositivo del cliente usando la
@@ -31,10 +35,7 @@ export function _resetAgenteParaTests(): void {
 export async function calcularFingerprint(): Promise<string | undefined> {
   try {
     if (typeof window === 'undefined') return undefined
-    if (
-      process.env.NODE_ENV !== 'production' &&
-      process.env.NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL === '1'
-    ) {
+    if (NEXT_PUBLIC_ENV !== 'production' && NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL === '1') {
       throw new Error('forced via NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL')
     }
     const agente = await obtenerAgente()
