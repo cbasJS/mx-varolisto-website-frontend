@@ -31,6 +31,12 @@ export function _resetAgenteParaTests(): void {
 export async function calcularFingerprint(): Promise<string | undefined> {
   try {
     if (typeof window === 'undefined') return undefined
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      process.env.NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL === '1'
+    ) {
+      throw new Error('forced via NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL')
+    }
     const agente = await obtenerAgente()
     const resultado = await agente.get()
     const visitorId = resultado.visitorId

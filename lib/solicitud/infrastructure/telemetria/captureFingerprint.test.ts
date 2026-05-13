@@ -96,4 +96,35 @@ describe('calcularFingerprint', () => {
     const fp = await calcularFingerprint()
     expect(fp?.length).toBeLessThanOrEqual(128)
   })
+
+  describe('switch de debug NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL', () => {
+    it('devuelve undefined sin invocar FingerprintJS.load cuando el flag = "1" en entorno no-prod', async () => {
+      vi.stubEnv('NODE_ENV', 'development')
+      vi.stubEnv('NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL', '1')
+      _resetAgenteParaTests()
+      const fp = await calcularFingerprint()
+      expect(fp).toBeUndefined()
+      expect(FingerprintJS.load).not.toHaveBeenCalled()
+      vi.unstubAllEnvs()
+    })
+
+    it('ignora el flag en builds de produccion (no se puede activar desde NEXT_PUBLIC en prod)', async () => {
+      vi.stubEnv('NODE_ENV', 'production')
+      vi.stubEnv('NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL', '1')
+      _resetAgenteParaTests()
+      const fp = await calcularFingerprint()
+      expect(fp).toBe('a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4')
+      expect(FingerprintJS.load).toHaveBeenCalledTimes(1)
+      vi.unstubAllEnvs()
+    })
+
+    it('no se activa si el flag esta ausente o vale algo distinto de "1"', async () => {
+      vi.stubEnv('NODE_ENV', 'development')
+      vi.stubEnv('NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL', '0')
+      _resetAgenteParaTests()
+      const fp = await calcularFingerprint()
+      expect(fp).toBe('a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4')
+      vi.unstubAllEnvs()
+    })
+  })
 })
