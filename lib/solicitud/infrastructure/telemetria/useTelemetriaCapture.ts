@@ -37,19 +37,18 @@ export function useTelemetriaCapture() {
   const marcarEntradaPaso = useSolicitudStore((s) => s.marcarEntradaPaso)
   const pasoActual = useSolicitudStore((s) => s.pasoActual)
   const hasHydrated = useSolicitudStore((s) => s._hasHydrated)
+  const iniciadoEn = useSolicitudStore((s) => s.iniciadoEn)
 
   const dispositivoRef = useRef<DispositivoSnapshot | null>(null)
   const redRef = useRef<RedSnapshot>({})
   const fingerprintRef = useRef<string | undefined>(undefined)
   const geoRef = useRef<GeolocalizacionSnapshot | null>(null)
 
-  // Captura síncrona al primer mount (cliente).
+  // Captura del browser — síncrona (dispositivo, red) y async (fingerprint,
+  // geo). Es mount-only porque no depende del state del store: viewport y
+  // user-agent no cambian entre una solicitud y la siguiente dentro del
+  // mismo mount. Las refs sobreviven a un resetForm, así que no reintentamos.
   useEffect(() => {
-    try {
-      inicializarSession()
-    } catch {
-      // never throw out of an effect
-    }
     try {
       dispositivoRef.current = capturarDispositivo()
     } catch {
@@ -60,8 +59,6 @@ export function useTelemetriaCapture() {
     } catch {
       redRef.current = {}
     }
-    // Async: fingerprint y geo. Se setean cuando resuelvan; si el submit
-    // ocurre antes, el payload sale con esos campos en undefined.
     void (async () => {
       try {
         fingerprintRef.current = await calcularFingerprint()
@@ -77,8 +74,23 @@ export function useTelemetriaCapture() {
       }
     })()
     // Sólo correr una vez por montaje del orquestador del formulario.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Init reactivo: corre cuando `iniciadoEn` es null y el store ya hidrató.
+  // Cubre el mount inicial post-rehydrate Y el reseteo post-submit dentro
+  // del mismo mount: tras `resetForm()` en `handleSubmit`, `iniciadoEn` cae
+  // a null y este effect lo recupera. Antes, con deps `[]`, el hook quedaba
+  // "muerto" después del primer submit hasta que el usuario navegaba fuera
+  // y volvía a /solicitar — lo que dejaba la siguiente solicitud sin
+  // bloque de telemetría.
+  useEffect(() => {
+    if (!hasHydrated || iniciadoEn) return
+    try {
+      inicializarSession()
+    } catch {
+      // never throw out of an effect
+    }
+  }, [hasHydrated, iniciadoEn, inicializarSession])
 
   // Marcar entrada al paso actual cada vez que cambia. Esperamos a la
   // hidratación del store para no contaminar la captura con un "entró al

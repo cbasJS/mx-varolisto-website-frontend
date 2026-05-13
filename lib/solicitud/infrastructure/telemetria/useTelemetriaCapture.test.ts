@@ -51,6 +51,31 @@ describe('useTelemetriaCapture', () => {
     expect(s.sessionUuid).toBeTruthy()
   })
 
+  // Regresión: tras un submit exitoso, handleSubmit corre `resetForm()` que
+  // nulifica iniciadoEn dentro del mismo mount de FormularioSolicitudInner.
+  // El hook debe detectarlo y re-inicializar — antes quedaba en null hasta
+  // que el usuario navegaba fuera y volvía a /solicitar.
+  it('re-inicializa iniciadoEn cuando resetForm lo nulifica en el mismo mount', async () => {
+    const { rerender } = renderHook(() => useTelemetriaCapture())
+    await act(async () => {
+      await Promise.resolve()
+    })
+    const iniciadoEnInicial = useSolicitudStore.getState().iniciadoEn
+    expect(iniciadoEnInicial).toBeTruthy()
+
+    // Simula el resetForm que dispara handleSubmit post-success y luego un
+    // re-render del orquestador (lo que normalmente provoca el setFolio).
+    await act(async () => {
+      useSolicitudStore.getState().resetForm()
+    })
+    rerender()
+    await act(async () => {
+      await Promise.resolve()
+    })
+    // Debe haberse re-inicializado — el bug previo lo dejaba en null.
+    expect(useSolicitudStore.getState().iniciadoEn).toBeTruthy()
+  })
+
   it('marca la entrada al paso actual cuando hasHydrated=true', async () => {
     useSolicitudStore.setState({ pasoActual: 2, _hasHydrated: true } as never)
     renderHook(() => useTelemetriaCapture())
