@@ -98,15 +98,18 @@ export function useTelemetriaCapture() {
    */
   const getTelemetriaPayload = (): TelemetriaSolicitud | null => {
     try {
-      const { iniciadoEn, tiemposPaso, edicionesPorCampo, pasoActualEntrada } =
+      const { iniciadoEn, tiemposPaso, edicionesPorCampo, pasoActualEntrada, pasoEnVuelo } =
         useSolicitudStore.getState()
 
       const enviadoEn = new Date().toISOString()
-      const pasoCorriente = useSolicitudStore.getState().pasoActual
+      // El paso "saliente" al momento del submit es `pasoEnVuelo` (el que
+      // marcarEntradaPaso registró como abierto), no `pasoActual` que es
+      // sólo el cursor de UI. En el flujo normal coinciden, pero el track
+      // autoritativo para telemetría es `pasoEnVuelo`.
       const msPasoActualEnVuelo =
-        pasoActualEntrada !== null && pasoCorriente >= 1 && pasoCorriente <= 7
+        pasoActualEntrada !== null && pasoEnVuelo !== null
           ? {
-              paso: pasoCorriente as NumeroPasoTelemetria,
+              paso: pasoEnVuelo,
               ms: Math.max(0, Date.now() - pasoActualEntrada),
             }
           : null

@@ -52,6 +52,13 @@ export interface SolicitudState {
   // Telemetría — no persistida en sessionStorage.
   tiemposPaso: TiemposPaso
   pasoActualEntrada: number | null
+  // Paso actualmente "abierto" para la captura de tiempo. Se mantiene
+  // separado de `pasoActual` porque `setPaso(N)` cambia `pasoActual` ANTES
+  // de que `marcarEntradaPaso(N)` se ejecute en el effect: si usáramos
+  // `pasoActual` para identificar al saliente, el delta se acumularía
+  // siempre en el paso al que entramos en lugar del que dejamos —
+  // dejando `paso1Ms` siempre en null.
+  pasoEnVuelo: NumeroPasoTelemetria | null
   edicionesPorCampo: Record<string, number>
   _hasHydrated: boolean
 }

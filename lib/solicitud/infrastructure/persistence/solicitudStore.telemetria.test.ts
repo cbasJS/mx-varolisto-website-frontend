@@ -21,6 +21,7 @@ const estadoInicial = () => ({
     paso7Ms: null,
   },
   pasoActualEntrada: null,
+  pasoEnVuelo: null,
   edicionesPorCampo: {},
   _hasHydrated: false,
 })
@@ -60,42 +61,81 @@ describe('solicitudStore — telemetría pasiva (Bloque 1.B)', () => {
       expect(entrada!).toBeLessThanOrEqual(Date.now() + 10)
     })
 
-    it('al cambiar de paso, acumula los ms del paso previo en tiemposPaso[paso{N}Ms]', async () => {
-      const T0 = Date.now()
-      useSolicitudStore.setState({ pasoActualEntrada: T0, pasoActual: 2 } as never)
+    it('al cambiar de paso, acumula los ms del paso saliente en tiemposPaso[paso{N}Ms]', async () => {
+      // Simula el flujo real de useTelemetriaCapture: setPaso(N) cambia
+      // `pasoActual` ANTES de que marcarEntradaPaso(N) se llame en el effect.
+      // El paso al que se le acumula tiempo es el saliente, no `pasoActual`.
+      useSolicitudStore.setState({ pasoActual: 1 } as never)
+      useSolicitudStore.getState().marcarEntradaPaso(1)
 
-      // Esperamos ~30ms para que la diferencia sea medible.
       await new Promise((r) => setTimeout(r, 30))
-      useSolicitudStore.getState().marcarEntradaPaso(3)
+
+      // Avanza al paso 2 — replica el orden de setPaso → marcarEntradaPaso.
+      useSolicitudStore.setState({ pasoActual: 2 } as never)
+      useSolicitudStore.getState().marcarEntradaPaso(2)
 
       const tiempos = useSolicitudStore.getState().tiemposPaso
-      expect(tiempos.paso2Ms).not.toBeNull()
-      expect(tiempos.paso2Ms!).toBeGreaterThanOrEqual(20)
+      expect(tiempos.paso1Ms).not.toBeNull()
+      expect(tiempos.paso1Ms!).toBeGreaterThanOrEqual(20)
+      // paso2Ms NO debe tener tiempo: aún no salimos del paso 2.
+      expect(tiempos.paso2Ms).toBeNull()
       // La entrada al nuevo paso queda registrada.
       expect(useSolicitudStore.getState().pasoActualEntrada).not.toBeNull()
     })
 
     it('soporta re-entradas: si el usuario vuelve a un paso, los ms se suman al acumulado existente', async () => {
+      // El usuario estuvo 5s en paso 2 y ahora va de paso 3 → paso 2.
       useSolicitudStore.setState({
         tiemposPaso: {
           paso1Ms: null,
-          paso2Ms: 5000, // ya estuvimos 5s antes en paso2
+          paso2Ms: 5000,
           paso3Ms: null,
           paso4Ms: null,
           paso5Ms: null,
           paso6Ms: null,
           paso7Ms: null,
         },
+        pasoEnVuelo: 3,
         pasoActualEntrada: Date.now() - 200,
-        pasoActual: 2,
+        pasoActual: 3,
       } as never)
 
-      useSolicitudStore.getState().marcarEntradaPaso(3)
+      // setPaso(2) cambia pasoActual ANTES de marcarEntradaPaso(2).
+      useSolicitudStore.setState({ pasoActual: 2 } as never)
+      useSolicitudStore.getState().marcarEntradaPaso(2)
 
-      const acumulado = useSolicitudStore.getState().tiemposPaso.paso2Ms
-      // El acumulado previo (5000) + ~200ms de esta visita.
-      expect(acumulado!).toBeGreaterThanOrEqual(5100)
-      expect(acumulado!).toBeLessThan(5500)
+      // Los 200ms de la visita actual se suman al paso 3 (el saliente),
+      // no al paso 2 (el que apenas entramos).
+      const tiempos = useSolicitudStore.getState().tiemposPaso
+      expect(tiempos.paso3Ms!).toBeGreaterThanOrEqual(150)
+      expect(tiempos.paso3Ms!).toBeLessThan(500)
+      // paso 2 mantiene su acumulado previo intacto — sólo se actualiza al
+      // siguiente cambio de paso.
+      expect(tiempos.paso2Ms).toBe(5000)
+    })
+
+    it('cubre el flujo completo 1 → 2 → 3 → 4: todos los pasos saliendo acumulan tiempo', async () => {
+      useSolicitudStore.setState({ pasoActual: 1 } as never)
+      useSolicitudStore.getState().marcarEntradaPaso(1)
+      await new Promise((r) => setTimeout(r, 20))
+
+      useSolicitudStore.setState({ pasoActual: 2 } as never)
+      useSolicitudStore.getState().marcarEntradaPaso(2)
+      await new Promise((r) => setTimeout(r, 20))
+
+      useSolicitudStore.setState({ pasoActual: 3 } as never)
+      useSolicitudStore.getState().marcarEntradaPaso(3)
+      await new Promise((r) => setTimeout(r, 20))
+
+      useSolicitudStore.setState({ pasoActual: 4 } as never)
+      useSolicitudStore.getState().marcarEntradaPaso(4)
+
+      const tiempos = useSolicitudStore.getState().tiemposPaso
+      expect(tiempos.paso1Ms!).toBeGreaterThanOrEqual(10)
+      expect(tiempos.paso2Ms!).toBeGreaterThanOrEqual(10)
+      expect(tiempos.paso3Ms!).toBeGreaterThanOrEqual(10)
+      // paso 4 aún está en vuelo: null hasta que el usuario salga.
+      expect(tiempos.paso4Ms).toBeNull()
     })
 
     it('clampa el número de paso al rango 1..7 — pasos fuera de rango no actualizan tiemposPaso', () => {
@@ -171,10 +211,11 @@ describe('solicitudStore — telemetría pasiva (Bloque 1.B)', () => {
   })
 
   describe('resetForm — limpia también la telemetría', () => {
-    it('resetForm borra tiemposPaso, edicionesPorCampo, iniciadoEn y pasoActualEntrada', () => {
+    it('resetForm borra tiemposPaso, edicionesPorCampo, iniciadoEn, pasoActualEntrada y pasoEnVuelo', () => {
       useSolicitudStore.setState({
         iniciadoEn: '2026-05-12T10:00:00.000Z',
         pasoActualEntrada: Date.now(),
+        pasoEnVuelo: 4,
         tiemposPaso: {
           paso1Ms: 1000,
           paso2Ms: 2000,
@@ -192,6 +233,7 @@ describe('solicitudStore — telemetría pasiva (Bloque 1.B)', () => {
       const s = useSolicitudStore.getState()
       expect(s.iniciadoEn).not.toBe('2026-05-12T10:00:00.000Z')
       expect(s.pasoActualEntrada).toBeNull()
+      expect(s.pasoEnVuelo).toBeNull()
       expect(s.tiemposPaso).toEqual({
         paso1Ms: null,
         paso2Ms: null,

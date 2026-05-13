@@ -49,6 +49,7 @@ const estadoInicial: SolicitudState = {
   comprobantes: [],
   tiemposPaso: tiemposPasoIniciales(),
   pasoActualEntrada: null,
+  pasoEnVuelo: null,
   edicionesPorCampo: {},
   _hasHydrated: false,
 }
@@ -104,6 +105,7 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
           iniciadoEn: null,
           tiemposPaso: tiemposPasoIniciales(),
           pasoActualEntrada: null,
+          pasoEnVuelo: null,
           edicionesPorCampo: {},
         }),
       setHasHydrated: (value) => set({ _hasHydrated: value }),
@@ -111,14 +113,19 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
         if (!esPasoValido(paso)) return
         const s = get()
         const ahora = Date.now()
-        const patch: Partial<SolicitudState> = { pasoActualEntrada: ahora }
+        const patch: Partial<SolicitudState> = {
+          pasoActualEntrada: ahora,
+          pasoEnVuelo: paso,
+        }
 
         // Si había un paso abierto, acumulamos su tiempo en tiemposPaso[paso{N}Ms].
-        // Permite re-entradas: si el usuario vuelve al mismo paso, los ms se
-        // suman al acumulado existente en lugar de sobreescribir.
-        if (s.pasoActualEntrada !== null && esPasoValido(s.pasoActual)) {
+        // Usamos `pasoEnVuelo` (no `pasoActual`) porque `setPaso(N)` corre antes
+        // que este effect: si nos guiáramos por `pasoActual`, el delta caería
+        // siempre sobre el paso al que estamos entrando y `paso1Ms` quedaría
+        // en null para siempre.
+        if (s.pasoActualEntrada !== null && s.pasoEnVuelo !== null) {
           const delta = Math.max(0, ahora - s.pasoActualEntrada)
-          const key = `paso${s.pasoActual}Ms` as keyof TiemposPaso
+          const key = `paso${s.pasoEnVuelo}Ms` as keyof TiemposPaso
           const acumulado = s.tiemposPaso[key] ?? 0
           patch.tiemposPaso = { ...s.tiemposPaso, [key]: acumulado + delta }
         }
