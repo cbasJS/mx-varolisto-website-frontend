@@ -18,7 +18,6 @@ import { ModalPlazoInvalido } from './ModalPlazoInvalido'
 import { ConsentimientosSection } from './ConsentimientosSection'
 import { DevMockPanel } from './DevMockPanel'
 import { isDevMockEnabled } from '@/lib/solicitud/dev/mockSubmit'
-import { pasos } from '@/content/solicitar'
 import { cn } from '@/lib/utils'
 import { ACTIVE_PASO_FORM_ID } from '@/components/wizard/PasoFormShell'
 import {
@@ -169,8 +168,6 @@ export default function Paso7Revision({
       <form id={ACTIVE_PASO_FORM_ID} onSubmit={handleSubmit} noValidate>
         <FormCard>
           <StepTitle
-            numero={7}
-            total={pasos.length}
             titulo="Casi listo. Revisa todo"
             subtitulo="Antes de enviar, dale una última checada. Puedes editar cualquier sección."
           />

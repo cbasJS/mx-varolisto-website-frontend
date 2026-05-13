@@ -13,7 +13,6 @@ import { SectionDivider } from '@/components/forms/SectionDivider'
 import { StepTitle } from '@/components/wizard/StepTitle'
 import { PasoFormShell } from '@/components/wizard/PasoFormShell'
 import { CamposCP } from './CamposCP'
-import { pasos } from '@/content/solicitar'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -59,8 +58,6 @@ export default function Paso3Domicilio({ onNext, onBack, actionsSlot }: Props) {
       actionsSlot={actionsSlot}
     >
       <StepTitle
-        numero={3}
-        total={pasos.length}
         titulo="¿Dónde vives?"
         subtitulo="Con tu CP encontramos tu colonia y llenamos ciudad y estado por ti."
       />
