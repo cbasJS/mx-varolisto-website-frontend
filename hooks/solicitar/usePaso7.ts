@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { paso7Schema, type Paso7Data } from '@/lib/solicitud/schemas/index'
+import { useEdicionesTracking } from '@/lib/solicitud/infrastructure/telemetria'
 
 export function usePaso7(onSubmit: (datos: Paso7Data) => void) {
   const {
@@ -14,6 +15,8 @@ export function usePaso7(onSubmit: (datos: Paso7Data) => void) {
     resolver: zodResolver(paso7Schema),
     defaultValues: { aceptaPrivacidad: undefined, aceptaTerminos: undefined },
   })
+
+  useEdicionesTracking(watch)
 
   const privacidad = watch('aceptaPrivacidad')
   const terminos = watch('aceptaTerminos')

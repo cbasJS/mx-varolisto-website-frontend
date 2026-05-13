@@ -1,3 +1,4 @@
+import { NEXT_PUBLIC_ENV } from '@/lib/solicitud/infrastructure/config/apiConfig'
 import { ApiError } from '@/lib/solicitud/infrastructure/http/apiErrors'
 import type { CrearSolicitudResponse } from '@varolisto/shared-schemas/api'
 
@@ -18,7 +19,7 @@ export type MockSubmitCase =
   | 'error_500'
   | 'red_0'
 
-export const isDevMockEnabled = () => process.env.NEXT_PUBLIC_ENV === 'local'
+export const isDevMockEnabled = () => NEXT_PUBLIC_ENV === 'local'
 
 let activo: MockSubmitCase | null = null
 

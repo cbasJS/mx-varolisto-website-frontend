@@ -14,10 +14,24 @@
 
 export type Ambiente = 'local' | 'sandbox' | 'production'
 
+// Acceso centralizado a NEXT_PUBLIC_*: Next.js inlinea el literal en build
+// time, así que el bundler puede seguir aplicando dead-code elimination en
+// quienes consumen estas constantes (ej. dev/mockSubmit.ts).
+export const NEXT_PUBLIC_ENV = process.env.NEXT_PUBLIC_ENV
+
+// Flag de QA local (no se configura en Vercel). Cuando vale '1' y el ambiente
+// no es production, captureFingerprint() falla a propósito sin invocar
+// FingerprintJS.load. En builds de producción NEXT_PUBLIC_ENV === 'production'
+// inutiliza el flag aunque alguien lo setee.
+export const NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL = process.env.NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL
+
 function resolverAmbiente(): Ambiente {
-  const explicit = process.env.NEXT_PUBLIC_ENV
-  if (explicit === 'local' || explicit === 'sandbox' || explicit === 'production') {
-    return explicit
+  if (
+    NEXT_PUBLIC_ENV === 'local' ||
+    NEXT_PUBLIC_ENV === 'sandbox' ||
+    NEXT_PUBLIC_ENV === 'production'
+  ) {
+    return NEXT_PUBLIC_ENV
   }
   if (process.env.NODE_ENV === 'production') return 'production'
   if (process.env.NODE_ENV === 'test') return 'sandbox'

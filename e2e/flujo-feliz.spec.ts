@@ -97,19 +97,29 @@ const ARCHIVOS_COMPLETOS = [
   },
 ]
 
+// Flag-guard: el init script sólo inyecta una vez por test, sin re-poblar
+// sessionStorage en navegaciones subsecuentes que pudieran sobreescribir el
+// resetForm post-submit.
+const SETUP_FLAG = 'vl-e2e-setup-injected'
+
 /**
  * Inyecta el store completo en sessionStorage posicionado en el paso indicado.
  * Usar sessionStorage es la estrategia correcta para E2E — evita dependencias
  * frágiles del DatePicker y llamadas reales a APIs externas (COPOMEX, uploads).
+ *
+ * addInitScript corre antes que cualquier script de la página. Reemplaza el
+ * patrón goto → evaluate → reload, que bajo carga del dev server permite que
+ * el inicializarSession() del primer mount sobreescriba la inyección antes
+ * del reload, dejando la página en Paso 1.
  */
 async function inyectarStore(
   page: import('@playwright/test').Page,
   paso: number,
   extra: Partial<typeof DATOS_COMPLETOS> = {},
 ) {
-  await page.goto('/solicitar')
-  await page.evaluate(
-    ({ paso, datos, archivos, sessionUuid }) => {
+  await page.addInitScript(
+    ({ paso, datos, archivos, sessionUuid, flag }) => {
+      if (sessionStorage.getItem(flag) === 'true') return
       const store = {
         state: {
           pasoActual: paso,
@@ -123,15 +133,17 @@ async function inyectarStore(
         version: 0,
       }
       sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
+      sessionStorage.setItem(flag, 'true')
     },
     {
       paso,
       datos: { ...DATOS_COMPLETOS, ...extra },
       archivos: ARCHIVOS_COMPLETOS,
       sessionUuid: SESSION_UUID,
+      flag: SETUP_FLAG,
     },
   )
-  await page.reload()
+  await page.goto('/solicitar')
 }
 
 test.describe('Flujo feliz — solicitud completa', () => {

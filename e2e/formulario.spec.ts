@@ -41,27 +41,41 @@ const DATOS_BASE = {
   ref2Relacion: 'amigo',
 }
 
-async function setStep(page: import('@playwright/test').Page, paso: number, extra: object = {}) {
-  await page.goto('/solicitar')
-  await page.evaluate(
-    ({ paso, datos }) => {
-      const store = {
-        state: {
-          pasoActual: paso,
-          datos,
-          timestampInicio: Date.now(),
-          coloniasCache: {},
-          sessionUuid: '00000000-0000-4000-a000-000000000001',
-          archivosSubidos: [],
-          tipoIdentificacion: null,
-        },
-        version: 0,
-      }
-      sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
+// Marca que sólo permite que el init script inyecte una vez por test. Sin
+// esto, tests que navegan después del setStep (E11 hace logo→AlertDialog→"/")
+// verían su sessionStorage RE-poblado en la segunda navegación, pisando el
+// resetForm que el flujo ejecuta y rompiendo las aserciones de cleanup.
+const SETUP_FLAG = 'vl-e2e-setup-injected'
+
+// Inyecta el store completo en sessionStorage ANTES de que cualquier script
+// de la página corra y navega a /solicitar. Reemplaza el patrón
+// `page.goto + page.evaluate(setItem) + page.reload`, que bajo carga del dev
+// server permitía una race con el inicializarSession() del primer mount: el
+// efecto sobreescribía la inyección entre el evaluate y el reload y la página
+// quedaba en Paso 1. El flag-guard evita re-inyectar en navegaciones
+// posteriores dentro del mismo test (resetForm + click logo → "/").
+async function injectStore(page: import('@playwright/test').Page, state: object) {
+  await page.addInitScript(
+    ({ state, flag }) => {
+      if (sessionStorage.getItem(flag) === 'true') return
+      sessionStorage.setItem('vl-solicitud', JSON.stringify({ state, version: 0 }))
+      sessionStorage.setItem(flag, 'true')
     },
-    { paso, datos: { ...DATOS_BASE, ...extra } },
+    { state, flag: SETUP_FLAG },
   )
-  await page.reload()
+  await page.goto('/solicitar')
+}
+
+async function setStep(page: import('@playwright/test').Page, paso: number, extra: object = {}) {
+  await injectStore(page, {
+    pasoActual: paso,
+    datos: { ...DATOS_BASE, ...extra },
+    timestampInicio: Date.now(),
+    coloniasCache: {},
+    sessionUuid: '00000000-0000-4000-a000-000000000001',
+    archivosSubidos: [],
+    tipoIdentificacion: null,
+  })
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -294,32 +308,25 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     })
 
     // Ir a paso 6 con un archivo INE frente ya subido en el store
-    await page.evaluate(() => {
-      const store = {
-        state: {
-          pasoActual: 6,
-          datos: {},
-          timestampInicio: Date.now(),
-          coloniasCache: {},
-          sessionUuid: '00000000-0000-4000-a000-000000000001',
-          archivosSubidos: [
-            {
-              clienteId: 'client-ine-frente',
-              tipoArchivo: 'ine_frente',
-              nombreOriginal: 'ine_frente.jpg',
-              mimeType: 'image/jpeg',
-              tamanoBytes: 102400,
-              storagePath: 'staging/00000000-0000-4000-a000-000000000001/ine_frente.jpg',
-              archivoId: 'aaaa-0001',
-            },
-          ],
-          tipoIdentificacion: 'ine',
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: {},
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: '00000000-0000-4000-a000-000000000001',
+      archivosSubidos: [
+        {
+          clienteId: 'client-ine-frente',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: 'ine_frente.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 102400,
+          storagePath: 'staging/00000000-0000-4000-a000-000000000001/ine_frente.jpg',
+          archivoId: 'aaaa-0001',
         },
-        version: 0,
-      }
-      sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
+      ],
+      tipoIdentificacion: 'ine',
     })
-    await page.reload()
     await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
 
     // Verify INE frente archivo is shown
@@ -361,41 +368,34 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     })
 
     // Ir a paso 6 con 2 comprobantes ya subidos
-    await page.evaluate(() => {
-      const store = {
-        state: {
-          pasoActual: 6,
-          datos: {},
-          timestampInicio: Date.now(),
-          coloniasCache: {},
-          sessionUuid: '00000000-0000-4000-a000-000000000001',
-          archivosSubidos: [
-            {
-              clienteId: 'client-comp-1',
-              tipoArchivo: 'comprobante_ingreso',
-              nombreOriginal: 'comprobante_enero.jpg',
-              mimeType: 'image/jpeg',
-              tamanoBytes: 102400,
-              storagePath: 'staging/00000000-0000-4000-a000-000000000001/comprobante_enero.jpg',
-              archivoId: 'bbbb-0001',
-            },
-            {
-              clienteId: 'client-comp-2',
-              tipoArchivo: 'comprobante_ingreso',
-              nombreOriginal: 'comprobante_febrero.jpg',
-              mimeType: 'image/jpeg',
-              tamanoBytes: 102400,
-              storagePath: 'staging/00000000-0000-4000-a000-000000000001/comprobante_febrero.jpg',
-              archivoId: 'bbbb-0002',
-            },
-          ],
-          tipoIdentificacion: 'ine',
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: {},
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: '00000000-0000-4000-a000-000000000001',
+      archivosSubidos: [
+        {
+          clienteId: 'client-comp-1',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'comprobante_enero.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 102400,
+          storagePath: 'staging/00000000-0000-4000-a000-000000000001/comprobante_enero.jpg',
+          archivoId: 'bbbb-0001',
         },
-        version: 0,
-      }
-      sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
+        {
+          clienteId: 'client-comp-2',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'comprobante_febrero.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 102400,
+          storagePath: 'staging/00000000-0000-4000-a000-000000000001/comprobante_febrero.jpg',
+          archivoId: 'bbbb-0002',
+        },
+      ],
+      tipoIdentificacion: 'ine',
     })
-    await page.reload()
     await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
 
     // Ambos comprobantes visibles
@@ -436,32 +436,25 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     })
 
     // Paso 6 con INE frente ya subido
-    await page.evaluate(() => {
-      const store = {
-        state: {
-          pasoActual: 6,
-          datos: {},
-          timestampInicio: Date.now(),
-          coloniasCache: {},
-          sessionUuid: '00000000-0000-4000-a000-000000000001',
-          archivosSubidos: [
-            {
-              clienteId: 'client-ine-f',
-              tipoArchivo: 'ine_frente',
-              nombreOriginal: 'ine_frente_viejo.jpg',
-              mimeType: 'image/jpeg',
-              tamanoBytes: 102400,
-              storagePath: 'staging/00000000-0000-4000-a000-000000000001/ine_frente_viejo.jpg',
-              archivoId: 'cccc-0001',
-            },
-          ],
-          tipoIdentificacion: 'ine',
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: {},
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: '00000000-0000-4000-a000-000000000001',
+      archivosSubidos: [
+        {
+          clienteId: 'client-ine-f',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: 'ine_frente_viejo.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 102400,
+          storagePath: 'staging/00000000-0000-4000-a000-000000000001/ine_frente_viejo.jpg',
+          archivoId: 'cccc-0001',
         },
-        version: 0,
-      }
-      sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
+      ],
+      tipoIdentificacion: 'ine',
     })
-    await page.reload()
     await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
     await expect(page.getByText('ine_frente_viejo.jpg')).toBeVisible()
 
@@ -494,32 +487,25 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     )
 
     // Paso 6 con un comprobante ya subido
-    await page.evaluate(() => {
-      const store = {
-        state: {
-          pasoActual: 6,
-          datos: {},
-          timestampInicio: Date.now(),
-          coloniasCache: {},
-          sessionUuid: '00000000-0000-4000-a000-000000000001',
-          archivosSubidos: [
-            {
-              clienteId: 'client-err',
-              tipoArchivo: 'comprobante_ingreso',
-              nombreOriginal: 'comprobante_error.jpg',
-              mimeType: 'image/jpeg',
-              tamanoBytes: 102400,
-              storagePath: 'staging/00000000-0000-4000-a000-000000000001/comprobante_error.jpg',
-              archivoId: 'dddd-0001',
-            },
-          ],
-          tipoIdentificacion: 'ine',
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: {},
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: '00000000-0000-4000-a000-000000000001',
+      archivosSubidos: [
+        {
+          clienteId: 'client-err',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'comprobante_error.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 102400,
+          storagePath: 'staging/00000000-0000-4000-a000-000000000001/comprobante_error.jpg',
+          archivoId: 'dddd-0001',
         },
-        version: 0,
-      }
-      sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
+      ],
+      tipoIdentificacion: 'ine',
     })
-    await page.reload()
     await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
     await expect(page.getByText('comprobante_error.jpg')).toBeVisible()
 
@@ -610,26 +596,15 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       },
     ]
 
-    await page.goto('/solicitar')
-    await page.evaluate(
-      ({ SESSION, datos, archivosSubidos }) => {
-        const store = {
-          state: {
-            pasoActual: 6,
-            datos,
-            timestampInicio: Date.now(),
-            coloniasCache: {},
-            sessionUuid: SESSION,
-            archivosSubidos,
-            tipoIdentificacion: 'ine',
-          },
-          version: 0,
-        }
-        sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
-      },
-      { SESSION, datos: DATOS_BASE, archivosSubidos: ARCHIVOS_MEMORIA },
-    )
-    await page.reload()
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: DATOS_BASE,
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: SESSION,
+      archivosSubidos: ARCHIVOS_MEMORIA,
+      tipoIdentificacion: 'ine',
+    })
     await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
 
     for (const archivo of ARCHIVOS_MEMORIA) {
@@ -661,36 +636,25 @@ test.describe('Formulario de solicitud — Fase 2', () => {
       })
     })
 
-    await page.goto('/solicitar')
-    await page.evaluate(
-      ({ SESSION, datos, STORAGE_PATH, NOMBRE }) => {
-        const store = {
-          state: {
-            pasoActual: 6,
-            datos,
-            timestampInicio: Date.now(),
-            coloniasCache: {},
-            sessionUuid: SESSION,
-            archivosSubidos: [
-              {
-                clienteId: 'cccccccc-cccc-4ccc-cccc-cccccccccc01',
-                archivoId: 'dddddddd-dddd-4ddd-dddd-dddddddddd01',
-                tipoArchivo: 'ine_frente',
-                nombreOriginal: NOMBRE,
-                mimeType: 'image/jpeg',
-                tamanoBytes: 233845,
-                storagePath: STORAGE_PATH,
-              },
-            ],
-            tipoIdentificacion: 'ine',
-          },
-          version: 0,
-        }
-        sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
-      },
-      { SESSION, datos: DATOS_BASE, STORAGE_PATH, NOMBRE },
-    )
-    await page.reload()
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: DATOS_BASE,
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: SESSION,
+      archivosSubidos: [
+        {
+          clienteId: 'cccccccc-cccc-4ccc-cccc-cccccccccc01',
+          archivoId: 'dddddddd-dddd-4ddd-dddd-dddddddddd01',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: NOMBRE,
+          mimeType: 'image/jpeg',
+          tamanoBytes: 233845,
+          storagePath: STORAGE_PATH,
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
     await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
     await expect(page.getByText(NOMBRE).first()).toBeVisible({ timeout: 5_000 })
 
@@ -737,37 +701,25 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     })
 
     // Paso 6 con archivos ya subidos + tipoIdentificacion seteada
-    await page.goto('/solicitar')
-    await page.evaluate(
-      ({ datos }) => {
-        const store = {
-          state: {
-            pasoActual: 6,
-            datos,
-            timestampInicio: Date.now(),
-            coloniasCache: {},
-            sessionUuid: '00000000-0000-4000-a000-000000000002',
-            archivosSubidos: [
-              {
-                clienteId: 'client-e6-1',
-                tipoArchivo: 'ine_frente',
-                nombreOriginal: 'frente_e6.jpg',
-                mimeType: 'image/jpeg',
-                tamanoBytes: 100000,
-                storagePath:
-                  'staging/00000000-0000-4000-a000-000000000002/ine_frente_1000_frente_e6.jpg',
-                archivoId: 'eeee-0001',
-              },
-            ],
-            tipoIdentificacion: 'ine',
-          },
-          version: 0,
-        }
-        sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
-      },
-      { datos: DATOS_BASE },
-    )
-    await page.reload()
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: DATOS_BASE,
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: '00000000-0000-4000-a000-000000000002',
+      archivosSubidos: [
+        {
+          clienteId: 'client-e6-1',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: 'frente_e6.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 100000,
+          storagePath: 'staging/00000000-0000-4000-a000-000000000002/ine_frente_1000_frente_e6.jpg',
+          archivoId: 'eeee-0001',
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
     await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
 
     // Simular que isSubmitting está activo inyectando el flag directamente
@@ -832,45 +784,34 @@ test.describe('Formulario de solicitud — Fase 2', () => {
 
     const SESSION = '00000000-0000-4000-a000-000000000003'
 
-    await page.goto('/solicitar')
-    await page.evaluate(
-      ({ SESSION, datos }) => {
-        const store = {
-          state: {
-            pasoActual: 6,
-            datos,
-            timestampInicio: Date.now(),
-            coloniasCache: {},
-            sessionUuid: SESSION,
-            archivosSubidos: [
-              {
-                clienteId: 'eeeeeeee-eeee-4eee-eeee-eeeeeeeeee01',
-                archivoId: 'ffffffff-ffff-4fff-ffff-ffffffffff01',
-                tipoArchivo: 'ine_frente',
-                nombreOriginal: 'ine_frente_1000_frente.jpg',
-                mimeType: 'image/jpeg',
-                tamanoBytes: 100000,
-                storagePath: `staging/${SESSION}/ine_frente_1000_frente.jpg`,
-              },
-              {
-                clienteId: 'eeeeeeee-eeee-4eee-eeee-eeeeeeeeee02',
-                archivoId: 'ffffffff-ffff-4fff-ffff-ffffffffff02',
-                tipoArchivo: 'comprobante_ingreso',
-                nombreOriginal: 'comprobante_ingreso_1001_recibo.pdf',
-                mimeType: 'application/pdf',
-                tamanoBytes: 200000,
-                storagePath: `staging/${SESSION}/comprobante_ingreso_1001_recibo.pdf`,
-              },
-            ],
-            tipoIdentificacion: 'ine',
-          },
-          version: 0,
-        }
-        sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
-      },
-      { SESSION, datos: DATOS_BASE },
-    )
-    await page.reload()
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: DATOS_BASE,
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: SESSION,
+      archivosSubidos: [
+        {
+          clienteId: 'eeeeeeee-eeee-4eee-eeee-eeeeeeeeee01',
+          archivoId: 'ffffffff-ffff-4fff-ffff-ffffffffff01',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: 'ine_frente_1000_frente.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 100000,
+          storagePath: `staging/${SESSION}/ine_frente_1000_frente.jpg`,
+        },
+        {
+          clienteId: 'eeeeeeee-eeee-4eee-eeee-eeeeeeeeee02',
+          archivoId: 'ffffffff-ffff-4fff-ffff-ffffffffff02',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'comprobante_ingreso_1001_recibo.pdf',
+          mimeType: 'application/pdf',
+          tamanoBytes: 200000,
+          storagePath: `staging/${SESSION}/comprobante_ingreso_1001_recibo.pdf`,
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
     await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
     await page.waitForFunction(
       () => document.querySelectorAll('[aria-label^="Eliminar"]').length >= 2,
@@ -927,63 +868,52 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     // comprobantes de ingreso + comprobante de domicilio). Inyectamos los
     // archivos directamente en sessionStorage para satisfacerlos.
     const SESSION = '00000000-0000-4000-a000-000000000001'
-    await page.goto('/solicitar')
-    await page.evaluate(
-      ({ SESSION, datos }) => {
-        const store = {
-          state: {
-            pasoActual: 7,
-            datos,
-            timestampInicio: Date.now(),
-            coloniasCache: {},
-            sessionUuid: SESSION,
-            archivosSubidos: [
-              {
-                clienteId: '88888888-8888-4888-8888-888888888801',
-                archivoId: '99999999-9999-4999-9999-999999999901',
-                tipoArchivo: 'ine_frente',
-                nombreOriginal: 'ine_frente_2000_frente.jpg',
-                mimeType: 'image/jpeg',
-                tamanoBytes: 100000,
-                storagePath: `staging/${SESSION}/ine_frente_2000_frente.jpg`,
-              },
-              {
-                clienteId: '88888888-8888-4888-8888-888888888802',
-                archivoId: '99999999-9999-4999-9999-999999999902',
-                tipoArchivo: 'comprobante_ingreso',
-                nombreOriginal: 'comprobante_ingreso_2001_recibo1.pdf',
-                mimeType: 'application/pdf',
-                tamanoBytes: 50000,
-                storagePath: `staging/${SESSION}/comprobante_ingreso_2001_recibo1.pdf`,
-              },
-              {
-                clienteId: '88888888-8888-4888-8888-888888888803',
-                archivoId: '99999999-9999-4999-9999-999999999903',
-                tipoArchivo: 'comprobante_ingreso',
-                nombreOriginal: 'comprobante_ingreso_2002_recibo2.pdf',
-                mimeType: 'application/pdf',
-                tamanoBytes: 50000,
-                storagePath: `staging/${SESSION}/comprobante_ingreso_2002_recibo2.pdf`,
-              },
-              {
-                clienteId: '88888888-8888-4888-8888-888888888804',
-                archivoId: '99999999-9999-4999-9999-999999999904',
-                tipoArchivo: 'comprobante_domicilio',
-                nombreOriginal: 'comprobante_domicilio_2003_cfe.pdf',
-                mimeType: 'application/pdf',
-                tamanoBytes: 50000,
-                storagePath: `staging/${SESSION}/comprobante_domicilio_2003_cfe.pdf`,
-              },
-            ],
-            tipoIdentificacion: 'ine',
-          },
-          version: 0,
-        }
-        sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
-      },
-      { SESSION, datos: DATOS_BASE },
-    )
-    await page.reload()
+    await injectStore(page, {
+      pasoActual: 7,
+      datos: DATOS_BASE,
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: SESSION,
+      archivosSubidos: [
+        {
+          clienteId: '88888888-8888-4888-8888-888888888801',
+          archivoId: '99999999-9999-4999-9999-999999999901',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: 'ine_frente_2000_frente.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 100000,
+          storagePath: `staging/${SESSION}/ine_frente_2000_frente.jpg`,
+        },
+        {
+          clienteId: '88888888-8888-4888-8888-888888888802',
+          archivoId: '99999999-9999-4999-9999-999999999902',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'comprobante_ingreso_2001_recibo1.pdf',
+          mimeType: 'application/pdf',
+          tamanoBytes: 50000,
+          storagePath: `staging/${SESSION}/comprobante_ingreso_2001_recibo1.pdf`,
+        },
+        {
+          clienteId: '88888888-8888-4888-8888-888888888803',
+          archivoId: '99999999-9999-4999-9999-999999999903',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'comprobante_ingreso_2002_recibo2.pdf',
+          mimeType: 'application/pdf',
+          tamanoBytes: 50000,
+          storagePath: `staging/${SESSION}/comprobante_ingreso_2002_recibo2.pdf`,
+        },
+        {
+          clienteId: '88888888-8888-4888-8888-888888888804',
+          archivoId: '99999999-9999-4999-9999-999999999904',
+          tipoArchivo: 'comprobante_domicilio',
+          nombreOriginal: 'comprobante_domicilio_2003_cfe.pdf',
+          mimeType: 'application/pdf',
+          tamanoBytes: 50000,
+          storagePath: `staging/${SESSION}/comprobante_domicilio_2003_cfe.pdf`,
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
 
     // Aceptar términos y enviar
@@ -1021,55 +951,43 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     // mergea el storage con el state inicial al rehidratar, así arrancamos
     // el form en paso 6 con archivos pre-poblados sin depender de hidratación
     // desde el backend.
-    await page.goto('/solicitar')
-    await page.evaluate(
-      ({ SESSION, datos }) => {
-        const archivosSubidos = [
-          {
-            clienteId: '11111111-1111-4111-a111-111111111111',
-            archivoId: '21111111-1111-4111-a111-111111111111',
-            tipoArchivo: 'ine_frente',
-            nombreOriginal: 'ine_frente.jpg',
-            mimeType: 'image/jpeg',
-            tamanoBytes: 100000,
-            storagePath: `staging/${SESSION}/ine_frente_1000_frente.jpg`,
-          },
-          {
-            clienteId: '11111111-1111-4111-a111-111111111112',
-            archivoId: '21111111-1111-4111-a111-111111111112',
-            tipoArchivo: 'ine_reverso',
-            nombreOriginal: 'ine_reverso.jpg',
-            mimeType: 'image/jpeg',
-            tamanoBytes: 90000,
-            storagePath: `staging/${SESSION}/ine_reverso_1001_reverso.jpg`,
-          },
-          {
-            clienteId: '11111111-1111-4111-a111-111111111113',
-            archivoId: '21111111-1111-4111-a111-111111111113',
-            tipoArchivo: 'comprobante_ingreso',
-            nombreOriginal: 'recibo.pdf',
-            mimeType: 'application/pdf',
-            tamanoBytes: 50000,
-            storagePath: `staging/${SESSION}/comprobante_ingreso_1002_recibo.pdf`,
-          },
-        ]
-        const store = {
-          state: {
-            pasoActual: 6,
-            datos,
-            timestampInicio: Date.now(),
-            coloniasCache: {},
-            sessionUuid: SESSION,
-            archivosSubidos,
-            tipoIdentificacion: 'ine',
-          },
-          version: 0,
-        }
-        sessionStorage.setItem('vl-solicitud', JSON.stringify(store))
-      },
-      { SESSION, datos: DATOS_BASE },
-    )
-    await page.reload()
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: DATOS_BASE,
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: SESSION,
+      archivosSubidos: [
+        {
+          clienteId: '11111111-1111-4111-a111-111111111111',
+          archivoId: '21111111-1111-4111-a111-111111111111',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: 'ine_frente.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 100000,
+          storagePath: `staging/${SESSION}/ine_frente_1000_frente.jpg`,
+        },
+        {
+          clienteId: '11111111-1111-4111-a111-111111111112',
+          archivoId: '21111111-1111-4111-a111-111111111112',
+          tipoArchivo: 'ine_reverso',
+          nombreOriginal: 'ine_reverso.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 90000,
+          storagePath: `staging/${SESSION}/ine_reverso_1001_reverso.jpg`,
+        },
+        {
+          clienteId: '11111111-1111-4111-a111-111111111113',
+          archivoId: '21111111-1111-4111-a111-111111111113',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'recibo.pdf',
+          mimeType: 'application/pdf',
+          tamanoBytes: 50000,
+          storagePath: `staging/${SESSION}/comprobante_ingreso_1002_recibo.pdf`,
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
     await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
     await page.waitForFunction(
       () => document.querySelectorAll('[aria-label^="Eliminar"]').length >= 3,

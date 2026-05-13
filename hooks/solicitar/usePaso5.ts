@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { paso5Schema, type Paso5Data } from '@/lib/solicitud/schemas/index'
 import { useSolicitudStore } from '@/lib/solicitud/store'
 import { useAutoSave } from './useAutoSave'
+import { useEdicionesTracking } from '@/lib/solicitud/infrastructure/telemetria'
 import { normalizeRegister } from '@/lib/solicitud/utils/normalizeRegister'
 
 export function usePaso5(onNext: (datos: Paso5Data) => void) {
@@ -35,6 +36,7 @@ export function usePaso5(onNext: (datos: Paso5Data) => void) {
   const register = normalizeRegister(_register)
 
   useAutoSave(watch, 5)
+  useEdicionesTracking(watch)
 
   return {
     register,

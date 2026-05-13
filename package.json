@@ -30,9 +30,10 @@
     ]
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^4.6.2",
     "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-query": "^5.99.2",
-    "@varolisto/shared-schemas": "^0.12.0",
+    "@varolisto/shared-schemas": "^0.13.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

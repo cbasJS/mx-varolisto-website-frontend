@@ -1,5 +1,6 @@
 import { ACCEPTED_MIME_TYPES } from '@varolisto/shared-schemas/form'
 import type { CrearSolicitudRequest } from '@varolisto/shared-schemas/api'
+import type { TelemetriaSolicitud } from '@varolisto/shared-schemas/form'
 import type { TipoIdentificacion } from '@varolisto/shared-schemas/enums'
 import type { ArchivoSubido } from '@/lib/solicitud/store'
 
@@ -25,6 +26,32 @@ import type {
   Paso5Data,
   Paso7Data,
 } from '@/lib/solicitud/domain/solicitud/schemas'
+import type { TiemposPaso } from '@/lib/solicitud/domain/solicitud/types'
+
+/**
+ * Suma los milisegundos de los pasos 2-6 ignorando nulls.
+ *
+ * El scoring anti-fraude del Bloque 2C consume sólo este derivado: pasos
+ * 1 (calculadora/landing) y 7 (revisión) se capturan pero quedan fuera
+ * porque miden conversión/decisión, no esfuerzo de llenado. La separación
+ * en el contrato evita que un analista futuro haga `sum(paso1..paso7)` y
+ * contamine la señal.
+ *
+ * Cuando los 5 pasos están medidos, el schema valida igualdad estricta
+ * con `tiempoCapturaFormularioMs` (refine en telemetriaSolicitudSchema).
+ * Si alguno es null, la validación cruzada se salta y el cliente decide
+ * qué mandar.
+ */
+export function sumarTiempoCapturaFormulario(tiempos: TiemposPaso): number {
+  const pasos = [
+    tiempos.paso2Ms,
+    tiempos.paso3Ms,
+    tiempos.paso4Ms,
+    tiempos.paso5Ms,
+    tiempos.paso6Ms,
+  ]
+  return pasos.reduce<number>((acc, p) => acc + (p ?? 0), 0)
+}
 
 type DatosSolicitud = Partial<Paso1Data & Paso2Data & Paso3Data & Paso4Data & Paso5Data & Paso7Data>
 
@@ -34,6 +61,12 @@ export interface BuildPayloadInput {
   tipoIdentificacion: TipoIdentificacion
   archivosSubidos: ArchivoSubido[]
   paso7Data: Paso7Data
+  /**
+   * Bloque opcional de telemetría pasiva (Bloque 1.B del scoring v7).
+   * Si el caller no lo provee — o si la captura falló — el payload se
+   * arma sin el bloque. La telemetría es complementaria, no requisito.
+   */
+  telemetria?: TelemetriaSolicitud
 }
 
 export function buildPayload({
@@ -42,6 +75,7 @@ export function buildPayload({
   tipoIdentificacion,
   archivosSubidos,
   paso7Data,
+  telemetria,
 }: BuildPayloadInput): CrearSolicitudRequest {
   return {
     // Paso 2 (UI) — identidad (schema paso1)
@@ -106,5 +140,7 @@ export function buildPayload({
     // Paso 7 (UI) — consentimientos (schema paso7)
     aceptaPrivacidad: paso7Data.aceptaPrivacidad,
     aceptaTerminos: paso7Data.aceptaTerminos,
+    // Bloque 1.B — telemetría pasiva (opcional por contrato).
+    ...(telemetria ? { telemetria } : {}),
   }
 }

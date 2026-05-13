@@ -151,6 +151,7 @@ El store expone `_hasHydrated` (seteado por `onRehydrateStorage`); úsalo para e
 - `COPOMEX_TOKEN` — Token de Copomex (requerido en server-side). En desarrollo: `.env.local`. En producción: Vercel dashboard.
 - `COPOMEX_BASE_URL` — (opcional) URL base de Copomex; default a `https://api.copomex.com/query`.
 - `NEXT_PUBLIC_ENV` — Ambiente activo: `local` | `sandbox` | `production`. Si no se define, se infiere desde `NODE_ENV`. Controla las URLs base de la API en `infrastructure/config/apiConfig.ts`.
+- `NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL` — Switch de QA local. Si se setea a `"1"` y `NODE_ENV !== 'production'`, `calcularFingerprint()` lanza y retorna `undefined` sin invocar `FingerprintJS.load`. Útil para probar la rama de telemetría sin fingerprint (Bloque 1.B). En builds de producción el guard ignora el flag, por lo que no es activable fuera de desarrollo. Uso: `NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL=1 pnpm dev`.
 
 ### Estilos
 

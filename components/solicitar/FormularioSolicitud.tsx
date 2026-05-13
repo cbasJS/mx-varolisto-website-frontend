@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSolicitudNavigation } from '@/hooks/solicitar/useSolicitudNavigation'
 import { useBeforeUnloadCleanup } from '@/hooks/solicitar/useBeforeUnloadCleanup'
-import { useSolicitudStore } from '@/lib/solicitud/store'
+import { useTelemetriaCapture } from '@/lib/solicitud/infrastructure/telemetria'
 import { pasoSlideVariants, pasoTransition } from '@/lib/animations'
 import { pasos } from '@/content/solicitar'
 import BarraPasos from '@/components/wizard/BarraPasos'
@@ -59,11 +59,13 @@ export default function FormularioSolicitud() {
 }
 
 function FormularioSolicitudInner() {
-  const inicializarSession = useSolicitudStore((s) => s.inicializarSession)
-
-  useEffect(() => {
-    inicializarSession()
-  }, [inicializarSession])
+  // Telemetría — Bloque 1.B del scoring v7. El hook se encarga de:
+  //   - inicializar sessionUuid + iniciadoEn al montar (reemplaza al
+  //     useEffect explícito previo de inicializarSession),
+  //   - capturar dispositivo/red/fingerprint/geo,
+  //   - hookear marcarEntradaPaso a los cambios de pasoActual.
+  // Expone getTelemetriaPayload() que pasamos al submit handler.
+  const { getTelemetriaPayload } = useTelemetriaCapture()
 
   const {
     pasoActual,
@@ -79,7 +81,7 @@ function FormularioSolicitudInner() {
     handleBack,
     handleEditarPaso,
     handleSubmit,
-  } = useSolicitudNavigation()
+  } = useSolicitudNavigation({ getTelemetriaPayload })
 
   useBeforeUnloadCleanup(enviando)
 
