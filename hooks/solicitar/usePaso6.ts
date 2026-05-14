@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { useDropzone } from 'react-dropzone'
+import { useDropzone, type FileRejection } from 'react-dropzone'
 import { useSolicitudStore } from '@/lib/solicitud/store'
 import { useUploadArchivo } from './useUploadArchivo'
 export type { EstadoUpload } from './useUploadArchivo'
@@ -13,7 +13,13 @@ import {
   TIPOS_SIN_BANCO,
   COPY_ALTERNATIVOS,
 } from '@/lib/solicitud/utils/lookup-labels'
-import { MAX_COMPROBANTES_INGRESO } from '@/lib/solicitud/domain/solicitud/documentosConfig'
+import {
+  MAX_COMPROBANTES_INGRESO,
+  MAX_SIZE_IMAGEN_BYTES,
+} from '@/lib/solicitud/domain/solicitud/documentosConfig'
+import { mapDropzoneError } from '@/lib/solicitud/domain/solicitud/dropzoneValidation'
+import type { DialogoErroresArchivoItem } from '@/components/solicitar/pasos/paso6/DialogoErroresArchivo'
+import type { WarningArchivoItem } from '@/components/solicitar/pasos/paso6/AvisoWarningsArchivo'
 
 const dropzoneAccept = Object.fromEntries(ACCEPTED_MIME_TYPES.map((mime) => [mime, [] as string[]]))
 
@@ -30,6 +36,23 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   const [sinEstadosCuenta, setSinEstadosCuenta] = useState(false)
   const [duplicadosOmitidos, setDuplicadosOmitidos] = useState(0)
   const [isCleaningUp, setIsCleaningUp] = useState(false)
+  const [dialogoErrores, setDialogoErrores] = useState<{
+    open: boolean
+    items: DialogoErroresArchivoItem[]
+  } | null>(null)
+  const [warningsArchivos, setWarningsArchivos] = useState<WarningArchivoItem[]>([])
+
+  const onDropRejected = useCallback((rejected: FileRejection[]) => {
+    if (rejected.length === 0) return
+    const items: DialogoErroresArchivoItem[] = rejected.map(({ file, errors }) => ({
+      filename: file.name,
+      reason: mapDropzoneError(errors[0]?.code ?? 'unknown'),
+    }))
+    setDialogoErrores({ open: true, items })
+  }, [])
+
+  const cerrarDialogoErrores = useCallback(() => setDialogoErrores(null), [])
+  const descartarWarnings = useCallback(() => setWarningsArchivos([]), [])
 
   const {
     entradas,
@@ -180,8 +203,9 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   )
   const dropzoneComprobante = useDropzone({
     onDrop: onDropComprobante,
+    onDropRejected,
     accept: dropzoneAccept,
-    maxSize: 10 * 1024 * 1024,
+    maxSize: MAX_SIZE_IMAGEN_BYTES,
     maxFiles: 4,
     disabled: disabledComprobante,
   })
@@ -192,8 +216,9 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   )
   const dropzoneIneFrente = useDropzone({
     onDrop: onDropIneFrente,
+    onDropRejected,
     accept: dropzoneAccept,
-    maxSize: 10 * 1024 * 1024,
+    maxSize: MAX_SIZE_IMAGEN_BYTES,
     maxFiles: 1,
     disabled: disabledIneFrente,
   })
@@ -204,8 +229,9 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   )
   const dropzoneIneReverso = useDropzone({
     onDrop: onDropIneReverso,
+    onDropRejected,
     accept: dropzoneAccept,
-    maxSize: 10 * 1024 * 1024,
+    maxSize: MAX_SIZE_IMAGEN_BYTES,
     maxFiles: 1,
     disabled: disabledIneReverso,
   })
@@ -216,8 +242,9 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   )
   const dropzonePasaporte = useDropzone({
     onDrop: onDropPasaporte,
+    onDropRejected,
     accept: dropzoneAccept,
-    maxSize: 10 * 1024 * 1024,
+    maxSize: MAX_SIZE_IMAGEN_BYTES,
     maxFiles: 1,
     disabled: disabledPasaporte,
   })
@@ -228,8 +255,9 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   )
   const dropzoneDomicilio = useDropzone({
     onDrop: onDropDomicilio,
+    onDropRejected,
     accept: dropzoneAccept,
-    maxSize: 10 * 1024 * 1024,
+    maxSize: MAX_SIZE_IMAGEN_BYTES,
     maxFiles: 1,
     disabled: disabledDomicilio,
   })
@@ -272,16 +300,40 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     copyDocumentos,
     puedeOmitirBanco,
     copyAlternativo,
-    dropzoneComprobante: { ...dropzoneComprobante, isDisabled: disabledComprobante },
-    dropzoneIneFrente: { ...dropzoneIneFrente, isDisabled: disabledIneFrente },
-    dropzoneIneReverso: { ...dropzoneIneReverso, isDisabled: disabledIneReverso },
-    dropzonePasaporte: { ...dropzonePasaporte, isDisabled: disabledPasaporte },
-    dropzoneDomicilio: { ...dropzoneDomicilio, isDisabled: disabledDomicilio },
+    dropzoneComprobante: {
+      ...dropzoneComprobante,
+      isDisabled: disabledComprobante,
+      onDropRejected,
+    },
+    dropzoneIneFrente: {
+      ...dropzoneIneFrente,
+      isDisabled: disabledIneFrente,
+      onDropRejected,
+    },
+    dropzoneIneReverso: {
+      ...dropzoneIneReverso,
+      isDisabled: disabledIneReverso,
+      onDropRejected,
+    },
+    dropzonePasaporte: {
+      ...dropzonePasaporte,
+      isDisabled: disabledPasaporte,
+      onDropRejected,
+    },
+    dropzoneDomicilio: {
+      ...dropzoneDomicilio,
+      isDisabled: disabledDomicilio,
+      onDropRejected,
+    },
     tiposSubidos,
     duplicadosOmitidos,
     setDuplicadosOmitidos,
     errorEliminacion,
     setErrorEliminacion,
+    dialogoErrores,
+    cerrarDialogoErrores,
+    warningsArchivos,
+    descartarWarnings,
     handleSubmit,
   }
 }

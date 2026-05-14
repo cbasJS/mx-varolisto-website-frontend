@@ -15,6 +15,8 @@ import { ListaEntradas } from './ListaEntradas'
 import { DropzoneCard } from './DropzoneCard'
 import { ToggleSinEstadosCuenta } from './ToggleSinEstadosCuenta'
 import { AvisoDuplicados } from './AvisoDuplicados'
+import { DialogoErroresArchivo } from './DialogoErroresArchivo'
+import { AvisoWarningsArchivo } from './AvisoWarningsArchivo'
 
 export type { Paso6StoreData }
 
@@ -56,6 +58,10 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
     setDuplicadosOmitidos,
     errorEliminacion,
     setErrorEliminacion,
+    dialogoErrores,
+    cerrarDialogoErrores,
+    warningsArchivos,
+    descartarWarnings,
     handleSubmit,
   } = usePaso6(onNext)
 
@@ -130,7 +136,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             <DropzoneCard
-              variant="id"
+              variant="id-ine"
               label="Frente de tu INE"
               getRootProps={dropzoneIneFrente.getRootProps}
               getInputProps={dropzoneIneFrente.getInputProps}
@@ -139,7 +145,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
               done={tiposSubidos.includes('ine_frente')}
             />
             <DropzoneCard
-              variant="id"
+              variant="id-ine"
               label="Reverso de tu INE"
               getRootProps={dropzoneIneReverso.getRootProps}
               getInputProps={dropzoneIneReverso.getInputProps}
@@ -162,7 +168,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
             Foto de tu pasaporte
           </p>
           <DropzoneCard
-            variant="id"
+            variant="id-pasaporte"
             label="Hoja con tu foto"
             getRootProps={dropzonePasaporte.getRootProps}
             getInputProps={dropzonePasaporte.getInputProps}
@@ -197,7 +203,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
       {/* Dropzone comprobante */}
       <div className="mt-4">
         <DropzoneCard
-          variant="comprobante"
+          variant="comprobante-ingreso"
           getRootProps={dropzoneComprobante.getRootProps}
           getInputProps={dropzoneComprobante.getInputProps}
           isDragActive={dropzoneComprobante.isDragActive}
@@ -220,7 +226,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
 
       <div className="mt-4">
         <DropzoneCard
-          variant="id"
+          variant="comprobante-domicilio"
           label="Comprobante de domicilio"
           icon={Home}
           getRootProps={dropzoneDomicilio.getRootProps}
@@ -238,6 +244,14 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
       />
 
       <AvisoDuplicados cantidad={duplicadosOmitidos} onDismiss={() => setDuplicadosOmitidos(0)} />
+
+      <AvisoWarningsArchivo items={warningsArchivos} onDismiss={descartarWarnings} />
+
+      <DialogoErroresArchivo
+        open={dialogoErrores?.open ?? false}
+        onClose={cerrarDialogoErrores}
+        items={dialogoErrores?.items ?? []}
+      />
     </PasoFormShell>
   )
 }
