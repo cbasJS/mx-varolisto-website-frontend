@@ -18,8 +18,24 @@ import {
   MAX_SIZE_IMAGEN_BYTES,
 } from '@/lib/solicitud/domain/solicitud/documentosConfig'
 import { mapDropzoneError } from '@/lib/solicitud/domain/solicitud/dropzoneValidation'
+import {
+  procesarArchivo,
+  type ContextoProcesamiento,
+} from '@/lib/solicitud/domain/solicitud/fileProcessor'
+import { logProcesamiento } from '@/lib/solicitud/domain/solicitud/telemetria'
 import type { DialogoErroresArchivoItem } from '@/components/solicitar/pasos/paso6/DialogoErroresArchivo'
 import type { WarningArchivoItem } from '@/components/solicitar/pasos/paso6/AvisoWarningsArchivo'
+
+function getContextoFor(tipo: TipoArchivo): ContextoProcesamiento {
+  if (tipo === 'ine_frente' || tipo === 'ine_reverso') return 'identidad-ine'
+  if (tipo === 'pasaporte_principal') return 'identidad-pasaporte'
+  if (tipo === 'comprobante_ingreso') return 'ingresos'
+  return 'domicilio'
+}
+
+function procesandoKey(tipo: TipoArchivo, filename: string): string {
+  return `${tipo}:${filename}`
+}
 
 const dropzoneAccept = Object.fromEntries(ACCEPTED_MIME_TYPES.map((mime) => [mime, [] as string[]]))
 
@@ -41,6 +57,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     items: DialogoErroresArchivoItem[]
   } | null>(null)
   const [warningsArchivos, setWarningsArchivos] = useState<WarningArchivoItem[]>([])
+  const [procesando, setProcesando] = useState<Set<string>>(() => new Set())
 
   const onDropRejected = useCallback((rejected: FileRejection[]) => {
     if (rejected.length === 0) return
@@ -150,7 +167,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   )
 
   const agregarConTipo = useCallback(
-    (files: File[], tipo: TipoArchivo) => {
+    async (files: File[], tipo: TipoArchivo) => {
       const yaPresentes = new Set([
         ...archivosSubidos.filter((a) => a.tipoArchivo === tipo).map((a) => a.nombreOriginal),
         ...entradas.filter((e) => e.tipoArchivo === tipo).map((e) => e.file.name),
@@ -164,7 +181,54 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
         tipo === 'comprobante_ingreso' ? MAX_COMPROBANTES_INGRESO - totalComprobantes : cupoGlobal
       const cupo = Math.min(cupoGlobal, cupoTipo)
       if (cupo <= 0) return
-      agregarArchivos(sinDuplicados.slice(0, cupo), tipo)
+      const candidatos = sinDuplicados.slice(0, cupo)
+      const contexto = getContextoFor(tipo)
+
+      setProcesando((prev) => {
+        const next = new Set(prev)
+        for (const f of candidatos) next.add(procesandoKey(tipo, f.name))
+        return next
+      })
+
+      const aprobados: File[] = []
+      const errores: DialogoErroresArchivoItem[] = []
+      const advertencias: WarningArchivoItem[] = []
+
+      try {
+        for (const file of candidatos) {
+          const t0 = performance.now()
+          const result = await procesarArchivo(file, contexto)
+          const dt = performance.now() - t0
+          logProcesamiento({
+            tipo,
+            contexto,
+            ok: result.ok,
+            dt,
+            code: result.ok ? null : result.reason.code,
+            warnings: result.ok ? result.warnings.map((w) => w.code) : [],
+          })
+          if (!result.ok) {
+            errores.push({ filename: file.name, reason: result.reason.mensaje })
+          } else {
+            aprobados.push(result.file)
+            for (const w of result.warnings) {
+              advertencias.push({ filename: file.name, mensaje: w.mensaje })
+            }
+          }
+        }
+      } finally {
+        setProcesando((prev) => {
+          const next = new Set(prev)
+          for (const f of candidatos) next.delete(procesandoKey(tipo, f.name))
+          return next
+        })
+      }
+
+      if (aprobados.length > 0) agregarArchivos(aprobados, tipo)
+      if (errores.length > 0) setDialogoErrores({ open: true, items: errores })
+      if (advertencias.length > 0) {
+        setWarningsArchivos((prev) => [...prev, ...advertencias])
+      }
     },
     [archivosSubidos, entradas, totalArchivos, totalComprobantes, agregarArchivos],
   )
@@ -186,16 +250,36 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
       (e.estado === 'pending' || e.estado === 'uploading'),
   )
 
+  const procesandoIneFrente = [...procesando].some((k) => k.startsWith('ine_frente:'))
+  const procesandoIneReverso = [...procesando].some((k) => k.startsWith('ine_reverso:'))
+  const procesandoPasaporte = [...procesando].some((k) => k.startsWith('pasaporte_principal:'))
+  const procesandoComprobante = [...procesando].some((k) => k.startsWith('comprobante_ingreso:'))
+  const procesandoDomicilio = [...procesando].some((k) => k.startsWith('comprobante_domicilio:'))
+
   const disabledComprobante =
-    totalComprobantes >= MAX_COMPROBANTES_INGRESO || comprobantesEnVuelo > 0
+    totalComprobantes >= MAX_COMPROBANTES_INGRESO ||
+    comprobantesEnVuelo > 0 ||
+    procesandoComprobante
   const disabledIneFrente =
-    tiposSubidos.includes('ine_frente') || ineFrenteEnVuelo || totalArchivos >= 7
+    tiposSubidos.includes('ine_frente') ||
+    ineFrenteEnVuelo ||
+    totalArchivos >= 7 ||
+    procesandoIneFrente
   const disabledIneReverso =
-    tiposSubidos.includes('ine_reverso') || ineReversoEnVuelo || totalArchivos >= 7
+    tiposSubidos.includes('ine_reverso') ||
+    ineReversoEnVuelo ||
+    totalArchivos >= 7 ||
+    procesandoIneReverso
   const disabledPasaporte =
-    tiposSubidos.includes('pasaporte_principal') || pasaporteEnVuelo || totalArchivos >= 7
+    tiposSubidos.includes('pasaporte_principal') ||
+    pasaporteEnVuelo ||
+    totalArchivos >= 7 ||
+    procesandoPasaporte
   const disabledDomicilio =
-    tiposSubidos.includes('comprobante_domicilio') || domicilioEnVuelo || totalArchivos >= 7
+    tiposSubidos.includes('comprobante_domicilio') ||
+    domicilioEnVuelo ||
+    totalArchivos >= 7 ||
+    procesandoDomicilio
 
   const onDropComprobante = useCallback(
     (accepted: File[]) => agregarConTipo(accepted, 'comprobante_ingreso'),
@@ -303,26 +387,31 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     dropzoneComprobante: {
       ...dropzoneComprobante,
       isDisabled: disabledComprobante,
+      isProcesando: procesandoComprobante,
       onDropRejected,
     },
     dropzoneIneFrente: {
       ...dropzoneIneFrente,
       isDisabled: disabledIneFrente,
+      isProcesando: procesandoIneFrente,
       onDropRejected,
     },
     dropzoneIneReverso: {
       ...dropzoneIneReverso,
       isDisabled: disabledIneReverso,
+      isProcesando: procesandoIneReverso,
       onDropRejected,
     },
     dropzonePasaporte: {
       ...dropzonePasaporte,
       isDisabled: disabledPasaporte,
+      isProcesando: procesandoPasaporte,
       onDropRejected,
     },
     dropzoneDomicilio: {
       ...dropzoneDomicilio,
       isDisabled: disabledDomicilio,
+      isProcesando: procesandoDomicilio,
       onDropRejected,
     },
     tiposSubidos,
@@ -334,6 +423,8 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
     cerrarDialogoErrores,
     warningsArchivos,
     descartarWarnings,
+    procesando,
+    agregarConTipo,
     handleSubmit,
   }
 }

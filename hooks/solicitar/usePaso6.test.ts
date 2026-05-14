@@ -2,8 +2,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import type { FileRejection } from 'react-dropzone'
+
+vi.mock('@/lib/solicitud/domain/solicitud/fileProcessor', () => ({
+  procesarArchivo: vi.fn(),
+}))
+vi.mock('@/lib/solicitud/domain/solicitud/telemetria', () => ({
+  logProcesamiento: vi.fn(),
+}))
+
 import { usePaso6 } from './usePaso6'
 import { useSolicitudStore } from '@/lib/solicitud/store'
+import { procesarArchivo } from '@/lib/solicitud/domain/solicitud/fileProcessor'
+
+const procesarArchivoMock = procesarArchivo as unknown as ReturnType<typeof vi.fn>
 
 // Archivos representativos ya subidos a staging (hidratados desde sessionStorage)
 // CP 06600 = Col. Juárez, Cuauhtémoc, Ciudad de México
@@ -264,5 +275,120 @@ describe('usePaso6 — estado para diálogo de errores y banner de warnings', ()
       result.current.cerrarDialogoErrores()
     })
     expect(result.current.dialogoErrores).toBeNull()
+  })
+})
+
+describe('usePaso6 — agregarConTipo async + procesamiento de archivos (Fase B)', () => {
+  beforeEach(() => {
+    useSolicitudStore.setState({
+      archivosSubidos: [],
+      sessionUuid: 'session-06600-abc',
+      tipoIdentificacion: 'ine',
+      datos: { tipoActividad: 'empleado_formal' },
+    })
+    procesarArchivoMock.mockReset()
+  })
+
+  it('expone procesando como Set inicialmente vacío', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(result.current.procesando).toBeInstanceOf(Set)
+    expect(result.current.procesando.size).toBe(0)
+  })
+
+  it('expone agregarConTipo como función', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(typeof result.current.agregarConTipo).toBe('function')
+  })
+
+  it('si procesarArchivo retorna ok=true, el archivo PROCESADO (no el original) se envía a upload', async () => {
+    const original = new File([new Uint8Array(1024)], 'ine.jpg', { type: 'image/jpeg' })
+    const procesado = new File([new Uint8Array(512)], 'ine.jpg', { type: 'image/jpeg' })
+    procesarArchivoMock.mockResolvedValue({ ok: true, file: procesado, warnings: [] })
+
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    await act(async () => {
+      await result.current.agregarConTipo([original], 'ine_frente')
+    })
+
+    expect(procesarArchivoMock).toHaveBeenCalledWith(original, 'identidad-ine')
+    await waitFor(() => {
+      const entrada = result.current.entradas.find((e) => e.tipoArchivo === 'ine_frente')
+      expect(entrada).toBeDefined()
+      expect(entrada?.file).toBe(procesado)
+    })
+  })
+
+  it('si procesarArchivo retorna ok=false, dialogoErrores se puebla y no se sube nada', async () => {
+    const original = new File([new Uint8Array(1024)], 'ine.heic', { type: 'image/heic' })
+    procesarArchivoMock.mockResolvedValue({
+      ok: false,
+      reason: { code: 'heic-no-soportado', mensaje: 'Tu iPhone guardó la foto en formato HEIC.' },
+    })
+
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    await act(async () => {
+      await result.current.agregarConTipo([original], 'ine_frente')
+    })
+
+    expect(result.current.dialogoErrores).not.toBeNull()
+    expect(result.current.dialogoErrores?.items[0].filename).toBe('ine.heic')
+    expect(result.current.dialogoErrores?.items[0].reason).toMatch(/HEIC/i)
+    // no entradas creadas
+    expect(result.current.entradas.filter((e) => e.tipoArchivo === 'ine_frente')).toHaveLength(0)
+  })
+
+  it('warnings del procesador se acumulan en warningsArchivos', async () => {
+    const file = new File([new Uint8Array(1024)], 'ine.jpg', { type: 'image/jpeg' })
+    procesarArchivoMock.mockResolvedValue({
+      ok: true,
+      file,
+      warnings: [{ code: 'blur-moderado', mensaje: 'La foto está un poco borrosa.' }],
+    })
+
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    await act(async () => {
+      await result.current.agregarConTipo([file], 'ine_frente')
+    })
+
+    expect(result.current.warningsArchivos).toHaveLength(1)
+    expect(result.current.warningsArchivos[0].filename).toBe('ine.jpg')
+    expect(result.current.warningsArchivos[0].mensaje).toMatch(/borrosa/i)
+  })
+
+  it('mapea cada tipoArchivo a su ContextoProcesamiento esperado', async () => {
+    const file = new File([new Uint8Array(100)], 'a.jpg', { type: 'image/jpeg' })
+    procesarArchivoMock.mockResolvedValue({ ok: true, file, warnings: [] })
+
+    useSolicitudStore.setState({
+      datos: { tipoActividad: 'empleado_formal' },
+      archivosSubidos: [],
+      sessionUuid: 'session-06600',
+      tipoIdentificacion: 'pasaporte',
+    })
+
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    await act(async () => {
+      await result.current.agregarConTipo([file], 'ine_frente')
+    })
+    expect(procesarArchivoMock).toHaveBeenLastCalledWith(expect.any(File), 'identidad-ine')
+
+    await act(async () => {
+      await result.current.agregarConTipo([file], 'pasaporte_principal')
+    })
+    expect(procesarArchivoMock).toHaveBeenLastCalledWith(expect.any(File), 'identidad-pasaporte')
+
+    await act(async () => {
+      await result.current.agregarConTipo([file], 'comprobante_ingreso')
+    })
+    expect(procesarArchivoMock).toHaveBeenLastCalledWith(expect.any(File), 'ingresos')
+
+    await act(async () => {
+      await result.current.agregarConTipo([file], 'comprobante_domicilio')
+    })
+    expect(procesarArchivoMock).toHaveBeenLastCalledWith(expect.any(File), 'domicilio')
   })
 })
