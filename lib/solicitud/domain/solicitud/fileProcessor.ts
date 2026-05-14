@@ -1,8 +1,9 @@
 import {
   MAX_SIZE_IMAGEN_BYTES,
   MAX_SIZE_PDF_BYTES,
-  PDF_MAX_PAGES_COMPROBANTE,
+  PDF_MAX_PAGES_DOMICILIO,
   PDF_MAX_PAGES_IDENTIDAD,
+  PDF_MAX_PAGES_INGRESOS,
 } from './documentosConfig'
 import { detectFileType, mimeToKind, compressImage, getBlurScore } from './imageUtils'
 import { validatePDF } from './pdfUtils'
@@ -37,10 +38,15 @@ const BLUR_RECHAZO_LIMIT = 30
 const BLUR_WARNING_LIMIT = 100
 
 function pdfMaxPagesFor(contexto: ContextoProcesamiento): number {
-  if (contexto === 'identidad-ine' || contexto === 'identidad-pasaporte') {
-    return PDF_MAX_PAGES_IDENTIDAD
+  switch (contexto) {
+    case 'identidad-ine':
+    case 'identidad-pasaporte':
+      return PDF_MAX_PAGES_IDENTIDAD
+    case 'ingresos':
+      return PDF_MAX_PAGES_INGRESOS
+    case 'domicilio':
+      return PDF_MAX_PAGES_DOMICILIO
   }
-  return PDF_MAX_PAGES_COMPROBANTE
 }
 
 export async function procesarArchivo(

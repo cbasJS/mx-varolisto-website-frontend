@@ -201,7 +201,7 @@ describe('procesarArchivo — PDF (Fase C integra validatePDF)', () => {
     mocked.validatePDF.mockResolvedValue({ ok: true })
     const result = await procesarArchivo(pdf, 'ingresos')
     expect(result.ok).toBe(true)
-    expect(mocked.validatePDF).toHaveBeenCalledWith(pdf, 3)
+    expect(mocked.validatePDF).toHaveBeenCalledWith(pdf, 20)
   })
 
   it('PDF no pasa por el pipeline de imagen (compresión ni blur)', async () => {
@@ -225,13 +225,13 @@ describe('procesarArchivo — PDF (Fase C integra validatePDF)', () => {
     expect(mocked.validatePDF).toHaveBeenCalledWith(expect.any(File), 2)
   })
 
-  it('ingresos: pasa maxPages=3 a validatePDF', async () => {
+  it('ingresos: pasa maxPages=20 a validatePDF (cubre estados de cuenta de banca tradicional)', async () => {
     mocked.validatePDF.mockResolvedValue({ ok: true })
     await procesarArchivo(makePDF('a.pdf', 100 * 1024), 'ingresos')
-    expect(mocked.validatePDF).toHaveBeenCalledWith(expect.any(File), 3)
+    expect(mocked.validatePDF).toHaveBeenCalledWith(expect.any(File), 20)
   })
 
-  it('domicilio: pasa maxPages=3 a validatePDF', async () => {
+  it('domicilio: pasa maxPages=3 a validatePDF (recibo de servicio típico)', async () => {
     mocked.validatePDF.mockResolvedValue({ ok: true })
     await procesarArchivo(makePDF('a.pdf', 100 * 1024), 'domicilio')
     expect(mocked.validatePDF).toHaveBeenCalledWith(expect.any(File), 3)

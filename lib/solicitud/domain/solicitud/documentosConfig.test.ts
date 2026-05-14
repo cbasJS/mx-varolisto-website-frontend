@@ -3,8 +3,9 @@ import {
   MAX_COMPROBANTES_INGRESO,
   MAX_SIZE_IMAGEN_BYTES,
   MAX_SIZE_PDF_BYTES,
-  PDF_MAX_PAGES_COMPROBANTE,
+  PDF_MAX_PAGES_DOMICILIO,
   PDF_MAX_PAGES_IDENTIDAD,
+  PDF_MAX_PAGES_INGRESOS,
 } from './documentosConfig'
 
 describe('documentosConfig — límites por tipo y contexto', () => {
@@ -28,7 +29,11 @@ describe('documentosConfig — límites por tipo y contexto', () => {
     expect(PDF_MAX_PAGES_IDENTIDAD).toBe(2)
   })
 
-  it('PDF_MAX_PAGES_COMPROBANTE es 3 — recibo de servicio típico ≤ 3 hojas', () => {
-    expect(PDF_MAX_PAGES_COMPROBANTE).toBe(3)
+  it('PDF_MAX_PAGES_INGRESOS es 20 — cubre estados de cuenta de banca tradicional (BBVA, Santander, Banorte) de 2–3 meses en un solo PDF', () => {
+    expect(PDF_MAX_PAGES_INGRESOS).toBe(20)
+  })
+
+  it('PDF_MAX_PAGES_DOMICILIO es 3 — recibo de servicio típico (CFE, Telmex, etc.) cabe en 1–3 hojas', () => {
+    expect(PDF_MAX_PAGES_DOMICILIO).toBe(3)
   })
 })
