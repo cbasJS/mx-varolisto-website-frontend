@@ -1,7 +1,7 @@
 export const MAX_COMPROBANTES_INGRESO = 3
 
 export const MAX_SIZE_IMAGEN_BYTES = 15 * 1024 * 1024
-export const MAX_SIZE_PDF_BYTES = 8 * 1024 * 1024
+export const MAX_SIZE_PDF_BYTES = 15 * 1024 * 1024
 
 export const PDF_MAX_PAGES_DOMICILIO = 5
 export const PDF_MAX_PAGES_INGRESOS = 15

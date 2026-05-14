@@ -17,10 +17,7 @@ import {
   MAX_COMPROBANTES_INGRESO,
   MAX_SIZE_IMAGEN_BYTES,
 } from '@/lib/solicitud/domain/solicitud/documentosConfig'
-import {
-  validarTamanoPorTipo,
-  mapDropzoneError,
-} from '@/lib/solicitud/domain/solicitud/dropzoneValidation'
+import { mapDropzoneError } from '@/lib/solicitud/domain/solicitud/dropzoneValidation'
 import type { DialogoErroresArchivoItem } from '@/components/solicitar/pasos/paso6/DialogoErroresArchivo'
 import type { WarningArchivoItem } from '@/components/solicitar/pasos/paso6/AvisoWarningsArchivo'
 
@@ -207,7 +204,6 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   const dropzoneComprobante = useDropzone({
     onDrop: onDropComprobante,
     onDropRejected,
-    validator: validarTamanoPorTipo,
     accept: dropzoneAccept,
     maxSize: MAX_SIZE_IMAGEN_BYTES,
     maxFiles: 4,
@@ -221,7 +217,6 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   const dropzoneIneFrente = useDropzone({
     onDrop: onDropIneFrente,
     onDropRejected,
-    validator: validarTamanoPorTipo,
     accept: dropzoneAccept,
     maxSize: MAX_SIZE_IMAGEN_BYTES,
     maxFiles: 1,
@@ -235,7 +230,6 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   const dropzoneIneReverso = useDropzone({
     onDrop: onDropIneReverso,
     onDropRejected,
-    validator: validarTamanoPorTipo,
     accept: dropzoneAccept,
     maxSize: MAX_SIZE_IMAGEN_BYTES,
     maxFiles: 1,
@@ -249,7 +243,6 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   const dropzonePasaporte = useDropzone({
     onDrop: onDropPasaporte,
     onDropRejected,
-    validator: validarTamanoPorTipo,
     accept: dropzoneAccept,
     maxSize: MAX_SIZE_IMAGEN_BYTES,
     maxFiles: 1,
@@ -263,7 +256,6 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
   const dropzoneDomicilio = useDropzone({
     onDrop: onDropDomicilio,
     onDropRejected,
-    validator: validarTamanoPorTipo,
     accept: dropzoneAccept,
     maxSize: MAX_SIZE_IMAGEN_BYTES,
     maxFiles: 1,

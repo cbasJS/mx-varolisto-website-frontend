@@ -16,12 +16,12 @@ describe('documentosConfig — límites por tipo y contexto', () => {
     expect(MAX_SIZE_IMAGEN_BYTES).toBe(15 * 1024 * 1024)
   })
 
-  it('MAX_SIZE_PDF_BYTES es 8 MB', () => {
-    expect(MAX_SIZE_PDF_BYTES).toBe(8 * 1024 * 1024)
+  it('MAX_SIZE_PDF_BYTES es 15 MB (unificado con imagen para no confundir al usuario)', () => {
+    expect(MAX_SIZE_PDF_BYTES).toBe(15 * 1024 * 1024)
   })
 
-  it('MAX_SIZE_PDF_BYTES es menor que MAX_SIZE_IMAGEN_BYTES (PDF más restrictivo)', () => {
-    expect(MAX_SIZE_PDF_BYTES).toBeLessThan(MAX_SIZE_IMAGEN_BYTES)
+  it('imagen y PDF comparten el mismo límite máximo', () => {
+    expect(MAX_SIZE_PDF_BYTES).toBe(MAX_SIZE_IMAGEN_BYTES)
   })
 
   it('PDF_MAX_PAGES_DOMICILIO es 5 — cubre 95% de la lista blanca de comprobantes', () => {
