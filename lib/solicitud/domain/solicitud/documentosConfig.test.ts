@@ -3,8 +3,8 @@ import {
   MAX_COMPROBANTES_INGRESO,
   MAX_SIZE_IMAGEN_BYTES,
   MAX_SIZE_PDF_BYTES,
+  MIN_SIZE_PDF_BYTES,
   PDF_MAX_PAGES_DOMICILIO,
-  RESOLUCION_MIN_DOMICILIO_PX,
 } from './documentosConfig'
 
 describe('documentosConfig — límites por tipo y contexto', () => {
@@ -28,7 +28,7 @@ describe('documentosConfig — límites por tipo y contexto', () => {
     expect(PDF_MAX_PAGES_DOMICILIO).toBe(5)
   })
 
-  it('RESOLUCION_MIN_DOMICILIO_PX es 800 — texto pequeño exige más resolución que INE', () => {
-    expect(RESOLUCION_MIN_DOMICILIO_PX).toBe(800)
+  it('MIN_SIZE_PDF_BYTES es 50 KB — PDFs más chicos suelen estar vacíos o dañados', () => {
+    expect(MIN_SIZE_PDF_BYTES).toBe(50 * 1024)
   })
 })

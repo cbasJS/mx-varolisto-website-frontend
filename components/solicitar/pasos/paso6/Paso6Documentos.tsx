@@ -142,6 +142,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
               getInputProps={dropzoneIneFrente.getInputProps}
               isDragActive={dropzoneIneFrente.isDragActive}
               disabled={dropzoneIneFrente.isDisabled}
+              procesando={dropzoneIneFrente.isProcesando}
               done={tiposSubidos.includes('ine_frente')}
             />
             <DropzoneCard
@@ -151,6 +152,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
               getInputProps={dropzoneIneReverso.getInputProps}
               isDragActive={dropzoneIneReverso.isDragActive}
               disabled={dropzoneIneReverso.isDisabled ?? false}
+              procesando={dropzoneIneReverso.isProcesando}
               done={tiposSubidos.includes('ine_reverso')}
             />
           </div>
@@ -172,6 +174,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
             label="Hoja con tu foto"
             getRootProps={dropzonePasaporte.getRootProps}
             getInputProps={dropzonePasaporte.getInputProps}
+            procesando={dropzonePasaporte.isProcesando}
             isDragActive={dropzonePasaporte.isDragActive}
             disabled={dropzonePasaporte.isDisabled ?? false}
             done={tiposSubidos.includes('pasaporte_principal')}
@@ -208,6 +211,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
           getInputProps={dropzoneComprobante.getInputProps}
           isDragActive={dropzoneComprobante.isDragActive}
           disabled={dropzoneComprobante.isDisabled}
+          procesando={dropzoneComprobante.isProcesando}
         />
       </div>
 
@@ -233,6 +237,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
           getInputProps={dropzoneDomicilio.getInputProps}
           isDragActive={dropzoneDomicilio.isDragActive}
           disabled={dropzoneDomicilio.isDisabled ?? false}
+          procesando={dropzoneDomicilio.isProcesando}
           done={tiposSubidos.includes('comprobante_domicilio')}
         />
       </div>
