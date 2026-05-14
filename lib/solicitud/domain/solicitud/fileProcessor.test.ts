@@ -182,7 +182,7 @@ describe('procesarArchivo — PDF (Fase C integra validatePDF)', () => {
     mocked.mimeToKind.mockReturnValue('pdf')
   })
 
-  it('PDF dentro del rango (50 KB–15 MB) y dentro del límite de páginas acepta', async () => {
+  it('PDF dentro de 15 MB y dentro del límite de páginas acepta', async () => {
     const pdf = makePDF('estado.pdf', 2 * 1024 * 1024)
     mocked.validatePDF.mockResolvedValue({ ok: true })
     const result = await procesarArchivo(pdf, 'ingresos')
@@ -193,19 +193,15 @@ describe('procesarArchivo — PDF (Fase C integra validatePDF)', () => {
     }
   })
 
-  it('PDF < 50 KB → rechazo con código pdf-muy-pequeno (no llama validatePDF)', async () => {
-    const pdf = makePDF('vacio.pdf', 10 * 1024)
-    const result = await procesarArchivo(pdf, 'ingresos')
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason.code).toBe('pdf-muy-pequeno')
-    expect(mocked.validatePDF).not.toHaveBeenCalled()
-  })
-
-  it('PDF exactamente en 50 KB acepta (umbral estrictamente <)', async () => {
-    const pdf = makePDF('borderline.pdf', 50 * 1024)
+  it('PDF nativo digital muy compacto (10 KB, 3 páginas de texto) pasa a validatePDF', async () => {
+    // Estados de cuenta Nu/Mercado Pago y facturas SAT digitales rondan los
+    // 10-40 KB. La validación autoritativa es pdfjs (validatePDF), no un
+    // umbral de tamaño heurístico.
+    const pdf = makePDF('estado_nu.pdf', 10 * 1024)
     mocked.validatePDF.mockResolvedValue({ ok: true })
     const result = await procesarArchivo(pdf, 'ingresos')
     expect(result.ok).toBe(true)
+    expect(mocked.validatePDF).toHaveBeenCalledWith(pdf, 3)
   })
 
   it('PDF no pasa por el pipeline de imagen (compresión ni blur)', async () => {

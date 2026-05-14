@@ -3,7 +3,6 @@ import {
   MAX_COMPROBANTES_INGRESO,
   MAX_SIZE_IMAGEN_BYTES,
   MAX_SIZE_PDF_BYTES,
-  MIN_SIZE_PDF_BYTES,
   PDF_MAX_PAGES_COMPROBANTE,
   PDF_MAX_PAGES_IDENTIDAD,
 } from './documentosConfig'
@@ -23,10 +22,6 @@ describe('documentosConfig — límites por tipo y contexto', () => {
 
   it('imagen y PDF comparten el mismo límite máximo', () => {
     expect(MAX_SIZE_PDF_BYTES).toBe(MAX_SIZE_IMAGEN_BYTES)
-  })
-
-  it('MIN_SIZE_PDF_BYTES es 50 KB — PDFs más chicos suelen estar vacíos o dañados', () => {
-    expect(MIN_SIZE_PDF_BYTES).toBe(50 * 1024)
   })
 
   it('PDF_MAX_PAGES_IDENTIDAD es 2 — INE/pasaporte caben en máximo 2 hojas', () => {

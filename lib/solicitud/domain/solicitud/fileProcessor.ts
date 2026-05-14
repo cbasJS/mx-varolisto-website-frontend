@@ -1,7 +1,6 @@
 import {
   MAX_SIZE_IMAGEN_BYTES,
   MAX_SIZE_PDF_BYTES,
-  MIN_SIZE_PDF_BYTES,
   PDF_MAX_PAGES_COMPROBANTE,
   PDF_MAX_PAGES_IDENTIDAD,
 } from './documentosConfig'
@@ -23,7 +22,6 @@ export type WarningProcesamiento =
 export type RazonRechazo =
   | { code: 'tamano-imagen'; mensaje: string }
   | { code: 'tamano-pdf'; mensaje: string }
-  | { code: 'pdf-muy-pequeno'; mensaje: string }
   | { code: 'heic-no-soportado'; mensaje: string }
   | { code: 'mime-spoof'; mensaje: string }
   | { code: 'blur-grave'; mensaje: string }
@@ -96,16 +94,6 @@ export async function procesarArchivo(
   }
 
   if (esPDF) {
-    if (file.size < MIN_SIZE_PDF_BYTES) {
-      return {
-        ok: false,
-        reason: {
-          code: 'pdf-muy-pequeno',
-          mensaje:
-            'El PDF está vacío o parece dañado. Sube uno legible que muestre claramente la información.',
-        },
-      }
-    }
     const pdfResult = await validatePDF(file, pdfMaxPagesFor(contexto))
     if (!pdfResult.ok) {
       return { ok: false, reason: pdfResult.reason }
