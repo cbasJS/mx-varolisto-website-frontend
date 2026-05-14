@@ -3,8 +3,6 @@ import {
   MAX_SIZE_IMAGEN_BYTES,
   MAX_SIZE_PDF_BYTES,
   MIN_SIZE_PDF_BYTES,
-  RESOLUCION_MIN_DOMICILIO_PX,
-  RESOLUCION_MIN_IDENTIDAD_PX,
 } from './documentosConfig'
 import {
   detectFileType,
@@ -32,7 +30,6 @@ export type RazonRechazo =
   | { code: 'pdf-muy-pequeno'; mensaje: string }
   | { code: 'heic-no-soportado'; mensaje: string }
   | { code: 'mime-spoof'; mensaje: string }
-  | { code: 'resolucion-baja'; mensaje: string }
   | { code: 'aspecto-extremo'; mensaje: string }
   | { code: 'blur-grave'; mensaje: string }
   | { code: 'pdf-paginas-excedidas'; mensaje: string }
@@ -48,6 +45,10 @@ const BLUR_WARNING_LIMIT = 80
 
 export async function procesarArchivo(
   file: File,
+  // Sin uso en Fase B tras remover el check de resolución mínima. Fase C lo
+  // consume para conteo de páginas por contexto (identidad ≤2, comprobante
+  // ≤3) y para los warnings de aspect ratio por tipo (spec §5.1).
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   contexto: ContextoProcesamiento,
 ): Promise<ResultadoProcesamiento> {
   const warnings: WarningProcesamiento[] = []
@@ -115,18 +116,6 @@ export async function procesarArchivo(
   const compressed = await compressImage(file)
 
   const dims = await getImageDimensions(compressed)
-  const minDim =
-    contexto === 'domicilio' ? RESOLUCION_MIN_DOMICILIO_PX : RESOLUCION_MIN_IDENTIDAD_PX
-  if (Math.min(dims.width, dims.height) < minDim) {
-    return {
-      ok: false,
-      reason: {
-        code: 'resolucion-baja',
-        mensaje: 'La imagen está muy pixelada. Acércate más al documento o limpia el lente.',
-      },
-    }
-  }
-
   const ratio = Math.max(dims.width, dims.height) / Math.min(dims.width, dims.height)
   if (ratio > ASPECT_RATIO_MAX) {
     return {

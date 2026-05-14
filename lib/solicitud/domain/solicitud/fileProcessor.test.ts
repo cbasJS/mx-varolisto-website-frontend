@@ -130,46 +130,6 @@ describe('procesarArchivo — pipeline de imagen feliz', () => {
   })
 })
 
-describe('procesarArchivo — resolución mínima por contexto', () => {
-  beforeEach(() => {
-    mocked.detectFileType.mockResolvedValue('jpg')
-    mocked.mimeToKind.mockReturnValue('jpg')
-  })
-
-  it('identidad-ine: 799 px de lado corto → rechazo (Textract pide >=25 px/char y a 800 px tenemos margen)', async () => {
-    mocked.getImageDimensions.mockResolvedValue({ width: 799, height: 1200 })
-    const result = await procesarArchivo(makeImage('a.jpg', 100_000), 'identidad-ine')
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason.code).toBe('resolucion-baja')
-  })
-
-  it('identidad-ine: 800 px de lado corto → aceptado', async () => {
-    mocked.getImageDimensions.mockResolvedValue({ width: 800, height: 1200 })
-    const result = await procesarArchivo(makeImage('a.jpg', 100_000), 'identidad-ine')
-    expect(result.ok).toBe(true)
-  })
-
-  it('identidad-pasaporte: 700 px de lado corto → rechazo (mismo umbral que INE)', async () => {
-    mocked.getImageDimensions.mockResolvedValue({ width: 700, height: 1000 })
-    const result = await procesarArchivo(makeImage('a.jpg', 100_000), 'identidad-pasaporte')
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason.code).toBe('resolucion-baja')
-  })
-
-  it('domicilio: 700 px de lado corto → rechazo (mínimo 800)', async () => {
-    mocked.getImageDimensions.mockResolvedValue({ width: 700, height: 1200 })
-    const result = await procesarArchivo(makeImage('a.jpg', 100_000), 'domicilio')
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason.code).toBe('resolucion-baja')
-  })
-
-  it('domicilio: 800 px de lado corto → aceptado', async () => {
-    mocked.getImageDimensions.mockResolvedValue({ width: 800, height: 1200 })
-    const result = await procesarArchivo(makeImage('a.jpg', 100_000), 'domicilio')
-    expect(result.ok).toBe(true)
-  })
-})
-
 describe('procesarArchivo — aspect ratio extremo (franjas recortadas)', () => {
   beforeEach(() => {
     mocked.detectFileType.mockResolvedValue('jpg')
