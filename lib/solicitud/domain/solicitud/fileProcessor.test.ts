@@ -136,20 +136,27 @@ describe('procesarArchivo — resolución mínima por contexto', () => {
     mocked.mimeToKind.mockReturnValue('jpg')
   })
 
-  it('identidad-ine: 599 px de lado corto → rechazo (mínimo 600)', async () => {
-    mocked.getImageDimensions.mockResolvedValue({ width: 599, height: 800 })
+  it('identidad-ine: 799 px de lado corto → rechazo (Textract pide >=25 px/char y a 800 px tenemos margen)', async () => {
+    mocked.getImageDimensions.mockResolvedValue({ width: 799, height: 1200 })
     const result = await procesarArchivo(makeImage('a.jpg', 100_000), 'identidad-ine')
     expect(result.ok).toBe(false)
     if (!result.ok) expect(result.reason.code).toBe('resolucion-baja')
   })
 
-  it('identidad-ine: 600 px de lado corto → aceptado', async () => {
-    mocked.getImageDimensions.mockResolvedValue({ width: 600, height: 800 })
+  it('identidad-ine: 800 px de lado corto → aceptado', async () => {
+    mocked.getImageDimensions.mockResolvedValue({ width: 800, height: 1200 })
     const result = await procesarArchivo(makeImage('a.jpg', 100_000), 'identidad-ine')
     expect(result.ok).toBe(true)
   })
 
-  it('domicilio exige 800 px (más que identidad)', async () => {
+  it('identidad-pasaporte: 700 px de lado corto → rechazo (mismo umbral que INE)', async () => {
+    mocked.getImageDimensions.mockResolvedValue({ width: 700, height: 1000 })
+    const result = await procesarArchivo(makeImage('a.jpg', 100_000), 'identidad-pasaporte')
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.reason.code).toBe('resolucion-baja')
+  })
+
+  it('domicilio: 700 px de lado corto → rechazo (mínimo 800)', async () => {
     mocked.getImageDimensions.mockResolvedValue({ width: 700, height: 1200 })
     const result = await procesarArchivo(makeImage('a.jpg', 100_000), 'domicilio')
     expect(result.ok).toBe(false)
@@ -159,6 +166,45 @@ describe('procesarArchivo — resolución mínima por contexto', () => {
   it('domicilio: 800 px de lado corto → aceptado', async () => {
     mocked.getImageDimensions.mockResolvedValue({ width: 800, height: 1200 })
     const result = await procesarArchivo(makeImage('a.jpg', 100_000), 'domicilio')
+    expect(result.ok).toBe(true)
+  })
+})
+
+describe('procesarArchivo — aspect ratio extremo (franjas recortadas)', () => {
+  beforeEach(() => {
+    mocked.detectFileType.mockResolvedValue('jpg')
+    mocked.mimeToKind.mockReturnValue('jpg')
+  })
+
+  it('imagen con ratio > 3 → rechazo con código aspecto-extremo', async () => {
+    mocked.getImageDimensions.mockResolvedValue({ width: 4000, height: 800 }) // ratio = 5
+    const result = await procesarArchivo(makeImage('strip.jpg', 100_000), 'identidad-ine')
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.reason.code).toBe('aspecto-extremo')
+  })
+
+  it('imagen apilada vertical extrema (height/width > 3) también rechaza', async () => {
+    mocked.getImageDimensions.mockResolvedValue({ width: 800, height: 4000 }) // ratio = 5
+    const result = await procesarArchivo(makeImage('strip.jpg', 100_000), 'domicilio')
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.reason.code).toBe('aspecto-extremo')
+  })
+
+  it('imagen 4:3 (ratio 1.33) acepta sin warning', async () => {
+    mocked.getImageDimensions.mockResolvedValue({ width: 1200, height: 900 })
+    const result = await procesarArchivo(makeImage('ine.jpg', 100_000), 'identidad-ine')
+    expect(result.ok).toBe(true)
+  })
+
+  it('imagen 16:9 (ratio 1.78) acepta sin warning', async () => {
+    mocked.getImageDimensions.mockResolvedValue({ width: 1600, height: 900 })
+    const result = await procesarArchivo(makeImage('ine.jpg', 100_000), 'identidad-ine')
+    expect(result.ok).toBe(true)
+  })
+
+  it('imagen justo en ratio 3.0 acepta (umbral estrictamente >)', async () => {
+    mocked.getImageDimensions.mockResolvedValue({ width: 2400, height: 800 })
+    const result = await procesarArchivo(makeImage('a.jpg', 100_000), 'identidad-ine')
     expect(result.ok).toBe(true)
   })
 })
@@ -185,10 +231,13 @@ describe('procesarArchivo — tamaño bruto antes del pipeline', () => {
   })
 })
 
-describe('procesarArchivo — PDF pasa sin validación adicional (Fase B; Fase C agrega validatePDF)', () => {
-  it('PDF dentro del tamaño acepta sin warnings ni rechazo', async () => {
+describe('procesarArchivo — PDF (Fase B; conteo de páginas llega en Fase C)', () => {
+  beforeEach(() => {
     mocked.detectFileType.mockResolvedValue('pdf')
     mocked.mimeToKind.mockReturnValue('pdf')
+  })
+
+  it('PDF dentro del rango (50 KB–15 MB) acepta sin warnings ni rechazo', async () => {
     const pdf = makePDF('estado.pdf', 2 * 1024 * 1024)
     const result = await procesarArchivo(pdf, 'ingresos')
     expect(result.ok).toBe(true)
@@ -197,5 +246,28 @@ describe('procesarArchivo — PDF pasa sin validación adicional (Fase B; Fase C
       expect(result.warnings).toEqual([])
     }
     expect(mocked.compressImage).not.toHaveBeenCalled()
+  })
+
+  it('PDF < 50 KB → rechazo con código pdf-muy-pequeno (típicamente vacío o dañado)', async () => {
+    const pdf = makePDF('vacio.pdf', 10 * 1024) // 10 KB
+    const result = await procesarArchivo(pdf, 'ingresos')
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.reason.code).toBe('pdf-muy-pequeno')
+  })
+
+  it('PDF exactamente en 50 KB acepta (umbral estrictamente <)', async () => {
+    const pdf = makePDF('borderline.pdf', 50 * 1024)
+    const result = await procesarArchivo(pdf, 'ingresos')
+    expect(result.ok).toBe(true)
+  })
+
+  it('PDF no pasa por el check de aspect ratio (no tiene resolución intrínseca)', async () => {
+    // Si pasara por aspect ratio, fallaría porque mock default es 1200x900 (ratio 1.33, OK)
+    // pero el punto es que ni se invoca getImageDimensions para PDF
+    const pdf = makePDF('a.pdf', 100 * 1024)
+    const result = await procesarArchivo(pdf, 'identidad-ine')
+    expect(result.ok).toBe(true)
+    expect(mocked.getImageDimensions).not.toHaveBeenCalled()
+    expect(mocked.getBlurScore).not.toHaveBeenCalled()
   })
 })

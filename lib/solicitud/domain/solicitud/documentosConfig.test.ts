@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
+  ASPECT_RATIO_MAX,
   MAX_COMPROBANTES_INGRESO,
   MAX_SIZE_IMAGEN_BYTES,
   MAX_SIZE_PDF_BYTES,
+  MIN_SIZE_PDF_BYTES,
   PDF_MAX_PAGES_DOMICILIO,
   RESOLUCION_MIN_DOMICILIO_PX,
+  RESOLUCION_MIN_IDENTIDAD_PX,
 } from './documentosConfig'
 
 describe('documentosConfig — límites por tipo y contexto', () => {
@@ -28,7 +31,19 @@ describe('documentosConfig — límites por tipo y contexto', () => {
     expect(PDF_MAX_PAGES_DOMICILIO).toBe(5)
   })
 
-  it('RESOLUCION_MIN_DOMICILIO_PX es 800 — texto pequeño exige más resolución que INE', () => {
+  it('RESOLUCION_MIN_DOMICILIO_PX es 800 — texto pequeño exige resolución alta', () => {
     expect(RESOLUCION_MIN_DOMICILIO_PX).toBe(800)
+  })
+
+  it('RESOLUCION_MIN_IDENTIDAD_PX es 800 — Textract recomienda ~25 px por carácter para OCR confiable', () => {
+    expect(RESOLUCION_MIN_IDENTIDAD_PX).toBe(800)
+  })
+
+  it('MIN_SIZE_PDF_BYTES es 50 KB — PDFs más chicos suelen estar vacíos o dañados', () => {
+    expect(MIN_SIZE_PDF_BYTES).toBe(50 * 1024)
+  })
+
+  it('ASPECT_RATIO_MAX es 3 — rechaza franjas recortadas (4000×500 pasa el filtro de resolución pero es basura)', () => {
+    expect(ASPECT_RATIO_MAX).toBe(3)
   })
 })
