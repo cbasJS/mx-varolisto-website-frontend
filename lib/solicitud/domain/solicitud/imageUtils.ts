@@ -1,5 +1,4 @@
 import imageCompression from 'browser-image-compression'
-import * as exifr from 'exifr'
 
 export type TipoArchivoReal = 'jpg' | 'png' | 'webp' | 'pdf' | 'heic' | 'heif' | 'unknown'
 
@@ -55,73 +54,10 @@ export function mimeToKind(mime: string): TipoArchivoReal {
   }
 }
 
-export async function autoRotateImage(file: File): Promise<File> {
-  let orientation: number | undefined
-  try {
-    orientation = await exifr.orientation(file)
-  } catch {
-    return file
-  }
-  if (!orientation || orientation === 1) return file
-
-  const img = await createImageBitmap(file)
-  const swap = orientation >= 5 && orientation <= 8
-  const canvas = document.createElement('canvas')
-  canvas.width = swap ? img.height : img.width
-  canvas.height = swap ? img.width : img.height
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return file
-
-  applyExifTransform(ctx, orientation, canvas.width, canvas.height)
-  ctx.drawImage(img, 0, 0)
-
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, 'image/jpeg', 0.92),
-  )
-  if (!blob) return file
-  return new File([blob], file.name, { type: 'image/jpeg', lastModified: file.lastModified })
-}
-
-function applyExifTransform(
-  ctx: CanvasRenderingContext2D,
-  orientation: number,
-  width: number,
-  height: number,
-): void {
-  switch (orientation) {
-    case 2:
-      ctx.translate(width, 0)
-      ctx.scale(-1, 1)
-      break
-    case 3:
-      ctx.translate(width, height)
-      ctx.rotate(Math.PI)
-      break
-    case 4:
-      ctx.translate(0, height)
-      ctx.scale(1, -1)
-      break
-    case 5:
-      ctx.rotate(0.5 * Math.PI)
-      ctx.scale(1, -1)
-      break
-    case 6:
-      ctx.rotate(0.5 * Math.PI)
-      ctx.translate(0, -height)
-      break
-    case 7:
-      ctx.rotate(0.5 * Math.PI)
-      ctx.translate(width, -height)
-      ctx.scale(-1, 1)
-      break
-    case 8:
-      ctx.rotate(-0.5 * Math.PI)
-      ctx.translate(-width, 0)
-      break
-  }
-}
-
 export async function compressImage(file: File): Promise<File> {
+  // browser-image-compression aplica la orientación EXIF del archivo por
+  // default, así que el bitmap dibujado al canvas ya queda derecho sin
+  // necesidad de un paso autoRotate separado.
   return imageCompression(file, {
     maxSizeMB: 1.5,
     maxWidthOrHeight: 1600,

@@ -7,7 +7,6 @@ import {
 import {
   detectFileType,
   mimeToKind,
-  autoRotateImage,
   compressImage,
   getImageDimensions,
   getBlurScore,
@@ -99,8 +98,7 @@ export async function procesarArchivo(
     return { ok: true, file, warnings }
   }
 
-  const rotated = await autoRotateImage(file)
-  const compressed = await compressImage(rotated)
+  const compressed = await compressImage(file)
 
   const dims = await getImageDimensions(compressed)
   const minDim =

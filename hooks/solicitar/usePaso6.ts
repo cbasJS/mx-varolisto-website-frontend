@@ -22,7 +22,6 @@ import {
   procesarArchivo,
   type ContextoProcesamiento,
 } from '@/lib/solicitud/domain/solicitud/fileProcessor'
-import { logProcesamiento } from '@/lib/solicitud/domain/solicitud/telemetria'
 import type { DialogoErroresArchivoItem } from '@/components/solicitar/pasos/paso6/DialogoErroresArchivo'
 import type { WarningArchivoItem } from '@/components/solicitar/pasos/paso6/AvisoWarningsArchivo'
 
@@ -196,17 +195,7 @@ export function usePaso6(onNext: (datos: Paso6StoreData) => void) {
 
       try {
         for (const file of candidatos) {
-          const t0 = performance.now()
           const result = await procesarArchivo(file, contexto)
-          const dt = performance.now() - t0
-          logProcesamiento({
-            tipo,
-            contexto,
-            ok: result.ok,
-            dt,
-            code: result.ok ? null : result.reason.code,
-            warnings: result.ok ? result.warnings.map((w) => w.code) : [],
-          })
           if (!result.ok) {
             errores.push({ filename: file.name, reason: result.reason.mensaje })
           } else {

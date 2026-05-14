@@ -4,7 +4,6 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 vi.mock('./imageUtils', () => ({
   detectFileType: vi.fn(),
   mimeToKind: vi.fn(),
-  autoRotateImage: vi.fn(async (f: File) => f),
   compressImage: vi.fn(async (f: File) => f),
   getImageDimensions: vi.fn(async () => ({ width: 1200, height: 900 })),
   getBlurScore: vi.fn(async () => 150),
@@ -14,7 +13,6 @@ import { procesarArchivo } from './fileProcessor'
 import {
   detectFileType,
   mimeToKind,
-  autoRotateImage,
   compressImage,
   getImageDimensions,
   getBlurScore,
@@ -31,7 +29,6 @@ function makePDF(name: string, bytes: number): File {
 const mocked = {
   detectFileType: detectFileType as unknown as ReturnType<typeof vi.fn>,
   mimeToKind: mimeToKind as unknown as ReturnType<typeof vi.fn>,
-  autoRotateImage: autoRotateImage as unknown as ReturnType<typeof vi.fn>,
   compressImage: compressImage as unknown as ReturnType<typeof vi.fn>,
   getImageDimensions: getImageDimensions as unknown as ReturnType<typeof vi.fn>,
   getBlurScore: getBlurScore as unknown as ReturnType<typeof vi.fn>,
@@ -46,7 +43,6 @@ beforeEach(() => {
     if (mime === 'application/pdf') return 'pdf'
     return 'unknown'
   })
-  mocked.autoRotateImage.mockImplementation(async (f: File) => f)
   mocked.compressImage.mockImplementation(async (f: File) => f)
   mocked.getImageDimensions.mockResolvedValue({ width: 1200, height: 900 })
   mocked.getBlurScore.mockResolvedValue(150)
@@ -111,8 +107,7 @@ describe('procesarArchivo — pipeline de imagen feliz', () => {
       expect(result.file).toBe(comprimido)
       expect(result.warnings).toEqual([])
     }
-    expect(mocked.autoRotateImage).toHaveBeenCalledWith(original)
-    expect(mocked.compressImage).toHaveBeenCalled()
+    expect(mocked.compressImage).toHaveBeenCalledWith(original)
   })
 
   it('flagea blur moderado como warning (no rechazo) y archivo se acepta', async () => {
@@ -201,7 +196,6 @@ describe('procesarArchivo — PDF pasa sin validación adicional (Fase B; Fase C
       expect(result.file).toBe(pdf)
       expect(result.warnings).toEqual([])
     }
-    expect(mocked.autoRotateImage).not.toHaveBeenCalled()
     expect(mocked.compressImage).not.toHaveBeenCalled()
   })
 })

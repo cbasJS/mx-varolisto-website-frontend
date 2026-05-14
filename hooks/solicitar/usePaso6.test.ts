@@ -6,9 +6,6 @@ import type { FileRejection } from 'react-dropzone'
 vi.mock('@/lib/solicitud/domain/solicitud/fileProcessor', () => ({
   procesarArchivo: vi.fn(),
 }))
-vi.mock('@/lib/solicitud/domain/solicitud/telemetria', () => ({
-  logProcesamiento: vi.fn(),
-}))
 
 import { usePaso6 } from './usePaso6'
 import { useSolicitudStore } from '@/lib/solicitud/store'
