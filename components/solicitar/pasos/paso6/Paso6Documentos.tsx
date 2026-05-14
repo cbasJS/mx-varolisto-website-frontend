@@ -136,7 +136,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             <DropzoneCard
-              variant="id"
+              variant="id-ine"
               label="Frente de tu INE"
               getRootProps={dropzoneIneFrente.getRootProps}
               getInputProps={dropzoneIneFrente.getInputProps}
@@ -145,7 +145,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
               done={tiposSubidos.includes('ine_frente')}
             />
             <DropzoneCard
-              variant="id"
+              variant="id-ine"
               label="Reverso de tu INE"
               getRootProps={dropzoneIneReverso.getRootProps}
               getInputProps={dropzoneIneReverso.getInputProps}
@@ -168,7 +168,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
             Foto de tu pasaporte
           </p>
           <DropzoneCard
-            variant="id"
+            variant="id-pasaporte"
             label="Hoja con tu foto"
             getRootProps={dropzonePasaporte.getRootProps}
             getInputProps={dropzonePasaporte.getInputProps}
