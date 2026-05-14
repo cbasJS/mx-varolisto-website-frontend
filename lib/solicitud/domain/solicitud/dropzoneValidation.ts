@@ -10,7 +10,7 @@ export function mapDropzoneError(code: string): string {
     case 'too-many-files':
       return 'Ya tienes el máximo de archivos en esta sección — elimina uno antes de agregar otro.'
     case 'file-too-large':
-      return `Archivo muy pesado — supera ${MAX_MB} MB. Tómalo con menor resolución o expórtalo con menor calidad.`
+      return `El archivo supera el tamaño permitido de ${MAX_MB} MB.`
     default:
       return 'Archivo no válido.'
   }

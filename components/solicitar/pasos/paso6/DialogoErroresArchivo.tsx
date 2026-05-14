@@ -4,7 +4,6 @@ import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogMedia,
@@ -30,7 +29,7 @@ export function DialogoErroresArchivo({ open, onClose, items }: DialogoErroresAr
 
   return (
     <AlertDialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <AlertDialogContent size="default">
+      <AlertDialogContent size="default" aria-describedby={undefined}>
         <AlertDialogHeader>
           <AlertDialogMedia tone="destructive">
             <span className="material-symbols-outlined" aria-hidden>
@@ -38,11 +37,8 @@ export function DialogoErroresArchivo({ open, onClose, items }: DialogoErroresAr
             </span>
           </AlertDialogMedia>
           <AlertDialogTitle>{titulo}</AlertDialogTitle>
-          <AlertDialogDescription>
-            Revisa los detalles y vuelve a intentarlo:
-          </AlertDialogDescription>
           {items.length > 0 && (
-            <ul className="mt-2 space-y-1.5">
+            <ul className="mt-3 space-y-1.5">
               {items.map((item, i) => (
                 <li
                   key={`${item.filename}-${i}`}

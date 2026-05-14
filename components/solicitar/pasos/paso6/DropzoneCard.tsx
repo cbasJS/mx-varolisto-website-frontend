@@ -45,7 +45,7 @@ type DropzoneCardProps =
 const COPY_ID_INE = 'Foto o PDF · Máx. 15 MB · Sube cada lado por separado'
 const COPY_ID_PASAPORTE = 'Foto o PDF · Máx. 15 MB · Sólo la hoja con foto y datos'
 const COPY_INGRESO = 'JPG, PNG o PDF · Máx. 15 MB'
-const COPY_DOMICILIO = 'Foto o PDF · Máx. 15 MB · Recibo de servicio o predial'
+const COPY_DOMICILIO = 'Foto o PDF · Máx. 15 MB · Recibo de servicio'
 
 function CardSlotIdentidad({
   getRootProps,
