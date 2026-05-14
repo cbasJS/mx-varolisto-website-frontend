@@ -5,18 +5,11 @@ vi.mock('./imageUtils', () => ({
   detectFileType: vi.fn(),
   mimeToKind: vi.fn(),
   compressImage: vi.fn(async (f: File) => f),
-  getImageDimensions: vi.fn(async () => ({ width: 1200, height: 900 })),
   getBlurScore: vi.fn(async () => 150),
 }))
 
 import { procesarArchivo } from './fileProcessor'
-import {
-  detectFileType,
-  mimeToKind,
-  compressImage,
-  getImageDimensions,
-  getBlurScore,
-} from './imageUtils'
+import { detectFileType, mimeToKind, compressImage, getBlurScore } from './imageUtils'
 
 function makeImage(name: string, bytes: number, mime = 'image/jpeg'): File {
   return new File([new Uint8Array(bytes)], name, { type: mime })
@@ -30,7 +23,6 @@ const mocked = {
   detectFileType: detectFileType as unknown as ReturnType<typeof vi.fn>,
   mimeToKind: mimeToKind as unknown as ReturnType<typeof vi.fn>,
   compressImage: compressImage as unknown as ReturnType<typeof vi.fn>,
-  getImageDimensions: getImageDimensions as unknown as ReturnType<typeof vi.fn>,
   getBlurScore: getBlurScore as unknown as ReturnType<typeof vi.fn>,
 }
 
@@ -44,7 +36,6 @@ beforeEach(() => {
     return 'unknown'
   })
   mocked.compressImage.mockImplementation(async (f: File) => f)
-  mocked.getImageDimensions.mockResolvedValue({ width: 1200, height: 900 })
   mocked.getBlurScore.mockResolvedValue(150)
 })
 
@@ -130,45 +121,6 @@ describe('procesarArchivo — pipeline de imagen feliz', () => {
   })
 })
 
-describe('procesarArchivo — aspect ratio extremo (franjas recortadas)', () => {
-  beforeEach(() => {
-    mocked.detectFileType.mockResolvedValue('jpg')
-    mocked.mimeToKind.mockReturnValue('jpg')
-  })
-
-  it('imagen con ratio > 3 → rechazo con código aspecto-extremo', async () => {
-    mocked.getImageDimensions.mockResolvedValue({ width: 4000, height: 800 }) // ratio = 5
-    const result = await procesarArchivo(makeImage('strip.jpg', 100_000), 'identidad-ine')
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason.code).toBe('aspecto-extremo')
-  })
-
-  it('imagen apilada vertical extrema (height/width > 3) también rechaza', async () => {
-    mocked.getImageDimensions.mockResolvedValue({ width: 800, height: 4000 }) // ratio = 5
-    const result = await procesarArchivo(makeImage('strip.jpg', 100_000), 'domicilio')
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason.code).toBe('aspecto-extremo')
-  })
-
-  it('imagen 4:3 (ratio 1.33) acepta sin warning', async () => {
-    mocked.getImageDimensions.mockResolvedValue({ width: 1200, height: 900 })
-    const result = await procesarArchivo(makeImage('ine.jpg', 100_000), 'identidad-ine')
-    expect(result.ok).toBe(true)
-  })
-
-  it('imagen 16:9 (ratio 1.78) acepta sin warning', async () => {
-    mocked.getImageDimensions.mockResolvedValue({ width: 1600, height: 900 })
-    const result = await procesarArchivo(makeImage('ine.jpg', 100_000), 'identidad-ine')
-    expect(result.ok).toBe(true)
-  })
-
-  it('imagen justo en ratio 3.0 acepta (umbral estrictamente >)', async () => {
-    mocked.getImageDimensions.mockResolvedValue({ width: 2400, height: 800 })
-    const result = await procesarArchivo(makeImage('a.jpg', 100_000), 'identidad-ine')
-    expect(result.ok).toBe(true)
-  })
-})
-
 describe('procesarArchivo — tamaño bruto antes del pipeline', () => {
   beforeEach(() => {
     mocked.detectFileType.mockResolvedValue('jpg')
@@ -221,13 +173,11 @@ describe('procesarArchivo — PDF (Fase B; conteo de páginas llega en Fase C)',
     expect(result.ok).toBe(true)
   })
 
-  it('PDF no pasa por el check de aspect ratio (no tiene resolución intrínseca)', async () => {
-    // Si pasara por aspect ratio, fallaría porque mock default es 1200x900 (ratio 1.33, OK)
-    // pero el punto es que ni se invoca getImageDimensions para PDF
+  it('PDF no pasa por el pipeline de imagen (compresión ni blur)', async () => {
     const pdf = makePDF('a.pdf', 100 * 1024)
     const result = await procesarArchivo(pdf, 'identidad-ine')
     expect(result.ok).toBe(true)
-    expect(mocked.getImageDimensions).not.toHaveBeenCalled()
+    expect(mocked.compressImage).not.toHaveBeenCalled()
     expect(mocked.getBlurScore).not.toHaveBeenCalled()
   })
 })

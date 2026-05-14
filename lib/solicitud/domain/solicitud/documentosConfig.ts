@@ -12,7 +12,3 @@ export const PDF_MAX_PAGES_INGRESOS = 15
 // contexto cuando ese check se active.
 export const PDF_MAX_PAGES_IDENTIDAD = 2
 export const PDF_MAX_PAGES_COMPROBANTE = 3
-
-// Lado largo / lado corto > 3 → rechazo. Evita que una franja recortada
-// (p.ej. 4000×500) pase el filtro de resolución y llegue al OCR como basura.
-export const ASPECT_RATIO_MAX = 3

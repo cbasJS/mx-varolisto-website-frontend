@@ -67,23 +67,6 @@ export async function compressImage(file: File): Promise<File> {
   })
 }
 
-export function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    const url = URL.createObjectURL(file)
-    img.onload = () => {
-      const dims = { width: img.naturalWidth, height: img.naturalHeight }
-      URL.revokeObjectURL(url)
-      resolve(dims)
-    }
-    img.onerror = () => {
-      URL.revokeObjectURL(url)
-      reject(new Error('No se pudo leer la imagen'))
-    }
-    img.src = url
-  })
-}
-
 export function getBlurScore(file: File): Promise<number> {
   return new Promise((resolve, reject) => {
     const img = new Image()

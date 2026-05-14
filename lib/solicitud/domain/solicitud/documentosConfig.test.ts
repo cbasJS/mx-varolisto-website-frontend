@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import {
-  ASPECT_RATIO_MAX,
   MAX_COMPROBANTES_INGRESO,
   MAX_SIZE_IMAGEN_BYTES,
   MAX_SIZE_PDF_BYTES,
@@ -31,9 +30,5 @@ describe('documentosConfig — límites por tipo y contexto', () => {
 
   it('MIN_SIZE_PDF_BYTES es 50 KB — PDFs más chicos suelen estar vacíos o dañados', () => {
     expect(MIN_SIZE_PDF_BYTES).toBe(50 * 1024)
-  })
-
-  it('ASPECT_RATIO_MAX es 3 — rechaza franjas recortadas (4000×500 pasa el filtro de resolución pero es basura)', () => {
-    expect(ASPECT_RATIO_MAX).toBe(3)
   })
 })

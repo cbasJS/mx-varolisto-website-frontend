@@ -1,16 +1,5 @@
-import {
-  ASPECT_RATIO_MAX,
-  MAX_SIZE_IMAGEN_BYTES,
-  MAX_SIZE_PDF_BYTES,
-  MIN_SIZE_PDF_BYTES,
-} from './documentosConfig'
-import {
-  detectFileType,
-  mimeToKind,
-  compressImage,
-  getImageDimensions,
-  getBlurScore,
-} from './imageUtils'
+import { MAX_SIZE_IMAGEN_BYTES, MAX_SIZE_PDF_BYTES, MIN_SIZE_PDF_BYTES } from './documentosConfig'
+import { detectFileType, mimeToKind, compressImage, getBlurScore } from './imageUtils'
 
 export type ContextoProcesamiento =
   | 'identidad-ine'
@@ -30,7 +19,6 @@ export type RazonRechazo =
   | { code: 'pdf-muy-pequeno'; mensaje: string }
   | { code: 'heic-no-soportado'; mensaje: string }
   | { code: 'mime-spoof'; mensaje: string }
-  | { code: 'aspecto-extremo'; mensaje: string }
   | { code: 'blur-grave'; mensaje: string }
   | { code: 'pdf-paginas-excedidas'; mensaje: string }
   | { code: 'pdf-password'; mensaje: string }
@@ -114,19 +102,6 @@ export async function procesarArchivo(
   }
 
   const compressed = await compressImage(file)
-
-  const dims = await getImageDimensions(compressed)
-  const ratio = Math.max(dims.width, dims.height) / Math.min(dims.width, dims.height)
-  if (ratio > ASPECT_RATIO_MAX) {
-    return {
-      ok: false,
-      reason: {
-        code: 'aspecto-extremo',
-        mensaje:
-          'La foto tiene una proporción extraña — parece una franja recortada. Toma de nuevo asegurándote de que el documento entre completo.',
-      },
-    }
-  }
 
   const blur = await getBlurScore(compressed)
   if (blur < BLUR_RECHAZO_LIMIT) {
