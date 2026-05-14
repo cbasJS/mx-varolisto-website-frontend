@@ -1,5 +1,12 @@
-import { MAX_SIZE_IMAGEN_BYTES, MAX_SIZE_PDF_BYTES, MIN_SIZE_PDF_BYTES } from './documentosConfig'
+import {
+  MAX_SIZE_IMAGEN_BYTES,
+  MAX_SIZE_PDF_BYTES,
+  PDF_MAX_PAGES_DOMICILIO,
+  PDF_MAX_PAGES_IDENTIDAD,
+  PDF_MAX_PAGES_INGRESOS,
+} from './documentosConfig'
 import { detectFileType, mimeToKind, compressImage, getBlurScore } from './imageUtils'
+import { validatePDF } from './pdfUtils'
 
 export type ContextoProcesamiento =
   | 'identidad-ine'
@@ -16,7 +23,6 @@ export type WarningProcesamiento =
 export type RazonRechazo =
   | { code: 'tamano-imagen'; mensaje: string }
   | { code: 'tamano-pdf'; mensaje: string }
-  | { code: 'pdf-muy-pequeno'; mensaje: string }
   | { code: 'heic-no-soportado'; mensaje: string }
   | { code: 'mime-spoof'; mensaje: string }
   | { code: 'blur-grave'; mensaje: string }
@@ -29,14 +35,22 @@ export type ResultadoProcesamiento =
   | { ok: false; reason: RazonRechazo }
 
 const BLUR_RECHAZO_LIMIT = 30
-const BLUR_WARNING_LIMIT = 80
+const BLUR_WARNING_LIMIT = 100
+
+function pdfMaxPagesFor(contexto: ContextoProcesamiento): number {
+  switch (contexto) {
+    case 'identidad-ine':
+    case 'identidad-pasaporte':
+      return PDF_MAX_PAGES_IDENTIDAD
+    case 'ingresos':
+      return PDF_MAX_PAGES_INGRESOS
+    case 'domicilio':
+      return PDF_MAX_PAGES_DOMICILIO
+  }
+}
 
 export async function procesarArchivo(
   file: File,
-  // Sin uso en Fase B tras remover el check de resolución mínima. Fase C lo
-  // consume para conteo de páginas por contexto (identidad ≤2, comprobante
-  // ≤3) y para los warnings de aspect ratio por tipo (spec §5.1).
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   contexto: ContextoProcesamiento,
 ): Promise<ResultadoProcesamiento> {
   const warnings: WarningProcesamiento[] = []
@@ -86,18 +100,10 @@ export async function procesarArchivo(
   }
 
   if (esPDF) {
-    if (file.size < MIN_SIZE_PDF_BYTES) {
-      return {
-        ok: false,
-        reason: {
-          code: 'pdf-muy-pequeno',
-          mensaje:
-            'El PDF está vacío o parece dañado. Sube uno legible que muestre claramente la información.',
-        },
-      }
+    const pdfResult = await validatePDF(file, pdfMaxPagesFor(contexto))
+    if (!pdfResult.ok) {
+      return { ok: false, reason: pdfResult.reason }
     }
-    // Fase B: PDF entre 50 KB y 15 MB pasa sin validación adicional.
-    // Fase C añade validatePDF (páginas, password, daño) y checkPDFFirstPageAspect.
     return { ok: true, file, warnings }
   }
 
