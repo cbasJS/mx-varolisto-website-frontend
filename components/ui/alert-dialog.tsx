@@ -9,6 +9,7 @@ import {
   ACTION_VARIANTS,
   type AlertDialogActionVariant,
 } from './alert-dialog-variants'
+import { MEDIA_TONE, type AlertDialogMediaTone } from './alert-dialog-media-tone'
 
 function AlertDialog({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
@@ -99,13 +100,19 @@ function AlertDialogFooter({ className, ...props }: React.ComponentProps<'div'>)
   )
 }
 
-function AlertDialogMedia({ className, ...props }: React.ComponentProps<'div'>) {
+function AlertDialogMedia({
+  className,
+  tone = 'default',
+  ...props
+}: React.ComponentProps<'div'> & { tone?: AlertDialogMediaTone }) {
   return (
     <div
       data-slot="alert-dialog-media"
+      data-tone={tone}
       className={cn(
-        'mb-1 inline-flex size-11 items-center justify-center rounded-2xl bg-primary/[0.08] text-primary dark:bg-white/[0.06] dark:text-white',
+        'mb-1 inline-flex size-11 items-center justify-center rounded-2xl',
         "*:[svg:not([class*='size-'])]:size-5",
+        MEDIA_TONE[tone],
         className,
       )}
       {...props}

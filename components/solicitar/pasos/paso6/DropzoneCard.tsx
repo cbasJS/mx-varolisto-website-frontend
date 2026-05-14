@@ -18,11 +18,26 @@ type DropzoneCardIdProps = DropzoneCardSharedProps & {
   icon?: LucideIcon
 }
 
-type DropzoneCardComprobanteProps = DropzoneCardSharedProps & {
-  variant: 'comprobante'
+type DropzoneCardComprobanteIngresoProps = DropzoneCardSharedProps & {
+  variant: 'comprobante-ingreso'
 }
 
-type DropzoneCardProps = DropzoneCardIdProps | DropzoneCardComprobanteProps
+type DropzoneCardComprobanteDomicilioProps = DropzoneCardSharedProps & {
+  variant: 'comprobante-domicilio'
+  label: string
+  done: boolean
+  icon?: LucideIcon
+}
+
+type DropzoneCardProps =
+  | DropzoneCardIdProps
+  | DropzoneCardComprobanteIngresoProps
+  | DropzoneCardComprobanteDomicilioProps
+
+const COPY_ID = 'Foto o PDF · Máx. 15 MB · Sube cada lado por separado'
+const COPY_INGRESO = 'JPG, PNG o PDF · Imagen 15 MB · PDF 8 MB · Al menos 2 · Hasta 3 archivos'
+const COPY_DOMICILIO =
+  'Foto o PDF · Imagen 15 MB · PDF 8 MB · Recibo de servicio o predial · Vigencia ≤ 3 meses'
 
 export function DropzoneCard(props: DropzoneCardProps) {
   const { getRootProps, getInputProps, isDragActive, disabled } = props
@@ -53,7 +68,39 @@ export function DropzoneCard(props: DropzoneCardProps) {
               <Icon className="size-5 text-gray-500" aria-hidden />
             </div>
             <p className="mb-1 text-sm font-bold text-on-surface">{label}</p>
-            <p className="text-xs text-gray-500">JPG, PNG o PDF — 10 MB máx.</p>
+            <p className="text-xs text-gray-500">{COPY_ID}</p>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (props.variant === 'comprobante-domicilio') {
+    const { label, done, icon: Icon = FileText } = props
+    return (
+      <div
+        {...getRootProps()}
+        className={cn(
+          'relative flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed bg-gray-50/50 p-8 text-center transition-colors',
+          disabled && 'cursor-not-allowed opacity-50',
+          done && 'border-green-500',
+          !disabled && !done && isDragActive && 'border-secondary bg-secondary/5',
+          !disabled && !done && !isDragActive && 'border-gray-300 hover:bg-gray-50',
+        )}
+      >
+        <input {...inputProps} />
+        {done ? (
+          <div className="flex flex-col items-center text-center">
+            <CheckCircle2 className="mb-3 size-8 text-green-600" aria-hidden />
+            <p className="text-sm font-bold text-green-900">¡Listo!</p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center text-center">
+            <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-gray-100">
+              <Icon className="size-5 text-gray-500" aria-hidden />
+            </div>
+            <p className="mb-1 text-sm font-bold text-on-surface">{label}</p>
+            <p className="text-xs text-gray-500">{COPY_DOMICILIO}</p>
           </div>
         )}
       </div>
@@ -77,7 +124,7 @@ export function DropzoneCard(props: DropzoneCardProps) {
       <p className="mb-1 text-sm font-bold text-on-surface">
         {isDragActive ? 'Suelta el archivo' : 'Toca para subir o arrastra aquí'}
       </p>
-      <p className="text-xs text-gray-500">JPG, PNG o PDF — 10 MB máx. c/u</p>
+      <p className="text-xs text-gray-500">{COPY_INGRESO}</p>
     </div>
   )
 }

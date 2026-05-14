@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import type { FileRejection } from 'react-dropzone'
 import { usePaso6 } from './usePaso6'
 import { useSolicitudStore } from '@/lib/solicitud/store'
 
@@ -188,5 +189,80 @@ describe('usePaso6 — hidratación desde sessionStorage', () => {
     const { result } = renderHook(() => usePaso6(vi.fn()))
 
     expect(result.current.entradas).toHaveLength(0)
+  })
+})
+
+describe('usePaso6 — estado para diálogo de errores y banner de warnings', () => {
+  beforeEach(() => {
+    useSolicitudStore.setState({
+      archivosSubidos: [],
+      sessionUuid: 'session-06600-abc',
+      tipoIdentificacion: 'ine',
+      datos: { tipoActividad: 'empleado_formal' },
+    })
+  })
+
+  it('dialogoErrores arranca como null (sin diálogo abierto)', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(result.current.dialogoErrores).toBeNull()
+  })
+
+  it('warningsArchivos arranca como arreglo vacío', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(result.current.warningsArchivos).toEqual([])
+  })
+
+  it('expone cerrarDialogoErrores y descartarWarnings como funciones', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(typeof result.current.cerrarDialogoErrores).toBe('function')
+    expect(typeof result.current.descartarWarnings).toBe('function')
+  })
+
+  it('cada dropzone expone onDropRejected como callback', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(typeof result.current.dropzoneIneFrente.onDropRejected).toBe('function')
+    expect(typeof result.current.dropzoneIneReverso.onDropRejected).toBe('function')
+    expect(typeof result.current.dropzonePasaporte.onDropRejected).toBe('function')
+    expect(typeof result.current.dropzoneComprobante.onDropRejected).toBe('function')
+    expect(typeof result.current.dropzoneDomicilio.onDropRejected).toBe('function')
+  })
+
+  it('al invocar onDropRejected con un archivo demasiado grande, dialogoErrores se puebla con el filename y un motivo legible', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    const rejections: FileRejection[] = [
+      {
+        file: new File([new Uint8Array(0)], 'foto_ine.heic', { type: 'image/heic' }),
+        errors: [{ code: 'file-invalid-type', message: 'tipo no soportado' }],
+      },
+    ]
+
+    act(() => {
+      result.current.dropzoneIneFrente.onDropRejected?.(rejections)
+    })
+
+    expect(result.current.dialogoErrores).not.toBeNull()
+    expect(result.current.dialogoErrores?.items).toHaveLength(1)
+    expect(result.current.dialogoErrores?.items[0].filename).toBe('foto_ine.heic')
+    expect(result.current.dialogoErrores?.items[0].reason).toMatch(/JPG|PNG|PDF/i)
+  })
+
+  it('cerrarDialogoErrores limpia el estado del diálogo', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    act(() => {
+      result.current.dropzoneIneFrente.onDropRejected?.([
+        {
+          file: new File([new Uint8Array(0)], 'a.xyz', { type: 'application/octet-stream' }),
+          errors: [{ code: 'file-invalid-type', message: '' }],
+        },
+      ])
+    })
+    expect(result.current.dialogoErrores).not.toBeNull()
+
+    act(() => {
+      result.current.cerrarDialogoErrores()
+    })
+    expect(result.current.dialogoErrores).toBeNull()
   })
 })

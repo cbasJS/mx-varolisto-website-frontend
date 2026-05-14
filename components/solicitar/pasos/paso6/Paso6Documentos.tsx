@@ -15,6 +15,8 @@ import { ListaEntradas } from './ListaEntradas'
 import { DropzoneCard } from './DropzoneCard'
 import { ToggleSinEstadosCuenta } from './ToggleSinEstadosCuenta'
 import { AvisoDuplicados } from './AvisoDuplicados'
+import { DialogoErroresArchivo } from './DialogoErroresArchivo'
+import { AvisoWarningsArchivo } from './AvisoWarningsArchivo'
 
 export type { Paso6StoreData }
 
@@ -56,6 +58,10 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
     setDuplicadosOmitidos,
     errorEliminacion,
     setErrorEliminacion,
+    dialogoErrores,
+    cerrarDialogoErrores,
+    warningsArchivos,
+    descartarWarnings,
     handleSubmit,
   } = usePaso6(onNext)
 
@@ -197,7 +203,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
       {/* Dropzone comprobante */}
       <div className="mt-4">
         <DropzoneCard
-          variant="comprobante"
+          variant="comprobante-ingreso"
           getRootProps={dropzoneComprobante.getRootProps}
           getInputProps={dropzoneComprobante.getInputProps}
           isDragActive={dropzoneComprobante.isDragActive}
@@ -220,7 +226,7 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
 
       <div className="mt-4">
         <DropzoneCard
-          variant="id"
+          variant="comprobante-domicilio"
           label="Comprobante de domicilio"
           icon={Home}
           getRootProps={dropzoneDomicilio.getRootProps}
@@ -238,6 +244,14 @@ export default function Paso6Documentos({ onNext, onBack, actionsSlot }: Props) 
       />
 
       <AvisoDuplicados cantidad={duplicadosOmitidos} onDismiss={() => setDuplicadosOmitidos(0)} />
+
+      <AvisoWarningsArchivo items={warningsArchivos} onDismiss={descartarWarnings} />
+
+      <DialogoErroresArchivo
+        open={dialogoErrores?.open ?? false}
+        onClose={cerrarDialogoErrores}
+        items={dialogoErrores?.items ?? []}
+      />
     </PasoFormShell>
   )
 }
