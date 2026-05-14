@@ -4,7 +4,8 @@ import {
   MAX_SIZE_IMAGEN_BYTES,
   MAX_SIZE_PDF_BYTES,
   MIN_SIZE_PDF_BYTES,
-  PDF_MAX_PAGES_DOMICILIO,
+  PDF_MAX_PAGES_COMPROBANTE,
+  PDF_MAX_PAGES_IDENTIDAD,
 } from './documentosConfig'
 
 describe('documentosConfig — límites por tipo y contexto', () => {
@@ -24,11 +25,15 @@ describe('documentosConfig — límites por tipo y contexto', () => {
     expect(MAX_SIZE_PDF_BYTES).toBe(MAX_SIZE_IMAGEN_BYTES)
   })
 
-  it('PDF_MAX_PAGES_DOMICILIO es 5 — cubre 95% de la lista blanca de comprobantes', () => {
-    expect(PDF_MAX_PAGES_DOMICILIO).toBe(5)
-  })
-
   it('MIN_SIZE_PDF_BYTES es 50 KB — PDFs más chicos suelen estar vacíos o dañados', () => {
     expect(MIN_SIZE_PDF_BYTES).toBe(50 * 1024)
+  })
+
+  it('PDF_MAX_PAGES_IDENTIDAD es 2 — INE/pasaporte caben en máximo 2 hojas', () => {
+    expect(PDF_MAX_PAGES_IDENTIDAD).toBe(2)
+  })
+
+  it('PDF_MAX_PAGES_COMPROBANTE es 3 — recibo de servicio típico ≤ 3 hojas', () => {
+    expect(PDF_MAX_PAGES_COMPROBANTE).toBe(3)
   })
 })
