@@ -108,7 +108,7 @@ describe('procesarArchivo — pipeline de imagen feliz', () => {
   })
 
   it('flagea blur moderado como warning (no rechazo) y archivo se acepta', async () => {
-    mocked.getBlurScore.mockResolvedValue(55) // entre 30 y 80
+    mocked.getBlurScore.mockResolvedValue(55) // entre 30 y 100
     const file = makeImage('ine.jpg', 1_000_000)
     const result = await procesarArchivo(file, 'identidad-ine')
     expect(result.ok).toBe(true)
@@ -116,6 +116,33 @@ describe('procesarArchivo — pipeline de imagen feliz', () => {
       expect(result.warnings).toHaveLength(1)
       expect(result.warnings[0].code).toBe('blur-moderado')
     }
+  })
+
+  it('blur score 90 cae como warning (umbral subido a 100; antes era 80)', async () => {
+    mocked.getBlurScore.mockResolvedValue(90)
+    const file = makeImage('ine.jpg', 1_000_000)
+    const result = await procesarArchivo(file, 'identidad-ine')
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.warnings).toHaveLength(1)
+      expect(result.warnings[0].code).toBe('blur-moderado')
+    }
+  })
+
+  it('blur score 100 cae como warning (umbral estrictamente <)', async () => {
+    mocked.getBlurScore.mockResolvedValue(99.9)
+    const file = makeImage('ine.jpg', 1_000_000)
+    const result = await procesarArchivo(file, 'identidad-ine')
+    expect(result.ok).toBe(true)
+    if (result.ok) expect(result.warnings).toHaveLength(1)
+  })
+
+  it('blur score 100 exacto pasa SIN warning', async () => {
+    mocked.getBlurScore.mockResolvedValue(100)
+    const file = makeImage('ine.jpg', 1_000_000)
+    const result = await procesarArchivo(file, 'identidad-ine')
+    expect(result.ok).toBe(true)
+    if (result.ok) expect(result.warnings).toEqual([])
   })
 
   it('rechaza blur grave (score < 30)', async () => {

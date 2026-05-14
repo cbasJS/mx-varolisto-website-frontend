@@ -36,7 +36,7 @@ export type ResultadoProcesamiento =
   | { ok: false; reason: RazonRechazo }
 
 const BLUR_RECHAZO_LIMIT = 30
-const BLUR_WARNING_LIMIT = 80
+const BLUR_WARNING_LIMIT = 100
 
 function pdfMaxPagesFor(contexto: ContextoProcesamiento): number {
   if (contexto === 'identidad-ine' || contexto === 'identidad-pasaporte') {

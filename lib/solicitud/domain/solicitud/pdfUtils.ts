@@ -40,9 +40,7 @@ export async function validatePDF(file: File, maxPages: number): Promise<Validat
     const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise
     if (pdf.numPages > maxPages) {
       const tail =
-        maxPages === 1
-          ? 'Sube sólo la hoja necesaria.'
-          : `Comparte sólo las páginas relevantes (máximo ${maxPages}).`
+        maxPages === 1 ? 'Sube sólo la hoja necesaria.' : 'Sube sólo las hojas necesarias.'
       return {
         ok: false,
         reason: {
