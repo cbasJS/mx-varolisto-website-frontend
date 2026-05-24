@@ -402,7 +402,6 @@ test.describe('Paso 6 — CTAs durante el submit', () => {
                 nombreEmpleadorNegocio: 'ACME Corp',
                 ingresoMensual: 15000,
                 gastoMensual: 6500,
-                tieneDeudas: 'no',
                 referencias: [
                   { nombre: 'Juan Pérez', telefono: '5598765432', relacion: 'familiar' },
                   { nombre: 'Ana Torres', telefono: '5511112222', relacion: 'amigo' },

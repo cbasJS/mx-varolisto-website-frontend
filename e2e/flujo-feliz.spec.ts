@@ -38,7 +38,6 @@ const DATOS_COMPLETOS = {
   dependientesEconomicos: 'ninguno',
   ingresoMensual: 8500,
   gastoMensual: 4500,
-  tieneDeudas: 'no',
   // Referencias (paso 5) — array dinámico nuevo (shared-schemas 0.15.0)
   referencias: [
     { nombre: 'Juan Pérez', telefono: '5598765432', relacion: 'familiar' },

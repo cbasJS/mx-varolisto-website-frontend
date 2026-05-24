@@ -33,7 +33,6 @@ const inputBase: SubmitSolicitudInput = {
     dependientesEconomicos: 'ninguno',
     ingresoMensual: 15000,
     gastoMensual: 5000,
-    tieneDeudas: 'no',
     referencias: [
       { nombre: 'María Pérez', telefono: '5598765432', relacion: 'familiar' },
       { nombre: 'Carlos Ruiz', telefono: '5511112222', relacion: 'amigo' },

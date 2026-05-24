@@ -61,7 +61,6 @@ export function buildPayload({
     fechaNacimiento: datos.fechaNacimiento ?? '',
     curp: datos.curp ?? '',
     email: datos.email ?? '',
-    rfc: datos.rfc,
     telefono: datos.telefono ?? '',
     // Paso 3 (UI) — domicilio (schema paso3)
     codigoPostal: datos.codigoPostal ?? '',
@@ -86,14 +85,6 @@ export function buildPayload({
     dependientesEconomicos: datos.dependientesEconomicos!,
     ingresoMensual: datos.ingresoMensual!,
     gastoMensual: datos.gastoMensual!,
-    // Bloque 1.A — dummies de transición: la UI ya no captura "deudas", pero
-    // el contrato del backend todavía exige tieneDeudas/cantidadDeudas hasta
-    // que el Bloque 2 deje de pedirlos. Hardcodear protege ante sesiones
-    // stale que tengan tieneDeudas='si' del flujo anterior.
-    tieneDeudas: 'no' as const,
-    cantidadDeudas: 'sin_deudas' as const,
-    montoTotalDeudas: undefined,
-    pagoMensualDeudas: undefined,
     // Paso 5 (UI) — referencias (schema paso5, array dinámico)
     referencias: datos.referencias ?? [],
     // Paso 6 (UI) — consentimientos (schema paso7)

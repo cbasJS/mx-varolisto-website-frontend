@@ -23,7 +23,6 @@ export function usePaso2(onNext: (datos: Paso1Data) => void) {
       fechaNacimiento: datos.fechaNacimiento ?? '',
       curp: datos.curp ?? '',
       email: datos.email ?? '',
-      rfc: datos.rfc ?? undefined,
       telefono: datos.telefono ?? '',
     },
   })

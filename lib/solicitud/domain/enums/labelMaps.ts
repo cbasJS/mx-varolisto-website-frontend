@@ -3,8 +3,6 @@ import type {
   Sexo,
   DestinoPrestamo,
   TipoActividad,
-  CantidadDeudas,
-  MontoTotalDeudas,
   RelacionReferencia,
   AniosViviendo,
   TipoVivienda,
@@ -89,24 +87,10 @@ export const ACTIVIDADES_META: Record<
   },
 }
 
-export const CANTIDAD_DEUDAS_META: Record<CantidadDeudas, string> = {
-  sin_deudas: 'Sin deudas',
-  una_deuda: '1 deuda',
-  dos_deudas: '2 deudas',
-  tres_o_mas: '3 o más',
-}
-
 export const ANTIGUEDAD_META: Record<Antiguedad, string> = {
   menos_1: 'Menos de 1 año',
   uno_a_dos: 'Entre 1 y 2 años',
   mas_2: 'Más de 2 años',
-}
-
-export const MONTO_TOTAL_DEUDAS_META: Record<MontoTotalDeudas, string> = {
-  menos_5k: 'Menos de $5,000',
-  '5k_15k': '$5,000 – $15,000',
-  '15k_30k': '$15,000 – $30,000',
-  mas_30k: 'Más de $30,000',
 }
 
 // ── Labels planos (usados en Paso7Revision) ──────────────────────────────────

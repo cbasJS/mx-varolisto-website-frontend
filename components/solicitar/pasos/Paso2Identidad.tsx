@@ -154,9 +154,6 @@ export default function Paso2Identidad({ onNext, onBack, actionsSlot }: Props) {
           }
         />
       </div>
-
-      {/* RFC — hidden from UI, not removed from schema */}
-      <input type="hidden" {...register('rfc')} />
     </PasoFormShell>
   )
 }
