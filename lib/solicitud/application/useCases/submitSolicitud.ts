@@ -14,8 +14,6 @@ import {
 } from '@/lib/solicitud/dev/mockSubmit'
 import type { CrearSolicitudResponse } from '@varolisto/shared-schemas/api'
 import type { TelemetriaSolicitud } from '@varolisto/shared-schemas/form'
-import type { TipoIdentificacion } from '@varolisto/shared-schemas/enums'
-import type { ArchivoSubido } from '@/lib/solicitud/infrastructure/persistence/solicitudStore'
 import type {
   Paso1Data,
   Paso2Data,
@@ -36,9 +34,6 @@ export type ErrorSubmit =
 
 export interface SubmitSolicitudInput {
   datos: DatosSolicitud
-  sessionUuid: string
-  tipoIdentificacion: TipoIdentificacion
-  archivosSubidos: ArchivoSubido[]
   paso7Data: Paso7Data
   /** Bloque 1.B — telemetría pasiva, opcional. Si no se pasa, el payload
    * se arma sin el bloque y la solicitud sigue normalmente. */

@@ -1,4 +1,4 @@
-import { User, Home, Briefcase, Users, FileText } from 'lucide-react'
+import { User, Home, Briefcase, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 export interface Paso {
@@ -10,17 +10,19 @@ export interface Paso {
 /**
  * Pasos del stepper (form steps).
  * El stepper sólo cubre los pasos de captura del formulario. Los extremos
- * (paso 1 = calculadora/landing, paso 7 = revisión/landing pre-submit) no
+ * (paso 1 = calculadora/landing, paso 6 = revisión/landing pre-submit) no
  * se renderizan en el stepper. Mapeo app pasoActual → stepper position:
  *   app paso 2 → stepper paso 1 (Tu identidad)
- *   app paso 6 → stepper paso 5 (Documentos)
+ *   app paso 5 → stepper paso 4 (Tus contactos)
+ *
+ * El paso de documentos (Paso6Documentos.tsx) quedó deprecado del flujo del
+ * formulario público en Bloque 1: ya no se captura archivos en línea.
  */
 export const pasos: readonly Paso[] = [
   { numero: 1, etiqueta: 'Tu identidad', icono: User },
   { numero: 2, etiqueta: 'Tu domicilio', icono: Home },
   { numero: 3, etiqueta: 'Tu economía', icono: Briefcase },
   { numero: 4, etiqueta: 'Tus contactos', icono: Users },
-  { numero: 5, etiqueta: 'Tus documentos', icono: FileText },
 ] as const
 
 export const trustBadges = [
@@ -45,15 +47,20 @@ export const salidaCopy = {
     titulo: 'Espera, estamos enviando tu solicitud',
     descripcion: 'Si sales ahora, la solicitud podría no completarse. Tarda apenas unos segundos.',
   },
-  archivos: {
-    titulo: '¿Salir y empezar de nuevo?',
-    descripcion:
-      'Si sales ahora perderás los archivos que ya subiste y todo lo que llenaste. Tendrías que empezar desde cero.',
-  },
   datos: {
     titulo: '¿Salir y empezar de nuevo?',
     descripcion:
       'Si sales ahora perderás lo que ya llevas y tendrías que volver a llenar el formulario.',
+  },
+  // Variante para la futura página standalone de carga de documentos
+  // (Bloque 3). El wizard del formulario público en Bloque 1 ya no la usa
+  // — pasa `hayArchivos={false}` al GuardaWrapper. Se conserva el copy
+  // para que cuando Paso6Documentos se reactive como ruta dedicada, el
+  // contrato del GuardaWrapper no se rompa.
+  archivos: {
+    titulo: '¿Salir y perder los archivos?',
+    descripcion:
+      'Si sales ahora, los documentos que subiste se borrarán y tendrás que volver a cargarlos.',
   },
   botonQuedarme: 'Mejor me quedo',
   botonSalir: 'Sí, salir',

@@ -5,9 +5,6 @@ import { buildPayload, type BuildPayloadInput } from './buildPayload'
 // - empleado formal, $10,000 a 6 meses para capital de trabajo
 // - vive en CDMX, 18-30 años en la misma dirección
 const inputBase: BuildPayloadInput = {
-  sessionUuid: 'test-uuid-1234',
-  tipoIdentificacion: 'ine',
-  archivosSubidos: [],
   paso7Data: {
     aceptaPrivacidad: true,
     aceptaTerminos: true,
@@ -44,13 +41,11 @@ const inputBase: BuildPayloadInput = {
     ingresoMensual: 15000,
     gastoMensual: 5000,
     tieneDeudas: 'no',
-    // referencias (schema paso5)
-    ref1Nombre: 'María Pérez',
-    ref1Telefono: '5598765432',
-    ref1Relacion: 'familiar',
-    ref2Nombre: 'Carlos Ruiz',
-    ref2Telefono: '5511112222',
-    ref2Relacion: 'amigo',
+    // referencias (schema paso5) — array dinámico: 1 obligatoria + N opcionales
+    referencias: [
+      { nombre: 'María Pérez', telefono: '5598765432', relacion: 'familiar' },
+      { nombre: 'Carlos Ruiz', telefono: '5511112222', relacion: 'amigo' },
+    ],
   },
 }
 
@@ -106,84 +101,55 @@ describe('buildPayload', () => {
     expect(payload.pagoMensualDeudas).toBeUndefined()
   })
 
-  it('mapea las referencias con relaciones válidas', () => {
+  it('mapea las referencias como array con relaciones válidas', () => {
     const payload = buildPayload(inputBase)
-    expect(payload.ref1Relacion).toBe('familiar') // "familiar"|"trabajo"|"amigo"|"otro"
-    expect(payload.ref2Relacion).toBe('amigo')
+    expect(payload.referencias).toHaveLength(2)
+    expect(payload.referencias[0]).toEqual({
+      nombre: 'María Pérez',
+      telefono: '5598765432',
+      relacion: 'familiar', // "familiar"|"trabajo"|"amigo"|"otro"
+    })
+    expect(payload.referencias[1].relacion).toBe('amigo')
   })
 
-  it('incluye sessionUuid y tipoIdentificacion', () => {
-    const payload = buildPayload(inputBase)
-    expect(payload.sessionUuid).toBe('test-uuid-1234')
-    expect(payload.tipoIdentificacion).toBe('ine') // "ine"|"pasaporte"
+  it('soporta sólo 1 referencia (mínimo según schema) y N adicionales', () => {
+    const inputUna: BuildPayloadInput = {
+      ...inputBase,
+      datos: {
+        ...inputBase.datos,
+        referencias: [{ nombre: 'Solo Una', telefono: '5599998888', relacion: 'familiar' }],
+      },
+    }
+    expect(buildPayload(inputUna).referencias).toHaveLength(1)
+
+    const inputCuatro: BuildPayloadInput = {
+      ...inputBase,
+      datos: {
+        ...inputBase.datos,
+        referencias: [
+          { nombre: 'R1', telefono: '5511111111', relacion: 'familiar' },
+          { nombre: 'R2', telefono: '5522222222', relacion: 'amigo' },
+          { nombre: 'R3', telefono: '5533333333', relacion: 'trabajo' },
+          { nombre: 'R4', telefono: '5544444444', relacion: 'otro' },
+        ],
+      },
+    }
+    expect(buildPayload(inputCuatro).referencias).toHaveLength(4)
   })
 
-  it('incluye los consentimientos del paso 7', () => {
+  it('devuelve array vacío de referencias cuando el store no las trae', () => {
+    const inputSinRefs: BuildPayloadInput = {
+      ...inputBase,
+      datos: { ...inputBase.datos, referencias: undefined },
+    }
+    const payload = buildPayload(inputSinRefs)
+    expect(payload.referencias).toEqual([])
+  })
+
+  it('incluye los consentimientos del paso 6 (revisión)', () => {
     const payload = buildPayload(inputBase)
     expect(payload.aceptaPrivacidad).toBe(true)
     expect(payload.aceptaTerminos).toBe(true)
-  })
-
-  it('mapea archivosSubidos a archivosDeclarados con tipos de archivo reales', () => {
-    const input: BuildPayloadInput = {
-      ...inputBase,
-      archivosSubidos: [
-        {
-          clienteId: 'cliente-1',
-          tipoArchivo: 'ine_frente', // tipo real del enum TIPO_ARCHIVO
-          nombreOriginal: 'ine_frente.jpg',
-          mimeType: 'image/jpeg',
-          tamanoBytes: 204800, // 200 KB
-          storagePath: 'staging/test-uuid/ine_frente.jpg',
-          archivoId: 'archivo-1',
-        },
-        {
-          clienteId: 'cliente-2',
-          tipoArchivo: 'comprobante_domicilio',
-          nombreOriginal: 'recibo_luz.pdf',
-          mimeType: 'application/pdf',
-          tamanoBytes: 512000, // 500 KB
-          storagePath: 'staging/test-uuid/recibo_luz.pdf',
-          archivoId: 'archivo-2',
-        },
-      ],
-    }
-    const payload = buildPayload(input)
-    expect(payload.archivosDeclarados).toHaveLength(2)
-    expect(payload.archivosDeclarados[0]).toEqual({
-      tipoArchivo: 'ine_frente',
-      nombreOriginal: 'ine_frente.jpg',
-      mimeType: 'image/jpeg',
-      tamanoBytes: 204800,
-    })
-    expect(payload.archivosDeclarados[1].tipoArchivo).toBe('comprobante_domicilio')
-  })
-
-  it('archivosDeclarados no expone clienteId, storagePath ni archivoId al backend', () => {
-    const input: BuildPayloadInput = {
-      ...inputBase,
-      archivosSubidos: [
-        {
-          clienteId: 'cliente-1',
-          tipoArchivo: 'ine_reverso',
-          nombreOriginal: 'ine_reverso.jpg',
-          mimeType: 'image/jpeg',
-          tamanoBytes: 180000,
-          storagePath: 'staging/test-uuid/ine_reverso.jpg',
-          archivoId: 'archivo-1',
-        },
-      ],
-    }
-    const payload = buildPayload(input)
-    const archivo = payload.archivosDeclarados[0] as Record<string, unknown>
-    expect(archivo['clienteId']).toBeUndefined()
-    expect(archivo['storagePath']).toBeUndefined()
-    expect(archivo['archivoId']).toBeUndefined()
-  })
-
-  it('devuelve array vacío de archivosDeclarados cuando no hay archivos subidos', () => {
-    const payload = buildPayload(inputBase)
-    expect(payload.archivosDeclarados).toEqual([])
   })
 
   it('usa string vacío como fallback para campos de texto requeridos ausentes', () => {
@@ -200,27 +166,6 @@ describe('buildPayload', () => {
     expect(payload.rfc).toBeUndefined()
     expect(payload.numeroInterior).toBeUndefined()
   })
-
-  it('incluye pasaporte como tipoIdentificacion válido', () => {
-    const input: BuildPayloadInput = {
-      ...inputBase,
-      tipoIdentificacion: 'pasaporte',
-      archivosSubidos: [
-        {
-          clienteId: 'cliente-1',
-          tipoArchivo: 'pasaporte_principal',
-          nombreOriginal: 'pasaporte.jpg',
-          mimeType: 'image/jpeg',
-          tamanoBytes: 350000,
-          storagePath: 'staging/test-uuid/pasaporte.jpg',
-          archivoId: 'archivo-1',
-        },
-      ],
-    }
-    const payload = buildPayload(input)
-    expect(payload.tipoIdentificacion).toBe('pasaporte')
-    expect(payload.archivosDeclarados[0].tipoArchivo).toBe('pasaporte_principal')
-  })
 })
 
 // Telemetría — Bloque 1.B del scoring v7.
@@ -229,8 +174,10 @@ describe('buildPayload', () => {
 // telemetría es complementaria, no requisito).
 describe('buildPayload — bloque telemetría', () => {
   // Datos representativos de una captura real: 4 minutos llenando el form,
-  // pasos 2-6 medidos. Pasos 1 (landing) y 7 (revisión) capturados pero
-  // fuera del cálculo anti-fraude del Bloque 2C.
+  // pasos 2-6 medidos. Paso 1 (landing) capturado pero fuera del cálculo
+  // anti-fraude del Bloque 2C. `paso7Ms` queda en null como legacy del flujo
+  // previo con docs en línea — el contrato de shared-schemas todavía lo
+  // declara y se removerá en una versión futura del schema.
   const telemetriaBase = {
     iniciadoEn: '2026-05-12T10:00:00.000Z',
     enviadoEn: '2026-05-12T10:04:30.000Z',
@@ -241,8 +188,8 @@ describe('buildPayload — bloque telemetría', () => {
       paso3Ms: 60_000, // 60s domicilio (incluye espera de colonias)
       paso4Ms: 30_000, // 30s economía
       paso5Ms: 25_000, // 25s referencias
-      paso6Ms: 50_000, // 50s subir docs
-      paso7Ms: 8_000, // 8s revisión rápida
+      paso6Ms: 50_000, // 50s revisión + submit
+      paso7Ms: null, // legacy
     },
     // Suma de paso2..paso6 = 210_000ms (3m30s captura real de datos)
     tiempoCapturaFormularioMs: 210_000,

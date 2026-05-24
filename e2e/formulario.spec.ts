@@ -21,7 +21,7 @@ const DATOS_BASE = {
   numeroExterior: '123',
   aniosViviendo: 'entre_1_y_2',
   tipoVivienda: 'rentada',
-  montoSolicitado: 5000,
+  montoSolicitado: 7000,
   plazoMeses: '4',
   destinoPrestamo: 'gasto_medico',
   tipoActividad: 'empleado_formal',
@@ -33,12 +33,11 @@ const DATOS_BASE = {
   gastoMensual: 7500,
   tieneDeudas: 'no',
   cantidadDeudas: 'sin_deudas',
-  ref1Nombre: 'Juan Pérez',
-  ref1Telefono: '5598765432',
-  ref1Relacion: 'familiar',
-  ref2Nombre: 'Ana Torres',
-  ref2Telefono: '5511112222',
-  ref2Relacion: 'amigo',
+  // Bloque 1: referencias migraron a array dinámico (shared-schemas 0.15.0).
+  referencias: [
+    { nombre: 'Juan Pérez', telefono: '5598765432', relacion: 'familiar' },
+    { nombre: 'Ana Torres', telefono: '5511112222', relacion: 'amigo' },
+  ],
 }
 
 // Marca que sólo permite que el init script inyecte una vez por test. Sin
@@ -67,14 +66,16 @@ async function injectStore(page: import('@playwright/test').Page, state: object)
 }
 
 async function setStep(page: import('@playwright/test').Page, paso: number, extra: object = {}) {
+  // Bloque 1: el store del formulario público ya no persiste
+  // `archivosSubidos` ni `tipoIdentificacion`. Los inyectamos solo en los
+  // tests que explícitamente prueban el paso 6 deprecado (E1-E9 quedaron
+  // marcados como skip — ver TODO Bloque 3).
   await injectStore(page, {
     pasoActual: paso,
     datos: { ...DATOS_BASE, ...extra },
     timestampInicio: Date.now(),
     coloniasCache: {},
     sessionUuid: '00000000-0000-4000-a000-000000000001',
-    archivosSubidos: [],
-    tipoIdentificacion: null,
   })
 }
 
@@ -84,7 +85,8 @@ async function setStep(page: import('@playwright/test').Page, paso: number, extr
 
 async function fillPaso1(page: import('@playwright/test').Page) {
   await irAlFormulario(page)
-  await page.click("button:has-text('4')")
+  // Bloque 1 v7: monto default 5000 → plazos disponibles solo ['2','3']. Usar '3'.
+  await page.click("button:has-text('3')")
   await page.click("button:has-text('Gasto médico')")
   await page.click('button[type=submit]')
   await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 5_000 })
@@ -209,7 +211,9 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   })
 
   // ── 8. Paso 6: INE → frente + reverso ────────────────────────────────────
-  test('Paso 6: seleccionar INE muestra dropzones de frente y reverso', async ({ page }) => {
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('Paso 6: seleccionar INE muestra dropzones de frente y reverso', async ({ page }) => {
     await setStep(page, 6)
     await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
 
@@ -221,7 +225,9 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   })
 
   // ── 9. Paso 6: Pasaporte → dropzone único ────────────────────────────────
-  test('Paso 6: seleccionar Pasaporte muestra dropzone único de página principal', async ({
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('Paso 6: seleccionar Pasaporte muestra dropzone único de página principal', async ({
     page,
   }) => {
     await setStep(page, 6)
@@ -235,7 +241,9 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   })
 
   // ── 10. Paso 6 NO tiene campo CLABE ──────────────────────────────────────
-  test('Paso 6 no tiene campo CLABE interbancaria', async ({ page }) => {
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('Paso 6 no tiene campo CLABE interbancaria', async ({ page }) => {
     await setStep(page, 6)
     await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
 
@@ -274,7 +282,9 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   })
 
   // ── E1. Cambio de tipoIdentificacion con cleanup ────────────────────────
-  test('E1: cambiar INE→Pasaporte elimina archivos INE del bucket, radios deshabilitados durante cleanup', async ({
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E1: cambiar INE→Pasaporte elimina archivos INE del bucket, radios deshabilitados durante cleanup', async ({
     page,
   }) => {
     const deletedPaths: string[] = []
@@ -352,7 +362,9 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   })
 
   // ── E2. Eliminación y re-subida de comprobante ───────────────────────────
-  test('E2: eliminar comprobante llama DELETE en bucket y lo quita de la lista', async ({
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E2: eliminar comprobante llama DELETE en bucket y lo quita de la lista', async ({
     page,
   }) => {
     const deletedPaths: string[] = []
@@ -418,7 +430,11 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   })
 
   // ── E3. Eliminar INE frente y re-subir ───────────────────────────────────
-  test('E3: eliminar INE frente y re-subir no deja archivo huérfano visible', async ({ page }) => {
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E3: eliminar INE frente y re-subir no deja archivo huérfano visible', async ({
+    page,
+  }) => {
     const deletedPaths: string[] = []
 
     await page.route('**/api/archivos/staging', (route) => {
@@ -474,7 +490,9 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   })
 
   // ── E4. Falla de DELETE no muta state ────────────────────────────────────
-  test('E4: si DELETE falla con 500 tras retry, archivo sigue en lista y se muestra toast', async ({
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E4: si DELETE falla con 500 tras retry, archivo sigue en lista y se muestra toast', async ({
     page,
   }) => {
     // Mock DELETE para siempre devolver 500
@@ -521,29 +539,33 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await expect(page.getByText('comprobante_error.jpg')).toBeVisible()
   })
 
-  // ── 11. BarraPasos: 5 form-steps, primero = Tu identidad (visible en pasos 2-6) ──
-  test('BarraPasos muestra 5 form-steps, primero = Tu identidad (mobile y desktop, en paso 2)', async ({
+  // ── 11. BarraPasos: 4 form-steps, primero = Tu identidad (visible en pasos 2-5) ──
+  test('BarraPasos muestra 4 form-steps, primero = Tu identidad (mobile y desktop, en paso 2)', async ({
     page,
   }) => {
-    // Stepper se oculta en paso 1 (calculadora) y paso 7 (revisión).
+    // Stepper se oculta en paso 1 (calculadora) y paso 6 (revisión). Bloque
+    // 1 desconectó el paso de documentos en línea → el wizard quedó en 6
+    // pasos totales, con 4 form-steps en el stepper.
     await setStep(page, 2)
     await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 5_000 })
 
-    // Desktop: BarraPasosDesktop muestra los 5 form-steps; Tu identidad activa.
+    // Desktop: BarraPasosDesktop muestra los 4 form-steps; Tu identidad activa.
     const desktopStepper = page.locator('div.hidden.md\\:block').filter({ hasText: 'Tu identidad' })
     await expect(desktopStepper.getByText('Tu identidad')).toBeVisible()
 
-    // Switch to mobile viewport to check mobile bar (Paso 1 de 5).
+    // Switch to mobile viewport to check mobile bar (Paso 1 de 4).
     await page.setViewportSize({ width: 375, height: 812 })
     await page.reload()
     await page.waitForSelector('text=Cuéntanos quién eres')
-    const mobileStepper = page.locator('div.md\\:hidden').filter({ hasText: 'Paso 1 de 5' })
-    await expect(mobileStepper.getByText('Paso 1 de 5')).toBeVisible()
+    const mobileStepper = page.locator('div.md\\:hidden').filter({ hasText: 'Paso 1 de 4' })
+    await expect(mobileStepper.getByText('Paso 1 de 4')).toBeVisible()
     await expect(mobileStepper.getByText('Tu identidad')).toBeVisible()
   })
 
   // ── E5. Hidratación al cargar Paso 6 con archivos en staging ────────────
-  test('E5: Paso 6 con archivos en memoria muestra la lista lista para continuar', async ({
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E5: Paso 6 con archivos en memoria muestra la lista lista para continuar', async ({
     page,
   }) => {
     const SESSION = '00000000-0000-4000-a000-000000000099'
@@ -618,7 +640,9 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   })
 
   // ── E5b. Click en X tras hidratación dispara DELETE al bucket ─────────────
-  test('E5b: click en X de archivo en memoria dispara DELETE y lo quita de la lista', async ({
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E5b: click en X de archivo en memoria dispara DELETE y lo quita de la lista', async ({
     page,
   }) => {
     const SESSION = '00000000-0000-4000-a000-000000000098'
@@ -672,7 +696,9 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   })
 
   // ── E6. Submit en vuelo + intento de cierre ──────────────────────────────
-  test('E6: submit en vuelo activa prompt beforeunload y NO dispara sendBeacon', async ({
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E6: submit en vuelo activa prompt beforeunload y NO dispara sendBeacon', async ({
     page,
   }) => {
     const beaconPaths: string[] = []
@@ -739,7 +765,9 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   })
 
   // ── E7. Cierre voluntario sin submit: sendBeacon limpia archivos ─────────
-  test('E7: cerrar pestaña sin submit dispara sendBeacon por cada archivo en state', async ({
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E7: cerrar pestaña sin submit dispara sendBeacon por cada archivo en state', async ({
     page,
   }) => {
     const beaconPayloads: Array<{ sessionUuid: string; storagePath: string; motivo: string }> = []
@@ -857,7 +885,10 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   })
 
   // ── E8. Navegación interna durante submit activo ─────────────────────────
-  test('E8: click logo durante submit activo muestra AlertDialog con copy de submit', async ({
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga (este test
+  // depende de inyectar archivos a paso 7 para satisfacer el reconciliador).
+  test.skip('E8: click logo durante submit activo muestra AlertDialog con copy de submit', async ({
     page,
   }) => {
     // Mock /api/solicitudes para que quede colgado
@@ -941,7 +972,11 @@ test.describe('Formulario de solicitud — Fase 2', () => {
   })
 
   // ── E9. Navegación interna con archivos en Paso 6 ───────────────────────
-  test("E9: click 'Aviso de Privacidad' con archivos subidos muestra AlertDialog de archivos", async ({
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard. La
+  // copy "perderás los archivos" tampoco existe ya en `salidaCopy` — esta
+  // verificación vivirá en la página standalone cuando reintroduzca el
+  // flujo de carga con su propio AlertDialog.
+  test.skip("E9: click 'Aviso de Privacidad' con archivos subidos muestra AlertDialog de archivos", async ({
     page,
   }) => {
     const SESSION = '00000000-0000-4000-a000-000000000010'

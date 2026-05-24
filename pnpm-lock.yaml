@@ -21,8 +21,8 @@ importers:
         specifier: ^5.99.2
         version: 5.100.5(react@19.2.6)
       '@varolisto/shared-schemas':
-        specifier: ^0.13.0
-        version: 0.13.0(zod@4.3.6)
+        specifier: ^0.15.0
+        version: 0.15.0(zod@4.3.6)
       browser-image-compression:
         specifier: ^2.0.2
         version: 2.0.2
@@ -1940,8 +1940,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@varolisto/shared-schemas@0.13.0':
-    resolution: {integrity: sha512-/IpezP9zz0pVqzlL7I2OHxhZOZ1dVzFzi2x0S6Fbfgscx556MmngJl9R3C9GempA3pcaGwqFbGac5mvzktvvmg==, tarball: https://npm.pkg.github.com/download/@varolisto/shared-schemas/0.13.0/f39f430e7184f543a9900304a0735ac1363eadb4}
+  '@varolisto/shared-schemas@0.15.0':
+    resolution: {integrity: sha512-KOz+jnSWINbxSU6WxahQ0+9tk0b5w+YWrMP8FHCDv1zMCZGLAP/G6140llb5afS2kxfbpP964X8US1RU8lhYJw==, tarball: https://npm.pkg.github.com/download/@varolisto/shared-schemas/0.15.0/f8fa220c66c29adafe411af2b4fc431b7cad1df0}
     peerDependencies:
       zod: ^4.0.0
 
@@ -6671,7 +6671,7 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@varolisto/shared-schemas@0.13.0(zod@4.3.6)':
+  '@varolisto/shared-schemas@0.15.0(zod@4.3.6)':
     dependencies:
       zod: 4.3.6
 

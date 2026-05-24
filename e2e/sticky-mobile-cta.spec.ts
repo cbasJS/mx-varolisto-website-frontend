@@ -218,12 +218,12 @@ test.describe('Sticky mobile CTA — pasos 2-6 (data steps)', () => {
   })
 })
 
-test.describe('Sticky mobile CTA — paso 7 (revisión)', () => {
-  test('mobile, paso 7: muestra "Enviar solicitud" y deshabilitado sin checkboxes', async ({
+test.describe('Sticky mobile CTA — paso 6 (revisión)', () => {
+  test('mobile, paso 6: muestra "Enviar solicitud" y deshabilitado sin checkboxes', async ({
     page,
   }) => {
     await page.setViewportSize(MOBILE_VIEWPORT)
-    await irAPaso(page, 7)
+    await irAPaso(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
     await scrollDown(page, 200)
 
@@ -235,9 +235,9 @@ test.describe('Sticky mobile CTA — paso 7 (revisión)', () => {
     await expect(sticky.getByRole('button', { name: /atrás/i })).toBeVisible()
   })
 
-  test('mobile, paso 7: se habilita después de aceptar privacidad y términos', async ({ page }) => {
+  test('mobile, paso 6: se habilita después de aceptar privacidad y términos', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT)
-    await irAPaso(page, 7)
+    await irAPaso(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     // Aceptar ambos checkboxes (Radix button[role=checkbox]). Disparamos el
@@ -259,9 +259,9 @@ test.describe('Sticky mobile CTA — paso 7 (revisión)', () => {
     await expect(sticky.getByRole('button', { name: /enviar solicitud/i })).toBeEnabled()
   })
 
-  test('mobile, paso 7: el botón submit está vinculado al form del paso', async ({ page }) => {
+  test('mobile, paso 6: el botón submit está vinculado al form del paso', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT)
-    await irAPaso(page, 7)
+    await irAPaso(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
     await scrollDown(page, 200)
 
@@ -272,11 +272,11 @@ test.describe('Sticky mobile CTA — paso 7 (revisión)', () => {
     await expect(submitBtn).toHaveAttribute('form', ACTIVE_FORM_ID)
   })
 
-  test('mobile, paso 7: el botón "Enviar solicitud" usa verde varolisto (#2ECC71)', async ({
+  test('mobile, paso 6: el botón "Enviar solicitud" usa verde varolisto (#2ECC71)', async ({
     page,
   }) => {
     await page.setViewportSize(MOBILE_VIEWPORT)
-    await irAPaso(page, 7)
+    await irAPaso(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
     await scrollDown(page, 200)
 
@@ -289,9 +289,9 @@ test.describe('Sticky mobile CTA — paso 7 (revisión)', () => {
     expect(bg).toBe('rgb(46, 204, 113)')
   })
 
-  test('mobile, paso 7: el botón submit del sticky tiene cta-shimmer', async ({ page }) => {
+  test('mobile, paso 6: el botón submit del sticky tiene cta-shimmer', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT)
-    await irAPaso(page, 7)
+    await irAPaso(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     // Aceptar checkboxes para que el botón se habilite (shimmer solo aplica
@@ -335,22 +335,22 @@ test.describe('Sticky mobile CTA — crossfade con CTAs inline al fondo', () => 
     await expect(inlineSubmits).toHaveCount(1)
   })
 
-  test('mobile, paso 7: alwaysVisible — sticky visible desde el inicio sin scroll', async ({
+  test('mobile, paso 6: alwaysVisible — sticky visible desde el inicio sin scroll', async ({
     page,
   }) => {
     await page.setViewportSize(MOBILE_VIEWPORT)
-    await irAPaso(page, 7)
+    await irAPaso(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     // alwaysVisible bypassa el threshold de scroll — visible inmediatamente.
     await expect(page.getByTestId('sticky-mobile-cta')).toBeVisible()
   })
 
-  test('mobile, paso 7: al llegar al fondo, sticky se oculta y inline aparece (crossfade)', async ({
+  test('mobile, paso 6: al llegar al fondo, sticky se oculta y inline aparece (crossfade)', async ({
     page,
   }) => {
     await page.setViewportSize(MOBILE_VIEWPORT)
-    await irAPaso(page, 7)
+    await irAPaso(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     await page.evaluate(() => window.scrollTo({ top: 99999, behavior: 'instant' }))
@@ -361,10 +361,11 @@ test.describe('Sticky mobile CTA — crossfade con CTAs inline al fondo', () => 
   })
 })
 
-test.describe('Paso 7 — CTAs durante el submit', () => {
-  // Hidrata el store en paso 7 con datos completos + archivos que cumplen
-  // requisitos (INE + 2 comprobantes de ingreso + comprobante de domicilio),
-  // para que Paso7Revision no retroceda a paso 6 al montar.
+test.describe('Paso 6 — CTAs durante el submit', () => {
+  // Hidrata el store en paso 6 (revisión) con datos completos. Bloque 1: el
+  // formulario público ya no captura archivos en línea, así que el store de
+  // revisión no necesita archivosSubidos/tipoIdentificacion para que
+  // Paso7Revision (renderizado en pasoActual === 6) no retroceda al montar.
   async function irAPaso7Completo(page: Page) {
     const SESSION = '00000000-0000-4000-a000-000000000777'
     await page.addInitScript(
@@ -373,10 +374,10 @@ test.describe('Paso 7 — CTAs durante el submit', () => {
           key,
           JSON.stringify({
             state: {
-              pasoActual: 7,
+              pasoActual: 6,
               datos: {
                 montoSolicitado: 5000,
-                plazoMeses: '4',
+                plazoMeses: '3',
                 destinoPrestamo: 'liquidar_deuda',
                 nombre: 'María',
                 apellidoPaterno: 'García',
@@ -402,64 +403,14 @@ test.describe('Paso 7 — CTAs durante el submit', () => {
                 ingresoMensual: 15000,
                 gastoMensual: 6500,
                 tieneDeudas: 'no',
-                ref1Nombre: 'Juan Pérez',
-                ref1Telefono: '5598765432',
-                ref1Relacion: 'familiar',
-                ref2Nombre: 'Ana Torres',
-                ref2Telefono: '5511112222',
-                ref2Relacion: 'amigo',
+                referencias: [
+                  { nombre: 'Juan Pérez', telefono: '5598765432', relacion: 'familiar' },
+                  { nombre: 'Ana Torres', telefono: '5511112222', relacion: 'amigo' },
+                ],
               },
               timestampInicio: Date.now(),
               coloniasCache: {},
               sessionUuid: session,
-              archivosSubidos: [
-                {
-                  clienteId: '11111111-1111-4111-a111-111111111701',
-                  archivoId: '21111111-1111-4111-a111-111111111701',
-                  tipoArchivo: 'ine_frente',
-                  nombreOriginal: 'ine_frente.jpg',
-                  mimeType: 'image/jpeg',
-                  tamanoBytes: 100000,
-                  storagePath: `staging/${session}/ine_frente.jpg`,
-                },
-                {
-                  clienteId: '11111111-1111-4111-a111-111111111702',
-                  archivoId: '21111111-1111-4111-a111-111111111702',
-                  tipoArchivo: 'ine_reverso',
-                  nombreOriginal: 'ine_reverso.jpg',
-                  mimeType: 'image/jpeg',
-                  tamanoBytes: 100000,
-                  storagePath: `staging/${session}/ine_reverso.jpg`,
-                },
-                {
-                  clienteId: '11111111-1111-4111-a111-111111111703',
-                  archivoId: '21111111-1111-4111-a111-111111111703',
-                  tipoArchivo: 'comprobante_ingreso',
-                  nombreOriginal: 'recibo1.pdf',
-                  mimeType: 'application/pdf',
-                  tamanoBytes: 50000,
-                  storagePath: `staging/${session}/recibo1.pdf`,
-                },
-                {
-                  clienteId: '11111111-1111-4111-a111-111111111704',
-                  archivoId: '21111111-1111-4111-a111-111111111704',
-                  tipoArchivo: 'comprobante_ingreso',
-                  nombreOriginal: 'recibo2.pdf',
-                  mimeType: 'application/pdf',
-                  tamanoBytes: 50000,
-                  storagePath: `staging/${session}/recibo2.pdf`,
-                },
-                {
-                  clienteId: '11111111-1111-4111-a111-111111111705',
-                  archivoId: '21111111-1111-4111-a111-111111111705',
-                  tipoArchivo: 'comprobante_domicilio',
-                  nombreOriginal: 'cfe.pdf',
-                  mimeType: 'application/pdf',
-                  tamanoBytes: 50000,
-                  storagePath: `staging/${session}/cfe.pdf`,
-                },
-              ],
-              tipoIdentificacion: 'ine',
             },
             version: 0,
           }),

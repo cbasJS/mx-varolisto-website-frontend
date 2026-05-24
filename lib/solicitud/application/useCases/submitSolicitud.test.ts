@@ -2,24 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { submitSolicitud, type SubmitSolicitudInput } from './submitSolicitud'
 import type { TelemetriaSolicitud } from '@varolisto/shared-schemas/form'
 
-const SESSION_UUID = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
-
 // Datos completos representativos de una solicitud real — empleado formal,
-// $5,000 a 4 meses, CDMX.
+// $5,000 a 4 meses, CDMX, con 2 referencias en el array nuevo.
 const inputBase: SubmitSolicitudInput = {
-  sessionUuid: SESSION_UUID,
-  tipoIdentificacion: 'ine',
-  archivosSubidos: [
-    {
-      clienteId: 'cliente-ine',
-      tipoArchivo: 'ine_frente',
-      nombreOriginal: 'ine_frente.jpg',
-      mimeType: 'image/jpeg',
-      tamanoBytes: 204800,
-      storagePath: `staging/${SESSION_UUID}/ine_frente.jpg`,
-      archivoId: 'arch-1',
-    },
-  ],
   paso7Data: { aceptaPrivacidad: true, aceptaTerminos: true },
   datos: {
     nombre: 'Juan',
@@ -49,12 +34,10 @@ const inputBase: SubmitSolicitudInput = {
     ingresoMensual: 15000,
     gastoMensual: 5000,
     tieneDeudas: 'no',
-    ref1Nombre: 'María Pérez',
-    ref1Telefono: '5598765432',
-    ref1Relacion: 'familiar',
-    ref2Nombre: 'Carlos Ruiz',
-    ref2Telefono: '5511112222',
-    ref2Relacion: 'amigo',
+    referencias: [
+      { nombre: 'María Pérez', telefono: '5598765432', relacion: 'familiar' },
+      { nombre: 'Carlos Ruiz', telefono: '5511112222', relacion: 'amigo' },
+    ],
   },
 }
 
@@ -69,7 +52,7 @@ const telemetria: TelemetriaSolicitud = {
     paso4Ms: 30_000,
     paso5Ms: 25_000,
     paso6Ms: 50_000,
-    paso7Ms: 8_000,
+    paso7Ms: null, // legacy del flujo previo
   },
   tiempoCapturaFormularioMs: 210_000,
   edicionesPorCampo: { nombre: 1, curp: 2 },
@@ -156,10 +139,16 @@ describe('submitSolicitud — integración con telemetría (Bloque 1.B)', () => 
     const body = JSON.parse((call[1] as RequestInit).body as string) as Record<string, unknown>
     expect(body.nombre).toBe('Juan')
     expect(body.curp).toBe('GALJ950615HDFRCN01')
-    expect(body.sessionUuid).toBe(SESSION_UUID)
-    expect(body.tipoIdentificacion).toBe('ine')
-    expect(body.archivosDeclarados).toHaveLength(1)
     expect(body.aceptaPrivacidad).toBe(true)
     expect(body.aceptaTerminos).toBe(true)
+    // Referencias viajan como array — sin sessionUuid/tipoIdentificacion/
+    // archivosDeclarados (removidos del contrato en shared-schemas 0.15.0).
+    expect(body.referencias).toEqual([
+      { nombre: 'María Pérez', telefono: '5598765432', relacion: 'familiar' },
+      { nombre: 'Carlos Ruiz', telefono: '5511112222', relacion: 'amigo' },
+    ])
+    expect(body.sessionUuid).toBeUndefined()
+    expect(body.tipoIdentificacion).toBeUndefined()
+    expect(body.archivosDeclarados).toBeUndefined()
   })
 })

@@ -23,8 +23,6 @@ describe('usePaso4 — validación cruzada gasto vs ingreso', () => {
     useSolicitudStore.setState({
       datos: { ...datosBase },
       pasoActual: 4,
-      archivosSubidos: [],
-      tipoIdentificacion: null,
       sessionUuid: 'session-06600-abc',
     })
   })

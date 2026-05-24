@@ -26,8 +26,9 @@ const DATOS_COMPLETOS = {
   aniosViviendo: 'entre_1_y_2',
   tipoVivienda: 'rentada',
   // Préstamo (paso 1 UI / schema paso2) — dentro del rango $2,000–$20,000, 2–6 meses
+  // Bloque 1 v7: $5,000 → plazos válidos ['2','3']. Usar '3'.
   montoSolicitado: 5000,
-  plazoMeses: '4',
+  plazoMeses: '3',
   destinoPrestamo: 'gasto_medico',
   // Economía (paso 4) — ingreso mín $1,000
   tipoActividad: 'empleado_formal',
@@ -38,64 +39,17 @@ const DATOS_COMPLETOS = {
   ingresoMensual: 8500,
   gastoMensual: 4500,
   tieneDeudas: 'no',
-  // Referencias (paso 5)
-  ref1Nombre: 'Juan Pérez',
-  ref1Telefono: '5598765432',
-  ref1Relacion: 'familiar',
-  ref2Nombre: 'Ana Torres',
-  ref2Telefono: '5511112222',
-  ref2Relacion: 'amigo',
+  // Referencias (paso 5) — array dinámico nuevo (shared-schemas 0.15.0)
+  referencias: [
+    { nombre: 'Juan Pérez', telefono: '5598765432', relacion: 'familiar' },
+    { nombre: 'Ana Torres', telefono: '5511112222', relacion: 'amigo' },
+  ],
 }
 
-// Archivos documentos reales del producto — INE (frente + reverso) +
-// comprobante de ingresos + comprobante de domicilio
-const ARCHIVOS_COMPLETOS = [
-  {
-    clienteId: 'cliente-ine-frente',
-    tipoArchivo: 'ine_frente',
-    nombreOriginal: 'ine_frente.jpg',
-    mimeType: 'image/jpeg',
-    tamanoBytes: 204800, // 200 KB
-    storagePath: `staging/${SESSION_UUID}/ine_frente.jpg`,
-    archivoId: 'arch-0001',
-  },
-  {
-    clienteId: 'cliente-ine-reverso',
-    tipoArchivo: 'ine_reverso',
-    nombreOriginal: 'ine_reverso.jpg',
-    mimeType: 'image/jpeg',
-    tamanoBytes: 198000, // ~193 KB
-    storagePath: `staging/${SESSION_UUID}/ine_reverso.jpg`,
-    archivoId: 'arch-0002',
-  },
-  {
-    clienteId: 'cliente-comprobante',
-    tipoArchivo: 'comprobante_ingreso',
-    nombreOriginal: 'nomina_abril.jpg',
-    mimeType: 'image/jpeg',
-    tamanoBytes: 312000, // ~304 KB
-    storagePath: `staging/${SESSION_UUID}/nomina_abril.jpg`,
-    archivoId: 'arch-0003',
-  },
-  {
-    clienteId: 'cliente-comprobante-2',
-    tipoArchivo: 'comprobante_ingreso',
-    nombreOriginal: 'nomina_marzo.jpg',
-    mimeType: 'image/jpeg',
-    tamanoBytes: 298000, // ~291 KB
-    storagePath: `staging/${SESSION_UUID}/nomina_marzo.jpg`,
-    archivoId: 'arch-0003b',
-  },
-  {
-    clienteId: 'cliente-domicilio',
-    tipoArchivo: 'comprobante_domicilio',
-    nombreOriginal: 'recibo_luz.pdf',
-    mimeType: 'application/pdf',
-    tamanoBytes: 98000, // ~95 KB
-    storagePath: `staging/${SESSION_UUID}/recibo_luz.pdf`,
-    archivoId: 'arch-0004',
-  },
-]
+// Bloque 1: ARCHIVOS_COMPLETOS removido — el formulario público dejó de
+// capturar archivos en línea; el paso 7 anterior de "Documentos" quedó
+// desconectado del wizard. El paso de revisión (ahora paso 6) no requiere
+// archivos previos para mostrar el resumen y enviar la solicitud.
 
 // Flag-guard: el init script sólo inyecta una vez por test, sin re-poblar
 // sessionStorage en navegaciones subsecuentes que pudieran sobreescribir el
@@ -118,8 +72,12 @@ async function inyectarStore(
   extra: Partial<typeof DATOS_COMPLETOS> = {},
 ) {
   await page.addInitScript(
-    ({ paso, datos, archivos, sessionUuid, flag }) => {
+    ({ paso, datos, sessionUuid, flag }) => {
       if (sessionStorage.getItem(flag) === 'true') return
+      // Bloque 1: el store del formulario público ya no persiste
+      // `archivosSubidos` ni `tipoIdentificacion`. El flujo de revisión
+      // (paso 6) no requiere archivos en memoria — se removió el paso de
+      // documentos en línea del wizard.
       const store = {
         state: {
           pasoActual: paso,
@@ -127,8 +85,6 @@ async function inyectarStore(
           timestampInicio: Date.now(),
           coloniasCache: {},
           sessionUuid,
-          archivosSubidos: paso >= 7 ? archivos : [],
-          tipoIdentificacion: paso >= 7 ? 'ine' : null,
         },
         version: 0,
       }
@@ -138,7 +94,6 @@ async function inyectarStore(
     {
       paso,
       datos: { ...DATOS_COMPLETOS, ...extra },
-      archivos: ARCHIVOS_COMPLETOS,
       sessionUuid: SESSION_UUID,
       flag: SETUP_FLAG,
     },
@@ -176,7 +131,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
       }),
     )
 
-    await inyectarStore(page, 7)
+    await inyectarStore(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
@@ -197,7 +152,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
       /* sin respuesta */
     })
 
-    await inyectarStore(page, 7)
+    await inyectarStore(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
@@ -211,7 +166,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
   // ── Paso 7: resumen de datos ──────────────────────────────────────────────
 
   test('Paso 7 muestra resumen con datos del solicitante y del préstamo', async ({ page }) => {
-    await inyectarStore(page, 7)
+    await inyectarStore(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     // Datos de identidad
@@ -223,7 +178,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     // único lugar donde aparecen monto/plazo/destino (ResumenSolicitud del
     // header se oculta en Paso 7). No requiere scope al <form>.
     await expect(page.getByText('$5,000')).toBeVisible()
-    await expect(page.getByText('4 meses')).toBeVisible()
+    await expect(page.getByText('3 meses')).toBeVisible()
     await expect(page.getByText('Gasto médico')).toBeVisible()
   })
 
@@ -238,7 +193,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
       }),
     )
 
-    await inyectarStore(page, 7)
+    await inyectarStore(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
@@ -266,7 +221,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
       }),
     )
 
-    await inyectarStore(page, 7)
+    await inyectarStore(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
@@ -303,7 +258,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
   test('error de red muestra mensaje de reintento y permanece en Paso 7', async ({ page }) => {
     await page.route('**/api/solicitudes', (route) => route.abort('failed'))
 
-    await inyectarStore(page, 7)
+    await inyectarStore(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     const checks = page.locator('button[role="checkbox"]')
@@ -320,7 +275,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
   // ── Validación de checkboxes ──────────────────────────────────────────────
 
   test('botón Enviar está deshabilitado sin aceptar ningún checkbox', async ({ page }) => {
-    await inyectarStore(page, 7)
+    await inyectarStore(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     // El botón está disabled mientras no se acepten ambos términos
@@ -328,7 +283,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
   })
 
   test('botón Enviar está deshabilitado aceptando solo el primer checkbox', async ({ page }) => {
-    await inyectarStore(page, 7)
+    await inyectarStore(page, 6)
     await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 15_000 })
 
     await page.locator('button[role="checkbox"]').nth(0).click()

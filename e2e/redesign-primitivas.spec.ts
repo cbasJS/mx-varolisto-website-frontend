@@ -8,7 +8,7 @@ async function setStoreEnPaso2(page: Page) {
       pasoActual: 2,
       datos: {
         montoSolicitado: 5000,
-        plazoMeses: '4',
+        plazoMeses: '3',
         destinoPrestamo: 'liquidar_deuda',
       },
       timestampInicio: Date.now(),
@@ -124,7 +124,7 @@ test.describe('Rediseño /solicitar — counters fuera del input en pasos 3+', (
         pasoActual: 3,
         datos: {
           montoSolicitado: 5000,
-          plazoMeses: '4',
+          plazoMeses: '3',
           destinoPrestamo: 'liquidar_deuda',
           nombre: 'María',
           apellidoPaterno: 'García',
@@ -164,7 +164,7 @@ test.describe('Rediseño /solicitar — fixes Fase 2.2 (Sexo grid + Colonia labe
         pasoActual: 2,
         datos: {
           montoSolicitado: 5000,
-          plazoMeses: '4',
+          plazoMeses: '3',
           destinoPrestamo: 'liquidar_deuda',
         },
         timestampInicio: Date.now(),
@@ -188,7 +188,7 @@ test.describe('Rediseño /solicitar — fixes Fase 2.2 (Sexo grid + Colonia labe
         pasoActual: 3,
         datos: {
           montoSolicitado: 5000,
-          plazoMeses: '4',
+          plazoMeses: '3',
           destinoPrestamo: 'liquidar_deuda',
           nombre: 'María',
           apellidoPaterno: 'García',

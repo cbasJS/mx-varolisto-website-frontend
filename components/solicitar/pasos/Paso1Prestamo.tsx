@@ -108,8 +108,9 @@ export default function Paso1Prestamo({ onNext }: Props) {
         <div className="-mt-3 mb-4 flex items-center gap-2 text-[14px] leading-relaxed text-on-surface-variant">
           <Info className="size-3.5 shrink-0 text-outline" aria-hidden />
           <span>
-            Hasta <span className="font-medium text-secondary">$7,000</span> en tu primer crédito,
-            sujeto a evaluación.
+            Para tu primer crédito, el monto típico es de{' '}
+            <span className="font-medium text-secondary">$3,000 a $7,000</span>. Tu evaluación
+            determina el monto y plazo final.
           </span>
         </div>
 

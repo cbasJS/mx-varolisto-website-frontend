@@ -13,8 +13,10 @@ async function irAPaso2(page: Page) {
         state: {
           pasoActual: 2,
           datos: {
+            // Bloque 1 v7: $5,000 → plazos válidos ['2','3']. Usar '3' para
+            // que el state inyectado pase la validación del slider en paso 1.
             montoSolicitado: 5000,
-            plazoMeses: '4',
+            plazoMeses: '3',
             destinoPrestamo: 'liquidar_deuda',
           },
           timestampInicio: Date.now(),
@@ -32,20 +34,15 @@ async function irAPaso2(page: Page) {
 }
 
 test.describe('Rediseño /solicitar — stepper (BarraPasos)', () => {
-  test('desktop: las 5 etiquetas form-step son legibles sobre fondo claro', async ({ page }) => {
+  test('desktop: las 4 etiquetas form-step son legibles sobre fondo claro', async ({ page }) => {
     await irAPaso2(page)
     const desktopBar = page.locator('div.hidden.md\\:block').filter({ hasText: 'Tu identidad' })
     await expect(desktopBar).toBeVisible()
 
-    // Sólo 5 form-steps en el stepper; paso 1 (calculadora) y paso 7 (revisión)
-    // son landings sin stepper.
-    const etiquetas = [
-      'Tu identidad',
-      'Tu domicilio',
-      'Tu economía',
-      'Tus contactos',
-      'Tus documentos',
-    ]
+    // Sólo 4 form-steps en el stepper (Bloque 1 v7); paso 1 (calculadora) y
+    // paso 6 (revisión) son landings sin stepper. El paso de documentos quedó
+    // deprecado del flujo público.
+    const etiquetas = ['Tu identidad', 'Tu domicilio', 'Tu economía', 'Tus contactos']
     for (const et of etiquetas) {
       const label = desktopBar.getByText(et).first()
       await expect(label).toBeVisible()
@@ -67,8 +64,9 @@ test.describe('Rediseño /solicitar — stepper (BarraPasos)', () => {
   })
 
   test('el stepper queda en una franja con fondo blanco pegada al navbar', async ({ page }) => {
-    // El strip solo se renderiza cuando hay stepper visible (pasos 2-6); en
-    // paso 1 y 7 se omite para que el contenido quede pegado al navbar.
+    // El strip solo se renderiza cuando hay stepper visible (pasos 2-5); en
+    // paso 1 (calculadora) y paso 6 (revisión) se omite para que el contenido
+    // quede pegado al navbar.
     await irAPaso2(page)
     const strip = page.locator('[data-testid="stepper-strip"]')
     await expect(strip).toBeVisible()
@@ -137,11 +135,11 @@ test.describe('Rediseño /solicitar — stepper (BarraPasos)', () => {
     expect(borderBottom).not.toBe('0px')
   })
 
-  test('mobile: en paso 2 muestra "Paso 1 de 5", la etiqueta y la barra', async ({ page }) => {
+  test('mobile: en paso 2 muestra "Paso 1 de 4", la etiqueta y la barra', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 })
     await irAPaso2(page)
-    const mobileBar = page.locator('div.md\\:hidden').filter({ hasText: 'Paso 1 de 5' })
-    await expect(mobileBar.getByText('Paso 1 de 5')).toBeVisible()
+    const mobileBar = page.locator('div.md\\:hidden').filter({ hasText: 'Paso 1 de 4' })
+    await expect(mobileBar.getByText('Paso 1 de 4')).toBeVisible()
     await expect(mobileBar.getByText('Tu identidad')).toBeVisible()
     await expect(mobileBar.locator('[data-testid="progress-bar"]')).toBeVisible()
   })
