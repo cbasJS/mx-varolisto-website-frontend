@@ -26,8 +26,9 @@ const DATOS_COMPLETOS = {
   aniosViviendo: 'entre_1_y_2',
   tipoVivienda: 'rentada',
   // Préstamo (paso 1 UI / schema paso2) — dentro del rango $2,000–$20,000, 2–6 meses
+  // Bloque 1 v7: $5,000 → plazos válidos ['2','3']. Usar '3'.
   montoSolicitado: 5000,
-  plazoMeses: '4',
+  plazoMeses: '3',
   destinoPrestamo: 'gasto_medico',
   // Economía (paso 4) — ingreso mín $1,000
   tipoActividad: 'empleado_formal',
@@ -177,7 +178,7 @@ test.describe('Flujo feliz — solicitud completa', () => {
     // único lugar donde aparecen monto/plazo/destino (ResumenSolicitud del
     // header se oculta en Paso 7). No requiere scope al <form>.
     await expect(page.getByText('$5,000')).toBeVisible()
-    await expect(page.getByText('4 meses')).toBeVisible()
+    await expect(page.getByText('3 meses')).toBeVisible()
     await expect(page.getByText('Gasto médico')).toBeVisible()
   })
 

@@ -26,8 +26,9 @@ const DATOS_COMPLETOS = {
   numeroExterior: '123',
   aniosViviendo: 'entre_1_y_2' as const,
   tipoVivienda: 'rentada' as const,
+  // Bloque 1 v7: $5,000 → plazos válidos ['2','3']. Usar '3'.
   montoSolicitado: 5000,
-  plazoMeses: '4' as const,
+  plazoMeses: '3' as const,
   destinoPrestamo: 'gasto_medico' as const,
   tipoActividad: 'empleado_formal' as const,
   nombreEmpleadorNegocio: 'ACME Corp SA de CV',

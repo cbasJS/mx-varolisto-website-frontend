@@ -85,7 +85,8 @@ async function setStep(page: import('@playwright/test').Page, paso: number, extr
 
 async function fillPaso1(page: import('@playwright/test').Page) {
   await irAlFormulario(page)
-  await page.click("button:has-text('4')")
+  // Bloque 1 v7: monto default 5000 → plazos disponibles solo ['2','3']. Usar '3'.
+  await page.click("button:has-text('3')")
   await page.click("button:has-text('Gasto médico')")
   await page.click('button[type=submit]')
   await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 5_000 })
