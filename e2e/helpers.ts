@@ -86,16 +86,19 @@ export async function llenarPaso4(page: Page) {
   await page.waitForSelector('h2:has-text("Dos contactos de confianza")')
 }
 
-/** Fill Paso 5 — Referencias. */
+/** Fill Paso 5 — Referencias.
+ * shared-schemas 0.15.0: el formulario captura un array dinámico bajo la
+ * key `referencias`. El esquema exige mínimo 1; los inputs siguen el patrón
+ * `referencias.${index}.{nombre|telefono|relacion|email}`. */
 export async function llenarPaso5(page: Page) {
-  await page.fill('input[name=ref1Nombre]', 'Juan Pérez')
-  await page.fill('input[name=ref1Telefono]', '5598765432')
+  // Solo llenamos la referencia obligatoria (índice 0). Si un test necesita
+  // más, debería invocar el botón "Agregar referencia" antes de llenar.
+  await page.fill('input[name="referencias.0.nombre"]', 'Juan Pérez')
+  await page.fill('input[name="referencias.0.telefono"]', '5598765432')
   await page.locator('[role=combobox]').filter({ hasText: '¿Qué relación' }).first().click()
   await page.getByRole('option', { name: 'Familiar' }).click()
-  await page.fill('input[name=ref2Nombre]', 'Ana Torres')
-  await page.fill('input[name=ref2Telefono]', '5511112222')
-  await page.locator('[role=combobox]').filter({ hasText: '¿Qué relación' }).last().click()
-  await page.getByRole('option', { name: 'Amigo' }).click()
   await page.click('button[type=submit]')
-  await page.waitForSelector('h2:has-text("Documentos")')
+  // El paso siguiente es ahora la revisión (Bloque 1 desconectó el paso de
+  // documentos en línea; el wizard quedó en 6 pasos).
+  await page.waitForSelector('h2:has-text("Casi listo. Revisa todo")')
 }

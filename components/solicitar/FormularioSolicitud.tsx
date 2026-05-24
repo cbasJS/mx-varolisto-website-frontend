@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSolicitudNavigation } from '@/hooks/solicitar/useSolicitudNavigation'
-import { useBeforeUnloadCleanup } from '@/hooks/solicitar/useBeforeUnloadCleanup'
 import { useTelemetriaCapture } from '@/lib/solicitud/infrastructure/telemetria'
 import { pasoSlideVariants, pasoTransition } from '@/lib/animations'
 import { pasos } from '@/content/solicitar'
@@ -15,7 +14,7 @@ import Paso2Identidad from './pasos/Paso2Identidad'
 import Paso3Domicilio from './pasos/paso3/Paso3Domicilio'
 import Paso4Economia from './pasos/paso4/Paso4Economia'
 import Paso5Referencias from './pasos/paso5/Paso5Referencias'
-import Paso6Documentos from './pasos/paso6/Paso6Documentos'
+// Paso6Documentos quedó deprecado en Bloque 1 — ver components/solicitar/pasos/paso6/Paso6Documentos.tsx
 import Paso7Revision from './pasos/paso7/Paso7Revision'
 import { ResumenSolicitud } from './ResumenSolicitud'
 import { calcularCuota } from '@/lib/solicitud/utils/calcularCuota'
@@ -26,7 +25,7 @@ import { WizardActionsProvider, useInlineRevealed } from '@/components/wizard/Wi
 // El Navbar es fixed top-0 y no reserva altura; cualquier contenido que arranque
 // en y=0 quedaría tapado. NAVBAR_SPACER_PT es el padding-top que reserva su
 // altura. Se aplica en el StepperStrip cuando se ve el stepper, o directamente
-// al contenedor del form en pasos sin stepper (1 y 7).
+// al contenedor del form en pasos sin stepper (1 y 6).
 const NAVBAR_SPACER_PT = 'pt-[72px]'
 
 interface StepperStripProps {
@@ -35,9 +34,9 @@ interface StepperStripProps {
 
 function StepperStrip({ pasoActual }: StepperStripProps) {
   // Solo se renderiza cuando hay stepper visible. En paso 1 (calculadora) y
-  // paso 7 (revisión) el strip se omite por completo para que el contenido
+  // paso 6 (revisión) el strip se omite por completo para que el contenido
   // del form quede pegado al navbar sin colchón intermedio.
-  const showStepper = pasoActual > 1 && pasoActual < 7
+  const showStepper = pasoActual > 1 && pasoActual < 6
   if (!showStepper) return null
   return (
     <div data-testid="stepper-strip" className={`bg-white ${NAVBAR_SPACER_PT}`}>
@@ -83,18 +82,16 @@ function FormularioSolicitudInner() {
     handleSubmit,
   } = useSolicitudNavigation({ getTelemetriaPayload })
 
-  useBeforeUnloadCleanup(enviando)
-
-  // Slot estático donde los pasos 2-6 portalizan sus FormActions: vive afuera
+  // Slot estático donde los pasos 2-5 portalizan sus FormActions: vive afuera
   // del card animado, así los botones no transicionan junto al inner content.
   const [actionsSlot, setActionsSlot] = useState<HTMLDivElement | null>(null)
 
   // Sentinel al final del contenedor del form. Cuando entra al viewport, el
   // usuario está cerca del fondo del form: ocultamos el sticky y mostramos
   // los CTAs inline en mobile (crossfade fluido). Funciona para los 3
-  // escenarios (paso 1, pasos 2-6, paso 7) porque vive después de TODO el
+  // escenarios (paso 1, pasos 2-5, paso 6) porque vive después de TODO el
   // contenido del paso, sin importar si los botones inline están en el slot
-  // (pasos 2-6) o dentro del form del paso (1 y 7).
+  // (pasos 2-5) o dentro del form del paso (1 y 6).
   const [sentinelRef, setSentinelRef] = useState<HTMLDivElement | null>(null)
   const { setInlineRevealed } = useInlineRevealed()
   useEffect(() => {
@@ -129,9 +126,9 @@ function FormularioSolicitudInner() {
   }
 
   const showResumen =
-    pasoActual >= 2 && pasoActual <= 6 && datos.montoSolicitado != null && datos.plazoMeses != null
-  const showChrome = pasoActual >= 2 && pasoActual <= 6
-  const hayStepperVisible = pasoActual > 1 && pasoActual < 7
+    pasoActual >= 2 && pasoActual <= 5 && datos.montoSolicitado != null && datos.plazoMeses != null
+  const showChrome = pasoActual >= 2 && pasoActual <= 5
+  const hayStepperVisible = pasoActual > 1 && pasoActual < 6
 
   // Sin stepper, el strip no existe en el DOM: el contenedor reserva el spacer
   // del navbar y deja el contenido pegado al header. Pb mobile alineado al pt
@@ -188,13 +185,6 @@ function FormularioSolicitudInner() {
           />
         )}
         {pasoActual === 6 && (
-          <Paso6Documentos
-            onNext={(d) => handleNext(6, d)}
-            onBack={handleBack}
-            actionsSlot={actionsSlot}
-          />
-        )}
-        {pasoActual === 7 && (
           <Paso7Revision
             onSubmit={handleSubmit}
             onBack={handleBack}
@@ -226,8 +216,8 @@ function FormularioSolicitudInner() {
 
         {/* Chrome wrapper — siempre presente para que el AnimatePresence
             mantenga una posición estable en el árbol y el exit/enter
-            funcionen al cruzar la frontera paso 1↔2 y 6↔7. Las clases de
-            chrome (rounded, border, bg) sólo aplican en pasos 2-6. */}
+            funcionen al cruzar la frontera paso 1↔2 y 5↔6. Las clases de
+            chrome (rounded, border, bg) sólo aplican en pasos 2-5. */}
         <div
           data-testid={showChrome ? 'form-card' : undefined}
           className={
@@ -241,7 +231,7 @@ function FormularioSolicitudInner() {
           </div>
         </div>
 
-        {/* Slot estático para FormActions de los pasos 2-6 (portal). Vive
+        {/* Slot estático para FormActions de los pasos 2-5 (portal). Vive
             afuera del chrome para que los botones no transicionen. */}
         <div ref={setActionsSlot} />
 

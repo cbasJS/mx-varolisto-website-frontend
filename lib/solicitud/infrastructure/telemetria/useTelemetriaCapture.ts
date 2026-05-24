@@ -97,7 +97,7 @@ export function useTelemetriaCapture() {
   // paso 1" sintético antes de saber el paso real.
   useEffect(() => {
     if (!hasHydrated) return
-    if (pasoActual < 1 || pasoActual > 7) return
+    if (pasoActual < 1 || pasoActual > 6) return
     try {
       marcarEntradaPaso(pasoActual as NumeroPasoTelemetria)
     } catch {

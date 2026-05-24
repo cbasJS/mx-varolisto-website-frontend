@@ -19,7 +19,6 @@ function sembrarPersistido(timestampInicio: number) {
         },
         timestampInicio,
         sessionUuid: '00000000-0000-4000-a000-000000000001',
-        tipoIdentificacion: null,
       },
       version: 0,
     }),
@@ -34,9 +33,6 @@ describe('solicitudStore — TTL de PII en sessionStorage', () => {
       datos: {},
       timestampInicio: Date.now(),
       sessionUuid: null,
-      archivosSubidos: [],
-      tipoIdentificacion: null,
-      comprobantes: [],
       _hasHydrated: false,
     })
   })

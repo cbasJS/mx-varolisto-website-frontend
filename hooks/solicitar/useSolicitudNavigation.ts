@@ -19,13 +19,10 @@ import type {
   Paso5Data,
   Paso7Data,
 } from '@/lib/solicitud/schemas/index'
-import type { Paso6StoreData } from '@/hooks/solicitar/usePaso6'
 
 export type { ErrorSubmit }
 
-type PasoData = Partial<
-  Paso1Data & Paso2Data & Paso3Data & Paso4Data & Paso5Data & Paso6StoreData & Paso7Data
->
+type PasoData = Partial<Paso1Data & Paso2Data & Paso3Data & Paso4Data & Paso5Data & Paso7Data>
 
 export interface UseSolicitudNavigationOptions {
   /**
@@ -44,8 +41,6 @@ export function useSolicitudNavigation(options: UseSolicitudNavigationOptions = 
   const datos = useSolicitudStore((s) => s.datos)
   const hasHydrated = useSolicitudStore((s) => s._hasHydrated)
   const sessionUuid = useSolicitudStore((s) => s.sessionUuid)
-  const archivosSubidos = useSolicitudStore((s) => s.archivosSubidos)
-  const tipoIdentificacion = useSolicitudStore((s) => s.tipoIdentificacion)
   const resetForm = useSolicitudStore((s) => s.resetForm)
 
   const setSubmittingContext = useSetSubmitting()
@@ -83,10 +78,15 @@ export function useSolicitudNavigation(options: UseSolicitudNavigationOptions = 
     setErrorSubmit(null)
   }
 
+  // El paso 6 es ahora el final del wizard (revisión + submit). El guard de
+  // sessionUuid se mantiene: el orquestador lo inicializa al montar el
+  // formulario y lo necesitamos en memoria para que el caso de uso pueda
+  // armar el contexto de la solicitud aunque el contrato actual del
+  // backend ya no exija enviar el campo en el payload.
   const handleSubmit = async (paso7Data: Paso7Data) => {
     if (!sessionUuid || enviando) return
 
-    guardarPaso(7, paso7Data)
+    guardarPaso(6, paso7Data)
     setEnviandoSync(true)
     setErrorSubmit(null)
 
@@ -101,9 +101,6 @@ export function useSolicitudNavigation(options: UseSolicitudNavigationOptions = 
     try {
       const { folio } = await submitSolicitud({
         datos,
-        sessionUuid,
-        tipoIdentificacion: tipoIdentificacion!,
-        archivosSubidos,
         paso7Data,
         ...(telemetria ? { telemetria } : {}),
       })

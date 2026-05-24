@@ -1,3 +1,6 @@
+// DEPRECADO del flujo del formulario público — 23 may 2026
+// Conservar para reutilización como página standalone de carga de documentos.
+// No eliminar. Ver: prompts-varolisto/varolisto_brief_bloque1_formulario_v1.md
 'use client'
 
 import { useEffect } from 'react'

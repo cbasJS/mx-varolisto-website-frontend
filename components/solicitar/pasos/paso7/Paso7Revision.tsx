@@ -1,14 +1,14 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { Check, Sparkles, User, Home, Wallet, Users, FileText, Camera } from 'lucide-react'
+import { useEffect } from 'react'
+import { Check, Sparkles, User, Home, Wallet, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { usePaso7 } from '@/hooks/solicitar/usePaso7'
 import { useSolicitudStore } from '@/lib/solicitud/store'
 import type { Paso7Data } from '@/lib/solicitud/schemas/index'
 import type { ErrorSubmit } from '@/hooks/solicitar/useSolicitudNavigation'
 import { calcularCuota } from '@/lib/solicitud/domain/loan/calcularCuota'
-import { DESTINO_LABELS, TIPO_IDENTIFICACION_LABELS } from '@/lib/solicitud/utils/lookup-labels'
+import { DESTINO_LABELS } from '@/lib/solicitud/utils/lookup-labels'
 import { StepTitle } from '@/components/wizard/StepTitle'
 import { FormCard } from '@/components/wizard/FormCard'
 import { SeccionCard } from './SeccionCard'
@@ -35,41 +35,6 @@ interface Props {
   onConflictoConfirmado: () => void
 }
 
-interface DocStatusProps {
-  label: string
-  cargado: boolean
-  detalle: string
-  icono: typeof Camera
-  fullWidth?: boolean
-}
-
-function DocStatus({ label, cargado, detalle, icono: Icono, fullWidth }: DocStatusProps) {
-  return (
-    <div
-      className={cn(
-        'flex items-center gap-3 rounded-xl border p-3',
-        cargado ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50',
-        fullWidth && 'md:col-span-2',
-      )}
-    >
-      <div
-        className={cn(
-          'rounded-lg p-2',
-          cargado ? 'bg-green-100 text-green-600' : 'bg-gray-200 text-gray-500',
-        )}
-      >
-        <Icono className="size-4" aria-hidden />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-bold text-gray-900">{label}</p>
-        <p className={cn('text-[10px] font-medium', cargado ? 'text-green-600' : 'text-gray-500')}>
-          {detalle}
-        </p>
-      </div>
-    </div>
-  )
-}
-
 export default function Paso7Revision({
   onSubmit,
   onBack,
@@ -80,30 +45,6 @@ export default function Paso7Revision({
   onConflictoConfirmado,
 }: Props) {
   const datos = useSolicitudStore((s) => s.datos)
-  const archivosSubidos = useSolicitudStore((s) => s.archivosSubidos)
-  const tipoIdentificacion = useSolicitudStore((s) => s.tipoIdentificacion)
-  const setPaso = useSolicitudStore((s) => s.setPaso)
-
-  // Si el usuario llega al paso 7 sin archivos en memoria (refresh, sesión
-  // recién montada) o con archivos que no cumplen requisitos, retrocedemos
-  // al paso 6 para que vuelva a subirlos. archivosSubidos no se persiste y
-  // los huérfanos del bucket se limpian en beforeunload, así que no
-  // intentamos rehidratar — siempre re-pedimos el upload.
-  const reconciliacionRef = useRef(false)
-  useEffect(() => {
-    if (reconciliacionRef.current) return
-    reconciliacionRef.current = true
-
-    const tipos = archivosSubidos.map((a) => a.tipoArchivo)
-    const tieneIne = tipos.includes('ine_frente') || tipos.includes('pasaporte_principal')
-    const tieneIngresos = tipos.filter((t) => t === 'comprobante_ingreso').length >= 2
-    const tieneDomicilio = tipos.includes('comprobante_domicilio')
-    const cumpleRequisitos = tieneIne && tieneIngresos && tieneDomicilio
-
-    if (!cumpleRequisitos) setPaso(6)
-    // Solo corre al montar; las dependencias son leídas vía store snapshot.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const { handleSubmit, setValue, errors, privacidad, terminos } = usePaso7(onSubmit)
 
@@ -152,11 +93,7 @@ export default function Paso7Revision({
       ? calcularCuota(datos.montoSolicitado, Number(datos.plazoMeses))
       : 0
 
-  const tiposSubidos = archivosSubidos.map((a) => a.tipoArchivo)
-  const ineCargado =
-    tiposSubidos.includes('ine_frente') || tiposSubidos.includes('pasaporte_principal')
-  const comprobantesIngreso = tiposSubidos.filter((t) => t === 'comprobante_ingreso').length
-  const domicilioCargado = tiposSubidos.includes('comprobante_domicilio')
+  const referencias = datos.referencias ?? []
 
   return (
     <>
@@ -271,61 +208,25 @@ export default function Paso7Revision({
               </div>
             </SeccionCard>
 
-            {/* Referencias */}
+            {/* Referencias — array dinámico */}
             <SeccionCard titulo="Tus contactos" paso={5} onEditar={onEditarPaso} icono={Users}>
-              <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
-                <div className="min-w-0">
-                  <span className="mb-1 block text-xs text-gray-500">Contacto 1</span>
-                  <span className="block truncate font-medium text-gray-900">
-                    {datos.ref1Nombre || 'No especificado'}
-                  </span>
-                  {datos.ref1Telefono && (
-                    <span className="block text-xs text-gray-500">{datos.ref1Telefono}</span>
-                  )}
+              {referencias.length === 0 ? (
+                <p className="text-sm text-outline">No has agregado contactos todavía.</p>
+              ) : (
+                <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+                  {referencias.map((ref, i) => (
+                    <div key={i} className="min-w-0">
+                      <span className="mb-1 block text-xs text-gray-500">Contacto {i + 1}</span>
+                      <span className="block truncate font-medium text-gray-900">
+                        {ref.nombre || 'No especificado'}
+                      </span>
+                      {ref.telefono && (
+                        <span className="block text-xs text-gray-500">{ref.telefono}</span>
+                      )}
+                    </div>
+                  ))}
                 </div>
-                <div className="min-w-0">
-                  <span className="mb-1 block text-xs text-gray-500">Contacto 2</span>
-                  <span className="block truncate font-medium text-gray-900">
-                    {datos.ref2Nombre || 'No especificado'}
-                  </span>
-                  {datos.ref2Telefono && (
-                    <span className="block text-xs text-gray-500">{datos.ref2Telefono}</span>
-                  )}
-                </div>
-              </div>
-            </SeccionCard>
-
-            {/* Documentos */}
-            <SeccionCard titulo="Tus documentos" paso={6} onEditar={onEditarPaso} icono={FileText}>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <DocStatus
-                  label="Tu identificación"
-                  cargado={ineCargado}
-                  detalle={
-                    ineCargado && tipoIdentificacion
-                      ? `Listo ✓ (${TIPO_IDENTIFICACION_LABELS[tipoIdentificacion]})`
-                      : 'Falta subir'
-                  }
-                  icono={Camera}
-                />
-                <DocStatus
-                  label="Comprobantes de ingresos"
-                  cargado={comprobantesIngreso >= 2}
-                  detalle={
-                    comprobantesIngreso >= 2
-                      ? `${comprobantesIngreso} archivos listos ✓`
-                      : `${comprobantesIngreso} de 2 listos`
-                  }
-                  icono={FileText}
-                />
-                <DocStatus
-                  label="Comprobante de domicilio"
-                  cargado={domicilioCargado}
-                  detalle={domicilioCargado ? 'Archivo listo ✓' : 'Falta subir'}
-                  icono={Home}
-                  fullWidth
-                />
-              </div>
+              )}
             </SeccionCard>
           </div>
 

@@ -37,61 +37,16 @@ const DATOS_COMPLETOS = {
   ingresoMensual: 8500,
   gastoMensual: 4500,
   tieneDeudas: 'no' as const,
-  ref1Nombre: 'Juan Pérez',
-  ref1Telefono: '5598765432',
-  ref1Relacion: 'familiar' as const,
-  ref2Nombre: 'Ana Torres',
-  ref2Telefono: '5511112222',
-  ref2Relacion: 'amigo' as const,
+  // Bloque 1: referencias migraron a array dinámico (shared-schemas 0.15.0).
+  referencias: [
+    { nombre: 'Juan Pérez', telefono: '5598765432', relacion: 'familiar' as const },
+    { nombre: 'Ana Torres', telefono: '5511112222', relacion: 'amigo' as const },
+  ],
 }
 
-const ARCHIVOS_COMPLETOS = [
-  {
-    clienteId: 'cliente-ine-frente',
-    tipoArchivo: 'ine_frente',
-    nombreOriginal: 'ine_frente.jpg',
-    mimeType: 'image/jpeg',
-    tamanoBytes: 204800,
-    storagePath: `staging/${SESSION_UUID}/ine_frente.jpg`,
-    archivoId: 'arch-0001',
-  },
-  {
-    clienteId: 'cliente-ine-reverso',
-    tipoArchivo: 'ine_reverso',
-    nombreOriginal: 'ine_reverso.jpg',
-    mimeType: 'image/jpeg',
-    tamanoBytes: 198000,
-    storagePath: `staging/${SESSION_UUID}/ine_reverso.jpg`,
-    archivoId: 'arch-0002',
-  },
-  {
-    clienteId: 'cliente-comprobante',
-    tipoArchivo: 'comprobante_ingreso',
-    nombreOriginal: 'nomina_abril.jpg',
-    mimeType: 'image/jpeg',
-    tamanoBytes: 312000,
-    storagePath: `staging/${SESSION_UUID}/nomina_abril.jpg`,
-    archivoId: 'arch-0003',
-  },
-  {
-    clienteId: 'cliente-comprobante-2',
-    tipoArchivo: 'comprobante_ingreso',
-    nombreOriginal: 'nomina_marzo.jpg',
-    mimeType: 'image/jpeg',
-    tamanoBytes: 298000,
-    storagePath: `staging/${SESSION_UUID}/nomina_marzo.jpg`,
-    archivoId: 'arch-0003b',
-  },
-  {
-    clienteId: 'cliente-domicilio',
-    tipoArchivo: 'comprobante_domicilio',
-    nombreOriginal: 'recibo_luz.pdf',
-    mimeType: 'application/pdf',
-    tamanoBytes: 98000,
-    storagePath: `staging/${SESSION_UUID}/recibo_luz.pdf`,
-    archivoId: 'arch-0004',
-  },
-]
+// Bloque 1: ARCHIVOS_COMPLETOS removido — el formulario público dejó de
+// capturar archivos en línea. La revisión (paso 6 nuevo) no requiere
+// archivos previos para que la telemetría se envíe correctamente.
 
 // Flag-guard para que el init script sólo inyecte una vez por test, sin
 // re-poblar sessionStorage en navegaciones subsecuentes (post-submit a "/").
@@ -102,18 +57,20 @@ async function inyectarStore(page: import('@playwright/test').Page) {
   // el patrón goto → evaluate → reload, que bajo carga del dev server permite
   // que el inicializarSession() del primer mount sobreescriba la inyección
   // antes del reload, dejando la página en Paso 1.
+  //
+  // Bloque 1: paso 6 (revisión) reemplaza al antiguo paso 7. El store ya no
+  // persiste `archivosSubidos`/`tipoIdentificacion` — el formulario público
+  // dejó de capturar documentos en línea.
   await page.addInitScript(
-    ({ datos, archivos, sessionUuid, flag }) => {
+    ({ datos, sessionUuid, flag }) => {
       if (sessionStorage.getItem(flag) === 'true') return
       const store = {
         state: {
-          pasoActual: 7,
+          pasoActual: 6,
           datos,
           timestampInicio: Date.now(),
           coloniasCache: {},
           sessionUuid,
-          archivosSubidos: archivos,
-          tipoIdentificacion: 'ine',
         },
         version: 0,
       }
@@ -122,7 +79,6 @@ async function inyectarStore(page: import('@playwright/test').Page) {
     },
     {
       datos: DATOS_COMPLETOS,
-      archivos: ARCHIVOS_COMPLETOS,
       sessionUuid: SESSION_UUID,
       flag: SETUP_FLAG,
     },

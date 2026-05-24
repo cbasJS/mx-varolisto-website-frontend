@@ -1,23 +1,5 @@
-import { ACCEPTED_MIME_TYPES } from '@varolisto/shared-schemas/form'
 import type { CrearSolicitudRequest } from '@varolisto/shared-schemas/api'
 import type { TelemetriaSolicitud } from '@varolisto/shared-schemas/form'
-import type { TipoIdentificacion } from '@varolisto/shared-schemas/enums'
-import type { ArchivoSubido } from '@/lib/solicitud/store'
-
-type MimeTypePermitido = (typeof ACCEPTED_MIME_TYPES)[number]
-
-function aMimePermitido(mime: string): MimeTypePermitido {
-  // Garantía de tipo en el límite con shared-schemas. La whitelist real
-  // se aplica en el input del file picker (accept="image/jpeg,...") y se
-  // re-valida en el schema de Zod al enviar — este cast es de tipos, no
-  // de seguridad.
-  if ((ACCEPTED_MIME_TYPES as readonly string[]).includes(mime)) {
-    return mime as MimeTypePermitido
-  }
-  // Fallback: si llegó algo inesperado, dejamos image/jpeg para que el
-  // schema lance un error claro abajo (en lugar de un cast oculto).
-  return 'image/jpeg'
-}
 import type {
   Paso1Data,
   Paso2Data,
@@ -29,18 +11,17 @@ import type {
 import type { TiemposPaso } from '@/lib/solicitud/domain/solicitud/types'
 
 /**
- * Suma los milisegundos de los pasos 2-6 ignorando nulls.
+ * Suma los milisegundos de los pasos 2-5 + 6 ignorando nulls.
  *
- * El scoring anti-fraude del Bloque 2C consume sólo este derivado: pasos
- * 1 (calculadora/landing) y 7 (revisión) se capturan pero quedan fuera
- * porque miden conversión/decisión, no esfuerzo de llenado. La separación
- * en el contrato evita que un analista futuro haga `sum(paso1..paso7)` y
- * contamine la señal.
+ * El scoring anti-fraude del Bloque 2C consume sólo este derivado: paso
+ * 1 (calculadora/landing) queda fuera porque mide conversión/decisión, no
+ * esfuerzo de llenado. Los buckets paso2..paso6 cubren el llenado real del
+ * formulario (identidad → revisión).
  *
- * Cuando los 5 pasos están medidos, el schema valida igualdad estricta
- * con `tiempoCapturaFormularioMs` (refine en telemetriaSolicitudSchema).
- * Si alguno es null, la validación cruzada se salta y el cliente decide
- * qué mandar.
+ * Cuando los 5 pasos del rango (2,3,4,5,6) están medidos, el schema valida
+ * igualdad estricta con `tiempoCapturaFormularioMs` (refine en
+ * telemetriaSolicitudSchema). Si alguno es null, la validación cruzada se
+ * salta y el cliente decide qué mandar.
  */
 export function sumarTiempoCapturaFormulario(tiempos: TiemposPaso): number {
   const pasos = [
@@ -57,9 +38,6 @@ type DatosSolicitud = Partial<Paso1Data & Paso2Data & Paso3Data & Paso4Data & Pa
 
 export interface BuildPayloadInput {
   datos: DatosSolicitud
-  sessionUuid: string
-  tipoIdentificacion: TipoIdentificacion
-  archivosSubidos: ArchivoSubido[]
   paso7Data: Paso7Data
   /**
    * Bloque opcional de telemetría pasiva (Bloque 1.B del scoring v7).
@@ -71,9 +49,6 @@ export interface BuildPayloadInput {
 
 export function buildPayload({
   datos,
-  sessionUuid,
-  tipoIdentificacion,
-  archivosSubidos,
   paso7Data,
   telemetria,
 }: BuildPayloadInput): CrearSolicitudRequest {
@@ -119,25 +94,9 @@ export function buildPayload({
     cantidadDeudas: 'sin_deudas' as const,
     montoTotalDeudas: undefined,
     pagoMensualDeudas: undefined,
-    // Paso 5 (UI) — referencias (schema paso5)
-    ref1Nombre: datos.ref1Nombre ?? '',
-    ref1Telefono: datos.ref1Telefono ?? '',
-    ref1Relacion: datos.ref1Relacion!,
-    ref1Email: datos.ref1Email,
-    ref2Nombre: datos.ref2Nombre ?? '',
-    ref2Telefono: datos.ref2Telefono ?? '',
-    ref2Relacion: datos.ref2Relacion!,
-    ref2Email: datos.ref2Email,
-    // Paso 6 (UI) — documentos (schema paso6)
-    sessionUuid,
-    tipoIdentificacion,
-    archivosDeclarados: archivosSubidos.map((a) => ({
-      tipoArchivo: a.tipoArchivo,
-      nombreOriginal: a.nombreOriginal,
-      mimeType: aMimePermitido(a.mimeType),
-      tamanoBytes: a.tamanoBytes,
-    })),
-    // Paso 7 (UI) — consentimientos (schema paso7)
+    // Paso 5 (UI) — referencias (schema paso5, array dinámico)
+    referencias: datos.referencias ?? [],
+    // Paso 6 (UI) — consentimientos (schema paso7)
     aceptaPrivacidad: paso7Data.aceptaPrivacidad,
     aceptaTerminos: paso7Data.aceptaTerminos,
     // Bloque 1.B — telemetría pasiva (opcional por contrato).

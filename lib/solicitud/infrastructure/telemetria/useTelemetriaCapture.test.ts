@@ -11,9 +11,6 @@ function resetStore() {
     timestampInicio: Date.now(),
     iniciadoEn: null,
     sessionUuid: null,
-    archivosSubidos: [],
-    tipoIdentificacion: null,
-    comprobantes: [],
     tiemposPaso: {
       paso1Ms: null,
       paso2Ms: null,
@@ -21,6 +18,8 @@ function resetStore() {
       paso4Ms: null,
       paso5Ms: null,
       paso6Ms: null,
+      // Legacy del flujo previo con docs en línea — viaja en null desde el
+      // formulario de Bloque 1.
       paso7Ms: null,
     },
     pasoActualEntrada: null,
@@ -105,7 +104,7 @@ describe('useTelemetriaCapture', () => {
   })
 
   it('getTelemetriaPayload devuelve un bloque listo con dispositivo + tiemposPaso', async () => {
-    useSolicitudStore.setState({ pasoActual: 7, _hasHydrated: true } as never)
+    useSolicitudStore.setState({ pasoActual: 6, _hasHydrated: true } as never)
     const { result } = renderHook(() => useTelemetriaCapture())
     await act(async () => {
       // Esperamos a que las captures async (fingerprint, geo) terminen.
@@ -122,7 +121,7 @@ describe('useTelemetriaCapture', () => {
   it('NO incluye geolocalización cuando el feature flag está apagado', async () => {
     const original = process.env.NEXT_PUBLIC_TELEMETRIA_GEO_ENABLED
     delete process.env.NEXT_PUBLIC_TELEMETRIA_GEO_ENABLED
-    useSolicitudStore.setState({ pasoActual: 7, _hasHydrated: true } as never)
+    useSolicitudStore.setState({ pasoActual: 6, _hasHydrated: true } as never)
     const { result } = renderHook(() => useTelemetriaCapture())
     await act(async () => {
       await new Promise((r) => setTimeout(r, 10))

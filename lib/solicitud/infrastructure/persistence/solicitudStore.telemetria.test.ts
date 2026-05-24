@@ -8,9 +8,6 @@ const estadoInicial = () => ({
   timestampInicio: Date.now(),
   iniciadoEn: null,
   sessionUuid: null,
-  archivosSubidos: [],
-  tipoIdentificacion: null,
-  comprobantes: [],
   tiemposPaso: {
     paso1Ms: null,
     paso2Ms: null,
@@ -18,6 +15,8 @@ const estadoInicial = () => ({
     paso4Ms: null,
     paso5Ms: null,
     paso6Ms: null,
+    // Legacy del flujo previo con docs en línea — viaja en null desde el
+    // formulario de Bloque 1.
     paso7Ms: null,
   },
   pasoActualEntrada: null,
@@ -138,11 +137,11 @@ describe('solicitudStore — telemetría pasiva (Bloque 1.B)', () => {
       expect(tiempos.paso4Ms).toBeNull()
     })
 
-    it('clampa el número de paso al rango 1..7 — pasos fuera de rango no actualizan tiemposPaso', () => {
+    it('clampa el número de paso al rango 1..6 — pasos fuera de rango no actualizan tiemposPaso', () => {
       const tiemposAntes = useSolicitudStore.getState().tiemposPaso
-      // 0 y 8 no son pasos válidos del wizard
+      // 0 y 7 no son pasos válidos del wizard nuevo (Bloque 1: 6 pasos).
       useSolicitudStore.getState().marcarEntradaPaso(0 as 1)
-      useSolicitudStore.getState().marcarEntradaPaso(8 as 1)
+      useSolicitudStore.getState().marcarEntradaPaso(7 as 1)
       expect(useSolicitudStore.getState().tiemposPaso).toEqual(tiemposAntes)
     })
   })

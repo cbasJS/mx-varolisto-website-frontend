@@ -26,8 +26,16 @@ export type { ArchivoSubido, SolicitudState, SolicitudActions, TiemposPaso }
 const PII_TTL_MS = 2 * 60 * 60 * 1000
 
 const PASO_MIN: NumeroPasoTelemetria = 1
-const PASO_MAX: NumeroPasoTelemetria = 7
+// Bloque 1: el formulario público es de 6 pasos (1=calculadora,
+// 2=identidad, 3=domicilio, 4=economía, 5=referencias, 6=revisión). El
+// paso 7 anterior (documentos en línea) quedó deprecado.
+const PASO_MAX: NumeroPasoTelemetria = 6
 
+// tiemposPaso conserva los 7 buckets del contrato de shared-schemas, alineados
+// al rango 1..6 del wizard nuevo más `paso7Ms` que queda en null como legacy
+// del flujo anterior con documentos en línea (será removido cuando shared-
+// schemas bumpe el contrato). La telemetría del scoring v7 consume
+// `tiempoCapturaFormularioMs`, derivado de pasos 2-5 + 6.
 const tiemposPasoIniciales = (): TiemposPaso => ({
   paso1Ms: null,
   paso2Ms: null,
@@ -45,6 +53,10 @@ const estadoInicial: SolicitudState = {
   iniciadoEn: null,
   coloniasCache: {},
   sessionUuid: null,
+  // Bloque 1: el wizard ya no escribe estos campos — el paso de documentos
+  // quedó desconectado. Se conservan en el estado inicial para que el
+  // componente Paso6Documentos (deprecado pero preservado para reuso futuro
+  // como página standalone) compile contra el mismo store.
   archivosSubidos: [],
   tipoIdentificacion: null,
   comprobantes: [],
@@ -68,6 +80,27 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
         guardarPaso: (_, nuevos) =>
           set((state) => ({ datos: { ...state.datos, ...nuevos } }), false, 'guardarPaso'),
         setComprobantes: (archivos) => set({ comprobantes: archivos }, false, 'setComprobantes'),
+        agregarArchivoSubido: (archivo: ArchivoSubido) =>
+          set(
+            (s) => {
+              if (s.archivosSubidos.some((a) => a.clienteId === archivo.clienteId)) {
+                return s
+              }
+              return { archivosSubidos: [...s.archivosSubidos, archivo] }
+            },
+            false,
+            'agregarArchivoSubido',
+          ),
+        removerArchivoSubido: (clienteId: string) =>
+          set(
+            (s) => ({
+              archivosSubidos: s.archivosSubidos.filter((a) => a.clienteId !== clienteId),
+            }),
+            false,
+            'removerArchivoSubido',
+          ),
+        setTipoIdentificacion: (tipo) =>
+          set({ tipoIdentificacion: tipo }, false, 'setTipoIdentificacion'),
         setColoniasCache: (cp, data: CopomexResponse[]) =>
           set(
             (s) => ({ coloniasCache: { ...s.coloniasCache, [cp]: data } }),
@@ -81,33 +114,11 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
           if (!s.iniciadoEn) patch.iniciadoEn = new Date().toISOString()
           if (Object.keys(patch).length > 0) set(patch, false, 'inicializarSession')
         },
-        agregarArchivoSubido: (archivo) =>
-          set(
-            (s) => {
-              if (s.archivosSubidos.some((a) => a.clienteId === archivo.clienteId)) {
-                return s
-              }
-              return { archivosSubidos: [...s.archivosSubidos, archivo] }
-            },
-            false,
-            'agregarArchivoSubido',
-          ),
-        removerArchivoSubido: (clienteId) =>
-          set(
-            (s) => ({
-              archivosSubidos: s.archivosSubidos.filter((a) => a.clienteId !== clienteId),
-            }),
-            false,
-            'removerArchivoSubido',
-          ),
-        setTipoIdentificacion: (tipo) =>
-          set({ tipoIdentificacion: tipo }, false, 'setTipoIdentificacion'),
         resetForm: () =>
           set(
             {
               ...estadoInicial,
               timestampInicio: Date.now(),
-              comprobantes: [],
               // El store ya está hidratado en memoria; si dejáramos _hasHydrated en
               // false, FormularioSolicitudInner caería al FormSkeleton porque
               // inicializarSession solo corre al montar y no hay quien revierta el
@@ -211,7 +222,6 @@ export const useSolicitudStore = create<SolicitudState & SolicitudActions>()(
             datos: state.datos,
             timestampInicio: state.timestampInicio,
             sessionUuid: state.sessionUuid,
-            tipoIdentificacion: state.tipoIdentificacion,
           }) as unknown as SolicitudState & SolicitudActions,
         onRehydrateStorage: () => (state) => {
           if (!state) return

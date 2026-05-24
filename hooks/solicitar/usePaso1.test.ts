@@ -9,8 +9,6 @@ describe('usePaso1 — defaults', () => {
     useSolicitudStore.setState({
       datos: {},
       pasoActual: 1,
-      archivosSubidos: [],
-      tipoIdentificacion: null,
       sessionUuid: 'session-06600-abc',
     })
   })
@@ -32,14 +30,21 @@ describe('usePaso1 — plazosDisponibles', () => {
     useSolicitudStore.setState({
       datos: {},
       pasoActual: 1,
-      archivosSubidos: [],
-      tipoIdentificacion: null,
       sessionUuid: 'session-06600-abc',
     })
   })
 
-  it("expone plazosDisponibles ['2','3','4'] para un monto de $5,000", () => {
+  it("expone plazosDisponibles ['2','3'] para un monto de $5,000 (corte movido en v0.15.0)", () => {
+    // shared-schemas 0.15.0 movió el corte de 4 meses de $3,499 → $5,000.
+    // A $5,000 exacto el plazo 4 ya NO está disponible; aparece a partir de
+    // $5,001. Esto desincentiva pagar 4 meses por montos menores.
     useSolicitudStore.setState({ datos: { montoSolicitado: 5000, plazoMeses: '3' } })
+    const { result } = renderHook(() => usePaso1(vi.fn()))
+    expect(result.current.plazosDisponibles).toEqual(['2', '3'])
+  })
+
+  it("expone plazosDisponibles ['2','3','4'] para un monto de $7,000", () => {
+    useSolicitudStore.setState({ datos: { montoSolicitado: 7000, plazoMeses: '4' } })
     const { result } = renderHook(() => usePaso1(vi.fn()))
     expect(result.current.plazosDisponibles).toEqual(['2', '3', '4'])
   })
@@ -77,12 +82,13 @@ describe('usePaso1 — plazosDisponibles', () => {
     const { result } = renderHook(() => usePaso1(vi.fn()))
     expect(result.current.plazoStr).toBe('3')
 
-    // Bajamos a 5000 → plazos válidos ['2','3','4'] → '3' sigue siendo válido.
+    // Bajamos a 5000 → plazos válidos ['2','3'] (corte 0.15.0) → '3' sigue
+    // siendo válido y no debe re-ajustarse.
     act(() => {
       result.current.setValue('montoSolicitado', 5000, { shouldValidate: true })
     })
 
     expect(result.current.plazoStr).toBe('3')
-    expect(result.current.plazosDisponibles).toEqual(['2', '3', '4'])
+    expect(result.current.plazosDisponibles).toEqual(['2', '3'])
   })
 })
