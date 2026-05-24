@@ -40,7 +40,6 @@ const inputBase: BuildPayloadInput = {
     dependientesEconomicos: 'ninguno',
     ingresoMensual: 15000,
     gastoMensual: 5000,
-    tieneDeudas: 'no',
     // referencias (schema paso5) — array dinámico: 1 obligatoria + N opcionales
     referencias: [
       { nombre: 'María Pérez', telefono: '5598765432', relacion: 'familiar' },
@@ -79,26 +78,12 @@ describe('buildPayload', () => {
     expect(payload.gastoMensual).toBe(5000) // Bloque 1.A: insumo para capacidad disponible v7
   })
 
-  it('hardcodea tieneDeudas=no y cantidadDeudas=sin_deudas como dummies de transición (Bloque 1.A)', () => {
-    // El backend sigue esperando el contrato viejo hasta el Bloque 2. La UI ya
-    // no captura "tienes deudas", así que el payload envía 'no' / 'sin_deudas'
-    // sin importar lo que esté en el store. Defense in depth: incluso si una
-    // sesión stale tiene tieneDeudas='si', el payload sale como 'no'.
-    const inputConStale: BuildPayloadInput = {
-      ...inputBase,
-      datos: {
-        ...inputBase.datos,
-        tieneDeudas: 'si',
-        cantidadDeudas: 'una_deuda',
-        montoTotalDeudas: '5k_15k',
-        pagoMensualDeudas: 1500,
-      },
-    }
-    const payload = buildPayload(inputConStale)
-    expect(payload.tieneDeudas).toBe('no')
-    expect(payload.cantidadDeudas).toBe('sin_deudas')
-    expect(payload.montoTotalDeudas).toBeUndefined()
-    expect(payload.pagoMensualDeudas).toBeUndefined()
+  it('omite todos los campos de deudas del payload (eliminados del contrato)', () => {
+    const payload = buildPayload(inputBase)
+    expect(payload).not.toHaveProperty('tieneDeudas')
+    expect(payload).not.toHaveProperty('cantidadDeudas')
+    expect(payload).not.toHaveProperty('montoTotalDeudas')
+    expect(payload).not.toHaveProperty('pagoMensualDeudas')
   })
 
   it('mapea las referencias como array con relaciones válidas', () => {
@@ -161,9 +146,8 @@ describe('buildPayload', () => {
     expect(payload.nombre).toBe('')
   })
 
-  it('pasa undefined para rfc y numeroInterior cuando no se proporcionan', () => {
+  it('pasa undefined para numeroInterior cuando no se proporciona', () => {
     const payload = buildPayload(inputBase)
-    expect(payload.rfc).toBeUndefined()
     expect(payload.numeroInterior).toBeUndefined()
   })
 })

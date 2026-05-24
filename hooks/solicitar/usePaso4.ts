@@ -38,13 +38,6 @@ export function usePaso4(onNext: (datos: Paso4Data) => void) {
       dependientesEconomicos: datos.dependientesEconomicos,
       ingresoMensual: datos.ingresoMensual,
       gastoMensual: datos.gastoMensual,
-      // Bloque 1.A — la UI ya no muestra "Otros compromisos". Hardcodeamos
-      // estos campos del contrato viejo para que el schema (que aún los
-      // exige) valide. buildPayload también los hardcodea (defense in depth).
-      tieneDeudas: 'no',
-      cantidadDeudas: 'sin_deudas',
-      montoTotalDeudas: undefined,
-      pagoMensualDeudas: undefined,
     },
   })
 

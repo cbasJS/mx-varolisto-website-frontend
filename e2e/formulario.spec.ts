@@ -31,8 +31,6 @@ const DATOS_BASE = {
   dependientesEconomicos: 'ninguno',
   ingresoMensual: 15000,
   gastoMensual: 7500,
-  tieneDeudas: 'no',
-  cantidadDeudas: 'sin_deudas',
   // Bloque 1: referencias migraron a array dinámico (shared-schemas 0.15.0).
   referencias: [
     { nombre: 'Juan Pérez', telefono: '5598765432', relacion: 'familiar' },
@@ -125,7 +123,6 @@ test.describe('Formulario de solicitud — Fase 2', () => {
     await expect(page.locator('input[name=curp]')).toBeVisible()
     await expect(page.locator('input[name=email]')).toBeVisible()
     await expect(page.locator('input[name=telefono]')).toBeVisible()
-    await expect(page.locator('input[name=rfc]')).not.toBeVisible()
   })
 
   // ── 4. Paso 3: CP cambia → preserva calle/nums, resetea COPOMEX ──────────

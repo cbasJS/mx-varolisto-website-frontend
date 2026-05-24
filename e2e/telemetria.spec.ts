@@ -37,7 +37,6 @@ const DATOS_COMPLETOS = {
   dependientesEconomicos: 'ninguno' as const,
   ingresoMensual: 8500,
   gastoMensual: 4500,
-  tieneDeudas: 'no' as const,
   // Bloque 1: referencias migraron a array dinámico (shared-schemas 0.15.0).
   referencias: [
     { nombre: 'Juan Pérez', telefono: '5598765432', relacion: 'familiar' as const },
