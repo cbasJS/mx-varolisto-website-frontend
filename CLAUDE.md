@@ -40,6 +40,18 @@ Lo mismo aplica para E2E: antes de implementar o modificar un flujo de usuario, 
 
 Los fixtures y valores de prueba deben reflejar datos reales del negocio: CPs de México que existen (ej. `06600` = Col. Juárez, Cuauhtémoc, CDMX), nombres de estados y municipios en su forma oficial, montos dentro del rango del producto ($2,000–$20,000), plazos válidos (2–6 meses), CURPs con formato real. No usar placeholders genéricos (`"06000"`, `"CDMX"`, `"test-colonia"`). Los tests existentes en `buildPayload.test.ts` son la referencia de estilo y datos.
 
+## Skills obligatorios para este repo
+
+Además de los skills transversales del workspace (sección 8 del `CLAUDE.md` raíz), aquí aplican mandatos específicos para el stack Next.js + React + Tailwind:
+
+- **Next.js patterns** (`/next-best-practices`) — **mandato fuerte** antes de tocar `app/`, layouts, `route.ts`, server actions, metadata, async APIs, error handling, optimización de imagen/font, o bundling. Cubre file conventions, RSC boundaries y data patterns.
+- **Next.js cache components** (`/next-cache-components`) — invocar cuando uses `use cache`, `cacheLife`, `cacheTag`, `updateTag`, PPR o el modelo de Cache Components de Next 16.
+- **Upgrade de Next.js** (`/next-upgrade`) — usar para cualquier bump mayor de Next.js; aplica codemods oficiales y migration guides.
+- **Diseño de frontend** (`/frontend-design`) — **mandato fuerte** y canónico de este repo para construir/modificar componentes, páginas, layouts o cualquier UI. **No usar** `/design-taste-frontend` ni `/web-design-guidelines` para evitar overlap; quedan disponibles pero sin mandato.
+- **Patterns React** (`/frontend-patterns`) — invocar cuando trabajes con estado, hooks complejos, optimización de re-renders o composición de componentes.
+- **Tailwind mobile-first** (`/tailwindcss-mobile-first`) — **mandato fuerte** antes de usar breakpoints (`sm:`/`md:`/`lg:`/`xl:`/`2xl:`), container queries, safe-area, hover vs touch, o cualquier responsive.
+- **E2E testing** (`/e2e-testing-patterns`) — **mandato fuerte** antes de crear o modificar tests en `e2e/` (Playwright). Recuerda: `playwright test --ui` requiere `--ui-port=5174` (o cualquier ≥ 5000) por el `check-ports.sh` hook.
+
 ## Comandos
 
 - `pnpm dev` — Servidor de desarrollo en http://localhost:3000
