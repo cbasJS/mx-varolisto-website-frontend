@@ -1,0 +1,2 @@
+# Copiar a .dev.vars (gitignored) y llenar con el token de desarrollo de COPOMEX
+COPOMEX_TOKEN=

@@ -4,7 +4,7 @@ Landing page y flujo de solicitud de crédito para **VaroListo**, plataforma de 
 
 ## Stack
 
-- **Next.js 15** (App Router, TypeScript estricto)
+- **Next.js 16** (App Router, TypeScript estricto)
 - **Tailwind CSS** con design tokens Material Design 3
 - **Framer Motion** para animaciones
 - **shadcn/ui** (`radix-nova`) para componentes base
@@ -99,11 +99,11 @@ lib/
 
 ### Variables de entorno
 
-| Variable           | Descripción                                                                                      |
-| ------------------ | ------------------------------------------------------------------------------------------------ |
-| `COPOMEX_TOKEN`    | Token de Copomex (server-side). En dev: `.env.local`. En prod: Vercel dashboard.                 |
-| `COPOMEX_BASE_URL` | (Opcional) URL base de Copomex. Default: `https://api.copomex.com/query`.                        |
-| `NEXT_PUBLIC_ENV`  | Ambiente: `local` \| `sandbox` \| `production`. Controla las URLs del backend en `apiConfig.ts`. |
+| Variable           | Descripción                                                                                                     |
+| ------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `COPOMEX_TOKEN`    | Token de Copomex (server-side). En dev: `.env.local` o `.dev.vars`. En prod: **secreto de runtime del Worker**. |
+| `COPOMEX_BASE_URL` | (Opcional) URL base de Copomex. Default: `https://api.copomex.com/query`.                                       |
+| `NEXT_PUBLIC_ENV`  | Ambiente: `local` \| `sandbox` \| `production`. Controla las URLs del backend en `apiConfig.ts`.                |
 
 ### GitHub Packages
 
@@ -124,6 +124,30 @@ pnpm lint         # ESLint
 pnpm test         # Pruebas unitarias (Vitest)
 pnpm test:e2e     # Pruebas E2E (Playwright)
 ```
+
+## Despliegue — Cloudflare Workers
+
+La aplicación se despliega en **Cloudflare Workers** con el adaptador `@opennextjs/cloudflare`. Sigue siendo una app Next.js dinámica: no hay `output: 'export'` ni runtime Edge.
+
+```bash
+pnpm cf:build              # OpenNext → .open-next/worker.js + .open-next/assets/
+pnpm cf:preview            # Worker en local (runtime real de workerd)
+pnpm cf:deploy:sandbox     # wrangler deploy --env sandbox
+pnpm cf:deploy:production  # wrangler deploy --env production
+```
+
+`pnpm build` (Next puro) no cambia: lo siguen usando `ci.yml` y Playwright.
+
+| Worker                         | Rama      | Hostname                            |
+| ------------------------------ | --------- | ----------------------------------- |
+| `varolisto-website-sandbox`    | `sandbox` | `sandbox.varolisto.mx`              |
+| `varolisto-website-production` | `main`    | `varolisto.mx` + `www.varolisto.mx` |
+
+Cada Worker compila desde su propia rama — `NEXT_PUBLIC_ENV` se inlinea en build time, así que el artefacto de sandbox no se promueve a producción.
+
+`open-next.config.ts` habilita caché incremental sobre **R2** para el `revalidate: 86400` de `app/api/colonias/route.ts`. Sin ese binding cada consulta de CP quema una llamada del paquete prepagado de COPOMEX.
+
+Variables en Cloudflare: `NEXT_PUBLIC_ENV` y `NEXT_PUBLIC_TELEMETRIA_GEO_ENABLED` como _build variables_; `NODE_AUTH_TOKEN` como _build secret_; `COPOMEX_TOKEN` como **secreto de runtime**. Para local, copiar `.dev.vars.example` a `.dev.vars`.
 
 ## Pruebas
 

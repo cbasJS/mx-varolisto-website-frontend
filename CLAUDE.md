@@ -61,11 +61,42 @@ Además de los skills transversales del workspace (sección 8 del `CLAUDE.md` ra
 - `pnpm test:watch` — Vitest en modo watch
 - `pnpm test:e2e` — Pruebas E2E (Playwright, requiere servidor activo o usa `webServer`)
 
+### Despliegue — Cloudflare Workers
+
+- `pnpm cf:build` — Build con OpenNext → `.open-next/worker.js` y `.open-next/assets/`
+- `pnpm cf:preview` — Levanta el Worker en local (runtime real de workerd)
+- `pnpm cf:deploy:sandbox` — Build + `wrangler deploy --env sandbox`
+- `pnpm cf:deploy:production` — Build + `wrangler deploy --env production`
+
+El adaptador es `@opennextjs/cloudflare`. `pnpm build` (Next puro) **no se toca**: lo siguen usando `ci.yml` y Playwright.
+
+Dos Workers, definidos como `env.*` en `wrangler.jsonc`:
+
+| Worker                         | Rama      | Hostname                            |
+| ------------------------------ | --------- | ----------------------------------- |
+| `varolisto-website-sandbox`    | `sandbox` | `sandbox.varolisto.mx`              |
+| `varolisto-website-production` | `main`    | `varolisto.mx` + `www.varolisto.mx` |
+
+El artefacto **no se promueve entre ambientes**: `NEXT_PUBLIC_ENV` se inlinea en build time, así que cada Worker compila desde su propia rama.
+
+`open-next.config.ts` habilita caché incremental sobre **R2** (no KV, que es eventually consistent). Lo necesita el `fetch` con `next: { revalidate: 86400 }` de `app/api/colonias/route.ts`: sin ese binding, cada consulta de código postal quema una llamada del paquete prepagado de COPOMEX. Los buckets (`varolisto-website-cache-sandbox` / `-prod`) deben existir antes del primer despliegue.
+
+Variables en Cloudflare:
+
+| Variable                             | Tipo             | Momento     |
+| ------------------------------------ | ---------------- | ----------- |
+| `NEXT_PUBLIC_ENV`                    | Build variable   | build       |
+| `NEXT_PUBLIC_TELEMETRIA_GEO_ENABLED` | Build variable   | build       |
+| `NODE_AUTH_TOKEN`                    | **Build secret** | build       |
+| `COPOMEX_TOKEN`                      | **Secret**       | **runtime** |
+
+`COPOMEX_TOKEN` ya no es variable de Vercel: es un **secreto del Worker** resuelto en runtime. Para desarrollo local, copiar `.dev.vars.example` a `.dev.vars` (gitignored).
+
 ## Arquitectura
 
 ### Stack
 
-- Next.js 15 App Router (TypeScript estricto)
+- Next.js 16 App Router (TypeScript estricto)
 - Tailwind CSS con sistema de tokens extendido (Material Design 3)
 - Framer Motion para animaciones
 - shadcn/ui (estilo `radix-nova`) para componentes base

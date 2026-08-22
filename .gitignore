@@ -40,3 +40,9 @@ coverage/
 
 # editor
 .vscode/
+
+# cloudflare / opennext
+.open-next/
+.wrangler/
+.dev.vars
+cloudflare-env.d.ts

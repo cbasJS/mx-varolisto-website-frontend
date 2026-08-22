@@ -24,6 +24,8 @@ export default defineConfig([
     },
   },
   globalIgnores([
+    '.open-next/**',
+    '.wrangler/**',
     '.next/**',
     'node_modules/**',
     'out/**',

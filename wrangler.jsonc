@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "varolisto-website",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-08-22",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+
+  "env": {
+    "sandbox": {
+      "name": "varolisto-website-sandbox",
+      "r2_buckets": [
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "varolisto-website-cache-sandbox",
+        },
+      ],
+    },
+    "production": {
+      "name": "varolisto-website-production",
+      "r2_buckets": [
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "varolisto-website-cache-prod",
+        },
+      ],
+    },
+  },
+}
