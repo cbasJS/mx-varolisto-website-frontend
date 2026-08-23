@@ -19,6 +19,10 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "cf:deploy:sandbox": "opennextjs-cloudflare build && wrangler deploy --env sandbox",
+    "cf:deploy:production": "opennextjs-cloudflare build && wrangler deploy --env production",
     "prepare": "husky",
     "changeset": "changeset",
     "release": "changeset publish"
@@ -35,6 +39,7 @@
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^4.6.2",
     "@hookform/resolvers": "^5.2.2",
+    "@opennextjs/cloudflare": "^1.20.2",
     "@tanstack/react-query": "^5.99.2",
     "@varolisto/shared-schemas": "^1.0.0",
     "browser-image-compression": "^2.0.2",
@@ -81,6 +86,7 @@
     "prettier": "^3.8.3",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.4.0",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.5",
+    "wrangler": "^4.125.0"
   }
 }
