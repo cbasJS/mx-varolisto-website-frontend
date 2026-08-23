@@ -1,0 +1,75 @@
+/**
+ * Configuración centralizada de APIs externas y endpoints.
+ *
+ * Ambiente seleccionado por NEXT_PUBLIC_ENV:
+ *   local      → servidor local (desarrollo)
+ *   sandbox    → staging de VaroListo + Copomex en modo pruebas
+ *   production → producción
+ *
+ * Si NEXT_PUBLIC_ENV no está definido, se infiere desde NODE_ENV:
+ *   development → "local"
+ *   test        → "sandbox"
+ *   production  → "production"
+ */
+
+export type Ambiente = 'local' | 'sandbox' | 'production'
+
+// Acceso centralizado a NEXT_PUBLIC_*: Next.js inlinea el literal en build
+// time, así que el bundler puede seguir aplicando dead-code elimination en
+// quienes consumen estas constantes (ej. dev/mockSubmit.ts).
+export const NEXT_PUBLIC_ENV = process.env.NEXT_PUBLIC_ENV
+
+// Flag de QA local (no se configura en Vercel). Cuando vale '1' y el ambiente
+// no es production, captureFingerprint() falla a propósito sin invocar
+// FingerprintJS.load. En builds de producción NEXT_PUBLIC_ENV === 'production'
+// inutiliza el flag aunque alguien lo setee.
+export const NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL = process.env.NEXT_PUBLIC_FORCE_FINGERPRINT_FAIL
+
+function resolverAmbiente(): Ambiente {
+  if (
+    NEXT_PUBLIC_ENV === 'local' ||
+    NEXT_PUBLIC_ENV === 'sandbox' ||
+    NEXT_PUBLIC_ENV === 'production'
+  ) {
+    return NEXT_PUBLIC_ENV
+  }
+  if (process.env.NODE_ENV === 'production') return 'production'
+  if (process.env.NODE_ENV === 'test') return 'sandbox'
+  return 'local'
+}
+
+export const ambiente: Ambiente = resolverAmbiente()
+
+// ---------------------------------------------------------------------------
+// URLs base por API y ambiente
+// ---------------------------------------------------------------------------
+
+const BASE_URLS = {
+  varolisto: {
+    local: 'http://localhost:4000',
+    sandbox: 'https://api-sandbox.varolisto.mx',
+    production: 'https://api.varolisto.mx',
+  },
+  copomex: {
+    local: 'https://api.copomex.com/query',
+    sandbox: 'https://api.copomex.com/query',
+    production: 'https://api.copomex.com/query',
+  },
+} as const satisfies Record<string, Record<Ambiente, string>>
+
+export const baseUrls = {
+  varolisto: BASE_URLS.varolisto[ambiente],
+  copomex: BASE_URLS.copomex[ambiente],
+} as const
+
+// ---------------------------------------------------------------------------
+// Endpoints nombrados — nunca usar strings mágicos fuera de este archivo
+// ---------------------------------------------------------------------------
+
+export const apiRoutes = {
+  solicitudes: '/api/solicitudes',
+  archivoUpload: '/api/archivos/upload-url',
+  archivoStaging: (sessionUuid: string) => `/api/archivos/staging/${sessionUuid}`,
+  archivoDelete: '/api/archivos/staging',
+  beaconCleanup: '/api/archivos/staging/beacon-cleanup',
+} as const

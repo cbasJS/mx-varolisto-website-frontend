@@ -1,42 +1,38 @@
-import type { Metadata } from "next";
-import { Inter, Manrope } from "next/font/google";
-import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import ScrollRestorationClient from "@/components/layout/ScrollRestorationClient";
+import type { Metadata } from 'next'
+import { Inter, Manrope } from 'next/font/google'
+import './globals.css'
+import Navbar from '@/components/layout/Navbar'
+import Footer from '@/components/layout/Footer'
+import ScrollRestorationClient from '@/components/layout/ScrollRestorationClient'
+import { AppToaster } from '@/components/ui/AppToaster'
 
 const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
 
 const manrope = Manrope({
-  subsets: ["latin"],
-  variable: "--font-manrope",
-  display: "swap",
-});
+  subsets: ['latin'],
+  variable: '--font-manrope',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: "VaroListo.mx | Cuando necesitas dinero, aquí empiezas",
+  title: 'VaroListo.mx | Cuando necesitas dinero, aquí empiezas',
   description:
-    "Sin trámites complicados. Te contactamos en minutos. Atención personalizada en todo México.",
+    'Sin trámites complicados. Te contactamos en minutos. Atención personalizada en todo México.',
   icons: {
-    icon: "/favicon.ico",
+    icon: '/favicon.ico',
   },
-};
+}
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="es"
-      className={`${inter.variable} ${manrope.variable}`}
-    >
+    <html lang="es" className={`${inter.variable} ${manrope.variable}`}>
       <head>
+        {/* Icon font: display=block evita flash de codepoints; el link vive en el root layout, no en _document. */}
+        {/* eslint-disable-next-line @next/next/google-font-display, @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
@@ -48,7 +44,8 @@ export default function RootLayout({
         {children}
         <Footer />
         <div id="datepicker-portal" />
+        <AppToaster />
       </body>
     </html>
-  );
+  )
 }

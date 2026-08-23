@@ -1,0 +1,104 @@
+import type { Page } from '@playwright/test'
+
+/** Navigate to the form and wait for it to hydrate (step 1 visible). */
+export async function irAlFormulario(page: Page) {
+  await page.goto('/solicitar')
+  // Wait for hydration — step 1 heading must appear
+  await page.waitForSelector('text=¿Cuánto necesitas?', { timeout: 10_000 })
+}
+
+/** Fill Paso 1 — Préstamo deseado. */
+export async function llenarPaso1(page: Page) {
+  // Slider is pre-filled at $5,000 — leave as is
+  // Select plazo 4 meses
+  await page.click("button:has-text('4')")
+  // Select destino: gasto_medico
+  await page.click("button:has-text('Gasto médico')")
+  await page.click('button[type=submit]')
+  await page.waitForSelector('text=Cuéntanos quién eres')
+}
+
+/** Fill Paso 2 — Identidad. */
+export async function llenarPaso2(page: Page) {
+  await page.fill('input[name=nombre]', 'María')
+  await page.fill('input[name=apellidoPaterno]', 'García')
+  await page.fill('input[name=apellidoMaterno]', 'López')
+  // Sexo F
+  await page.click("button:has-text('Mujer')")
+  // Fecha nacimiento: 1990-05-15
+  const fechaInput = page.locator('input[name=fechaNacimiento]')
+  await fechaInput.fill('1990-05-15')
+  await page.fill('input[name=curp]', 'GALM900515MDFXXX01')
+  await page.fill('input[name=email]', 'maria@example.com')
+  await page.fill('input[name=telefono]', '5512345678')
+  await page.click('button[type=submit]')
+  await page.waitForSelector('h2:has-text("¿Dónde vives?")')
+}
+
+/** Fill Paso 3 — Domicilio. Validates CP logic. */
+export async function llenarPaso3(page: Page, opts?: { cambiarCp?: boolean }) {
+  const cpInput = page.locator('input[name=codigoPostal]')
+  await cpInput.fill('06600')
+  // Wait for colonia select to appear
+  await page.waitForSelector('text=Selecciona tu colonia', { timeout: 8_000 })
+  // Select first colonia via combobox
+  await page.locator('#colonia').click()
+  await page.locator('[data-radix-popper-content-wrapper] [role=option]').first().click()
+  await page.fill('input[name=calle]', 'Insurgentes Sur')
+  await page.fill('input[name=numeroExterior]', '123')
+  // aniosViviendo
+  await page
+    .locator('select, [role=combobox]')
+    .filter({ hasText: '¿Cuánto llevas viviendo' })
+    .click()
+  await page.getByRole('option', { name: '1 – 2 años' }).click()
+  // tipoVivienda
+  await page.locator('select, [role=combobox]').filter({ hasText: '¿La casa es' }).click()
+  await page.getByRole('option', { name: 'Rentada' }).click()
+  await page.click('button[type=submit]')
+  await page.waitForSelector('h2:has-text("Sobre tu trabajo y finanzas")')
+}
+
+/** Fill Paso 4 — Economía. */
+export async function llenarPaso4(page: Page) {
+  await page.click("button:has-text('Empleado formal')")
+  await page.fill('input[name=nombreEmpleadorNegocio]', 'ACME Corp')
+  // Antigüedad
+  await page.locator('[role=combobox]').filter({ hasText: 'Antigüedad' }).click()
+  await page.getByRole('option', { name: 'Entre 1 y 2 años' }).click()
+  // Estado civil
+  await page.locator('[role=combobox]').filter({ hasText: 'Estado civil' }).click()
+  await page.getByRole('option', { name: 'Soltero/a' }).click()
+  // Dependientes
+  await page.locator('[role=combobox]').filter({ hasText: 'Dependientes' }).click()
+  await page.getByRole('option', { name: 'Ninguno' }).click()
+  // Ingreso
+  const ingreso = page
+    .locator("input[placeholder=' ']")
+    .filter({ has: page.locator("~ *:has-text('MN')") })
+    .first()
+  await ingreso.click()
+  await ingreso.fill('15000')
+  await ingreso.blur()
+  // Sin deudas
+  await page.click("button:has-text('No, ninguno')")
+  await page.click('button[type=submit]')
+  await page.waitForSelector('h2:has-text("Dos contactos de confianza")')
+}
+
+/** Fill Paso 5 — Referencias.
+ * shared-schemas 0.15.0: el formulario captura un array dinámico bajo la
+ * key `referencias`. El esquema exige mínimo 1; los inputs siguen el patrón
+ * `referencias.${index}.{nombre|telefono|relacion|email}`. */
+export async function llenarPaso5(page: Page) {
+  // Solo llenamos la referencia obligatoria (índice 0). Si un test necesita
+  // más, debería invocar el botón "Agregar referencia" antes de llenar.
+  await page.fill('input[name="referencias.0.nombre"]', 'Juan Pérez')
+  await page.fill('input[name="referencias.0.telefono"]', '5598765432')
+  await page.locator('[role=combobox]').filter({ hasText: '¿Qué relación' }).first().click()
+  await page.getByRole('option', { name: 'Familiar' }).click()
+  await page.click('button[type=submit]')
+  // El paso siguiente es ahora la revisión (Bloque 1 desconectó el paso de
+  // documentos en línea; el wizard quedó en 6 pasos).
+  await page.waitForSelector('h2:has-text("Casi listo. Revisa todo")')
+}

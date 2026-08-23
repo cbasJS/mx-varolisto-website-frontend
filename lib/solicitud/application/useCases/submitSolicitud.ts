@@ -1,0 +1,70 @@
+import { apiPost, DEFAULT_TIMEOUT_MS } from '@/lib/solicitud/infrastructure/http/apiClient'
+import { apiRoutes } from '@/lib/solicitud/infrastructure/config/apiConfig'
+import {
+  ApiError,
+  esErrorDeConflicto,
+  esErrorDeValidacion,
+  esErrorPlazoInvalidoParaMonto,
+} from '@/lib/solicitud/infrastructure/http/apiErrors'
+import { buildPayload } from '@/lib/solicitud/domain/solicitud/buildPayload'
+import {
+  ejecutarMockSubmit,
+  getMockSubmitCase,
+  isDevMockEnabled,
+} from '@/lib/solicitud/dev/mockSubmit'
+import type { CrearSolicitudResponse } from '@varolisto/shared-schemas/api'
+import type { TelemetriaSolicitud } from '@varolisto/shared-schemas/form'
+import type {
+  Paso1Data,
+  Paso2Data,
+  Paso3Data,
+  Paso4Data,
+  Paso5Data,
+  Paso7Data,
+} from '@/lib/solicitud/domain/solicitud/schemas'
+
+type DatosSolicitud = Partial<Paso1Data & Paso2Data & Paso3Data & Paso4Data & Paso5Data & Paso7Data>
+
+export type ErrorSubmit =
+  | { tipo: 'conflicto' }
+  | { tipo: 'plazo_invalido_para_monto' }
+  | { tipo: 'validacion'; detalles?: Record<string, string[]> }
+  | { tipo: 'red' }
+  | { tipo: 'desconocido'; mensaje?: string }
+
+export interface SubmitSolicitudInput {
+  datos: DatosSolicitud
+  paso7Data: Paso7Data
+  /** Bloque 1.B — telemetría pasiva, opcional. Si no se pasa, el payload
+   * se arma sin el bloque y la solicitud sigue normalmente. */
+  telemetria?: TelemetriaSolicitud
+}
+
+export interface SubmitSolicitudResult {
+  folio: string
+}
+
+export async function submitSolicitud(input: SubmitSolicitudInput): Promise<SubmitSolicitudResult> {
+  if (isDevMockEnabled() && getMockSubmitCase()) {
+    const mocked = await ejecutarMockSubmit()
+    return { folio: mocked.folio }
+  }
+
+  const payload = buildPayload(input)
+
+  const response = await apiPost<ReturnType<typeof buildPayload>, CrearSolicitudResponse>(
+    apiRoutes.solicitudes,
+    payload,
+    { timeoutMs: DEFAULT_TIMEOUT_MS },
+  )
+
+  return { folio: response.folio }
+}
+
+export function clasificarError(err: unknown): ErrorSubmit {
+  if (esErrorDeConflicto(err)) return { tipo: 'conflicto' }
+  if (esErrorPlazoInvalidoParaMonto(err)) return { tipo: 'plazo_invalido_para_monto' }
+  if (esErrorDeValidacion(err)) return { tipo: 'validacion', detalles: (err as ApiError).detalles }
+  if (err instanceof ApiError && err.status === 0) return { tipo: 'red' }
+  return { tipo: 'desconocido', mensaje: err instanceof ApiError ? err.mensaje : undefined }
+}

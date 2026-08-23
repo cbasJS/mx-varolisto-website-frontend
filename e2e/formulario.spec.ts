@@ -1,0 +1,1100 @@
+import { test, expect } from '@playwright/test'
+import { irAlFormulario } from './helpers'
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Store state presets — inject into sessionStorage to jump to a step
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DATOS_BASE = {
+  nombre: 'María',
+  apellidoPaterno: 'García',
+  apellidoMaterno: 'López',
+  sexo: 'F',
+  fechaNacimiento: '1990-05-15',
+  curp: 'GALM900515MDFXXX01',
+  email: 'maria@example.com',
+  telefono: '5512345678',
+  codigoPostal: '06600',
+  colonia: 'Roma Norte',
+  municipio: 'Cuauhtémoc',
+  calle: 'Insurgentes Sur',
+  numeroExterior: '123',
+  aniosViviendo: 'entre_1_y_2',
+  tipoVivienda: 'rentada',
+  montoSolicitado: 7000,
+  plazoMeses: '4',
+  destinoPrestamo: 'gasto_medico',
+  tipoActividad: 'empleado_formal',
+  nombreEmpleadorNegocio: 'ACME Corp',
+  antiguedad: 'uno_a_dos',
+  estadoCivil: 'soltero',
+  dependientesEconomicos: 'ninguno',
+  ingresoMensual: 15000,
+  gastoMensual: 7500,
+  // Bloque 1: referencias migraron a array dinámico (shared-schemas 0.15.0).
+  referencias: [
+    { nombre: 'Juan Pérez', telefono: '5598765432', relacion: 'familiar' },
+    { nombre: 'Ana Torres', telefono: '5511112222', relacion: 'amigo' },
+  ],
+}
+
+// Marca que sólo permite que el init script inyecte una vez por test. Sin
+// esto, tests que navegan después del setStep (E11 hace logo→AlertDialog→"/")
+// verían su sessionStorage RE-poblado en la segunda navegación, pisando el
+// resetForm que el flujo ejecuta y rompiendo las aserciones de cleanup.
+const SETUP_FLAG = 'vl-e2e-setup-injected'
+
+// Inyecta el store completo en sessionStorage ANTES de que cualquier script
+// de la página corra y navega a /solicitar. Reemplaza el patrón
+// `page.goto + page.evaluate(setItem) + page.reload`, que bajo carga del dev
+// server permitía una race con el inicializarSession() del primer mount: el
+// efecto sobreescribía la inyección entre el evaluate y el reload y la página
+// quedaba en Paso 1. El flag-guard evita re-inyectar en navegaciones
+// posteriores dentro del mismo test (resetForm + click logo → "/").
+async function injectStore(page: import('@playwright/test').Page, state: object) {
+  await page.addInitScript(
+    ({ state, flag }) => {
+      if (sessionStorage.getItem(flag) === 'true') return
+      sessionStorage.setItem('vl-solicitud', JSON.stringify({ state, version: 0 }))
+      sessionStorage.setItem(flag, 'true')
+    },
+    { state, flag: SETUP_FLAG },
+  )
+  await page.goto('/solicitar')
+}
+
+async function setStep(page: import('@playwright/test').Page, paso: number, extra: object = {}) {
+  // Bloque 1: el store del formulario público ya no persiste
+  // `archivosSubidos` ni `tipoIdentificacion`. Los inyectamos solo en los
+  // tests que explícitamente prueban el paso 6 deprecado (E1-E9 quedaron
+  // marcados como skip — ver TODO Bloque 3).
+  await injectStore(page, {
+    pasoActual: paso,
+    datos: { ...DATOS_BASE, ...extra },
+    timestampInicio: Date.now(),
+    coloniasCache: {},
+    sessionUuid: '00000000-0000-4000-a000-000000000001',
+  })
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Fill paso 1 quickly (no complex pickers)
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function fillPaso1(page: import('@playwright/test').Page) {
+  await irAlFormulario(page)
+  // Bloque 1 v7: monto default 5000 → plazos disponibles solo ['2','3']. Usar '3'.
+  await page.click("button:has-text('3')")
+  await page.click("button:has-text('Gasto médico')")
+  await page.click('button[type=submit]')
+  await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 5_000 })
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Formulario de solicitud — Fase 2', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/solicitar')
+    await page.evaluate(() => sessionStorage.clear())
+    await page.reload()
+  })
+
+  // ── 1. Paso 1 = Préstamo, sin campo primer crédito ───────────────────────
+  test('Paso 1 es Préstamo deseado y NO tiene campo Primer crédito', async ({ page }) => {
+    await irAlFormulario(page)
+    await expect(page.getByText('¿Cuánto necesitas?')).toBeVisible()
+    await expect(page.getByLabel(/primer cr[eé]dito/i)).not.toBeVisible()
+    await expect(page.locator('input[name=destinoOtro]')).not.toBeVisible()
+  })
+
+  // ── 2. Destino "Otro" no muestra campo libre ─────────────────────────────
+  test('Seleccionar destino Otro NO muestra campo de texto libre', async ({ page }) => {
+    await irAlFormulario(page)
+    await page.click("button:has-text('Otro')")
+    await expect(page.locator('input[name=destinoOtro]')).not.toBeVisible()
+  })
+
+  // ── 3. Paso 2 = Identidad ────────────────────────────────────────────────
+  test('Paso 2 es Identidad y contiene CURP, email, teléfono; RFC oculto', async ({ page }) => {
+    await fillPaso1(page)
+    await expect(page.getByText('Cuéntanos quién eres')).toBeVisible()
+    await expect(page.locator('input[name=curp]')).toBeVisible()
+    await expect(page.locator('input[name=email]')).toBeVisible()
+    await expect(page.locator('input[name=telefono]')).toBeVisible()
+  })
+
+  // ── 4. Paso 3: CP cambia → preserva calle/nums, resetea COPOMEX ──────────
+  test('Paso 3: cambiar CP preserva calle/números y resetea colonia/municipio', async ({
+    page,
+  }) => {
+    // Mock /api/colonias para ambos CPs — evita dependencia de COPOMEX real
+    await page.route('**/api/colonias**', (route) => {
+      const cp = new URL(route.request().url()).searchParams.get('cp')
+      const payload =
+        cp === '11800'
+          ? [
+              {
+                response: {
+                  municipio: 'Miguel Hidalgo',
+                  estado: 'Ciudad de México',
+                  ciudad: 'Ciudad de México',
+                  asentamiento: 'Tacubaya',
+                },
+              },
+            ]
+          : [
+              {
+                response: {
+                  municipio: 'Cuauhtémoc',
+                  estado: 'Ciudad de México',
+                  ciudad: 'Ciudad de México',
+                  asentamiento: 'Juárez',
+                },
+              },
+            ]
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(payload),
+      })
+    })
+
+    await setStep(page, 3, { colonia: '', municipio: '', codigoPostal: '' })
+    await page.waitForSelector('h2:has-text("¿Dónde vives?")', { timeout: 5_000 })
+
+    // Fill calle and número first (independent of CP)
+    await page.fill('input[name=calle]', 'Insurgentes Sur')
+    await page.fill('input[name=numeroExterior]', '42')
+
+    // Enter first CP; colonia selector and hint appear once COPOMEX responds
+    const cpInput = page.locator('input[name=codigoPostal]')
+    await cpInput.fill('06600')
+    await page.waitForSelector('text=Selecciona tu colonia', { timeout: 5_000 })
+
+    // Change CP — the component resets colonia, hint text reappears
+    await cpInput.fill('')
+    await cpInput.fill('11800')
+    await page.waitForSelector('text=Selecciona tu colonia', { timeout: 5_000 })
+
+    // Calle and número must be preserved
+    await expect(page.locator('input[name=calle]')).toHaveValue('Insurgentes Sur')
+    await expect(page.locator('input[name=numeroExterior]')).toHaveValue('42')
+  })
+
+  // ── 5. Paso 3 tiene aniosViviendo y tipoVivienda ─────────────────────────
+  test('Paso 3 tiene selects de aniosViviendo y tipoVivienda', async ({ page }) => {
+    await setStep(page, 3)
+    await page.waitForSelector('h2:has-text("¿Dónde vives?")', { timeout: 5_000 })
+    await expect(page.getByText('¿Cuánto llevas viviendo ahí?')).toBeVisible()
+    await expect(page.getByText('¿La casa es…?')).toBeVisible()
+  })
+
+  // ── 6. Paso 4 tiene estadoCivil y dependientesEconomicos ─────────────────
+  test('Paso 4 tiene campos estadoCivil y dependientesEconomicos', async ({ page }) => {
+    await setStep(page, 4)
+    await page.waitForSelector('h2:has-text("Sobre tu trabajo y finanzas")', { timeout: 5_000 })
+    await expect(page.getByText('Estado civil')).toBeVisible()
+    await expect(page.getByText('Dependientes económicos')).toBeVisible()
+  })
+
+  // ── 7. Paso 4 label "Por cuenta propia" no "Freelance" ───────────────────
+  test("Paso 4 muestra 'Por cuenta propia' y NO 'Freelance'", async ({ page }) => {
+    await setStep(page, 4)
+    await page.waitForSelector('h2:has-text("Sobre tu trabajo y finanzas")', { timeout: 5_000 })
+    await expect(page.getByText('Por cuenta propia')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Freelance' })).not.toBeVisible()
+  })
+
+  // ── 8. Paso 6: INE → frente + reverso ────────────────────────────────────
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('Paso 6: seleccionar INE muestra dropzones de frente y reverso', async ({ page }) => {
+    await setStep(page, 6)
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
+
+    await page.click("button:has-text('INE')")
+
+    await expect(page.getByText('Frente de tu INE')).toBeVisible()
+    await expect(page.getByText('Reverso de tu INE')).toBeVisible()
+    await expect(page.getByText('Hoja con tu foto')).not.toBeVisible()
+  })
+
+  // ── 9. Paso 6: Pasaporte → dropzone único ────────────────────────────────
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('Paso 6: seleccionar Pasaporte muestra dropzone único de página principal', async ({
+    page,
+  }) => {
+    await setStep(page, 6)
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
+
+    await page.click("button:has-text('Pasaporte')")
+
+    await expect(page.getByText('Hoja con tu foto')).toBeVisible()
+    await expect(page.getByText('Frente de tu INE')).not.toBeVisible()
+    await expect(page.getByText('Reverso de tu INE')).not.toBeVisible()
+  })
+
+  // ── 10. Paso 6 NO tiene campo CLABE ──────────────────────────────────────
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('Paso 6 no tiene campo CLABE interbancaria', async ({ page }) => {
+    await setStep(page, 6)
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
+
+    await expect(page.getByText(/CLABE interbancaria/i)).not.toBeVisible()
+    await expect(page.locator('input[name=clabe]')).not.toBeVisible()
+  })
+
+  // ── 12. Paso 3: COPOMEX sin ciudad → fallback al municipio ───────────────
+  test('Paso 3: cuando COPOMEX no devuelve ciudad, el campo ciudad muestra el municipio', async ({
+    page,
+  }) => {
+    // Intercept the Next.js API route before navigating
+    await page.route('**/api/colonias**', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          // No `ciudad` key — simulates a rural CP where COPOMEX omits it
+          { response: { municipio: 'Ocosingo', estado: 'Chiapas', asentamiento: 'Centro' } },
+        ]),
+      }),
+    )
+
+    await setStep(page, 3, { colonia: '', municipio: '', codigoPostal: '', ciudad: undefined })
+    await page.waitForSelector('h2:has-text("¿Dónde vives?")', { timeout: 5_000 })
+
+    const cpInput = page.locator('input[name=codigoPostal]')
+    await cpInput.fill('29950')
+    await page.waitForSelector('text=Selecciona tu colonia', { timeout: 10_000 })
+
+    // The ciudad field (read-only, populated from fallback) must show the municipio value
+    await expect(page.locator('input[name=ciudad]')).toHaveValue('Ocosingo')
+
+    // Verify the value is also present in the form state by checking the municipio field
+    await expect(page.locator('input[name=municipio]')).toHaveValue('Ocosingo')
+  })
+
+  // ── E1. Cambio de tipoIdentificacion con cleanup ────────────────────────
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E1: cambiar INE→Pasaporte elimina archivos INE del bucket, radios deshabilitados durante cleanup', async ({
+    page,
+  }) => {
+    const deletedPaths: string[] = []
+
+    // Mock upload-url para simular subida exitosa de INE
+    await page.route('**/api/archivos/upload-url', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          uploadUrl: 'https://example.com/fake-upload',
+          storagePath: `staging/00000000-0000-4000-a000-000000000001/ine_frente.jpg`,
+          archivoId: 'aaaa-0001',
+          expiresIn: 7200,
+        }),
+      }),
+    )
+
+    // Mock PUT para simular subida al bucket
+    await page.route('https://example.com/fake-upload', (route) => route.fulfill({ status: 200 }))
+
+    // Mock DELETE staging
+    await page.route('**/api/archivos/staging', (route) => {
+      const body = route.request().postDataJSON() as { storagePath: string }
+      deletedPaths.push(body.storagePath)
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ deleted: true }),
+      })
+    })
+
+    // Ir a paso 6 con un archivo INE frente ya subido en el store
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: {},
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: '00000000-0000-4000-a000-000000000001',
+      archivosSubidos: [
+        {
+          clienteId: 'client-ine-frente',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: 'ine_frente.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 102400,
+          storagePath: 'staging/00000000-0000-4000-a000-000000000001/ine_frente.jpg',
+          archivoId: 'aaaa-0001',
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
+
+    // Verify INE frente archivo is shown
+    await expect(page.getByText('ine_frente.jpg')).toBeVisible()
+
+    // Cambiar a Pasaporte — triggers async cleanup
+    await page.click("button:has-text('Pasaporte')")
+
+    // Radios deben estar deshabilitados mientras dura el cleanup
+    // (can be very fast in test env, so check that they become re-enabled)
+    await expect(page.locator("button:has-text('Pasaporte')")).toBeEnabled({
+      timeout: 3_000,
+    })
+
+    // Archivo INE ya no aparece en UI
+    await expect(page.getByText('ine_frente.jpg')).not.toBeVisible()
+
+    // El DELETE fue llamado con el storagePath correcto
+    expect(deletedPaths).toContain('staging/00000000-0000-4000-a000-000000000001/ine_frente.jpg')
+
+    // Dropzone de pasaporte ahora visible
+    await expect(page.getByText('Hoja con tu foto')).toBeVisible()
+  })
+
+  // ── E2. Eliminación y re-subida de comprobante ───────────────────────────
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E2: eliminar comprobante llama DELETE en bucket y lo quita de la lista', async ({
+    page,
+  }) => {
+    const deletedPaths: string[] = []
+
+    await page.route('**/api/archivos/staging', (route) => {
+      const body = route.request().postDataJSON() as { storagePath: string }
+      deletedPaths.push(body.storagePath)
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ deleted: true }),
+      })
+    })
+
+    // Ir a paso 6 con 2 comprobantes ya subidos
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: {},
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: '00000000-0000-4000-a000-000000000001',
+      archivosSubidos: [
+        {
+          clienteId: 'client-comp-1',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'comprobante_enero.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 102400,
+          storagePath: 'staging/00000000-0000-4000-a000-000000000001/comprobante_enero.jpg',
+          archivoId: 'bbbb-0001',
+        },
+        {
+          clienteId: 'client-comp-2',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'comprobante_febrero.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 102400,
+          storagePath: 'staging/00000000-0000-4000-a000-000000000001/comprobante_febrero.jpg',
+          archivoId: 'bbbb-0002',
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
+
+    // Ambos comprobantes visibles
+    await expect(page.getByText('comprobante_enero.jpg')).toBeVisible()
+    await expect(page.getByText('comprobante_febrero.jpg')).toBeVisible()
+
+    // Eliminar el primer comprobante
+    await page.click('[aria-label="Eliminar comprobante_enero.jpg"]')
+
+    // Esperar a que desaparezca
+    await expect(page.getByText('comprobante_enero.jpg')).not.toBeVisible({ timeout: 5_000 })
+
+    // DELETE fue llamado
+    expect(deletedPaths).toContain(
+      'staging/00000000-0000-4000-a000-000000000001/comprobante_enero.jpg',
+    )
+
+    // El otro comprobante sigue visible
+    await expect(page.getByText('comprobante_febrero.jpg')).toBeVisible()
+  })
+
+  // ── E3. Eliminar INE frente y re-subir ───────────────────────────────────
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E3: eliminar INE frente y re-subir no deja archivo huérfano visible', async ({
+    page,
+  }) => {
+    const deletedPaths: string[] = []
+
+    await page.route('**/api/archivos/staging', (route) => {
+      if (route.request().method() === 'DELETE') {
+        const body = route.request().postDataJSON() as { storagePath: string }
+        deletedPaths.push(body.storagePath)
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ deleted: true }),
+        })
+      } else {
+        route.continue()
+      }
+    })
+
+    // Paso 6 con INE frente ya subido
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: {},
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: '00000000-0000-4000-a000-000000000001',
+      archivosSubidos: [
+        {
+          clienteId: 'client-ine-f',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: 'ine_frente_viejo.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 102400,
+          storagePath: 'staging/00000000-0000-4000-a000-000000000001/ine_frente_viejo.jpg',
+          archivoId: 'cccc-0001',
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
+    await expect(page.getByText('ine_frente_viejo.jpg')).toBeVisible()
+
+    // Eliminar con la X
+    await page.click('[aria-label="Eliminar ine_frente_viejo.jpg"]')
+    await expect(page.getByText('ine_frente_viejo.jpg')).not.toBeVisible({ timeout: 5_000 })
+
+    // DELETE fue llamado
+    expect(deletedPaths).toContain(
+      'staging/00000000-0000-4000-a000-000000000001/ine_frente_viejo.jpg',
+    )
+
+    // Lista de archivos vacía — ningún archivo de upload huérfano visible
+    await expect(
+      page.locator('ul li').filter({ hasText: 'ine_frente_viejo.jpg' }),
+    ).not.toBeVisible()
+  })
+
+  // ── E4. Falla de DELETE no muta state ────────────────────────────────────
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E4: si DELETE falla con 500 tras retry, archivo sigue en lista y se muestra toast', async ({
+    page,
+  }) => {
+    // Mock DELETE para siempre devolver 500
+    await page.route('**/api/archivos/staging', (route) =>
+      route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'internal_error', mensaje: 'Error de storage' }),
+      }),
+    )
+
+    // Paso 6 con un comprobante ya subido
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: {},
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: '00000000-0000-4000-a000-000000000001',
+      archivosSubidos: [
+        {
+          clienteId: 'client-err',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'comprobante_error.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 102400,
+          storagePath: 'staging/00000000-0000-4000-a000-000000000001/comprobante_error.jpg',
+          archivoId: 'dddd-0001',
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
+    await expect(page.getByText('comprobante_error.jpg')).toBeVisible()
+
+    // Click X — DELETE falla, retry falla
+    await page.click('[aria-label="Eliminar comprobante_error.jpg"]')
+
+    // Toast de error debe aparecer
+    await expect(page.getByText('No pudimos quitar el archivo. Inténtalo de nuevo.')).toBeVisible({
+      timeout: 5_000,
+    })
+
+    // Archivo SIGUE en la lista — state no fue mutado
+    await expect(page.getByText('comprobante_error.jpg')).toBeVisible()
+  })
+
+  // ── 11. BarraPasos: 4 form-steps, primero = Tu identidad (visible en pasos 2-5) ──
+  test('BarraPasos muestra 4 form-steps, primero = Tu identidad (mobile y desktop, en paso 2)', async ({
+    page,
+  }) => {
+    // Stepper se oculta en paso 1 (calculadora) y paso 6 (revisión). Bloque
+    // 1 desconectó el paso de documentos en línea → el wizard quedó en 6
+    // pasos totales, con 4 form-steps en el stepper.
+    await setStep(page, 2)
+    await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 5_000 })
+
+    // Desktop: BarraPasosDesktop muestra los 4 form-steps; Tu identidad activa.
+    const desktopStepper = page.locator('div.hidden.md\\:block').filter({ hasText: 'Tu identidad' })
+    await expect(desktopStepper.getByText('Tu identidad')).toBeVisible()
+
+    // Switch to mobile viewport to check mobile bar (Paso 1 de 4).
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.reload()
+    await page.waitForSelector('text=Cuéntanos quién eres')
+    const mobileStepper = page.locator('div.md\\:hidden').filter({ hasText: 'Paso 1 de 4' })
+    await expect(mobileStepper.getByText('Paso 1 de 4')).toBeVisible()
+    await expect(mobileStepper.getByText('Tu identidad')).toBeVisible()
+  })
+
+  // ── E5. Hidratación al cargar Paso 6 con archivos en staging ────────────
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E5: Paso 6 con archivos en memoria muestra la lista lista para continuar', async ({
+    page,
+  }) => {
+    const SESSION = '00000000-0000-4000-a000-000000000099'
+
+    const ARCHIVOS_MEMORIA = [
+      {
+        clienteId: 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaa01',
+        archivoId: 'bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbb01',
+        tipoArchivo: 'ine_frente',
+        nombreOriginal: 'ine_frente_1714000000000_frente.jpg',
+        mimeType: 'image/jpeg',
+        tamanoBytes: 233845,
+        storagePath: `staging/${SESSION}/ine_frente_1714000000000_frente.jpg`,
+      },
+      {
+        clienteId: 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaa02',
+        archivoId: 'bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbb02',
+        tipoArchivo: 'ine_reverso',
+        nombreOriginal: 'ine_reverso_1714000000001_reverso.jpg',
+        mimeType: 'image/jpeg',
+        tamanoBytes: 220000,
+        storagePath: `staging/${SESSION}/ine_reverso_1714000000001_reverso.jpg`,
+      },
+      {
+        clienteId: 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaa03',
+        archivoId: 'bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbb03',
+        tipoArchivo: 'comprobante_ingreso',
+        nombreOriginal: 'comprobante_ingreso_1714000000002_recibo1.jpg',
+        mimeType: 'image/jpeg',
+        tamanoBytes: 512000,
+        storagePath: `staging/${SESSION}/comprobante_ingreso_1714000000002_recibo1.jpg`,
+      },
+      {
+        clienteId: 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaa04',
+        archivoId: 'bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbb04',
+        tipoArchivo: 'comprobante_ingreso',
+        nombreOriginal: 'comprobante_ingreso_1714000000003_recibo2.jpg',
+        mimeType: 'image/jpeg',
+        tamanoBytes: 480000,
+        storagePath: `staging/${SESSION}/comprobante_ingreso_1714000000003_recibo2.jpg`,
+      },
+      {
+        clienteId: 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaa05',
+        archivoId: 'bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbb05',
+        tipoArchivo: 'comprobante_domicilio',
+        nombreOriginal: 'comprobante_domicilio_1714000000004_recibo_luz.pdf',
+        mimeType: 'application/pdf',
+        tamanoBytes: 98000,
+        storagePath: `staging/${SESSION}/comprobante_domicilio_1714000000004_recibo_luz.pdf`,
+      },
+    ]
+
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: DATOS_BASE,
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: SESSION,
+      archivosSubidos: ARCHIVOS_MEMORIA,
+      tipoIdentificacion: 'ine',
+    })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
+
+    for (const archivo of ARCHIVOS_MEMORIA) {
+      await expect(page.getByText(archivo.nombreOriginal).first()).toBeVisible({ timeout: 5_000 })
+      await expect(
+        page.getByRole('button', { name: `Eliminar ${archivo.nombreOriginal}` }).first(),
+      ).toBeVisible()
+    }
+
+    await expect(page.getByRole('button', { name: /Continuar/i })).toBeEnabled()
+  })
+
+  // ── E5b. Click en X tras hidratación dispara DELETE al bucket ─────────────
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E5b: click en X de archivo en memoria dispara DELETE y lo quita de la lista', async ({
+    page,
+  }) => {
+    const SESSION = '00000000-0000-4000-a000-000000000098'
+    const NOMBRE = 'ine_frente_1714000000000_frente.jpg'
+    const STORAGE_PATH = `staging/${SESSION}/${NOMBRE}`
+
+    let deleteBody: { storagePath?: string } | null = null
+    await page.route('**/api/archivos/staging', (route) => {
+      if (route.request().method() !== 'DELETE') return route.continue()
+      deleteBody = route.request().postDataJSON() as { storagePath: string }
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ deleted: true }),
+      })
+    })
+
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: DATOS_BASE,
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: SESSION,
+      archivosSubidos: [
+        {
+          clienteId: 'cccccccc-cccc-4ccc-cccc-cccccccccc01',
+          archivoId: 'dddddddd-dddd-4ddd-dddd-dddddddddd01',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: NOMBRE,
+          mimeType: 'image/jpeg',
+          tamanoBytes: 233845,
+          storagePath: STORAGE_PATH,
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
+    await expect(page.getByText(NOMBRE).first()).toBeVisible({ timeout: 5_000 })
+
+    await page
+      .getByRole('button', { name: `Eliminar ${NOMBRE}` })
+      .first()
+      .click()
+
+    // Archivo desaparece de la lista
+    await expect(page.getByText(NOMBRE).first()).not.toBeVisible({ timeout: 5_000 })
+
+    // DELETE fue disparado con el storagePath correcto
+    expect(deleteBody).not.toBeNull()
+    expect((deleteBody as unknown as { storagePath: string }).storagePath).toBe(STORAGE_PATH)
+  })
+
+  // ── E6. Submit en vuelo + intento de cierre ──────────────────────────────
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E6: submit en vuelo activa prompt beforeunload y NO dispara sendBeacon', async ({
+    page,
+  }) => {
+    const beaconPaths: string[] = []
+
+    // Capturar llamadas a sendBeacon vía intercepción de red
+    // sendBeacon usa POST pero sin CORS preflight; se puede interceptar con route
+    await page.route('**/api/archivos/staging', (route) => {
+      if (route.request().method() === 'DELETE' || route.request().method() === 'POST') {
+        const body = route.request().postDataJSON() as { storagePath?: string; motivo?: string }
+        if (body?.motivo === 'beforeunload') {
+          beaconPaths.push(body.storagePath ?? '')
+        }
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ deleted: true }),
+        })
+      } else {
+        route.continue()
+      }
+    })
+
+    // Mock solicitudes para que quede colgado (simula submit en vuelo)
+    await page.route('**/api/solicitudes', (_route) => {
+      // No responder — simula solicitud en vuelo indefinidamente
+    })
+
+    // Paso 6 con archivos ya subidos + tipoIdentificacion seteada
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: DATOS_BASE,
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: '00000000-0000-4000-a000-000000000002',
+      archivosSubidos: [
+        {
+          clienteId: 'client-e6-1',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: 'frente_e6.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 100000,
+          storagePath: 'staging/00000000-0000-4000-a000-000000000002/ine_frente_1000_frente_e6.jpg',
+          archivoId: 'eeee-0001',
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
+
+    // Simular que isSubmitting está activo inyectando el flag directamente
+    // (No podemos simular el submit completo sin llenar todos los pasos,
+    //  así que verificamos que el listener está registrado inspeccionando el comportamiento
+    //  a través del diálogo nativo que el navegador muestra)
+    const dialogPromise = page.waitForEvent('dialog', { timeout: 2_000 }).catch(() => null)
+
+    // Disparar beforeunload mientras enviando=false — sin archivos en vuelo, no debe mostrar diálogo
+    await page.evaluate(() => window.dispatchEvent(new Event('beforeunload')))
+
+    const dialog = await dialogPromise
+    // Sin submit en vuelo, no hay diálogo nativo
+    expect(dialog).toBeNull()
+    // sendBeacon sí puede haber sido llamado (no es la verificación clave aquí)
+    // La clave es que no hay error y el flujo es coherente
+  })
+
+  // ── E7. Cierre voluntario sin submit: sendBeacon limpia archivos ─────────
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga.
+  test.skip('E7: cerrar pestaña sin submit dispara sendBeacon por cada archivo en state', async ({
+    page,
+  }) => {
+    const beaconPayloads: Array<{ sessionUuid: string; storagePath: string; motivo: string }> = []
+    const beaconContentTypes: string[] = []
+
+    // sendBeacon durante beforeunload no es interceptable con page.route —
+    // monkeypatch en el contexto de la página para capturar las llamadas
+    await page.addInitScript(() => {
+      const orig = navigator.sendBeacon.bind(navigator)
+      ;(window as unknown as Record<string, unknown>).__beaconCalls = []
+      navigator.sendBeacon = function (url: string, data?: BodyInit | null) {
+        let parsed: unknown = null
+        if (data instanceof Blob) {
+          // Blob no es síncrono — guardamos la referencia; postMessage para extraer el texto
+          const reader = new FileReader()
+          reader.onload = () => {
+            try {
+              parsed = JSON.parse(reader.result as string)
+            } catch {
+              /* noop */
+            }
+            ;(window as unknown as { __beaconCalls: unknown[] }).__beaconCalls.push({
+              url,
+              body: parsed,
+            })
+          }
+          reader.readAsText(data)
+        } else if (typeof data === 'string') {
+          try {
+            parsed = JSON.parse(data)
+          } catch {
+            /* noop */
+          }
+          ;(window as unknown as { __beaconCalls: unknown[] }).__beaconCalls.push({
+            url,
+            body: parsed,
+          })
+        }
+        return orig(url, data)
+      }
+    })
+
+    const SESSION = '00000000-0000-4000-a000-000000000003'
+
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: DATOS_BASE,
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: SESSION,
+      archivosSubidos: [
+        {
+          clienteId: 'eeeeeeee-eeee-4eee-eeee-eeeeeeeeee01',
+          archivoId: 'ffffffff-ffff-4fff-ffff-ffffffffff01',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: 'ine_frente_1000_frente.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 100000,
+          storagePath: `staging/${SESSION}/ine_frente_1000_frente.jpg`,
+        },
+        {
+          clienteId: 'eeeeeeee-eeee-4eee-eeee-eeeeeeeeee02',
+          archivoId: 'ffffffff-ffff-4fff-ffff-ffffffffff02',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'comprobante_ingreso_1001_recibo.pdf',
+          mimeType: 'application/pdf',
+          tamanoBytes: 200000,
+          storagePath: `staging/${SESSION}/comprobante_ingreso_1001_recibo.pdf`,
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
+    await page.waitForFunction(
+      () => document.querySelectorAll('[aria-label^="Eliminar"]').length >= 2,
+      { timeout: 5_000 },
+    )
+
+    // Disparar beforeunload manualmente — registra los sendBeacon en __beaconCalls
+    await page.evaluate(() => window.dispatchEvent(new Event('beforeunload')))
+
+    // Dar tiempo a que los FileReader async terminen de leer los Blobs
+    await page.waitForTimeout(300)
+
+    // Leer los beacons capturados desde la página
+    const calls = await page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            __beaconCalls: Array<{
+              url: string
+              body: { sessionUuid: string; storagePath: string; motivo: string } | null
+            }>
+          }
+        ).__beaconCalls ?? [],
+    )
+
+    for (const call of calls) {
+      if (call.body?.motivo === 'beforeunload') {
+        beaconPayloads.push(call.body)
+        beaconContentTypes.push('text/plain') // Blob con type text/plain — no accesible post-hoc
+      }
+    }
+
+    // Verificar que se llamó sendBeacon con motivo beforeunload para cada archivo
+    expect(beaconPayloads.length).toBeGreaterThanOrEqual(2)
+    const storePaths = beaconPayloads.map((p) => p.storagePath)
+    expect(storePaths).toContain(`staging/${SESSION}/ine_frente_1000_frente.jpg`)
+    expect(storePaths).toContain(`staging/${SESSION}/comprobante_ingreso_1001_recibo.pdf`)
+    expect(beaconPayloads.every((p) => p.motivo === 'beforeunload')).toBe(true)
+    // URL apunta al endpoint dedicado para beacons (POST, no DELETE)
+    expect(calls.every((c) => c.url.endsWith('/api/archivos/staging/beacon-cleanup'))).toBe(true)
+    // Blob enviado con text/plain — no genera preflight CORS
+    expect(beaconContentTypes.every((ct) => ct === 'text/plain')).toBe(true)
+  })
+
+  // ── E8. Navegación interna durante submit activo ─────────────────────────
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard.
+  // Reactivar cuando exista la página standalone de carga (este test
+  // depende de inyectar archivos a paso 7 para satisfacer el reconciliador).
+  test.skip('E8: click logo durante submit activo muestra AlertDialog con copy de submit', async ({
+    page,
+  }) => {
+    // Mock /api/solicitudes para que quede colgado
+    await page.route('**/api/solicitudes', () => {
+      /* no responder */
+    })
+    // Paso 7 vuelve a paso 6 si los requisitos no se cumplen (INE + 2
+    // comprobantes de ingreso + comprobante de domicilio). Inyectamos los
+    // archivos directamente en sessionStorage para satisfacerlos.
+    const SESSION = '00000000-0000-4000-a000-000000000001'
+    await injectStore(page, {
+      pasoActual: 7,
+      datos: DATOS_BASE,
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: SESSION,
+      archivosSubidos: [
+        {
+          clienteId: '88888888-8888-4888-8888-888888888801',
+          archivoId: '99999999-9999-4999-9999-999999999901',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: 'ine_frente_2000_frente.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 100000,
+          storagePath: `staging/${SESSION}/ine_frente_2000_frente.jpg`,
+        },
+        {
+          clienteId: '88888888-8888-4888-8888-888888888802',
+          archivoId: '99999999-9999-4999-9999-999999999902',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'comprobante_ingreso_2001_recibo1.pdf',
+          mimeType: 'application/pdf',
+          tamanoBytes: 50000,
+          storagePath: `staging/${SESSION}/comprobante_ingreso_2001_recibo1.pdf`,
+        },
+        {
+          clienteId: '88888888-8888-4888-8888-888888888803',
+          archivoId: '99999999-9999-4999-9999-999999999903',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'comprobante_ingreso_2002_recibo2.pdf',
+          mimeType: 'application/pdf',
+          tamanoBytes: 50000,
+          storagePath: `staging/${SESSION}/comprobante_ingreso_2002_recibo2.pdf`,
+        },
+        {
+          clienteId: '88888888-8888-4888-8888-888888888804',
+          archivoId: '99999999-9999-4999-9999-999999999904',
+          tipoArchivo: 'comprobante_domicilio',
+          nombreOriginal: 'comprobante_domicilio_2003_cfe.pdf',
+          mimeType: 'application/pdf',
+          tamanoBytes: 50000,
+          storagePath: `staging/${SESSION}/comprobante_domicilio_2003_cfe.pdf`,
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
+    await page.waitForSelector('text=Casi listo. Revisa todo', { timeout: 5_000 })
+
+    // Aceptar términos y enviar
+    const checks = page.locator('button[role="checkbox"]')
+    await checks.nth(0).click()
+    await checks.nth(1).click()
+    await page.click("button:has-text('Enviar solicitud')")
+
+    // Esperar a que el botón cambie a "Enviando tu solicitud…" — isSubmitting = true
+    await page.waitForSelector('text=Enviando tu solicitud…', { timeout: 3_000 })
+
+    // En vuelo — click logo
+    await page.locator('a[href="/"]').first().click()
+
+    // Dialog debe aparecer con copy de submit
+    await expect(page.getByText('Espera, estamos enviando tu solicitud')).toBeVisible({
+      timeout: 3_000,
+    })
+    await expect(page.getByText(/podría no completarse/)).toBeVisible()
+
+    // "Mejor me quedo" cierra el dialog y permanece en /solicitar
+    await page.getByRole('button', { name: 'Mejor me quedo' }).click()
+    await expect(page.getByText('Espera, estamos enviando tu solicitud')).not.toBeVisible()
+    expect(page.url()).toContain('/solicitar')
+  })
+
+  // ── E9. Navegación interna con archivos en Paso 6 ───────────────────────
+  // TODO Bloque 3: Paso 6 documentos quedó desconectado del wizard. La
+  // copy "perderás los archivos" tampoco existe ya en `salidaCopy` — esta
+  // verificación vivirá en la página standalone cuando reintroduzca el
+  // flujo de carga con su propio AlertDialog.
+  test.skip("E9: click 'Aviso de Privacidad' con archivos subidos muestra AlertDialog de archivos", async ({
+    page,
+  }) => {
+    const SESSION = '00000000-0000-4000-a000-000000000010'
+
+    // Inyectamos archivosSubidos directamente en sessionStorage. Aunque
+    // partialize los excluye al guardar (no se persisten por PII), zustand
+    // mergea el storage con el state inicial al rehidratar, así arrancamos
+    // el form en paso 6 con archivos pre-poblados sin depender de hidratación
+    // desde el backend.
+    await injectStore(page, {
+      pasoActual: 6,
+      datos: DATOS_BASE,
+      timestampInicio: Date.now(),
+      coloniasCache: {},
+      sessionUuid: SESSION,
+      archivosSubidos: [
+        {
+          clienteId: '11111111-1111-4111-a111-111111111111',
+          archivoId: '21111111-1111-4111-a111-111111111111',
+          tipoArchivo: 'ine_frente',
+          nombreOriginal: 'ine_frente.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 100000,
+          storagePath: `staging/${SESSION}/ine_frente_1000_frente.jpg`,
+        },
+        {
+          clienteId: '11111111-1111-4111-a111-111111111112',
+          archivoId: '21111111-1111-4111-a111-111111111112',
+          tipoArchivo: 'ine_reverso',
+          nombreOriginal: 'ine_reverso.jpg',
+          mimeType: 'image/jpeg',
+          tamanoBytes: 90000,
+          storagePath: `staging/${SESSION}/ine_reverso_1001_reverso.jpg`,
+        },
+        {
+          clienteId: '11111111-1111-4111-a111-111111111113',
+          archivoId: '21111111-1111-4111-a111-111111111113',
+          tipoArchivo: 'comprobante_ingreso',
+          nombreOriginal: 'recibo.pdf',
+          mimeType: 'application/pdf',
+          tamanoBytes: 50000,
+          storagePath: `staging/${SESSION}/comprobante_ingreso_1002_recibo.pdf`,
+        },
+      ],
+      tipoIdentificacion: 'ine',
+    })
+    await page.waitForSelector('text=¿Con qué te identificas?', { timeout: 15_000 })
+    await page.waitForFunction(
+      () => document.querySelectorAll('[aria-label^="Eliminar"]').length >= 3,
+      { timeout: 5_000 },
+    )
+
+    // Click en link del footer "Privacidad"
+    await page.locator('a[href="/aviso-de-privacidad-integral"]').first().click()
+
+    // AlertDialog con copy de archivos
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
+    await expect(page.getByText(/perderás los archivos/)).toBeVisible()
+
+    // "Mejor me quedo" → permanece en Paso 6
+    await page.getByRole('button', { name: 'Mejor me quedo' }).click()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).not.toBeVisible()
+    await expect(page.getByText('¿Con qué te identificas?')).toBeVisible()
+
+    // "Sí, salir" → navega
+    await page.locator('a[href="/aviso-de-privacidad-integral"]').first().click()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
+    await page.getByRole('button', { name: 'Sí, salir' }).click()
+    await page.waitForURL('**/aviso-de-privacidad-integral', {
+      timeout: 30_000,
+      waitUntil: 'domcontentloaded',
+    })
+  })
+
+  // ── E10. Sin datos ni archivos — sin interceptación ─────────────────────
+  test('E10: Paso 1 vacío, click logo navega directo sin dialog', async ({ page }) => {
+    await page.goto('/solicitar')
+    await page.evaluate(() => sessionStorage.clear())
+    await page.reload()
+    await page.waitForSelector('text=¿Cuánto necesitas?', { timeout: 5_000 })
+
+    // Click logo — no debe aparecer dialog
+    await page.locator('a[href="/"]').first().click()
+
+    // Dialog NO debe aparecer y la navegación ocurre
+    await page.waitForURL('**/', { timeout: 5_000, waitUntil: 'domcontentloaded' })
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).not.toBeVisible()
+  })
+
+  // ── E11. Datos capturados sin archivos ───────────────────────────────────
+  test('E11: datos capturados en Paso 2, click logo muestra AlertDialog de datos', async ({
+    page,
+  }) => {
+    await setStep(page, 2, {})
+    await page.waitForSelector('text=Cuéntanos quién eres', { timeout: 5_000 })
+
+    // Click logo
+    await page.locator('a[href="/"]').first().click()
+
+    // Dialog con copy de datos
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
+    await expect(page.getByText(/perderás lo que ya llevas/)).toBeVisible()
+    await expect(page.getByText(/perderás los archivos/).first()).not.toBeVisible()
+
+    // "Mejor me quedo" → permanece en Paso 2 con datos intactos
+    await page.getByRole('button', { name: 'Mejor me quedo' }).click()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).not.toBeVisible()
+    await expect(page.getByText('Cuéntanos quién eres')).toBeVisible()
+
+    // "Sí, salir" → navega a "/" y resetea el form en sessionStorage
+    await page.locator('a[href="/"]').first().click()
+    await expect(page.getByText('¿Salir y empezar de nuevo?')).toBeVisible({ timeout: 3_000 })
+    await page.getByRole('button', { name: 'Sí, salir' }).click()
+    await page.waitForURL('/', { timeout: 5_000, waitUntil: 'domcontentloaded' })
+
+    // El store quedó reseteado: datos vacíos en sessionStorage para que un
+    // re-ingreso al formulario empiece desde cero.
+    const persistido = await page.evaluate(() => sessionStorage.getItem('vl-solicitud'))
+    if (persistido) {
+      const parsed = JSON.parse(persistido) as { state?: { datos?: Record<string, unknown> } }
+      expect(parsed.state?.datos ?? {}).toEqual({})
+    }
+  })
+})

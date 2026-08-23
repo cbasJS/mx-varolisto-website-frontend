@@ -1,49 +1,43 @@
-"use client";
+'use client'
 
-import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
-import { CTA_URL, NAVBAR_HEIGHT } from "@/lib/config";
-import { useScrolled } from "@/hooks/useScrolled";
-import { navLinks } from "@/content/nav";
-
-function scrollToSection(id: string) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const top = el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT;
-  window.scrollTo({ top, behavior: "smooth" });
-}
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { CTA_URL, OPAQUE_HEADER_ROUTES } from '@/lib/config'
+import { useScrolled } from '@/hooks/useScrolled'
+import { scrollToSection } from '@/lib/scroll'
+import { navLinks } from '@/content/nav'
+import BrandName from '@/components/layout/BrandName'
 
 export default function Navbar() {
-  const pathname = usePathname();
-  const isHome = pathname === "/";
-  const scrolled = useScrolled();
+  const pathname = usePathname()
+  const isHome = pathname === '/'
+  const scrolled = useScrolled()
 
-  const DARK_HEADER_ROUTES = ["/solicitar"];
-  const hasDarkHeader = DARK_HEADER_ROUTES.includes(pathname);
-  const logoColor = !scrolled && hasDarkHeader ? "text-white" : "text-primary";
+  const isOpaqueRoute = (OPAQUE_HEADER_ROUTES as readonly string[]).includes(pathname)
+  const logoColor = 'text-primary'
+  const opaque = isOpaqueRoute || scrolled
 
   return (
     <motion.header
       className={`fixed top-0 w-full z-50 transition-shadow duration-300 ${
-        scrolled
-          ? "bg-white/90 backdrop-blur-xl shadow-sm border-b border-surface-container"
-          : "bg-transparent"
+        opaque ? 'bg-white shadow-sm border-b border-gray-200' : 'bg-transparent'
       }`}
       initial={{ y: -64, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
     >
       <nav
         className="flex justify-between items-center px-6 py-4 max-w-5xl mx-auto"
         aria-label="Navegación principal"
       >
-        <a
+        <Link
           href="/"
           className={`text-xl md:text-2xl font-extrabold ${logoColor} font-headline tracking-tight`}
           aria-label="VaroListo.mx - Inicio"
         >
-          Varo<span className="text-secondary">Listo.mx</span>
-        </a>
+          <BrandName />
+        </Link>
 
         {isHome && (
           <div className="hidden md:flex gap-8 items-center">
@@ -63,12 +57,12 @@ export default function Navbar() {
           <a
             href={CTA_URL}
             className="bg-primary text-on-primary md:bg-secondary md:text-primary px-6 md:px-5 py-2 rounded-full font-headline font-bold text-sm hover:opacity-80 md:hover:opacity-100 md:hover:brightness-95 transition-opacity md:transition-all duration-150 active:scale-95"
-            aria-label="Solicitar préstamo ahora"
+            aria-label="Solicitar préstamo"
           >
-            Solicitar ahora
+            Solicitar préstamo
           </a>
         )}
       </nav>
     </motion.header>
-  );
+  )
 }

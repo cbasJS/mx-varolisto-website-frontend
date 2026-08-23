@@ -1,0 +1,7 @@
+# Lockfiles: generados, no escritos a mano.
+# `linguist-generated` los colapsa por default en los diffs de GitHub;
+# `-diff` evita que `git diff` los expanda en la terminal.
+# Siguen versionados a proposito: `pnpm install --frozen-lockfile` y el gate
+# de supply-chain de CI operan sobre ellos.
+pnpm-lock.yaml linguist-generated=true -diff
+skills-lock.json linguist-generated=true -diff

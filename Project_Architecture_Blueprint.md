@@ -2,7 +2,7 @@
 
 **Documento de Referencia Arquitectónica**  
 **Última actualización:** Abril 2026  
-**Versión:** 1.0  
+**Versión:** 1.0
 
 ---
 
@@ -82,26 +82,27 @@ mx-varolisto-website-frontend/
 
 ### Componentes Actuales (Análisis)
 
-| Componente | Tipo | Responsabilidad | Ubicación |
-|-----------|------|-----------------|-----------|
-| **Navbar** | Layout | Navegación superior | `components/` |
-| **Hero** | Sección | Portada con CTAs | `components/` |
-| **TrustCards** | Sección | Tarjetas de confianza (mobile) | `components/` |
-| **Benefits** | Sección | Listado de beneficios | `components/` |
-| **HowItWorks** | Sección | Proceso en 3 pasos | `components/` |
-| **MobileTestimonial** | Sección | Testimonio (mobile) | `components/` |
-| **Testimonials** | Sección | Grid de testimonios | `components/` (no usado) |
-| **FinalCTA** | Sección | CTA final (desktop) | `components/` |
-| **BottomNav** | Layout | Barra inferior (mobile) | `components/` |
-| **Footer** | Layout | Pie de página | `components/` |
-| **ScrollToTop** | Utilidad | Scroll restoration | `components/` |
+| Componente            | Tipo     | Responsabilidad                | Ubicación                |
+| --------------------- | -------- | ------------------------------ | ------------------------ |
+| **Navbar**            | Layout   | Navegación superior            | `components/`            |
+| **Hero**              | Sección  | Portada con CTAs               | `components/`            |
+| **TrustCards**        | Sección  | Tarjetas de confianza (mobile) | `components/`            |
+| **Benefits**          | Sección  | Listado de beneficios          | `components/`            |
+| **HowItWorks**        | Sección  | Proceso en 3 pasos             | `components/`            |
+| **MobileTestimonial** | Sección  | Testimonio (mobile)            | `components/`            |
+| **Testimonials**      | Sección  | Grid de testimonios            | `components/` (no usado) |
+| **FinalCTA**          | Sección  | CTA final (desktop)            | `components/`            |
+| **BottomNav**         | Layout   | Barra inferior (mobile)        | `components/`            |
+| **Footer**            | Layout   | Pie de página                  | `components/`            |
+| **ScrollToTop**       | Utilidad | Scroll restoration             | `components/`            |
 
 ### Dependencias de Configuración
 
 **lib/config.ts:**
+
 ```typescript
-export const CTA_URL = "https://forms.gle/FijHjFViHpu6wTKE7"  // Google Forms
-export const WHATSAPP_NUMBER = "+525650456534"
+export const CTA_URL = 'https://forms.gle/FijHjFViHpu6wTKE7' // Google Forms
+export const WHATSAPP_NUMBER = '+525650456534'
 export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`
 ```
 
@@ -117,6 +118,7 @@ Todos los CTAs apuntan a estos valores, lo que permite cambios centralizados.
 ### Configuración de Tailwind
 
 **Theme extendido:**
+
 - Paleta Material Design 3 (primary: #000666, secondary: #2ECC71)
 - Radio de bordes: mobile-friendly (.25rem a full)
 - Tipografía: Manrope (headlines) + Inter (body)
@@ -187,6 +189,7 @@ Todos los CTAs apuntan a estos valores, lo que permite cambios centralizados.
 ### Principios Arquitectónicos
 
 #### 1. Separation of Concerns
+
 - **Layout Components**: Navbar, Footer, BottomNav
 - **Section Components**: Hero, Benefits, CTA (contienen lógica de sección)
 - **UI Components**: Button, Input, Card (reutilizables, sin lógica)
@@ -194,16 +197,19 @@ Todos los CTAs apuntan a estos valores, lo que permite cambios centralizados.
 - **API**: Toda comunicación HTTP centralizada
 
 #### 2. Single Responsibility Principle
+
 - Cada componente tiene UNA razón para cambiar
 - Separar presentación de lógica
 - Hooks manejan estado y efectos
 
 #### 3. Dependency Injection
+
 - `lib/config.ts` inyecta URLs
 - `lib/api.ts` inyecta métodos HTTP
 - `hooks/useLeadForm.ts` inyecta validación
 
 #### 4. DRY (Don't Repeat Yourself)
+
 - Animaciones centralizadas en `lib/animations.ts`
 - Validación reutilizable en `lib/validation.ts`
 - Funciones HTTP en `lib/api.ts`
@@ -328,6 +334,7 @@ app/page.tsx
 #### Components Tier
 
 **Layout Tier:**
+
 ```
 components/layout/Navbar.tsx
 ├── State: scrolled (useEffect)
@@ -347,6 +354,7 @@ components/layout/BottomNav.tsx
 ```
 
 **Section Tier:**
+
 ```
 components/sections/Hero.tsx
 ├── Variants: container, fadeUp, fadeIn
@@ -364,6 +372,7 @@ components/sections/LeadForm.tsx (NEW)
 ```
 
 **UI Tier (Futura):**
+
 ```
 components/ui/Button.tsx (cuando ≥2 consumers)
 ├── Props: variant, size, loading, disabled
@@ -488,10 +497,7 @@ export interface ApiResponse<T = any> {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
 // Función genérica de fetch
-async function request<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<ApiResponse<T>> {
+async function request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
@@ -593,13 +599,16 @@ export function useLeadForm(): UseLeadFormReturn {
   const [submitted, setSubmitted] = useState(false)
   const [touched, setTouched] = useState<Record<string, boolean>>({})
 
-  const handleChange = useCallback((field: keyof Lead, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    // Limpiar error cuando el usuario empieza a escribir
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }))
-    }
-  }, [errors])
+  const handleChange = useCallback(
+    (field: keyof Lead, value: any) => {
+      setFormData((prev) => ({ ...prev, [field]: value }))
+      // Limpiar error cuando el usuario empieza a escribir
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }))
+      }
+    },
+    [errors],
+  )
 
   const handleBlur = useCallback((field: keyof Lead) => {
     setTouched((prev) => ({ ...prev, [field]: true }))
@@ -635,14 +644,13 @@ export function useLeadForm(): UseLeadFormReturn {
         }
       } catch (error) {
         setErrors({
-          submit:
-            error instanceof Error ? error.message : 'Error desconocido',
+          submit: error instanceof Error ? error.message : 'Error desconocido',
         })
       } finally {
         setLoading(false)
       }
     },
-    [formData]
+    [formData],
   )
 
   const reset = useCallback(() => {
@@ -1005,7 +1013,7 @@ export async function POST(request: NextRequest) {
             message: 'Faltan campos requeridos',
           },
         },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
@@ -1023,7 +1031,7 @@ export async function POST(request: NextRequest) {
           status: 'received',
         },
       },
-      { status: 201 }
+      { status: 201 },
     )
   } catch (error) {
     console.error('Error en POST /api/leads:', error)
@@ -1035,7 +1043,7 @@ export async function POST(request: NextRequest) {
           message: 'Error al procesar la solicitud',
         },
       },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }
@@ -1114,7 +1122,7 @@ const errors = validateLead(formData)
 
 // ✗ Evitar
 const errors = {}
-if (!formData.name) errors.name = "..."
+if (!formData.name) errors.name = '...'
 ```
 
 ---
@@ -1126,6 +1134,7 @@ if (!formData.name) errors.name = "..."
 **Status:** ADOPTADO
 
 **Contexto:**
+
 - Next.js 14 introduce App Router como estándar
 - Soporta Server Components y Route Handlers
 - Facilita futuras integraciones backend
@@ -1134,6 +1143,7 @@ if (!formData.name) errors.name = "..."
 Usar App Router en `/app` en lugar de Pages Router.
 
 **Consecuencias:**
+
 - ✓ Mejor rendimiento con Server Components
 - ✓ Route Handlers nativos para API
 - ⚠️ Requiere mayor familiaridad con React 18+
@@ -1143,11 +1153,13 @@ Usar App Router en `/app` en lugar de Pages Router.
 **Status:** ADOPTADO
 
 **Contexto:**
+
 - Componentes actualmente sin distinción de responsabilidad
 - Facilita reutilización y testing
 - Permite crecimiento ordenado
 
 **Decisión:**
+
 ```
 components/
 ├── layout/    # Navbar, Footer, BottomNav
@@ -1156,6 +1168,7 @@ components/
 ```
 
 **Consecuencias:**
+
 - ✓ Arquitectura escalable
 - ✓ Fácil localizar dónde agregar componentes
 - ⚠️ Requiere disciplina en la clasificación
@@ -1165,6 +1178,7 @@ components/
 **Status:** ADOPTADO
 
 **Contexto:**
+
 - Múltiples endpoints futuros (leads, quotes, auth)
 - Necesidad de manejo centralizado de errores
 - Facilita testing y cambios de URL
@@ -1173,6 +1187,7 @@ components/
 Crear `lib/api.ts` con funciones fetch tipadas para cada endpoint.
 
 **Consecuencias:**
+
 - ✓ Control centralizado de errores HTTP
 - ✓ URL base configurable vía env
 - ✓ Testing simplificado
@@ -1183,6 +1198,7 @@ Crear `lib/api.ts` con funciones fetch tipadas para cada endpoint.
 **Status:** ADOPTADO
 
 **Contexto:**
+
 - Múltiples formularios futuros
 - Validación reutilizable
 - State management consistente
@@ -1191,6 +1207,7 @@ Crear `lib/api.ts` con funciones fetch tipadas para cada endpoint.
 Patrón `useFormName()` para cada formulario principal con validación integrada.
 
 **Consecuencias:**
+
 - ✓ Lógica separada de UI
 - ✓ Validación reutilizable
 - ✓ Testing aislado
@@ -1201,6 +1218,7 @@ Patrón `useFormName()` para cada formulario principal con validación integrada
 **Status:** RECOMENDADO
 
 **Contexto:**
+
 - Múltiples componentes usan Framer Motion
 - Variantes repetidas en cada componente
 - Oportunidad de DRY
@@ -1209,6 +1227,7 @@ Patrón `useFormName()` para cada formulario principal con validación integrada
 Centralizar variantes comunes en `lib/animations.ts`.
 
 **Ejemplo implementación:**
+
 ```typescript
 // lib/animations.ts
 export const fadeUp: Variants = {
@@ -1226,6 +1245,7 @@ export const container: Variants = {
 ```
 
 **Consecuencias:**
+
 - ✓ Consistencia visual
 - ✓ Cambios globales fáciles
 - ✓ Archivo único de referencia
@@ -1236,6 +1256,7 @@ export const container: Variants = {
 **Status:** ADOPTADO
 
 **Contexto:**
+
 - tsconfig.json con strict: true
 - Lead form requiere validación en dos capas
 - Mejor documentación del código
@@ -1244,6 +1265,7 @@ export const container: Variants = {
 Uso exhaustivo de tipos, especialmente para datos de API y formularios.
 
 **Consecuencias:**
+
 - ✓ Errores detectados en build time
 - ✓ Mejor DX con autocompletar
 - ⚠️ Más verbosidad inicial
@@ -1254,6 +1276,7 @@ Uso exhaustivo de tipos, especialmente para datos de API y formularios.
 **Status:** RECOMENDADO
 
 **Contexto:**
+
 - Tipos compartidos entre múltiples módulos
 - Necesidad de versioning de API
 - Documentación centralizada
@@ -1284,6 +1307,7 @@ export interface ApiError {
 ```
 
 **Consecuencias:**
+
 - ✓ Tipos compartidos y versionados
 - ✓ Documentación integrada
 - ✓ Fácil cambios globales
@@ -1305,11 +1329,11 @@ export interface ApiError {
 
 **Criterios de clasificación:**
 
-| Nivel | Características | Ejemplos |
-|-------|-----------------|----------|
-| **layout/** | Estructura de página, header/footer, persistentes | Navbar, Footer, BottomNav |
-| **sections/** | Secciones de contenido, llamadas a acción, scroll targets | Hero, Benefits, LeadForm |
-| **ui/** | Átomos reutilizables SOLO cuando ≥2 componentes los usan | Button, Input, Card |
+| Nivel         | Características                                           | Ejemplos                  |
+| ------------- | --------------------------------------------------------- | ------------------------- |
+| **layout/**   | Estructura de página, header/footer, persistentes         | Navbar, Footer, BottomNav |
+| **sections/** | Secciones de contenido, llamadas a acción, scroll targets | Hero, Benefits, LeadForm  |
+| **ui/**       | Átomos reutilizables SOLO cuando ≥2 componentes los usan  | Button, Input, Card       |
 
 **Proceso:**
 
@@ -1377,6 +1401,7 @@ Feedback inmediato      Validación redundante
 #### Implementación:
 
 **lib/validation.ts:**
+
 ```typescript
 export function validateEmail(email: string): string | undefined {
   if (!email) return 'Email requerido'
@@ -1386,6 +1411,7 @@ export function validateEmail(email: string): string | undefined {
 ```
 
 **hooks/useLeadForm.ts:**
+
 ```typescript
 const errors = validateLead(formData)
 if (errors.email) {
@@ -1396,6 +1422,7 @@ if (errors.email) {
 ```
 
 **app/api/leads/route.ts:**
+
 ```typescript
 // Validación redundante server-side
 const validationErrors = validateLead(body)
@@ -1462,6 +1489,7 @@ NEXT_PUBLIC_CTA_URL=https://forms.gle/...
 ```
 
 **Uso en componentes:**
+
 ```typescript
 import { CTA_URL, WHATSAPP_URL } from '@/lib/config'
 
@@ -1490,10 +1518,10 @@ export function useFeature() {
 
 ```typescript
 // use[Feature][Concern]
-useLeadForm()         // Formulario de leads
-useScrolled()         // Estado de scroll
-useScrollRestoration()  // Restauración de scroll
-useFormValidation()   // Validación de formulario (genérico)
+useLeadForm() // Formulario de leads
+useScrolled() // Estado de scroll
+useScrollRestoration() // Restauración de scroll
+useFormValidation() // Validación de formulario (genérico)
 ```
 
 ### 6. Guía de Testing (Futuro)
@@ -1520,15 +1548,15 @@ describe('LeadForm', () => {
   it('should validate email on blur', () => {
     render(<LeadForm />)
     const emailInput = screen.getByLabelText('Email')
-    
+
     fireEvent.blur(emailInput)
-    
+
     expect(screen.getByText('Email requerido')).toBeInTheDocument()
   })
 
   it('should submit form with valid data', async () => {
     render(<LeadForm />)
-    
+
     fireEvent.change(screen.getByLabelText('Nombre'), {
       target: { value: 'John Doe' },
     })
@@ -1536,9 +1564,9 @@ describe('LeadForm', () => {
       target: { value: 'john@example.com' },
     })
     // ... más campos
-    
+
     fireEvent.click(screen.getByRole('button', { name: /solicitar/i }))
-    
+
     await waitFor(() => {
       expect(screen.getByText('¡Solicitud enviada!')).toBeInTheDocument()
     })
@@ -1557,11 +1585,13 @@ describe('LeadForm', () => {
 **Tareas:**
 
 1. Crear carpetas `components/layout`, `components/sections`
+
    ```bash
    mkdir -p components/{layout,sections,ui}
    ```
 
 2. Mover componentes existentes:
+
    ```bash
    # Layout tier
    mv components/Navbar.tsx components/layout/
@@ -1575,19 +1605,21 @@ describe('LeadForm', () => {
    ```
 
 3. Actualizar imports en `app/page.tsx`
+
    ```typescript
    // Antes
-   import Hero from "@/components/Hero"
+   import Hero from '@/components/Hero'
 
    // Después
-   import Hero from "@/components/sections/Hero"
+   import Hero from '@/components/sections/Hero'
    ```
 
 4. Crear `lib/animations.ts` y centralizar variantes
 5. Crear `types/index.ts` con interfaces comunes
 6. Crear `lib/validation.ts` (vacío, listo para formarios)
 
-**Verificación:** 
+**Verificación:**
+
 - `npm run build` sin errores
 - Visualmente sin cambios
 
@@ -1600,6 +1632,7 @@ describe('LeadForm', () => {
 **Tareas:**
 
 1. Crear `lib/api.ts` con funciones HTTP genéricas
+
    ```typescript
    export async function request<T>(...)
    export async function submitLead(lead: Lead)
@@ -1607,11 +1640,13 @@ describe('LeadForm', () => {
    ```
 
 2. Crear `app/api/leads/route.ts`
+
    ```typescript
    export async function POST(request: NextRequest)
    ```
 
 3. Crear `types/index.ts` con interfaces:
+
    ```typescript
    export interface Lead { ... }
    export interface ApiResponse<T> { ... }
@@ -1619,12 +1654,13 @@ describe('LeadForm', () => {
    ```
 
 4. Crear `lib/validation.ts` con esquemas:
+
    ```typescript
    export function validateLead(lead): ValidationErrors
    export function validateEmail(email): string | undefined
    ```
 
-5. Test: 
+5. Test:
    ```bash
    curl -X POST http://localhost:3000/api/leads \
      -H "Content-Type: application/json" \
@@ -1650,9 +1686,10 @@ describe('LeadForm', () => {
    - Estados: normal, validación, loading, success
 
 3. Agregar a `app/page.tsx`:
+
    ```typescript
    import LeadForm from '@/components/sections/LeadForm'
-   
+
    <LeadForm />
    ```
 
@@ -1670,11 +1707,13 @@ describe('LeadForm', () => {
 **Objetivo:** Extraer componentes reutilizables a `ui/`
 
 **Triggers para mover a UI:**
+
 - Componente se usa en 2+ lugares
 - Propiedades genéricas (props, variants)
 - Sin lógica de negocio
 
 **Ejemplos candidatos:**
+
 - `Button.tsx` (si se usa en LeadForm + otros)
 - `Input.tsx` (si se usa en LeadForm + auth form futuro)
 - `FormField.tsx` (wrapper de label + input + error)
@@ -1688,11 +1727,13 @@ describe('LeadForm', () => {
 **Tareas:**
 
 1. Actualizar `.env.local`:
+
    ```env
    NEXT_PUBLIC_API_URL=https://api.varolisto.mx
    ```
 
 2. Implementar en `app/api/leads/route.ts`:
+
    ```typescript
    // Guardar en BD
    // Enviar a backend
@@ -1711,38 +1752,45 @@ describe('LeadForm', () => {
 ## Implementar Nueva Sección: [NombreSección]
 
 ### 1. Analizar Requisitos
+
 - [ ] Especificación de diseño
 - [ ] Datos requeridos
 - [ ] Interactividad
 - [ ] Responsive design
 
 ### 2. Crear Componente
+
 - [ ] Crear `components/sections/[NombreSección].tsx`
 - [ ] Importar animaciones desde `lib/animations.ts`
 - [ ] Tipado con TypeScript
 - [ ] Accesibilidad (a11y)
 
 ### 3. Datos (si aplica)
+
 - [ ] Crear/actualizar `content/home.ts`
 - [ ] Tipado de datos en `types/index.ts`
 
 ### 4. Agregar a Página
+
 - [ ] Importar en `app/page.tsx`
 - [ ] Posicionar en orden correcto
 - [ ] Establecer `id` para scroll
 
 ### 5. Testing
+
 - [ ] Responsive en mobile (< 768px)
 - [ ] Responsive en desktop (≥ 768px)
 - [ ] Animaciones suave
 - [ ] Accesibilidad keyboard + screen reader
 
 ### 6. Performance
+
 - [ ] Lighthouse score > 90
 - [ ] Sin warnings en console
 - [ ] Bundle impact < 50KB
 
 ### 7. Documentación
+
 - [ ] Props documentados (JSDoc)
 - [ ] Ejemplo de uso
 - [ ] Variaciones (si aplica)
@@ -1754,33 +1802,39 @@ describe('LeadForm', () => {
 ## Implementar Nuevo Endpoint: POST /api/[recurso]
 
 ### 1. Tipos
+
 - [ ] Crear interfaz en `types/index.ts`
 - [ ] Interfaz Request
 - [ ] Interfaz Response
 
 ### 2. Validación
+
 - [ ] Agregar validador en `lib/validation.ts`
 - [ ] Validación client-side
 - [ ] Validación server-side (redundante)
 
 ### 3. Cliente
+
 - [ ] Crear función en `lib/api.ts`
 - [ ] Manejo de errores
 - [ ] Typing correcto
 
 ### 4. Servidor
+
 - [ ] Crear `app/api/[recurso]/route.ts`
 - [ ] Validación
 - [ ] Lógica de negocio
 - [ ] Logging
 
 ### 5. Testing
+
 - [ ] Test unitario (validación)
 - [ ] Test integración (endpoint)
 - [ ] Error cases
 - [ ] Success cases
 
 ### 6. Documentación
+
 - [ ] README.md actualizado
 - [ ] Ejemplo de uso
 - [ ] Posibles errores
@@ -1792,26 +1846,31 @@ describe('LeadForm', () => {
 ## Implementar Nuevo Hook: use[Feature]
 
 ### 1. Diseño
+
 - [ ] Responsabilidad única
 - [ ] Inputs (parámetros)
 - [ ] Outputs (return value)
 
 ### 2. Implementación
+
 - [ ] `hooks/use[Feature].ts`
 - [ ] TypeScript interface de return
 - [ ] JSDoc comentarios
 
 ### 3. Testing
+
 - [ ] `hooks/__tests__/use[Feature].test.ts`
 - [ ] Comportamiento normal
 - [ ] Edge cases
 - [ ] Cleanup (useEffect)
 
 ### 4. Documentación
+
 - [ ] Comentarios inline
 - [ ] Ejemplo de uso en README
 
 ### 5. Integración
+
 - [ ] Actualizar componentes que lo usan
 - [ ] Verificar que funciona
 ```
@@ -1820,17 +1879,17 @@ describe('LeadForm', () => {
 
 ## Resumen de Archivos a Crear
 
-| Archivo | Propósito | Prioridad |
-|---------|-----------|-----------|
-| `lib/api.ts` | HTTP centralizando | Alta |
-| `lib/animations.ts` | Variantes Motion | Media |
-| `lib/validation.ts` | Esquemas validación | Alta |
-| `types/index.ts` | Interfaces TypeScript | Alta |
-| `hooks/useLeadForm.ts` | Lógica formulario | Alta |
-| `components/sections/LeadForm.tsx` | UI formulario | Alta |
-| `app/api/leads/route.ts` | API endpoint | Alta |
-| `content/home.ts` | Data arrays | Baja |
-| `content/nav.ts` | Nav data | Baja |
+| Archivo                            | Propósito             | Prioridad |
+| ---------------------------------- | --------------------- | --------- |
+| `lib/api.ts`                       | HTTP centralizando    | Alta      |
+| `lib/animations.ts`                | Variantes Motion      | Media     |
+| `lib/validation.ts`                | Esquemas validación   | Alta      |
+| `types/index.ts`                   | Interfaces TypeScript | Alta      |
+| `hooks/useLeadForm.ts`             | Lógica formulario     | Alta      |
+| `components/sections/LeadForm.tsx` | UI formulario         | Alta      |
+| `app/api/leads/route.ts`           | API endpoint          | Alta      |
+| `content/home.ts`                  | Data arrays           | Baja      |
+| `content/nav.ts`                   | Nav data              | Baja      |
 
 ---
 
@@ -1844,12 +1903,14 @@ Este documento proporciona una **hoja de ruta clara** para:
 4. ✓ Mantener código escalable y mantenible
 
 **Próximos pasos:**
+
 1. Revisar y validar arquitectura con equipo
 2. Priorizar fases según capacidad
 3. Crear tickets de desarrollo
 4. Comenzar Fase 1 (refactorización base)
 
 **Referencias de Tecnología:**
+
 - [Next.js 14 Docs](https://nextjs.org/docs)
 - [React 18 Hooks](https://react.dev/reference/react)
 - [TypeScript](https://www.typescriptlang.org/docs/)

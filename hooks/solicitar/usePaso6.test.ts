@@ -1,0 +1,391 @@
+// @vitest-environment happy-dom
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import type { FileRejection } from 'react-dropzone'
+
+vi.mock('@/lib/solicitud/domain/solicitud/fileProcessor', () => ({
+  procesarArchivo: vi.fn(),
+}))
+
+import { usePaso6 } from './usePaso6'
+import { useSolicitudStore } from '@/lib/solicitud/store'
+import { procesarArchivo } from '@/lib/solicitud/domain/solicitud/fileProcessor'
+
+const procesarArchivoMock = procesarArchivo as unknown as ReturnType<typeof vi.fn>
+
+// Archivos representativos ya subidos a staging (hidratados desde sessionStorage)
+// CP 06600 = Col. Juárez, Cuauhtémoc, Ciudad de México
+const ARCHIVO_INE_FRENTE = {
+  clienteId: 'cliente-uuid-ine-frente-001',
+  tipoArchivo: 'ine_frente' as const,
+  nombreOriginal: 'ine_frente.jpg',
+  mimeType: 'image/jpeg',
+  tamanoBytes: 248_320,
+  storagePath: 'staging/session-06600/ine_frente.jpg',
+  archivoId: 'arch-uuid-ine-001',
+}
+
+const ARCHIVO_COMPROBANTE = {
+  clienteId: 'cliente-uuid-comp-001',
+  tipoArchivo: 'comprobante_ingreso' as const,
+  nombreOriginal: 'recibo_nomina_enero.jpg',
+  mimeType: 'image/jpeg',
+  tamanoBytes: 183_040,
+  storagePath: 'staging/session-06600/recibo_nomina_enero.jpg',
+  archivoId: 'arch-uuid-comp-001',
+}
+
+vi.mock('@/lib/solicitud/application/useCases/uploadFile', () => ({
+  solicitarUploadUrl: vi.fn(),
+  eliminarArchivoStaging: vi.fn().mockResolvedValue(undefined),
+}))
+
+const ARCHIVO_INE_REVERSO = {
+  clienteId: 'cliente-uuid-ine-reverso-001',
+  tipoArchivo: 'ine_reverso' as const,
+  nombreOriginal: 'ine_reverso.jpg',
+  mimeType: 'image/jpeg',
+  tamanoBytes: 231_200,
+  storagePath: 'staging/session-06600/ine_reverso.jpg',
+  archivoId: 'arch-uuid-ine-002',
+}
+
+const ARCHIVO_COMPROBANTE_2 = {
+  clienteId: 'cliente-uuid-comp-002',
+  tipoArchivo: 'comprobante_ingreso' as const,
+  nombreOriginal: 'recibo_nomina_febrero.jpg',
+  mimeType: 'image/jpeg',
+  tamanoBytes: 175_000,
+  storagePath: 'staging/session-06600/recibo_nomina_febrero.jpg',
+  archivoId: 'arch-uuid-comp-002',
+}
+
+const ARCHIVO_DOMICILIO = {
+  clienteId: 'cliente-uuid-dom-001',
+  tipoArchivo: 'comprobante_domicilio' as const,
+  nombreOriginal: 'recibo_luz.pdf',
+  mimeType: 'application/pdf',
+  tamanoBytes: 98_000,
+  storagePath: 'staging/session-06600/recibo_luz.pdf',
+  archivoId: 'arch-uuid-dom-001',
+}
+
+describe('usePaso6 — minComprobantes y puedeAvanzar', () => {
+  beforeEach(() => {
+    useSolicitudStore.setState({
+      archivosSubidos: [],
+      sessionUuid: 'session-06600-abc',
+      tipoIdentificacion: 'ine',
+      datos: { tipoActividad: 'empleado_formal' },
+    })
+  })
+
+  it('minComprobantes es 2 para empleado_formal', async () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(result.current.minComprobantes).toBe(2)
+  })
+
+  it('minComprobantes es 2 para negocio_propio', async () => {
+    useSolicitudStore.setState({ datos: { tipoActividad: 'negocio_propio' } })
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(result.current.minComprobantes).toBe(2)
+  })
+
+  it('puedeAvanzar es false con 1 comprobante aunque INE esté completa', async () => {
+    useSolicitudStore.setState({
+      archivosSubidos: [ARCHIVO_INE_FRENTE, ARCHIVO_INE_REVERSO, ARCHIVO_COMPROBANTE],
+    })
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    await waitFor(() => expect(result.current.entradas.length).toBeGreaterThan(0))
+    expect(result.current.puedeAvanzar).toBe(false)
+  })
+
+  it('puedeAvanzar es true con INE completa, 2 comprobantes y domicilio', async () => {
+    useSolicitudStore.setState({
+      archivosSubidos: [
+        ARCHIVO_INE_FRENTE,
+        ARCHIVO_INE_REVERSO,
+        ARCHIVO_COMPROBANTE,
+        ARCHIVO_COMPROBANTE_2,
+        ARCHIVO_DOMICILIO,
+      ],
+    })
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    await waitFor(() => expect(result.current.entradas.length).toBeGreaterThan(0))
+    expect(result.current.puedeAvanzar).toBe(true)
+  })
+
+  it('puedeAvanzar es false sin comprobante de domicilio aunque INE y comprobantes estén completos', async () => {
+    useSolicitudStore.setState({
+      archivosSubidos: [
+        ARCHIVO_INE_FRENTE,
+        ARCHIVO_INE_REVERSO,
+        ARCHIVO_COMPROBANTE,
+        ARCHIVO_COMPROBANTE_2,
+      ],
+    })
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    await waitFor(() => expect(result.current.entradas.length).toBeGreaterThan(0))
+    expect(result.current.puedeAvanzar).toBe(false)
+    expect(result.current.tieneDomicilio).toBe(false)
+  })
+})
+
+describe('usePaso6 — MIME types aceptados por dropzones', () => {
+  beforeEach(() => {
+    useSolicitudStore.setState({
+      archivosSubidos: [],
+      sessionUuid: 'session-06600-abc',
+      tipoIdentificacion: 'ine',
+      datos: { tipoActividad: 'empleado_formal' },
+    })
+  })
+
+  // Los 4 dropzones (comprobante, INE frente, INE reverso, pasaporte) deben aceptar
+  // los tres MIME types declarados como permitidos en shared-schemas: JPG, PNG y PDF.
+  // El listado es la fuente de verdad — react-dropzone serializa el accept como string
+  // separado por comas en el atributo HTML del input.
+  const dropzonesEsperados = [
+    'dropzoneComprobante',
+    'dropzoneIneFrente',
+    'dropzoneIneReverso',
+    'dropzonePasaporte',
+    'dropzoneDomicilio',
+  ] as const
+
+  for (const nombre of dropzonesEsperados) {
+    it(`${nombre} acepta image/jpeg, image/png y application/pdf`, () => {
+      const { result } = renderHook(() => usePaso6(vi.fn()))
+      const inputProps = result.current[nombre].getInputProps() as { accept?: string }
+      const accept = inputProps.accept ?? ''
+      expect(accept).toContain('image/jpeg')
+      expect(accept).toContain('image/png')
+      expect(accept).toContain('application/pdf')
+    })
+  }
+})
+
+describe('usePaso6 — hidratación desde sessionStorage', () => {
+  beforeEach(() => {
+    useSolicitudStore.setState({
+      archivosSubidos: [],
+      sessionUuid: 'session-06600-abc',
+      tipoIdentificacion: 'ine',
+      datos: { tipoActividad: 'empleado_formal' },
+    })
+  })
+
+  it('cuando el store ya tiene archivos al montar (rehydrated desde sessionStorage), las entradas se sincronizan al mapa', async () => {
+    // Simula el caso donde sessionStorage ya hidró el store antes del montaje del hook
+    useSolicitudStore.setState({
+      archivosSubidos: [ARCHIVO_INE_FRENTE, ARCHIVO_COMPROBANTE],
+    })
+
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    // Las entradas deben reflejar los archivos del store (sincronización desde sessionStorage)
+    await waitFor(() => {
+      expect(result.current.entradas.length).toBe(2)
+    })
+
+    const clienteIds = result.current.entradas.map((e) => e.clienteId)
+    expect(clienteIds).toContain(ARCHIVO_INE_FRENTE.clienteId)
+    expect(clienteIds).toContain(ARCHIVO_COMPROBANTE.clienteId)
+  })
+
+  it('cuando el store empieza vacío, las entradas también arrancan vacías', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    expect(result.current.entradas).toHaveLength(0)
+  })
+})
+
+describe('usePaso6 — estado para diálogo de errores y banner de warnings', () => {
+  beforeEach(() => {
+    useSolicitudStore.setState({
+      archivosSubidos: [],
+      sessionUuid: 'session-06600-abc',
+      tipoIdentificacion: 'ine',
+      datos: { tipoActividad: 'empleado_formal' },
+    })
+  })
+
+  it('dialogoErrores arranca como null (sin diálogo abierto)', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(result.current.dialogoErrores).toBeNull()
+  })
+
+  it('warningsArchivos arranca como arreglo vacío', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(result.current.warningsArchivos).toEqual([])
+  })
+
+  it('expone cerrarDialogoErrores y descartarWarnings como funciones', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(typeof result.current.cerrarDialogoErrores).toBe('function')
+    expect(typeof result.current.descartarWarnings).toBe('function')
+  })
+
+  it('cada dropzone expone onDropRejected como callback', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(typeof result.current.dropzoneIneFrente.onDropRejected).toBe('function')
+    expect(typeof result.current.dropzoneIneReverso.onDropRejected).toBe('function')
+    expect(typeof result.current.dropzonePasaporte.onDropRejected).toBe('function')
+    expect(typeof result.current.dropzoneComprobante.onDropRejected).toBe('function')
+    expect(typeof result.current.dropzoneDomicilio.onDropRejected).toBe('function')
+  })
+
+  it('al invocar onDropRejected con un archivo demasiado grande, dialogoErrores se puebla con el filename y un motivo legible', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    const rejections: FileRejection[] = [
+      {
+        file: new File([new Uint8Array(0)], 'foto_ine.heic', { type: 'image/heic' }),
+        errors: [{ code: 'file-invalid-type', message: 'tipo no soportado' }],
+      },
+    ]
+
+    act(() => {
+      result.current.dropzoneIneFrente.onDropRejected?.(rejections)
+    })
+
+    expect(result.current.dialogoErrores).not.toBeNull()
+    expect(result.current.dialogoErrores?.items).toHaveLength(1)
+    expect(result.current.dialogoErrores?.items[0].filename).toBe('foto_ine.heic')
+    expect(result.current.dialogoErrores?.items[0].reason).toMatch(/JPG|PNG|PDF/i)
+  })
+
+  it('cerrarDialogoErrores limpia el estado del diálogo', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    act(() => {
+      result.current.dropzoneIneFrente.onDropRejected?.([
+        {
+          file: new File([new Uint8Array(0)], 'a.xyz', { type: 'application/octet-stream' }),
+          errors: [{ code: 'file-invalid-type', message: '' }],
+        },
+      ])
+    })
+    expect(result.current.dialogoErrores).not.toBeNull()
+
+    act(() => {
+      result.current.cerrarDialogoErrores()
+    })
+    expect(result.current.dialogoErrores).toBeNull()
+  })
+})
+
+describe('usePaso6 — agregarConTipo async + procesamiento de archivos (Fase B)', () => {
+  beforeEach(() => {
+    useSolicitudStore.setState({
+      archivosSubidos: [],
+      sessionUuid: 'session-06600-abc',
+      tipoIdentificacion: 'ine',
+      datos: { tipoActividad: 'empleado_formal' },
+    })
+    procesarArchivoMock.mockReset()
+  })
+
+  it('expone procesando como Set inicialmente vacío', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(result.current.procesando).toBeInstanceOf(Set)
+    expect(result.current.procesando.size).toBe(0)
+  })
+
+  it('expone agregarConTipo como función', () => {
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+    expect(typeof result.current.agregarConTipo).toBe('function')
+  })
+
+  it('si procesarArchivo retorna ok=true, el archivo PROCESADO (no el original) se envía a upload', async () => {
+    const original = new File([new Uint8Array(1024)], 'ine.jpg', { type: 'image/jpeg' })
+    const procesado = new File([new Uint8Array(512)], 'ine.jpg', { type: 'image/jpeg' })
+    procesarArchivoMock.mockResolvedValue({ ok: true, file: procesado, warnings: [] })
+
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    await act(async () => {
+      await result.current.agregarConTipo([original], 'ine_frente')
+    })
+
+    expect(procesarArchivoMock).toHaveBeenCalledWith(original, 'identidad-ine')
+    await waitFor(() => {
+      const entrada = result.current.entradas.find((e) => e.tipoArchivo === 'ine_frente')
+      expect(entrada).toBeDefined()
+      expect(entrada?.file).toBe(procesado)
+    })
+  })
+
+  it('si procesarArchivo retorna ok=false, dialogoErrores se puebla y no se sube nada', async () => {
+    const original = new File([new Uint8Array(1024)], 'ine.heic', { type: 'image/heic' })
+    procesarArchivoMock.mockResolvedValue({
+      ok: false,
+      reason: { code: 'heic-no-soportado', mensaje: 'Tu iPhone guardó la foto en formato HEIC.' },
+    })
+
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    await act(async () => {
+      await result.current.agregarConTipo([original], 'ine_frente')
+    })
+
+    expect(result.current.dialogoErrores).not.toBeNull()
+    expect(result.current.dialogoErrores?.items[0].filename).toBe('ine.heic')
+    expect(result.current.dialogoErrores?.items[0].reason).toMatch(/HEIC/i)
+    // no entradas creadas
+    expect(result.current.entradas.filter((e) => e.tipoArchivo === 'ine_frente')).toHaveLength(0)
+  })
+
+  it('warnings del procesador se acumulan en warningsArchivos', async () => {
+    const file = new File([new Uint8Array(1024)], 'ine.jpg', { type: 'image/jpeg' })
+    procesarArchivoMock.mockResolvedValue({
+      ok: true,
+      file,
+      warnings: [{ code: 'blur-moderado', mensaje: 'La foto está un poco borrosa.' }],
+    })
+
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    await act(async () => {
+      await result.current.agregarConTipo([file], 'ine_frente')
+    })
+
+    expect(result.current.warningsArchivos).toHaveLength(1)
+    expect(result.current.warningsArchivos[0].filename).toBe('ine.jpg')
+    expect(result.current.warningsArchivos[0].mensaje).toMatch(/borrosa/i)
+  })
+
+  it('mapea cada tipoArchivo a su ContextoProcesamiento esperado', async () => {
+    const file = new File([new Uint8Array(100)], 'a.jpg', { type: 'image/jpeg' })
+    procesarArchivoMock.mockResolvedValue({ ok: true, file, warnings: [] })
+
+    useSolicitudStore.setState({
+      datos: { tipoActividad: 'empleado_formal' },
+      archivosSubidos: [],
+      sessionUuid: 'session-06600',
+      tipoIdentificacion: 'pasaporte',
+    })
+
+    const { result } = renderHook(() => usePaso6(vi.fn()))
+
+    await act(async () => {
+      await result.current.agregarConTipo([file], 'ine_frente')
+    })
+    expect(procesarArchivoMock).toHaveBeenLastCalledWith(expect.any(File), 'identidad-ine')
+
+    await act(async () => {
+      await result.current.agregarConTipo([file], 'pasaporte_principal')
+    })
+    expect(procesarArchivoMock).toHaveBeenLastCalledWith(expect.any(File), 'identidad-pasaporte')
+
+    await act(async () => {
+      await result.current.agregarConTipo([file], 'comprobante_ingreso')
+    })
+    expect(procesarArchivoMock).toHaveBeenLastCalledWith(expect.any(File), 'ingresos')
+
+    await act(async () => {
+      await result.current.agregarConTipo([file], 'comprobante_domicilio')
+    })
+    expect(procesarArchivoMock).toHaveBeenLastCalledWith(expect.any(File), 'domicilio')
+  })
+})
