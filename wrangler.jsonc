@@ -10,9 +10,16 @@
   },
   "observability": { "enabled": true, "head_sampling_rate": 1 },
 
+  // Sin subdominio *.workers.dev ni Preview URLs publicas:
+  // el sitio se sirve unicamente por los custom domains de cada ambiente.
+  "workers_dev": false,
+  "preview_urls": false,
+
   "env": {
     "sandbox": {
       "name": "varolisto-website-sandbox",
+      "workers_dev": false,
+      "preview_urls": false,
       "r2_buckets": [
         {
           "binding": "NEXT_INC_CACHE_R2_BUCKET",
@@ -22,6 +29,8 @@
     },
     "production": {
       "name": "varolisto-website-production",
+      "workers_dev": false,
+      "preview_urls": false,
       "r2_buckets": [
         {
           "binding": "NEXT_INC_CACHE_R2_BUCKET",
