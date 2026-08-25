@@ -26,6 +26,17 @@
           "bucket_name": "varolisto-website-cache-sandbox",
         },
       ],
+      // Rate limit de /api/colonias (proxy sin auth a COPOMEX, paquete prepagado).
+      // El binding no hereda del bloque raiz: hay que declararlo por ambiente, y
+      // con namespace_id distinto para que sandbox y produccion no compartan contador.
+      // `period` solo admite 10 o 60 segundos.
+      "ratelimits": [
+        {
+          "name": "RATE_LIMITER_COLONIAS",
+          "namespace_id": "1002",
+          "simple": { "limit": 10, "period": 60 },
+        },
+      ],
     },
     "production": {
       "name": "varolisto-website-production",
@@ -35,6 +46,17 @@
         {
           "binding": "NEXT_INC_CACHE_R2_BUCKET",
           "bucket_name": "varolisto-website-cache-prod",
+        },
+      ],
+      // Rate limit de /api/colonias (proxy sin auth a COPOMEX, paquete prepagado).
+      // El binding no hereda del bloque raiz: hay que declararlo por ambiente, y
+      // con namespace_id distinto para que sandbox y produccion no compartan contador.
+      // `period` solo admite 10 o 60 segundos.
+      "ratelimits": [
+        {
+          "name": "RATE_LIMITER_COLONIAS",
+          "namespace_id": "1001",
+          "simple": { "limit": 10, "period": 60 },
         },
       ],
     },
