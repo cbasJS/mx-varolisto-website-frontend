@@ -1,11 +1,25 @@
+import { getCloudflareContext } from '@opennextjs/cloudflare'
 import { NextRequest, NextResponse } from 'next/server'
 import { env } from '@/lib/env'
 import { baseUrls } from '@/lib/solicitud/infrastructure/config/apiConfig'
+import { dentroDelLimite, type RateLimiter } from '@/lib/solicitud/infrastructure/rateLimit'
 import type { CopomexResponse } from '@/lib/solicitud/types'
 
 export type { CopomexResponse }
 
 const CP_REGEX = /^\d{5}$/
+
+/** El binding solo existe sobre workerd; con `next dev` viene undefined y se falla abierto. */
+function obtenerLimiter(): RateLimiter | undefined {
+  try {
+    const { env: bindings } = getCloudflareContext() as {
+      env: { RATE_LIMITER_COLONIAS?: RateLimiter }
+    }
+    return bindings.RATE_LIMITER_COLONIAS
+  } catch {
+    return undefined
+  }
+}
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const cp = request.nextUrl.searchParams.get('cp') ?? ''
@@ -14,6 +28,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(
       { error: 'El parámetro cp debe ser un número de 5 dígitos.' },
       { status: 400 },
+    )
+  }
+
+  // Despues de validar el CP: rechazar un CP malformado no cuesta una llamada a
+  // COPOMEX, asi que no tiene por que gastar cuota del limiter.
+  if (!(await dentroDelLimite(obtenerLimiter(), request))) {
+    return NextResponse.json(
+      { error: 'Demasiadas consultas. Espera un momento e intenta de nuevo.' },
+      { status: 429 },
     )
   }
 
